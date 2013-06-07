@@ -29,7 +29,7 @@ void read_file (std::string input,std::string output)
 
 }
 
-void avarage (std::string input, std::string output) 
+void average (std::string input, std::string output) 
 {
 
 	std::ifstream file_input (input.c_str ()); //arquivo entrada
@@ -58,6 +58,12 @@ void avarage (std::string input, std::string output)
 
 	file_input.close ();
 	file_output.close ();
+
+}
+
+void median (std::string input, std::string output) {
+
+
 
 }
 
