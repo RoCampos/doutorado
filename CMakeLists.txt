@@ -41,6 +41,7 @@ include_directories (include lib)
 add_subdirectory (algorithm)
 add_subdirectory (network)
 add_subdirectory (sttree)
+add_subdirectory (statistics)
 
 INSTALL (FILES CMakeLists.txt DESTINATION .)
 INSTALL (DIRECTORY include lib DESTINATION .)

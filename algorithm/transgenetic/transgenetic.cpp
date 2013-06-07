@@ -301,6 +301,6 @@ void Transgenetic::bestInfo () {
 
 	cout << m_population[m_best].getCost () << endl;
 
-	cout << "Has Improved: " << hasImproved << endl;
+	//cout << "Has Improved: " << hasImproved << endl;
 
 }
