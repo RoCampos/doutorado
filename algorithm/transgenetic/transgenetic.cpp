@@ -38,6 +38,8 @@ bool Transgenetic::update (int pos, SteinerTree & st) {
 		m_best = pos;
 		m_population[pos] = st;
 
+		hasImproved++;
+
 		return true;
 	} else if (st.getCost () < m_population[pos].getCost () ) {
 		m_population[pos] = st;
@@ -298,5 +300,7 @@ void Transgenetic::run6 (int generation) {
 void Transgenetic::bestInfo () {
 
 	cout << m_population[m_best].getCost () << endl;
+
+	cout << "Has Improved: " << hasImproved << endl;
 
 }

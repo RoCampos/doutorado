@@ -59,7 +59,8 @@ private:
 	int m_best;
 	double m_cost;
 
-};
+	int hasImproved;
 
+};
 
 #endif /*_TRANSGENETIC_H_*/
