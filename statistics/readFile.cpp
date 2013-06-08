@@ -62,7 +62,7 @@ void average (std::string input, std::string output)
 }
 
 //implementação considerando apenas 20 execuções
-void median (std::string input, std::string output) {
+void median (std::string input, std::string output, int sample) {
 
 	std::ifstream file_input (input.c_str ()); //arquivo entrada
 	std::ofstream file_output (output.c_str ()); //arquivo saida.
@@ -80,13 +80,19 @@ void median (std::string input, std::string output) {
 
 		count++;
 
-		if (count == 20 ) {
+		if (count == sample ) {
 	
 			std::sort ( values.begin (), values.end () );
 
-			_values = values[9] + values[10];
+			if ( sample % 2 == 0 ) {
+				int pos = (sample / 2) - 1;
+				_values = values[pos] + values[ pos + 1];
 
-			file_output << (double)(_values/2)  << endl;
+				file_output << (double)(_values/2)  << endl;
+
+			} else {
+				file_output << values [ (sample / 2 ) + 1 ]  << endl;
+			}
 			count = 0;
 
 		}

@@ -17,7 +17,7 @@ void average (std::string input, std::string output);
 
 //generate a file with the median for n runs of an 
 //algorithm or a configuration
-void median (std::string input, std::string output);
+void median (std::string input, std::string output, int sample);
 
 #endif 
 
