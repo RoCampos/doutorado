@@ -22,6 +22,7 @@ CPack*;
 cmake_install*;
 CMakeCache*;
 install*;
+results;
 ) 
 INCLUDE(CPack)
 

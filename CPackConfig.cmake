@@ -75,7 +75,7 @@ SET(CPACK_RESOURCE_FILE_WELCOME "/usr/share/cmake-2.8/Templates/CPack.GenericWel
 SET(CPACK_SET_DESTDIR "OFF")
 SET(CPACK_SOURCE_CYGWIN "")
 SET(CPACK_SOURCE_GENERATOR "TGZ")
-SET(CPACK_SOURCE_IGNORE_FILES "_CPack_Packages;doutorado*;CMakeFiles;CPack*;cmake_install*;CMakeCache*;install*")
+SET(CPACK_SOURCE_IGNORE_FILES "_CPack_Packages;doutorado*;CMakeFiles;CPack*;cmake_install*;CMakeCache*;install*;results")
 SET(CPACK_SOURCE_OUTPUT_CONFIG_FILE "/home/romerito/workspace/Doutorado/TAtoST/CPackSourceConfig.cmake")
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "doutorado-0.1.0")
 SET(CPACK_SOURCE_TBZ2 "")
