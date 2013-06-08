@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <algorithm>
 
 //adiciona resultas ao final do arquivo
 //o arquivo de saide consiste de uma coluna com os

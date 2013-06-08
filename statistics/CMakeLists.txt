@@ -18,6 +18,9 @@ target_link_libraries (leitor statistical)
 add_executable (media mean.cpp)
 target_link_libraries (media statistical)
 
+add_executable (mediana median.cpp)
+target_link_libraries (mediana statistical)
+
 INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION statistics)
 
 #install (TARGETS graph
