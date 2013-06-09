@@ -24,6 +24,9 @@ target_link_libraries (transgenetic4 graph sttree heuristic)
 add_executable (transgenetic5 transgenetic.cpp version5.cpp ${HEUR_SRC})
 target_link_libraries (transgenetic5 graph sttree heuristic)
 
+add_executable (transgenetic6 transgenetic.cpp version6.cpp ${HEUR_SRC})
+target_link_libraries (transgenetic6 graph sttree heuristic)
+
 #INSTALL(TARGETS transgenetic
 #       RUNTIME
 #        DESTINATION bin

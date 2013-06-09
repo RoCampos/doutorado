@@ -105,3 +105,23 @@ void median (std::string input, std::string output, int sample) {
 	file_output.close ();
 }
 
+int min (std::string input) {
+
+	std::ifstream file_input (input.c_str ()); //arquivo entrada
+
+	std::vector<double> values;
+
+	std::string text;
+	while ( file_input.good () ) {
+		file_input >> text;
+		values.push_back ( atof( text.c_str() ) );
+	}
+
+	sort (values.begin (), values.end ());
+
+	file_input.close ();
+
+	return values[0];
+
+}
+

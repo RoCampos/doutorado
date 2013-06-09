@@ -46,7 +46,10 @@ public:
 	void run3 (int, double); //aplica 2 with a probality	
 	void run4 (int, double); //aplica plasmidio3 com prob
 	void run5 (int); //aplica plasmidio recombinado
-	void run6 (int);
+
+	//a probalidade é para o plasmidio3 ().
+	void run6 (int, double); //aplica plasmidio3() e plasmidioRecombinado(); e plasmidio2 ()
+	
 
 	void bestInfo ();
 	

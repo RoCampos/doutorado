@@ -21,7 +21,7 @@ int main (int argc, char** argv) {
 	//function from heuristic
 	init (net,&terminals);
 
-	Transgenetic TA(100);
+	Transgenetic TA(60);
 
 	std::string host(argv[2]);
 	read_path (host);
@@ -29,8 +29,8 @@ int main (int argc, char** argv) {
 	clock_t t1, t2;	
 	TA.initialization ();
 
-    t1 = clock ();    
-    TA.run6 (100);
+	t1 = clock ();    
+	TA.run6 (300,0.6);
 	t2 = clock ();
 	cout << " R:";
 	cout << (double)(t2 - t1) / CLOCKS_PER_SEC * 1000 << " ms";

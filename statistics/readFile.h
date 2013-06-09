@@ -19,6 +19,8 @@ void average (std::string input, std::string output);
 //algorithm or a configuration
 void median (std::string input, std::string output, int sample);
 
+int min (std::string input);
+
 #endif 
 
 

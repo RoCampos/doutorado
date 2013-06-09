@@ -50,6 +50,14 @@ bool Transgenetic::update (int pos, SteinerTree & st) {
 	return false;
 }
 
+/**
+*
+*  Este plasmidio consiste em sortear 2 terminais em seguida
+* sortear um caminho entre os dois terminais. Este caminho é
+* inserido na solução.
+*
+*
+**/
 void Transgenetic::plasmidio (int pos) {
 
 	int t1 = rand () % m_terminals->getSize ();
@@ -83,6 +91,12 @@ void Transgenetic::plasmidio (int pos) {
 	
 }
 
+/**
+* Este plamidio é semelhante ao anterior.
+* Sorteia-se dois terminais. Em seguida, aplica-se
+* todos os caminhos entre estes dois terminais a um 
+* indivíduo.
+*/
 void Transgenetic::plasmidio2 (int pos) {
 
 	//getting the paths
@@ -115,6 +129,14 @@ void Transgenetic::plasmidio2 (int pos) {
 	}		
 }
 
+
+/**
+*		
+*	Igual ao 2, mas guarda os melhores caminhos.
+*
+*
+*
+*/
 void Transgenetic::plasmidio3 (int pos) {
 
 	int t1 = rand () % m_terminals->getSize ();
@@ -146,6 +168,14 @@ void Transgenetic::plasmidio3 (int pos) {
 
 }
 
+/*
+* Cria um pedaço de solução da seguinte forma:
+* Escolhe um vértice de Steiner e dois terminais.
+* Cria-se dois caminhos entre o vértice de Steiner
+* e os dois terminais. Um caminho saindo vértice para cada
+* um dos terminais. Este caminho são juntados e adicionados
+* a solução.
+*/
 void Transgenetic::plasmidioRecombinado (int pos) {
 
 
@@ -282,16 +312,53 @@ void Transgenetic::run5 (int generation) {
 
 }
 
-void Transgenetic::run6 (int generation) {
+void Transgenetic::run6 (int generation, double prob) {
 
 	createPopulation ();
 	while (generation-- > 0) {
+	
 
-		for (unsigned int i=0; i < m_population.size (); i++) {
+		unsigned int size = m_population.size () / 3;
 
-			double prob = (double)((rand () % 10 + 1)/10);
-			if (prob < 0.3)
-				transposson (i);
+		for (unsigned int i=0; i < m_population.size (); i++)	{
+
+
+			if (i < size) {
+				int prob_res = rand () % 10 + 1; 
+				prob_res = (double)prob_res/10;
+				if (prob_res < prob)			
+					plasmidio3 (i);
+				else {
+
+					std::vector<rca::Link> edges;
+					getEdgesFromIndividual (m_population[i], edges);
+
+					//usando melhores arestas	
+					getPathsFromSet (m_best_paths, edges);
+
+					std::sort (edges.begin (), edges.end());
+	
+					SteinerTree st ( 1 , m_network->getNumberNodes() );
+					initSolution (&st); //from heuristic.h
+	
+					createSolution (st, edges);	//from heuristic.h
+
+					update ( i , st );
+
+				}		
+
+			}
+
+			if (i > size && i < 2*size ) {
+				
+				plasmidioRecombinado (i);
+			}
+
+			if (i > 2*size) {
+				
+				plasmidio2 (i);
+			}
+
 		}
 	}
 
