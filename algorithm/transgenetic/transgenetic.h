@@ -49,7 +49,8 @@ public:
 
 	//a probalidade é para o plasmidio3 ().
 	void run6 (int, double); //aplica plasmidio3() e plasmidioRecombinado(); e plasmidio2 ()
-	
+
+	SteinerTree getIndividual (int pos){return m_population[pos];}
 
 	void bestInfo ();
 	

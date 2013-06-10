@@ -14,17 +14,14 @@
 */
 int main (int argc, char** argv) {
 
-	long int t = time (NULL);
-	srand (t);
+	srand (time(NULL));
 
-/*
 	if (argc < 5) {
 		cout << argc << endl;
 		cout << "*** argumentos: \n* argv[1] instância\n* argv[2] info_a_priori\n* argv[3] pop_size\n";
 		cout << "* argv[4] generation\n";
 		exit (1);
 	}
-*/
 
 	
 	/*Reading informations of instance*/
@@ -35,16 +32,28 @@ int main (int argc, char** argv) {
 	rca::Group terminals = reader.terminalsAsGroup ();	
 
 	terminals.addMember (terminals.getSource () );
-	
-	init (net, &terminals);
+
+	//function from heuristic
+	init (net,&terminals);
 
 	std::string pop_size (argv[3]);
 	Transgenetic TA( atoi( pop_size.c_str() ) );
 	
-	read_path (argv[2]);		
+	read_path (argv[2]);	
+	
 	TA.initialization ();
 
+	std::string gen (argv[4]); //generations
+
+	clock_t t1, t2;
+    t1 = clock ();    
+    TA.run ( atoi (gen.c_str () ) );
+	t2 = clock ();
+	cout << " R:";
+	cout << (double)(t2 - t1) / CLOCKS_PER_SEC * 1000 << " ms";
 	
-	
+	cout << " B:";
+	TA.bestInfo ();
+
 	return 0;
 }

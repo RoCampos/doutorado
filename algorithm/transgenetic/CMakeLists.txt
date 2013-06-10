@@ -9,7 +9,7 @@ CMakeCache*;
 
 FILE (GLOB HEU_SRC heuristic/*.h)
 
-add_executable (transgenetic1 transgenetic.cpp main.cpp ${HEU_SRC})
+add_executable (transgenetic1 transgenetic.cpp version1.cpp ${HEU_SRC})
 target_link_libraries (transgenetic1 graph sttree heuristic)
 
 add_executable (transgenetic2 transgenetic.cpp version2.cpp ${HEUR_SRC})
@@ -26,6 +26,9 @@ target_link_libraries (transgenetic5 graph sttree heuristic)
 
 add_executable (transgenetic6 transgenetic.cpp version6.cpp ${HEUR_SRC})
 target_link_libraries (transgenetic6 graph sttree heuristic)
+
+add_executable (teste transgenetic.cpp main.cpp ${HEUR_SRC})
+target_link_libraries (teste graph sttree heuristic)
 
 #INSTALL(TARGETS transgenetic
 #       RUNTIME
