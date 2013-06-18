@@ -5,11 +5,17 @@ rca::Group * m_terminals = NULL;
 std::vector<SteinerNode> _nodes;
 std::vector<double> objs;
 std::vector< std::vector< PathList > > m_host;
+std::map<int,int> m_term_index;
 
 void init (rca::Network * net, rca::Group * term) {
 	
 	m_network = net;
 	m_terminals = term;
+
+	//mapping terminals to index	
+	for (int i=0; i < m_terminals->getSize (); i++) {
+		m_term_index[m_terminals->getMember (i)-1] = i;
+	}
 
 	int NODES = m_network->getNumberNodes ();
 	_nodes = std::vector<SteinerNode>(NODES, SteinerNode(0,0,false));
@@ -73,7 +79,10 @@ void createSolution (SteinerTree * st) {
 		//decremento para trabalhar com valores no graph
 		w = *it - 1;
 		
-		rca::Path path = shortest_path (v,w,m_network);
+		//rca::Path path = shortest_path (v,w,m_network);
+		int _v = m_term_index[v];
+		int _w = m_term_index[w];
+		rca::Path path = m_host[_v][_w][0];
 		for (unsigned int i=0; i < path.size () -1; i++) {
 			int v = path[i];
 			int w = path[i+1];
