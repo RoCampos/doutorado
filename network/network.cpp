@@ -160,7 +160,7 @@ bool Network::isConnected() {
 	return (disjointSet.getSize () == 1);
 }
 
-bool Network::isConnected () {
+bool Network::isConnected2 () {
 	
 	DisjointSet2 disjointSet (m_nodes);
 
