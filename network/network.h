@@ -225,6 +225,13 @@ public:
 	 */
 	bool isConnected ();
 
+
+	/**
+	* Método para verificar se os terminais estão conectados entre si.
+	* 
+	*/
+	bool isConnected2 ();
+
 	/**
 	 * Método que retorna os links já ordenados.
 	 * Os links são ordenados em ordem crescentes por
