@@ -160,6 +160,12 @@ bool Network::isConnected() {
 	return (disjointSet.getSize () == 1);
 }
 
+bool Network::isConnected () {
+	
+	DisjointSet2 disjointSet (m_nodes);
+
+}
+
 void Network::showRemovedEdges() {
 
 	std::vector<Link>::const_iterator it = m_removeds.begin();
