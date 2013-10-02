@@ -36,7 +36,7 @@ void createSolution (SteinerTree *);
 //cria uma solução a partir de uma lista ordenada de arestas.
 void createSolution (SteinerTree &, std::vector<rca::Link>&);
 
-//get the edges this individual
+//get the edges from this individual st
 void getEdgesFromIndividual (SteinerTree & st, std::vector<rca::Link>&);
 
 //get the edges from 
@@ -46,7 +46,7 @@ void getEdgesFromPaths (int t1, int t2, int path, std::vector<rca::Link>&);
 void getPathsFromSet (std::set<rca::Path> &, std::vector<rca::Link> &);
 
 //cria matriz terminal x terminal, onde cada celular
-//armazena uma lista de caminho entre os terminais
+//armazena uma lista de caminhoa entre os terminais
 void initHostInfo (int K);
 
 //store and read paths from a file

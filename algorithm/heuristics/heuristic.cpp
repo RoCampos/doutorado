@@ -7,6 +7,14 @@ std::vector<double> objs;
 std::vector< std::vector< PathList > > m_host;
 std::map<int,int> m_term_index;
 
+/**
+* Esta função é utilizada para inicializar as variáveis 
+* utilizadas no algoritmo.
+* 
+* Variáveis auxiliares são inicializadas:
+* 	- _nodes(lista de steiner nodes) = variável utilizada para cópia de vector em tempo constante
+* 	- m_term_index = mapeia nó terminal real para indice. Facilita na recuperação e persitência dos paths.
+*/
 void init (rca::Network * net, rca::Group * term) {
 	
 	m_network = net;
@@ -34,6 +42,12 @@ void init (rca::Network * net, rca::Group * term) {
 	}
 }
 
+/**
+ * Método para iniciar a população.
+ * Consiste em adicionar os nós de steiner a árvore de steiner.
+ * Definir a quantidade de objetivos.
+ * 
+ */
 void initPopulation (int size, std::vector<SteinerTree> & population) 
 {
 
@@ -45,12 +59,25 @@ void initPopulation (int size, std::vector<SteinerTree> & population)
 
 }
 
+/**
+ * 
+ * Método recebe um ponteito para um objeto to tipo SteinerTree
+ * e inicializa os atributos _nodes(lista de nós) e o número
+ * de objetivos.
+ * 
+ */
 void initSolution (SteinerTree * st) 
 {
+	//teoricamente é feito em tempo constante O(1)
 	st->setTempStructures (objs,_nodes);
 
 }
 
+/**
+ * Método utilizado para criar um árvore de Steiner.
+ * Uma variáção do algoritmo de takahashi e Matsuyama.
+ * 
+ */
 void createSolution (SteinerTree * st) {
 
 	//quantidade de nós
@@ -103,7 +130,11 @@ void createSolution (SteinerTree * st) {
 
 }
 
-//cria uma solução a partir de uma lista ordenada de arestas.
+/**
+ * Método utilizado para criar um árvore de Steiner a partir
+ * de uma lista de aresta.
+ * 
+ */
 void createSolution (SteinerTree & st, std::vector<rca::Link>& edges)
 {
 	DisjointSet2 disset( m_network->getNumberNodes() );
@@ -122,6 +153,11 @@ void createSolution (SteinerTree & st, std::vector<rca::Link>& edges)
 	st.prunning ();
 }
 
+/**
+ * Método utilizado para retornar todas as arestas de um indivíduo.
+ * 
+ * 
+ */
 void getEdgesFromIndividual (SteinerTree & st, std::vector<rca::Link>& edges)
 {
 
@@ -139,6 +175,11 @@ void getEdgesFromIndividual (SteinerTree & st, std::vector<rca::Link>& edges)
 	}	
 }
 
+/**
+ * Obtém arestas do caminho path entre dois terminais t1, t2.
+ * As arestas são adicionadas a lista edges.
+ * 
+ */
 void getEdgesFromPaths (int t1, int t2, int path, 
 						std::vector<rca::Link>& edges)
 {
@@ -286,7 +327,7 @@ void read_path (std::string file) {
 					m_host[i][j].push_back (path);
 											
 				}
-				_file >> info; //end				
+				_file >> info; //end
 			}
 		}		
 	}	
