@@ -250,6 +250,11 @@ void initHostInfo (int K = 10) {
 	}
 }
 
+/**
+ * Este método computa os path_size caminhos entre
+ * dois terminais.
+ * 
+ */
 void addHostInfo (int t1, int t2, int path_size) {
 	
 	//exit the program with the test is true
@@ -264,8 +269,14 @@ void addHostInfo (int t1, int t2, int path_size) {
 	}
 	
 	//getting the terminals
-	int i = m_term_index[m_terminals->getMember (t1-1)];
-	int j = m_term_index[m_terminals->getMember (t2-1)];
+	/**
+	 * Os parâetros t1 e t2 são os valores dos nós reais.
+	 * t1-1 é necesário pois os nós são representados de 0 até n-1.
+	 * Os indices i e j são as associações de t1 e t2 na matriz 
+	 * de terminais.
+	 */
+	int i = m_term_index[t1-1];
+	int j = m_term_index[t2-1];
 	
 	if (m_host[i][j].size () > 0) {
 		return; //não necessidade de criar caminhos já existem
@@ -273,15 +284,21 @@ void addHostInfo (int t1, int t2, int path_size) {
 	
 	KShortestPath kpaths(m_network);
 		
-	kpaths.init ( m_terminals->getMember (t1-1), m_terminals->getMember(t2 -1) );
+	kpaths.init ( t1-1, t2-1 );
 	int count = path_size;
 	
+	cout << i << " " << j << endl;
+	 
 	while (kpaths.hasNext () && --count >= 0) {
 		
 		rca::Path path = kpaths.next ();
 		cout << path << endl;
 		m_host[i][j].push_back (path);
 		m_host[i][j].push_back (path);
+	}
+	
+	for (auto it = m_term_index.begin (); it != m_term_index.end (); it++) {
+		cout << (*it).first <<" "<<(*it).second << endl;
 	}
 	
 }

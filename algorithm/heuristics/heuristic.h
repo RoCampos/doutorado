@@ -14,9 +14,14 @@ typedef std::vector<rca::Path> PathList;
 
 extern rca::Network * m_network;
 extern rca::Group * m_terminals;
-extern std::map<int,int> m_term_index; //mapeia do nó real para index
 extern std::vector<SteinerNode> _nodes;
 extern std::vector<double> objs;
+
+/**
+ * O chave é o nó original -1.
+ * O valor é o index
+ */
+extern std::map<int,int> m_term_index; //mapeia do nó real para index
 
 //caminho entre os terminais, banco de informação
 extern std::vector< std::vector< PathList > > m_host;
