@@ -250,6 +250,12 @@ void initHostInfo (int K = 10) {
 	}
 }
 
+void addHostInfo (int t1, int t2, int path_size) {
+	
+		
+}
+
+
 void write_path (std::string file) {
 
 	std::ofstream _file (file.c_str() , std::ofstream::out );

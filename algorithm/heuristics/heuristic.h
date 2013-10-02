@@ -49,6 +49,10 @@ void getPathsFromSet (std::set<rca::Path> &, std::vector<rca::Link> &);
 //armazena uma lista de caminhoa entre os terminais
 void initHostInfo (int K);
 
+//Este método cria n_paths entre t1, t2.
+//isto é feito sob demanda, durante a execução do algoritmo
+void addHostInfo (int t1, int t2, int path_size);
+
 //store and read paths from a file
 void write_path (std::string file); //write to a file
 void read_path (std::string file); //read from a file
