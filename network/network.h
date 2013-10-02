@@ -228,7 +228,8 @@ public:
 
 	/**
 	* Método para verificar se os terminais estão conectados entre si.
-	* 
+	* Este Método permite que haja nós na rede que não estão conectados,
+	* É necessário verificar apenas se os terminais estão conecetados.
 	*/
 	bool isConnected2 ();
 
