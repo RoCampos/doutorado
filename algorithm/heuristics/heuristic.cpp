@@ -21,8 +21,8 @@ void init (rca::Network * net, rca::Group * term) {
 	m_terminals = term;
 
 	//mapping terminals to index	
-	for (int i=0; i < m_terminals->getSize (); i++) {
-		m_term_index[m_terminals->getMember (i)-1] = i;
+	for (int i=0; i < m_terminals->getSize (); i++) {		
+		m_term_index[ m_terminals->getMember (i)-1 ] = i;
 	}
 
 	int NODES = m_network->getNumberNodes ();
@@ -286,19 +286,12 @@ void addHostInfo (int t1, int t2, int path_size) {
 		
 	kpaths.init ( t1-1, t2-1 );
 	int count = path_size;
-	
-	cout << i << " " << j << endl;
-	 
+		 
 	while (kpaths.hasNext () && --count >= 0) {
 		
-		rca::Path path = kpaths.next ();
-		cout << path << endl;
+		rca::Path path = kpaths.next ();	
 		m_host[i][j].push_back (path);
 		m_host[i][j].push_back (path);
-	}
-	
-	for (auto it = m_term_index.begin (); it != m_term_index.end (); it++) {
-		cout << (*it).first <<" "<<(*it).second << endl;
 	}
 	
 }
