@@ -252,7 +252,38 @@ void initHostInfo (int K = 10) {
 
 void addHostInfo (int t1, int t2, int path_size) {
 	
+	//exit the program with the test is true
+	if ( (t1 == t2) || (t1 < 0 || t2 < 0) || (path_size <= 0) ) {
+		cout <<"Erro em: " << "heuristic.h" << " Linha: " << __LINE__ << endl;
+		exit (1);
+	}
+	
+	if (m_host.size () == 0) {
+		int TERM = m_terminals->getSize();
+		m_host = std::vector < std::vector< PathList > > (TERM, std::vector< PathList >(TERM) );
+	}
+	
+	//getting the terminals
+	int i = m_term_index[m_terminals->getMember (t1-1)];
+	int j = m_term_index[m_terminals->getMember (t2-1)];
+	
+	if (m_host[i][j].size () > 0) {
+		return; //não necessidade de criar caminhos já existem
+	}
+	
+	KShortestPath kpaths(m_network);
 		
+	kpaths.init ( m_terminals->getMember (t1-1), m_terminals->getMember(t2 -1) );
+	int count = path_size;
+	
+	while (kpaths.hasNext () && --count >= 0) {
+		
+		rca::Path path = kpaths.next ();
+		cout << path << endl;
+		m_host[i][j].push_back (path);
+		m_host[i][j].push_back (path);
+	}
+	
 }
 
 
