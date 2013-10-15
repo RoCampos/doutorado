@@ -37,6 +37,8 @@ int main (int argc, char** argv) {
 
 	addHostInfo (atoi (argv[5]) , atoi(argv[6]), atoi(argv[7]) );
 	
+	write_path ("teste.txt");
+	
 	//std::string pop_size (argv[3]);
 	//Transgenetic TA( atoi( pop_size.c_str() ) );
 	

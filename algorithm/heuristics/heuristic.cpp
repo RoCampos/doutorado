@@ -289,9 +289,9 @@ void addHostInfo (int t1, int t2, int path_size) {
 		 
 	while (kpaths.hasNext () && --count >= 0) {
 		
-		rca::Path path = kpaths.next ();	
+		rca::Path path = kpaths.next ();
 		m_host[i][j].push_back (path);
-		m_host[i][j].push_back (path);
+		m_host[j][i].push_back (path);
 	}
 	
 }
