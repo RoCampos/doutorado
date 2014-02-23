@@ -41,6 +41,8 @@ public:
 	 * @param Network
 	 */
 	void configNetwork (Network *);
+	
+	void readerGroup ();
 
 
 private:

@@ -65,9 +65,14 @@ void Reader::configNetwork(Network * network) {
 		getline (file, str);
 	}
 
-
 	file.close();
 
+}
+
+void Reader:: readerGroup () {
+	
+	
+	
 }
 
 //} /*namespace rca*/
