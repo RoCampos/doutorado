@@ -1,0 +1,73 @@
+/*
+ * reader.cpp
+ *
+ *  Created on: 12/09/2012
+ *      Author: romerito
+ */
+//namespace rca {
+
+#include "reader.h"
+
+Reader::Reader(std::string file) {
+
+	m_file = file;
+}
+
+void Reader::configNetwork(Network * network) {
+
+	ifstream file(m_file.c_str(), ifstream::in);
+
+	if (file.fail()) {
+		cout << "Invalid Input Try Again, Cannot Read the Network File!\n";
+		exit (1);
+	}
+
+	int m_nodes = 0;
+	int m_edges = 0;
+
+	std::string str;
+	for (int i=0 ;i < 3;i++) {
+		file >> str;
+	}
+
+	m_nodes = atoi (str.c_str()); //reading m_nodes
+	file >> str; //jump
+	file >> str; //reading edges
+	m_edges = atoi (str.c_str());
+
+	network->init(m_nodes,m_edges);
+
+	int i = 0;
+	for (int i=0 ;i < 4 + m_nodes + 3;i++)
+		getline (file, str);
+
+	//reading the edges
+	for (i=0; i < m_edges; i++) {
+		file >> str; // id
+		file >> str; //from
+		int from = atoi (str.c_str());
+		file >> str; //to
+		int to = atoi (str.c_str());
+		file >> str; //cost
+		double d = atof (str.c_str());
+		network->setCost(from,to,d);
+		network->setCost(to,from,d);
+		file >> str;
+		file >> str; //band
+		d = atof (str.c_str());
+		d+=20;
+		network->setBand(from,to,d);
+		network->setBand(to,from,d);
+
+		rca::Link link(from,to,d);
+		network->insertLink(link);
+
+		getline (file, str);
+	}
+
+
+	file.close();
+
+}
+
+//} /*namespace rca*/
