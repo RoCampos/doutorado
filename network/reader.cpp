@@ -71,7 +71,64 @@ void Reader::configNetwork(Network * network) {
 
 void Reader:: readerGroup () {
 	
+	ifstream file(m_file.c_str(), ifstream::in);
+	if (file.fail()) {
+		cout << "Invalid Input Try Again, Cannot Read the Network File!\n";
+		exit (1);
+	}
 	
+	std::string str;
+	for (int i=0; i < 4; i++)
+		getline (file, str);
+	file >> str;
+	
+	while (str.compare("Groups:")) {
+		file >> str;
+	}
+	
+	//configuring the number of groups
+	int m_groups = 0;
+	file >> str;
+	file >> m_groups;
+	file >> str;
+	
+		getline (file,str);
+	//reading groups
+	for (int i=0; i < m_groups; i++) {
+
+		//deleting unnecessary informations
+		for (int j=0; j < 7; j++)
+			file >> str;
+
+		//getting the traffic
+		double t_k = 0;
+		file >> t_k;
+		file >> str;
+		file >> str; file >> str;
+
+		//geting the source
+		int source = 0;
+		file >> source;
+		file >> str; file >> str; file >> str;
+
+		int size = 0;
+		file >> size;
+		file >> str;
+
+		//creating group with id=i
+		Group * group = new Group(i,source,t_k);
+
+		//getting the members
+		for (int k = 0; k < size; k++) {
+			int member = 0 ;
+			file >> member;
+			group->addMember (member);
+		}
+
+		getline (file, str);
+	}
+	
+	file.close ();
 	
 }
 
