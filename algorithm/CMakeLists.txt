@@ -14,7 +14,7 @@ set (PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 set (HEURISTIC_DIR ${PROJECT_SOURCE_DIR}/heuristics)
 
-#add_subdirectory (heuristics)
+add_subdirectory (heuristics)
 #add_subdirectory (transgenetic)
 
 INSTALL (FILES CMakeLists.txt DESTINATION algorithm)
