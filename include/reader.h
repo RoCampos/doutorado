@@ -9,7 +9,7 @@
 #include "network.h"
 #include "link.h"
 #include "group.h"
-#include "matrix2d.hpp"
+#include "matrix2d.h"
 
 using rca::Network;
 using rca::Group;
