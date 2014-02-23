@@ -4,13 +4,29 @@
 
 using namespace rca;
 
-int main (void) {
+int * partitions;
 
-	Partition * p = partition_alloc ();
-	init_partition (p, 0);
-	printf ("%d",p->id);
+void alloc_partition (int part_size) {
 	
-	free_partition (p);
+	partitions = (int*) calloc (part_size, sizeof(int));
+	
+}
+
+void dealloc_partition () {
+	
+}
+
+void configure_patition (const vector<Group*> & group) {
+	
+}
+
+int main (void){
+
+	alloc_partition (10);
+	
+	for (int i = 0; i < 10; i++) {
+		printf ("%d \n", partitions[i]);
+	}
 	
 	return 0;
 }

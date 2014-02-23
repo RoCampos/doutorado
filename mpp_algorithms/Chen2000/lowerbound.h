@@ -1,34 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <set>
+#include <vector>
+#include "group.h"
 
 using namespace std;
+using namespace rca;
 
-typedef struct _partition_ {
-	
-	int id;
-	set<int> groups;
-	set<int> nodes;
-	
-} Partition;
+extern int * patitions;
 
-void join_partition (Partition * a, Partition *b){ }
+void alloc_partition (int part_size);
+void dealloc_partition ();
 
-/**
- * Allocation of a partition
- */
-Partition * partition_alloc() {
-	return (Partition *) malloc (sizeof (Partition));
-}
-
-/**
- * Deallocation of a partition 
- * 
- */
-void free_partition (Partition *p) {
-	free (p);
-}
-
-void init_partition (Partition * p, int id) {	
-	p->id = id;	
-}
+void configure_patition (const vector<Group*> & group);
