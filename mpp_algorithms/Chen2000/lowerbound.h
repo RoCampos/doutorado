@@ -3,7 +3,7 @@
 #include <vector>
 #include <set>
 #include <memory>
-#include "group.h"
+#include "network.h"
 
 #include <memory>
 
@@ -51,3 +51,13 @@ typedef struct _partition {
 	
 	
 }Partition;
+
+typedef struct lb {
+	
+	std::vector<shared_ptr<Partition>> partition;
+	
+}LowerBound;
+
+void join (shared_ptr<Partition> p, shared_ptr<Partition> q);
+void create (shared_ptr<Network>);
+void lb_calculator (LowerBound & obj);
