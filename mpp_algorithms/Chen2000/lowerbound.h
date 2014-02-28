@@ -59,7 +59,6 @@ typedef struct _partition {
  */
 typedef struct lb {
 	
-	
 	shared_ptr<Network> net;
 	vector<shared_ptr<Partition>> partition;
 	
@@ -74,5 +73,4 @@ typedef struct lb {
 }LowerBound;
 
 void join (shared_ptr<Partition> p, shared_ptr<Partition> q);
-void create (shared_ptr<Network>);
 void lb_calculator (LowerBound & obj);
