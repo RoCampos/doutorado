@@ -3,8 +3,9 @@
 #include <vector>
 #include <set>
 #include <memory>
+#include <string>
 #include "network.h"
-
+#include "reader.h"
 #include <memory>
 
 using namespace std;
@@ -49,12 +50,26 @@ typedef struct _partition {
 		return _nodes;
 	};
 	
-	
-}Partition;
+} Partition;
 
+
+/**
+ * LowerBound struct to store the partition and the Network
+ * 
+ */
 typedef struct lb {
 	
-	std::vector<shared_ptr<Partition>> partition;
+	
+	shared_ptr<Network> net;
+	vector<shared_ptr<Partition>> partition;
+	
+	void init (std::string file) {
+		Network _net;
+		net = make_shared<Network> (_net);
+		
+		Reader reader(file);
+		reader.configNetwork ( net.get() );
+	};
 	
 }LowerBound;
 
