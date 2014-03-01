@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "lowerbound.h"
+#include <algorithm>
 
 void LowerBound::create_partitions () {
 	
@@ -47,6 +48,21 @@ int LowerBound::sigma_mn (ui i, ui j) {
 	return counter;
 }
 
+void LowerBound::joint_partition (ui m, ui n) {
+	
+	if (m > partition.size ()-1  || m > partition.size ()-1 ) {
+		printf ("Error in Line %d",__LINE__);
+	}
+	
+	partition.at (m).get ()->join (*partition.at (n).get ());
+	
+	auto it = find (partition.begin(), partition.end (), partition.at (n));
+	partition.erase (it);
+	
+}
+	
+
+
 void print_partition (const LowerBound & lb);
 
 int main (void){
@@ -56,6 +72,11 @@ int main (void){
 	lb.create_partitions();
 	
 	cout << lb.sigma_mn (1,2) << endl;
+	cout << lb.partition.size () << endl;
+	lb.joint_partition (1,2);
+	cout << lb.partition.size () << endl;
+	
+	cout << *lb.partition.at (1) << endl;
 	
 	return 0;
 }
