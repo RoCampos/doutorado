@@ -44,16 +44,33 @@ typedef struct _partition {
 		_groups.insert (n);
 	};
 	
-	std::set<int> get_nodes () {
+	std::set<int> get_nodes () const {
 		return _nodes;
 	};
 	
-	std::set<int> get_groups () {
+	std::set<int> get_groups () const {
 		return _groups;
 	};
 	
+	friend std::ostream& operator<<(std::ostream& out, const _partition &p);
+	
 } Partition;
 
+std::ostream& operator<<(std::ostream& out, const Partition &p) {
+	
+	out << "Nodes" << endl;
+	auto ptr = p.get_nodes().begin ();
+	for (; ptr != p.get_nodes ().end(); ptr++) {
+		out << *ptr << endl;
+	}
+	out << "Groups" << endl;
+	ptr = p.get_groups ().begin ();
+	for (; ptr != p.get_groups (). end(); ptr++) {
+		out << *ptr << endl;
+	}
+	
+	return out;
+}
 
 /**
  * LowerBound struct to store the partition and the Network
