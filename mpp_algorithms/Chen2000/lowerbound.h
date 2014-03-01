@@ -98,7 +98,7 @@ typedef struct lb {
 	
 	void create_partitions();
 	
-	void joint_partition (int i, int j);
+	void joint_partition (int, int);
 	
 	/*encontra o valor de limite, utiliza as funções betha_mn, alpha_mn e sigma_mn*/
 	double find_limit ();

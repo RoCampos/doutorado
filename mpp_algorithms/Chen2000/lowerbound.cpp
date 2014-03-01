@@ -32,9 +32,19 @@ int LowerBound::sigma_mn (ui i, ui j) {
 	Partition m = *partition.at (i);
 	Partition n = *partition.at (j);
 	
+	set<int> m_nodes = m.get_nodes ();
+	set<int> n_nodes = n.get_nodes ();
 	
+	int counter = 0;
+	for (int i : m_nodes) {
+		for (int j : n_nodes) {
+			if (net.get ()->getBand(i,j) > 0) {
+				counter++;
+			}
+		}
+	}
 	
-	return 0;
+	return counter;
 }
 
 void print_partition (const LowerBound & lb);
@@ -42,13 +52,10 @@ void print_partition (const LowerBound & lb);
 int main (void){
 
 	LowerBound lb;
-	lb.init ("/home/romerito/workspace/Doutorado/instances/MMPP-Instances/n30/b30_1.brite");
-	
+	lb.init ("/home/romerito/workspace/Doutorado/instances/MMPP-Instances/n30/b30_1.brite");	
 	lb.create_partitions();
-	//print_partition (lb);
-	Partition p = *lb.partition.at (1);
 	
-	cout << p << endl;	
+	cout << lb.sigma_mn (1,2) << endl;
 	
 	return 0;
 }
