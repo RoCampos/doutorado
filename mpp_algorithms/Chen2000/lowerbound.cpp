@@ -45,8 +45,10 @@ int main (void){
 	lb.init ("/home/romerito/workspace/Doutorado/instances/MMPP-Instances/n30/b30_1.brite");
 	
 	lb.create_partitions();
+	//print_partition (lb);
+	Partition p = *lb.partition.at (1);
 	
-	print_partition (lb);
+	cout << p << endl;	
 	
 	return 0;
 }

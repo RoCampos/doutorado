@@ -59,16 +59,19 @@ typedef struct _partition {
 std::ostream& operator<<(std::ostream& out, const Partition &p) {
 	
 	out << "Nodes" << endl;
-	auto ptr = p.get_nodes().begin ();
-	for (; ptr != p.get_nodes ().end(); ptr++) {
-		out << *ptr << endl;
-	}
-	out << "Groups" << endl;
-	ptr = p.get_groups ().begin ();
-	for (; ptr != p.get_groups (). end(); ptr++) {
-		out << *ptr << endl;
+	set<int> nodes = p.get_nodes ();
+	for (int i : nodes){
+		out << i << endl;
 	}
 	
+	nodes = p.get_groups ();
+	if (nodes.size () > 0) {
+		out << "Groups" << endl;
+	
+		for (int i : nodes) {
+			out << i << endl;
+		}
+	}	
 	return out;
 }
 
