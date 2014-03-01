@@ -11,6 +11,8 @@
 using namespace std;
 using namespace rca;
 
+
+#define ui unsigned int
 /*
  * Partition.
  * 
@@ -88,7 +90,7 @@ typedef struct lb {
 	double alpha_mn (int,int);
 	
 	/*Número de arestas que separam a partição m de n*/
-	int sigma_mn (int,int);
+	int sigma_mn (ui,ui);
 	
 }LowerBound;
 
