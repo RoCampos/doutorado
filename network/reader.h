@@ -11,6 +11,8 @@
 #include "group.h"
 #include "matrix2d.h"
 
+#include <memory>
+
 using rca::Network;
 using rca::Group;
 using namespace std;
@@ -42,7 +44,7 @@ public:
 	 */
 	void configNetwork (Network *);
 	
-	void readerGroup ();
+	std::vector<std::shared_ptr<Group>> readerGroup ();
 
 
 private:

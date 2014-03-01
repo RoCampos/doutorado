@@ -69,7 +69,9 @@ void Reader::configNetwork(Network * network) {
 
 }
 
-void Reader:: readerGroup () {
+std::vector<std::shared_ptr<Group>> Reader:: readerGroup () {
+	
+	std::vector<std::shared_ptr<Group>> list_of_group;
 	
 	ifstream file(m_file.c_str(), ifstream::in);
 	if (file.fail()) {
@@ -116,19 +118,26 @@ void Reader:: readerGroup () {
 		file >> str;
 
 		//creating group with id=i
-		Group * group = new Group(i,source,t_k);
+		shared_ptr<Group> ptr (new Group(i,source, t_k));
+		//Group * group = new Group(i,source,t_k);
+		
 
 		//getting the members
 		for (int k = 0; k < size; k++) {
 			int member = 0 ;
 			file >> member;
-			group->addMember (member);
+			//group->addMember (member);
+			ptr.get()->addMember (member);
 		}
+		
+		list_of_group.push_back (ptr);
 
 		getline (file, str);
 	}
 	
 	file.close ();
+	
+	return list_of_group;
 	
 }
 
