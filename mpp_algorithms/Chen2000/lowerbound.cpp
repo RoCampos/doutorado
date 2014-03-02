@@ -48,9 +48,20 @@ int LowerBound::sigma_mn (ui i, ui j) {
 	return counter;
 }
 
-void LowerBound::betha_mn (ui m, ui n) {
+double LowerBound::betha_mn (ui m, ui n) {
 	
+	std::set<int> _m = (*partition.at (m)).get_groups ();
+	std::set<int> _n = (*partition.at (n)).get_groups ();
 	
+	set<int> out;
+	
+	std::set_intersection (_m.begin (), _m.end (), 
+						  _n.begin (), _n.end (),
+						  std::inserter (out, out.begin() ));
+	
+	int sigma = sigma_mn (m, n);
+	
+	return out.size () / sigma;
 }
 
 void LowerBound::join_partition (ui m, ui n) {
@@ -77,8 +88,9 @@ int main (int argv, char** argc){
 	lb.init (str);
 	lb.create_partitions();
 	
-	lb.join_partition (0,1);
-	cout << lb.sigma_mn (0, 3) << endl;
+	//lb.join_partition (0,1);
+	//cout << lb.sigma_mn (0, 3) << endl;
+	cout << lb.betha_mn (0,1) << endl;
 	
 	print_partition (lb);
 	

@@ -104,7 +104,7 @@ typedef struct lb {
 	double find_limit ();
 	
 	/*define o valor de beta*/
-	double betha_mn (int,int);
+	double betha_mn (ui,ui);
 	
 	/*calcula o valor de alpha segundo Chen et.al.*/
 	double alpha_mn (int,int);
