@@ -98,7 +98,7 @@ typedef struct lb {
 	
 	void create_partitions();
 	
-	void joint_partition (ui, ui);
+	void join_partition (ui, ui);
 	
 	/*encontra o valor de limite, utiliza as funções betha_mn, alpha_mn e sigma_mn*/
 	double find_limit ();
@@ -109,7 +109,11 @@ typedef struct lb {
 	/*calcula o valor de alpha segundo Chen et.al.*/
 	double alpha_mn (int,int);
 	
-	/*Número de arestas que separam a partição m de n*/
+	/**
+	 * Método para Calcular o número de arestas que ligam as partições
+	 * int m, int n.
+	 * @return int
+	 */
 	int sigma_mn (ui,ui);
 	
 }LowerBound;

@@ -13,7 +13,7 @@ void LowerBound::create_partitions () {
 		
 		auto ptr = groups.begin ();
 		for (; ptr != groups.end (); ptr++) {
-			
+				
 			if ((*ptr)->isMember (i)) {
 				
 				p.add_group ( (*ptr)->getId() );
@@ -48,7 +48,12 @@ int LowerBound::sigma_mn (ui i, ui j) {
 	return counter;
 }
 
-void LowerBound::joint_partition (ui m, ui n) {
+void LowerBound::betha_mn (ui m, ui n) {
+	
+	
+}
+
+void LowerBound::join_partition (ui m, ui n) {
 	
 	if (m > partition.size ()-1  || m > partition.size ()-1 ) {
 		printf ("Error in Line %d",__LINE__);
@@ -65,18 +70,18 @@ void LowerBound::joint_partition (ui m, ui n) {
 
 void print_partition (const LowerBound & lb);
 
-int main (void){
+int main (int argv, char** argc){
 
 	LowerBound lb;
-	lb.init ("/home/romerito/workspace/Doutorado/instances/MMPP-Instances/n30/b30_1.brite");	
+	std::string str = argc[1];
+	lb.init (str);
 	lb.create_partitions();
 	
-	cout << lb.sigma_mn (1,2) << endl;
-	cout << lb.partition.size () << endl;
-	lb.joint_partition (1,2);
-	cout << lb.partition.size () << endl;
+	lb.join_partition (0,1);
+	cout << lb.sigma_mn (0, 3) << endl;
 	
-	cout << *lb.partition.at (1) << endl;
+	print_partition (lb);
+	
 	
 	return 0;
 }
