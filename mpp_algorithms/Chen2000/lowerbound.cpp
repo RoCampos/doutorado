@@ -61,7 +61,17 @@ double LowerBound::betha_mn (ui m, ui n) {
 	
 	int sigma = sigma_mn (m, n);
 	
-	return out.size () / sigma;
+	return (out.size () / sigma);
+}
+
+double LowerBound::alpha_mn (ui m, ui n, int par_u, int par_v) {
+	
+	double betha = betha_mn (m,n);
+	
+	int tk_m = (*partition.at (m)).get_groups ().size ();
+	int tk_n = (*partition.at (n)).get_groups ().size ();
+	
+	return (betha + par_u *(tk_m + tk_n) + par_v);
 }
 
 void LowerBound::join_partition (ui m, ui n) {
@@ -90,7 +100,8 @@ int main (int argv, char** argc){
 	
 	//lb.join_partition (0,1);
 	//cout << lb.sigma_mn (0, 3) << endl;
-	cout << lb.betha_mn (0,1) << endl;
+	//cout << lb.betha_mn (0,1) << endl;
+	cout << lb.alpha_mn (0,1,1,0) << endl;
 	
 	print_partition (lb);
 	

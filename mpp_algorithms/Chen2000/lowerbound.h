@@ -107,7 +107,7 @@ typedef struct lb {
 	double betha_mn (ui,ui);
 	
 	/*calcula o valor de alpha segundo Chen et.al.*/
-	double alpha_mn (int,int);
+	double alpha_mn (ui, ui, int, int);
 	
 	/**
 	 * Método para Calcular o número de arestas que ligam as partições
