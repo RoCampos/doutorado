@@ -109,6 +109,9 @@ typedef struct lb {
 	/*calcula o valor de alpha segundo Chen et.al.*/
 	double alpha_mn (ui, ui, int, int);
 	
+	/*implementa a função s^k(PI) de Chen et. al*/
+	int group_by_partition (ui);
+	
 	/**
 	 * Método para Calcular o número de arestas que ligam as partições
 	 * int m, int n.

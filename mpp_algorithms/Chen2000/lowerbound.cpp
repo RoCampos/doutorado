@@ -74,6 +74,19 @@ double LowerBound::alpha_mn (ui m, ui n, int par_u, int par_v) {
 	return (betha + par_u *(tk_m + tk_n) + par_v);
 }
 
+int LowerBound::group_by_partition (ui m) {
+
+	int counter = 0;
+	for (shared_ptr<Group> g : groups) {		
+		if ( (*g).isMember (m) ) {
+			counter++;
+		}		
+	}
+	
+	return (counter-1);
+}
+
+
 void LowerBound::join_partition (ui m, ui n) {
 	
 	if (m > partition.size ()-1  || m > partition.size ()-1 ) {
