@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <climits>
 #include "lowerbound.h"
 #include <algorithm>
 
@@ -51,7 +52,6 @@ int LowerBound::sigma_mn (ui i, ui j) {
 double LowerBound::betha_mn (ui m, ui n) {
 	
 	int sigma = sigma_mn (m, n);
-	
 	int itsctn = intersection (m,n);
 	
 	return (itsctn / sigma);
@@ -129,9 +129,7 @@ int LowerBound::delta_PI () {
 					}
 				}
 			}
-			
 		}
-		
 	}
 	
 	return (delta);
@@ -146,7 +144,39 @@ int main (int argv, char** argc){
 	lb.init (str);
 	lb.create_partitions();
 	
+	//parameters from Chen et. al.
+	int par_v = 1;
+	int par_u = 0;
 	
+	while (lb.partition.size () > 1) {
+		
+		int min_alpha = INT_MAX;
+		int m, n;
+		for (ui i=0; i < lb.partition.size (); i++) {
+			
+			for (ui j=(i+1); j < lb.partition.size (); j++) {
+			
+				int alpha = lb.alpha_mn (i,j, par_v, par_u);
+				if (min_alpha < alpha) {
+					min_alpha = alpha;
+					m = i;
+					n = j;
+				}
+				
+			}
+		}
+		if (m == n ) {
+			cout << "error!" << endl;
+			exit (1);
+		}
+		
+		printf ("Alpha: %d", min_alpha);
+		printf ("Joining %d to %d", m, n);
+		
+		lb.join_partition (m,n);
+		
+		
+	}
 	
 	//lb.join_partition (0,1);
 	//cout << lb.sigma_mn (0, 3) << endl;
