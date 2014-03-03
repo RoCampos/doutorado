@@ -75,6 +75,22 @@ int LowerBound::intersection (ui m, ui n) {
 	return ( out.size () );
 }
 
+int LowerBound::intsec_by_edge (ui m, ui n) {
+	
+	set<int> set_m = partition.at (i).get ()->get_nodes ();
+	set<int> set_n = partition.at (j).get ()->get_nodes ();
+			
+	int intsec = 0;
+	for (int v : set_m) {
+		for (int w : set_n) {
+			if (net.get ()->getBand (v,w) > 0.0) {
+				intsec++;
+			}
+		}
+	}
+	return intsec;
+}
+
 double LowerBound::alpha_mn (ui m, ui n, int par_u, int par_v) {
 	
 	double betha = betha_mn (m,n);
