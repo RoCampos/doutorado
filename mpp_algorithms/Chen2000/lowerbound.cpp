@@ -77,10 +77,15 @@ double LowerBound::alpha_mn (ui m, ui n, int par_u, int par_v) {
 int LowerBound::group_by_partition (ui m) {
 
 	int counter = 0;
-	for (shared_ptr<Group> g : groups) {		
-		if ( (*g).isMember (m) ) {
+	
+	for (auto ptr : partition) {
+		
+		auto pt = ptr.get ()->get_groups().find (m);
+		
+		if ( pt != ( ptr.get ()->get_groups().end ()) ) {
 			counter++;
-		}		
+		}
+		
 	}
 	
 	return (counter-1);
