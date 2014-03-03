@@ -52,6 +52,10 @@ int LowerBound::sigma_mn (ui i, ui j) {
 double LowerBound::betha_mn (ui m, ui n) {
 	
 	int sigma = sigma_mn (m, n);
+	
+	if (sigma == 0)
+		return sigma;
+	
 	int itsctn = intersection (m,n);
 	
 	return (itsctn / sigma);
@@ -145,19 +149,25 @@ int main (int argv, char** argc){
 	lb.create_partitions();
 	
 	//parameters from Chen et. al.
+	
 	int par_v = 1;
 	int par_u = 0;
 	
 	while (lb.partition.size () > 1) {
 		
-		int min_alpha = INT_MAX;
-		int m, n;
+		double min_alpha = INT_MAX;
+		int m = -1, n = -1;
+		
 		for (ui i=0; i < lb.partition.size (); i++) {
 			
 			for (ui j=(i+1); j < lb.partition.size (); j++) {
-			
-				int alpha = lb.alpha_mn (i,j, par_v, par_u);
-				if (min_alpha < alpha) {
+		
+				printf ("Alpha: (%d,%d)\n",i,j);
+				if (lb.intersection (i,j) == 0) continue;
+				
+				double alpha = lb.alpha_mn (i,j, par_v, par_u);
+				//printf ("Alpha: (%d,%d) = %f\n",i,j,alpha);
+				if (alpha < min_alpha) {
 					min_alpha = alpha;
 					m = i;
 					n = j;
@@ -165,27 +175,30 @@ int main (int argv, char** argc){
 				
 			}
 		}
-		if (m == n ) {
+		
+		if (m == n) {
 			cout << "error!" << endl;
 			exit (1);
 		}
 		
-		printf ("Alpha: %d", min_alpha);
-		printf ("Joining %d to %d", m, n);
+		printf ("Alpha: %f\n", min_alpha);
+		printf ("Joining %d to %d\n", m, n);
 		
 		lb.join_partition (m,n);
-		
 		
 	}
 	
 	//lb.join_partition (0,1);
-	//cout << lb.sigma_mn (0, 3) << endl;
-	//cout << lb.betha_mn (0,1) << endl;
-	//cout << lb.intersection (0,1) << endl;
-	//cout << lb.alpha_mn (0,1,1,0) << endl;
+	/*
+	cout << lb.sigma_mn (4,2) << endl;
+	cout << lb.betha_mn (4,2) << endl;
+	cout << lb.intersection (4,2) << endl;
+	cout << lb.alpha_mn (2,4,1,0) << endl;
+	cout << *lb.partition.at (2) << endl;
+	cout << *lb.partition.at (4) << endl;
 	
-	//print_partition (lb);
-	
+	print_partition (lb);
+	*/
 	//printf ("Delta Value: %d\n",lb.delta_PI ());
 	
 	
