@@ -165,7 +165,7 @@ double LowerBound::find_limit () {
 	}
 	cout << endl;
 	
-	int d_PI = delta_PI ();
+	double d_PI = delta_PI ();
 	cout << denominator << " " << d_PI << endl;
 	return (denominator/d_PI);
 }
