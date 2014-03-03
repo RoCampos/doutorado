@@ -50,6 +50,25 @@ int LowerBound::sigma_mn (ui i, ui j) {
 
 double LowerBound::betha_mn (ui m, ui n) {
 	
+	//std::set<int> _m = (*partition.at (m)).get_groups ();
+	//std::set<int> _n = (*partition.at (n)).get_groups ();
+	
+	//set<int> out;
+	
+	//std::set_intersection (_m.begin (), _m.end (), 
+	//					  _n.begin (), _n.end (),
+	//					  std::inserter (out, out.begin() ));
+	
+	
+	int sigma = sigma_mn (m, n);
+	
+	int itsctn = intersection (m,n);
+	
+	return (itsctn / sigma);
+}
+
+int LowerBound::intersection (ui m, ui n) {
+	
 	std::set<int> _m = (*partition.at (m)).get_groups ();
 	std::set<int> _n = (*partition.at (n)).get_groups ();
 	
@@ -59,9 +78,7 @@ double LowerBound::betha_mn (ui m, ui n) {
 						  _n.begin (), _n.end (),
 						  std::inserter (out, out.begin() ));
 	
-	int sigma = sigma_mn (m, n);
-	
-	return (out.size () / sigma);
+	return ( out.size () );
 }
 
 double LowerBound::alpha_mn (ui m, ui n, int par_u, int par_v) {
@@ -104,8 +121,6 @@ void LowerBound::join_partition (ui m, ui n) {
 	partition.erase (it);
 	
 }
-	
-
 
 void print_partition (const LowerBound & lb);
 
@@ -119,7 +134,8 @@ int main (int argv, char** argc){
 	//lb.join_partition (0,1);
 	//cout << lb.sigma_mn (0, 3) << endl;
 	//cout << lb.betha_mn (0,1) << endl;
-	cout << lb.alpha_mn (0,1,1,0) << endl;
+	cout << lb.intersection (0,1) << endl;
+	//cout << lb.alpha_mn (0,1,1,0) << endl;
 	
 	print_partition (lb);
 	

@@ -106,6 +106,9 @@ typedef struct lb {
 	/*define o valor de beta*/
 	double betha_mn (ui,ui);
 	
+	/*interseção entre duas partições*/
+	int intersection (ui,ui);
+	
 	/*calcula o valor de alpha segundo Chen et.al.*/
 	double alpha_mn (ui, ui, int, int);
 	
