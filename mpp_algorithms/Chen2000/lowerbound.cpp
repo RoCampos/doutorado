@@ -212,10 +212,19 @@ int main (int argv, char** argc){
 			exit (1);
 		}
 		
+		/*
 		printf ("Alpha: %f\n", min_alpha);
-		printf ("Joining %d to %d\n", m, n);		
+		cout << "joining ";
+		lb.partition.at (m)->print_nodes ();
+		cout << "to ";
+		lb.partition.at (n)->print_nodes ();
+		cout << "=(";
+		lb.partition.at (m)->print_nodes ();
+		lb.partition.at (n)->print_nodes ();
+		cout << ")"<<endl;
+		*/
 		printf ("Limit %lf:\n", lb.find_limit ());
-		lb.join_partition (m,n);		
+		lb.join_partition (m,n);
 		
 	}
 	

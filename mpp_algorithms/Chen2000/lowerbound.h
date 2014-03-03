@@ -52,6 +52,12 @@ typedef struct _partition {
 		return _groups;
 	};
 	
+	void print_nodes () {
+		for (int i :_nodes) {
+			cout << i <<" ";
+		}
+	}
+	
 	friend std::ostream& operator<<(std::ostream& out, const _partition &p);
 	
 } Partition;
