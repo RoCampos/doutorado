@@ -77,8 +77,8 @@ int LowerBound::intersection (ui m, ui n) {
 
 int LowerBound::intsec_by_edge (ui m, ui n) {
 	
-	set<int> set_m = partition.at (i).get ()->get_nodes ();
-	set<int> set_n = partition.at (j).get ()->get_nodes ();
+	set<int> set_m = partition.at (m).get ()->get_nodes ();
+	set<int> set_n = partition.at (n).get ()->get_nodes ();
 			
 	int intsec = 0;
 	for (int v : set_m) {
@@ -165,6 +165,7 @@ int main (int argv, char** argc){
 	lb.create_partitions();
 	
 	//parameters from Chen et. al.
+	print_partition (lb);
 	
 	int par_v = 1;
 	int par_u = 0;
@@ -178,11 +179,11 @@ int main (int argv, char** argc){
 			
 			for (ui j=(i+1); j < lb.partition.size (); j++) {
 		
-				printf ("Alpha: (%d,%d)\n",i,j);
-				if (lb.intersection (i,j) == 0) continue;
+		
+				if (lb.intsec_by_edge (i,j) == 0) continue;
 				
 				double alpha = lb.alpha_mn (i,j, par_v, par_u);
-				//printf ("Alpha: (%d,%d) = %f\n",i,j,alpha);
+				printf ("Alpha: (%d,%d) = %f\n",i,j,alpha);
 				if (alpha < min_alpha) {
 					min_alpha = alpha;
 					m = i;
@@ -204,6 +205,9 @@ int main (int argv, char** argc){
 		
 	}
 	
+	
+	//printf ("%d\n",lb.intsec_by_edge (2,4));
+	
 	//lb.join_partition (0,1);
 	/*
 	cout << lb.sigma_mn (4,2) << endl;
@@ -215,6 +219,7 @@ int main (int argv, char** argc){
 	
 	print_partition (lb);
 	*/
+	print_partition (lb);
 	//printf ("Delta Value: %d\n",lb.delta_PI ());
 	
 	
