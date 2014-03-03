@@ -155,6 +155,20 @@ int LowerBound::delta_PI () {
 	return (delta);
 }
 
+double LowerBound::find_limit () {
+	
+	int denominator = 0;
+	for (ui i=0; i < groups.size (); i++) {	
+		cout << group_by_partition (i) << " ";
+		denominator += group_by_partition (i);
+	}
+	cout << endl;
+	
+	int d_PI = delta_PI ();
+	cout << denominator << " " << d_PI << endl;
+	return (denominator/d_PI);
+}
+
 void print_partition (const LowerBound & lb);
 
 int main (int argv, char** argc){
@@ -179,7 +193,6 @@ int main (int argv, char** argc){
 			
 			for (ui j=(i+1); j < lb.partition.size (); j++) {
 		
-		
 				if (lb.intsec_by_edge (i,j) == 0) continue;
 				
 				double alpha = lb.alpha_mn (i,j, par_v, par_u);
@@ -201,7 +214,11 @@ int main (int argv, char** argc){
 		printf ("Alpha: %f\n", min_alpha);
 		printf ("Joining %d to %d\n", m, n);
 		
+		printf ("Limit %f:\n", lb.find_limit ());
+		
 		lb.join_partition (m,n);
+		
+		//printf ("Limit %f:\n", lb.find_limit ());
 		
 	}
 	
