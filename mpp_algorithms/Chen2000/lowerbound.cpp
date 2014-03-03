@@ -50,16 +50,6 @@ int LowerBound::sigma_mn (ui i, ui j) {
 
 double LowerBound::betha_mn (ui m, ui n) {
 	
-	//std::set<int> _m = (*partition.at (m)).get_groups ();
-	//std::set<int> _n = (*partition.at (n)).get_groups ();
-	
-	//set<int> out;
-	
-	//std::set_intersection (_m.begin (), _m.end (), 
-	//					  _n.begin (), _n.end (),
-	//					  std::inserter (out, out.begin() ));
-	
-	
 	int sigma = sigma_mn (m, n);
 	
 	int itsctn = intersection (m,n);
@@ -122,6 +112,31 @@ void LowerBound::join_partition (ui m, ui n) {
 	
 }
 
+int LowerBound::delta_PI () {
+	
+	int delta = 0;
+	for (ui i = 0; i < partition.size (); i++) {
+		
+		for (ui j = (i+1); j < partition.size (); j++) {
+			
+			set<int> set_m = partition.at (i).get ()->get_nodes ();
+			set<int> set_n = partition.at (j).get ()->get_nodes ();
+			
+			for (int v : set_m) {
+				for (int w : set_n) {
+					if (net.get ()->getBand (v,w) > 0.0) {
+						delta++;
+					}
+				}
+			}
+			
+		}
+		
+	}
+	
+	return (delta);
+}
+
 void print_partition (const LowerBound & lb);
 
 int main (int argv, char** argc){
@@ -131,13 +146,17 @@ int main (int argv, char** argc){
 	lb.init (str);
 	lb.create_partitions();
 	
+	
+	
 	//lb.join_partition (0,1);
 	//cout << lb.sigma_mn (0, 3) << endl;
 	//cout << lb.betha_mn (0,1) << endl;
-	cout << lb.intersection (0,1) << endl;
+	//cout << lb.intersection (0,1) << endl;
 	//cout << lb.alpha_mn (0,1,1,0) << endl;
 	
-	print_partition (lb);
+	//print_partition (lb);
+	
+	//printf ("Delta Value: %d\n",lb.delta_PI ());
 	
 	
 	return 0;
