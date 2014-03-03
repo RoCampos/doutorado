@@ -107,10 +107,11 @@ int LowerBound::group_by_partition (ui m) {
 	
 	for (auto ptr : partition) {
 		
-		auto pt = ptr.get ()->get_groups().find (m);
-		
-		if ( pt != ( ptr.get ()->get_groups().end ()) ) {
-			counter++;
+		set<int> groups_m = ptr.get ()->get_groups();
+		for (ui i : groups_m) {
+			if (i == m) {
+				counter++;
+			}
 		}
 		
 	}
@@ -212,16 +213,11 @@ int main (int argv, char** argc){
 		}
 		
 		printf ("Alpha: %f\n", min_alpha);
-		printf ("Joining %d to %d\n", m, n);
-		
-		printf ("Limit %f:\n", lb.find_limit ());
-		
-		lb.join_partition (m,n);
-		
-		//printf ("Limit %f:\n", lb.find_limit ());
+		printf ("Joining %d to %d\n", m, n);		
+		printf ("Limit %lf:\n", lb.find_limit ());
+		lb.join_partition (m,n);		
 		
 	}
-	
 	
 	//printf ("%d\n",lb.intsec_by_edge (2,4));
 	
