@@ -51,7 +51,7 @@ int LowerBound::sigma_mn (ui i, ui j) {
 
 double LowerBound::betha_mn (ui m, ui n) {
 	
-	int sigma = sigma_mn (m, n);
+	double sigma = sigma_mn (m, n);
 	
 	if (sigma == 0)
 		return sigma;
