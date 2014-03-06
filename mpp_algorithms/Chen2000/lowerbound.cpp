@@ -185,7 +185,9 @@ int main (int argv, char** argc){
 	int par_v = 1;
 	int par_u = 0;
 	
-	while (lb.partition.size () > 1) {
+	while (lb.partition.size () > 2) {
+
+		printf ("Limit %lf:\n", lb.find_limit ());
 		
 		double min_alpha = INT_MAX;
 		int m = -1, n = -1;
@@ -223,7 +225,6 @@ int main (int argv, char** argc){
 		lb.partition.at (n)->print_nodes ();
 		cout << ")"<<endl;
 		*/
-		printf ("Limit %lf:\n", lb.find_limit ());
 		lb.join_partition (m,n);
 		
 	}
