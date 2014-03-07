@@ -90,10 +90,11 @@ void Generator::run (std::string file) {
 	
 }
 
-int main (void) {
+int main (int argc, char **argv) {
 	
-	Generator g("/home/romerito/workspace/Doutorado/b30_1.brite");
-	std::string file = "/home/romerito/workspace/Doutorado/b30_1";
+	std::string str (argv[1]);
+	Generator g(str);
+	std::string file = str;
 
 	g.run (file);
 	
