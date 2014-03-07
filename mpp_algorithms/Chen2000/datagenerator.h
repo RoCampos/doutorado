@@ -14,9 +14,10 @@ class Generator {
 public:
 	Generator (std::string);
 	
-	void gen_network ();
+	const std::ostream& gen_network (std::ostream&);
 	void gen_terminal ();
 	
+	void run ();
 	
 private:
 	std::shared_ptr< rca::Network > net;
