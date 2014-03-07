@@ -10,6 +10,7 @@ Generator::Generator (std::string file) {
 	init ();
 	
 	r.configNetwork ( net.get() );
+	groups = r.readerGroup ();
 	
 }
 
