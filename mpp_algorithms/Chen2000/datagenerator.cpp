@@ -42,6 +42,7 @@ const ostream& Generator::gen_network (std::ostream & out) {
 	}
 	
 	out << ";\n";
+
 	
 	return out;
 	
@@ -52,10 +53,12 @@ void Generator::gen_terminal (std::ostream& out, int i) {
 	Group * g = groups[i].get ();
 	
 	out << "set T :=";
-	for (int i = 0; i < g->getSize (); i++) {
+	for (int i = 0; i < g->getSize (); i++) {		
 		out << " "<< g->getMember (i) ;
 	}	
-	out << ";";
+	out << ";\n";
+	
+	out << "param r := " << g->getMember(0) << ";\n";
 }
 
 void Generator::run (std::string file) {
