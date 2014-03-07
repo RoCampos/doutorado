@@ -11,9 +11,6 @@ FILE (GLOB SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE (GLOB includes "${PROJECT_SOURCE_DIR}/include/*.h")
 
 add_executable (lowerbound lowerbound.cpp ${includes})
-add_executable (graphcuts graphcut.cpp ${includes})
-
 target_link_libraries (lowerbound graph)
-target_link_libraries (graphcuts graph)
 
 
