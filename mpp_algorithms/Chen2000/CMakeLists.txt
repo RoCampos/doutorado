@@ -13,4 +13,6 @@ FILE (GLOB includes "${PROJECT_SOURCE_DIR}/include/*.h")
 add_executable (lowerbound lowerbound.cpp ${includes})
 target_link_libraries (lowerbound graph)
 
+add_executable (datagen datagenerator.cpp ${includes})
+target_link_libraries (datagen graph)
 
