@@ -47,11 +47,22 @@ const ostream& Generator::gen_network (std::ostream & out) {
 	
 }
 
+void Generator::gen_terminal (std::ostream& out, int i) {
+	
+	Group * g = groups[i].get ();
+	
+	out << "set T :=";
+	for (int i = 0; i < g->getSize (); i++) {
+		out << " "<< g->getMember (i) ;
+	}	
+	out << ";";
+}
 
 int main (void) {
 	
 	Generator g("/home/romerito/workspace/Doutorado/b30_1.brite");
 	std::string file = "/home/romerito/workspace/Doutorado/b30_1";
+
 	
 	return 0;
 }

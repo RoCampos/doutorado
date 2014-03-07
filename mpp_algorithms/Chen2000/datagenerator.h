@@ -15,7 +15,7 @@ public:
 	Generator (std::string);
 	
 	const std::ostream& gen_network (std::ostream&);
-	void gen_terminal ();
+	void gen_terminal (std::ostream&,int);
 	
 	void run ();
 	
