@@ -58,11 +58,33 @@ void Generator::gen_terminal (std::ostream& out, int i) {
 	out << ";";
 }
 
+void Generator::run (std::string file) {
+	
+	std::ofstream out;
+	int GROUPS = groups.size ();
+	
+	for (int i=0; i < GROUPS; i++) {
+	
+		std::stringstream ss;
+		ss << file << "_st_" << i << ".dat";
+		
+		out.open ( ss.str() );
+		
+		gen_network (out);
+		gen_terminal (out, i);
+		
+		out.close ();
+		
+	}
+	
+}
+
 int main (void) {
 	
 	Generator g("/home/romerito/workspace/Doutorado/b30_1.brite");
 	std::string file = "/home/romerito/workspace/Doutorado/b30_1";
 
+	g.run (file);
 	
 	return 0;
 }

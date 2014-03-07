@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include <fstream>
+#include <sstream>
 
 #include "group.h"
 #include "network.h"
@@ -17,7 +18,7 @@ public:
 	const std::ostream& gen_network (std::ostream&);
 	void gen_terminal (std::ostream&,int);
 	
-	void run ();
+	void run (std::string);
 	
 private:
 	std::shared_ptr< rca::Network > net;
