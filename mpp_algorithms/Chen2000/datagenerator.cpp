@@ -40,22 +40,29 @@ const ostream& Generator::gen_network (std::ostream & out) {
 	out << net.get ()->getNumberNodes () << ";\n";
 	
 	std::set<Link> links = net.get ()->getLinks ();
-	
+	int NODES = net.get ()->getNumberNodes ();
 	out << "set E :=";
-	for (Link l : links) {
-		out << "(" << l.getY () + 1 << "," << l.getX () + 1 << ") ";		
-	}
+	//for (Link l : links) {		
+		//out << "(" << l.getY () + 1 << "," << l.getX () + 1 << ") ";		
+	//}
+	for (int i = 0; i < NODES; i++) {			
+		for (int j = i; j < NODES; j++) {
+			
+			if ( net.get ()->getCost ( i, j) > 0.0 ) {
+				out << "(" << i + 1 << "," << j + 1 << ") ";
+			}
+		}
+	}	
 	out << ";\n";
 	
-	out << "param c :\n";
-	int NODES = net.get ()->getNumberNodes ();
+	out << "param c :\n";	
 	for (int i = 0; i < NODES; i++) {
 		out << i + 1<< "\t";
 	}
 	out << ":=\n";
 	
 	for (int i = 0; i < NODES; i++) {
-			out << i +1<< "\t";
+		out << i +1 << "\t";
 		for (int j = 0; j < NODES; j++) {
 			out <<net.get ()->getCost ( i, j) << "\t";
 		}
@@ -75,11 +82,24 @@ void Generator::gen_terminal (std::ostream& out, int i) {
 	
 	out << "set T :=";
 	for (int i = 0; i < g->getSize (); i++) {		
-		out << " "<< g->getMember (i) + 1;
+		
+		if (Generator::st) {
+			out << " "<< g->getMember (i);
+		} else {
+			out << " "<< g->getMember (i) + 1;
+		}
+		
+
 	}	
 	out << ";\n";
 	
-	out << "param r := " << g->getMember(0) + 1<< ";\n";
+	if ( Generator::st ) {
+		out << "param r := " << g->getMember(0) - 1<< ";\n";
+	} else {
+		out << "param r := " << g->getMember(0) + 1<< ";\n";
+	}
+	
+	
 }
 
 void Generator::run (std::string file) {

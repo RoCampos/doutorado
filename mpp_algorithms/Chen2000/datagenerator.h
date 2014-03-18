@@ -31,6 +31,8 @@ private:
 	std::shared_ptr< rca::Network > net;
 	std::vector< std::shared_ptr<Group> > groups;
 	
+	bool st;
+	
 	void init ();
 
 };
