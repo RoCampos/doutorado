@@ -7,6 +7,7 @@
 #include "group.h"
 #include "network.h"
 #include "reader.h"
+#include "steinerReader.h"
 
 namespace rca {
 
@@ -16,8 +17,7 @@ public:
 	
 	//constructor for MPP
 	Generator (std::string);
-	
-	
+	Generator (std::string, bool st);
 	
 	//generate network in a file
 	const std::ostream& gen_network (std::ostream&);

@@ -14,6 +14,19 @@ Generator::Generator (std::string file) {
 	
 }
 
+Generator::Generator (std::string file, bool st) {
+	
+	if (st) {
+	
+		SteinerReader str(file);
+		init ();
+		str.configNetwork ( net.get() );
+		Group g = str.terminalsAsGroup ();
+		groups.push_back ( make_shared<Group> (g) );
+		
+	}	
+}
+
 void Generator::init () {
 	
 	Network _net;
@@ -36,7 +49,7 @@ const ostream& Generator::gen_network (std::ostream & out) {
 	
 	out << "param c :\n";
 	int NODES = net.get ()->getNumberNodes ();
-	for (int i = 0; i < NODES; i++) {		
+	for (int i = 0; i < NODES; i++) {
 		out << i + 1<< "\t";
 	}
 	out << ":=\n";
@@ -93,7 +106,7 @@ void Generator::run (std::string file) {
 int main (int argc, char **argv) {
 	
 	std::string str (argv[1]);
-	Generator g(str);
+	Generator g(str,1);
 	std::string file = str;
 
 	g.run (file);
