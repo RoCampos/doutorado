@@ -3,7 +3,7 @@
 using namespace std;
 using namespace rca;
 
-Generator::Generator (std::string file) {
+Generator::Generator (std::string file) : st (0){
 
 	Reader r (file);
 	
@@ -14,7 +14,7 @@ Generator::Generator (std::string file) {
 	
 }
 
-Generator::Generator (std::string file, bool st) {
+Generator::Generator (std::string file, bool st) : st (1) {
 	
 	if (st) {
 	
@@ -130,11 +130,24 @@ void Generator::run (std::string file) {
 
 int main (int argc, char **argv) {
 	
-	std::string str (argv[1]);
-	Generator g(str,1);
-	std::string file = str;
-
-	g.run (file);
+	int st = atoi (argv[2]);
+	if (st == 1) {
+		
+		cout << "STP instance\n";
+		std::string str (argv[1]);
+		Generator g(str,st);
+		std::string file = str;
+		g.run (file);
+		
+		
+	} else {
+		cout << "MPP instance\n";
+		std::string str (argv[1]);
+		Generator g(str);
+		std::string file = str;
+		g.run (file);
+	}
+	
 	
 	return 0;
 }
