@@ -81,6 +81,11 @@ void Generator::gen_terminal (std::ostream& out, int i) {
 	Group * g = groups[i].get ();
 	
 	out << "set T :=";
+	
+	if ( Generator::st ) {
+		out << " " << g->getSource ();
+	}
+	
 	for (int i = 0; i < g->getSize (); i++) {		
 		
 		if (Generator::st) {
@@ -88,13 +93,13 @@ void Generator::gen_terminal (std::ostream& out, int i) {
 		} else {
 			out << " "<< g->getMember (i) + 1;
 		}
-		
-
-	}	
+	
+	}
+	
 	out << ";\n";
 	
 	if ( Generator::st ) {
-		out << "param r := " << g->getMember(0) - 1<< ";\n";
+		out << "param r := " << g->getSource () << ";\n";
 	} else {
 		out << "param r := " << g->getMember(0) + 1<< ";\n";
 	}
