@@ -13,9 +13,16 @@ namespace rca {
 class Generator {
 	
 public:
+	
+	//constructor for MPP
 	Generator (std::string);
 	
+	
+	
+	//generate network in a file
 	const std::ostream& gen_network (std::ostream&);
+	
+	//generate terminal memebers in file by groups
 	void gen_terminal (std::ostream&,int);
 	
 	void run (std::string);
