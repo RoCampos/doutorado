@@ -30,7 +30,7 @@ public:
 	void doFilter ();
 	
 private:
-	void getVariable (char str[]);
+	void getVariable (std::string str);
 	
 private:
 	std::string str_file;

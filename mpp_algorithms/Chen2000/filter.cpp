@@ -14,9 +14,7 @@ void FilterSol::doFilter () {
 	
 	std::ifstream instance( str_file.c_str ());
 	
-	output_file.open (str_output_file.c_str (), std::ofstream::out | std::ofstream::app);
-	
-	if ( !output_file.good () ) {exit(1);}
+	freopen (str_output_file.c_str (),"w",stdout);
 	
 	int isReady = 0;
 	if (instance.good () ) {
@@ -24,7 +22,7 @@ void FilterSol::doFilter () {
 		while ( instance.good () ) {
 			
 			char line[256];
-			instance.getline (line, 256);			
+			instance.getline (line, 256);
 			
 			std::string str_tmp(line);
 			
@@ -41,18 +39,18 @@ void FilterSol::doFilter () {
 		}
 		
 	}
-	output_file.close ();
 	
 }
 
-void FilterSol::getVariable (char str[]) {
+void FilterSol::getVariable (std::string str) {
 	
-	for (int i=0; i < LINE_SIZE; i++) {
+	for (unsigned int i=0; i < str.length (); i++) {
 		
 		if ( islower (str[i]) && str[i] == 'y') {
 			
+			//getting the first number
 			stringstream number1;
-			for (int j = i+2; j < LINE_SIZE; j++) {
+			for (unsigned int j = i+2; j < str.length (); j++) {
 				
 				if ( isdigit(str[j]) ) {
 					number1 << str[j];
@@ -60,15 +58,12 @@ void FilterSol::getVariable (char str[]) {
 					i = j;
 					break;
 				}
-				
 			}
-			
-			output_file << number1.str () << " - ";
 			
 			cout << number1.str () << " - ";
 			
 			stringstream number2;
-			for (int j = i+1; j < LINE_SIZE; j++) {
+			for (unsigned int j = i+1; j < str.length (); j++) {
 				if ( isdigit(str[j]) ) {
 					number2 << str[j];
 				} else {
@@ -77,27 +72,23 @@ void FilterSol::getVariable (char str[]) {
 				}
 			}
 			
-			output_file << number2.str () << ":";
-			
 			cout << number2.str () << ":";
 			
-			for (int j = i; j < LINE_SIZE; j++) {
+			//getting the value of binary varible that indicates if
+			//the edge is in the tree
+			stringstream inSolution;
+			for (unsigned int j = i; j < str.length (); j++) {
 				if (isdigit (str[j]) ) {
-					stringstream cost;
-					cost << str[j];
-					
-					cout << cost.str ();
-					output_file << cost.str ();
-					
+					inSolution << str[j];
 					break;
 				}
 			}
-			output_file << ";\n";
+			cout << inSolution.str ();			
 			cout << ";\n";
 		}
 		
 	}
-	cout << endl;
+	//cout << endl;
 	
 	output_file << endl;
 	
