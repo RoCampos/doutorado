@@ -44,6 +44,7 @@ add_subdirectory (network)
 add_subdirectory (sttree)
 add_subdirectory (statistics)
 add_subdirectory (mpp_algorithms)
+add_subdirectory (util)
 
 INSTALL (FILES CMakeLists.txt DESTINATION .)
 INSTALL (DIRECTORY include lib DESTINATION .)
