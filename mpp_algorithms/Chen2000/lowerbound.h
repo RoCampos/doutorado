@@ -92,6 +92,7 @@ typedef struct lb {
 	
 	vector<shared_ptr<Group>> groups;
 	
+	/*Recebe como entrada uma instância do MP problem*/
 	void init (std::string file) {
 		Network _net;
 		net = make_shared<Network> (_net);
