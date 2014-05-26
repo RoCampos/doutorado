@@ -102,11 +102,11 @@ void FilterSol::getVariable (std::string str) {
 	output_file << endl;	
 }
 
-void FilterSol::doFilter (boolean xdot) {
+/*void FilterSol::doFilter (boolean xdot) {
 	
 	
 	
-}
+}*/
 
 
 int main (int argv, char**argc) {

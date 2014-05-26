@@ -29,7 +29,7 @@ public:
 	/*Método que realiza o filtro no arquivo passado como parâmetro*/
 	void doFilter ();
 	
-	void doFilterXdot ();
+	//void doFilterXdot ();
 	
 private:
 	void getVariable (std::string str);

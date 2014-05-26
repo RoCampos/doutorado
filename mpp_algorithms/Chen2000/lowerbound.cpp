@@ -160,13 +160,13 @@ double LowerBound::find_limit () {
 	
 	int denominator = 0;
 	for (ui i=0; i < groups.size (); i++) {	
-		cout << group_by_partition (i) << " ";
+		//cout << group_by_partition (i) << " ";
 		denominator += group_by_partition (i);
 	}
-	cout << endl;
+	//cout << endl;
 	
 	double d_PI = delta_PI ();
-	cout << denominator << " " << d_PI << endl;
+	//cout << denominator << " " << d_PI << endl;
 	return (denominator/d_PI);
 }
 
@@ -180,14 +180,17 @@ int main (int argv, char** argc){
 	lb.create_partitions();
 	
 	//parameters from Chen et. al.
-	print_partition (lb);
+	//print_partition (lb);
 	
 	int par_v = 1;
 	int par_u = 0;
 	
+	double limit = 0.0;
+	
 	while (lb.partition.size () > 2) {
 
-		printf ("Limit %lf:\n", lb.find_limit ());
+		//printf ("Limit %lf:\n", lb.find_limit ());
+		limit = lb.find_limit ();
 		
 		double min_alpha = INT_MAX;
 		int m = -1, n = -1;
@@ -199,7 +202,7 @@ int main (int argv, char** argc){
 				if (lb.intsec_by_edge (i,j) == 0) continue;
 				
 				double alpha = lb.alpha_mn (i,j, par_v, par_u);
-				printf ("Alpha: (%d,%d) = %f\n",i,j,alpha);
+				//printf ("Alpha: (%d,%d) = %f\n",i,j,alpha);
 				if (alpha < min_alpha) {
 					min_alpha = alpha;
 					m = i;
@@ -242,7 +245,12 @@ int main (int argv, char** argc){
 	
 	print_partition (lb);
 	*/
-	print_partition (lb);
+	
+	printf ("Limit %lf:\n", limit);
+	/**
+	 * Print partition method.
+	 */
+	//print_partition (lb);
 	//printf ("Delta Value: %d\n",lb.delta_PI ());
 	
 	
