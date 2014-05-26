@@ -10,6 +10,12 @@ FilterSol::FilterSol (std::string file, std::string outputfname) {
 	
 }
 
+/**
+ * Método que realiza o filtro sobre um arquivo de saída gerado
+ * pelo glpsol.
+ * 
+ * 
+ */
 void FilterSol::doFilter () {
 	
 	std::ifstream instance( str_file.c_str ());
@@ -35,13 +41,17 @@ void FilterSol::doFilter () {
 			if (isReady == 2) {
 				getVariable (line);
 			}
-			
 		}
-		
 	}
 	
 }
 
+/**
+ * Método que recebe uma linha do arquivo gerado pelo glpsol.
+ * Este método gera como saída uma aresta e o valor da variável binária
+ * que indica que a mesma está ou não na solução.
+ * 
+ */
 void FilterSol::getVariable (std::string str) {
 	
 	for (unsigned int i=0; i < str.length (); i++) {
@@ -60,8 +70,6 @@ void FilterSol::getVariable (std::string str) {
 				}
 			}
 			
-			cout << number1.str () << " - ";
-			
 			stringstream number2;
 			for (unsigned int j = i+1; j < str.length (); j++) {
 				if ( isdigit(str[j]) ) {
@@ -72,8 +80,6 @@ void FilterSol::getVariable (std::string str) {
 				}
 			}
 			
-			cout << number2.str () << ":";
-			
 			//getting the value of binary varible that indicates if
 			//the edge is in the tree
 			stringstream inSolution;
@@ -83,14 +89,22 @@ void FilterSol::getVariable (std::string str) {
 					break;
 				}
 			}
-			cout << inSolution.str ();			
-			cout << ";\n";
+			
+			std::string variable = inSolution.str ();
+			if ( atoi(variable.c_str () ) == 1) {
+				cout << number1.str () << " - ";
+				cout << number2.str () << ":";
+				cout << inSolution.str ();
+				cout << ";\n";
+			}
 		}
-		
 	}
-	//cout << endl;
+	output_file << endl;	
+}
+
+void FilterSol::doFilter (boolean xdot) {
 	
-	output_file << endl;
+	
 	
 }
 
