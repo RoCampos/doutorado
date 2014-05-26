@@ -246,7 +246,7 @@ int main (int argv, char** argc){
 	print_partition (lb);
 	*/
 	
-	printf ("Limit %lf:\n", limit);
+	printf ("%lf\n", limit);
 	/**
 	 * Print partition method.
 	 */
