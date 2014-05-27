@@ -6,10 +6,12 @@
 class Chen {
 
 public: 
-	Chen ();
+	Chen (std::string input);
 
-private:
 	
+private:
+	std::vector< stdvector<int> > edges;
+	double congestion;
 };
 
 #endif /*CHEN_ALGORITHM_H*/
