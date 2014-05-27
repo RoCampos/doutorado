@@ -1,0 +1,20 @@
+datagen_mpp.sh
+=========================
+Script para gerar arquivos compatíveis com o glpsol.
+Ele gera arquivos de entrada para o glpsol a partir de
+instância do MPP.
+
+
+limitgen.sh
+=========================
+Script para executar o cálculo de limits para as instâncias
+do MPP. Tem como base o algoritmo de Chen.
+
+
+preprocesssing.sh
+=========================
+Script utilizado para gerar os arquivos que serão entradas 
+para o algoritmo de Chen.
+Para cada instância há um arquivo com extensão .pre que contém
+as árvores de steiner correspondentes.
+
