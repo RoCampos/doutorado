@@ -4,7 +4,7 @@
 #include <iostream>
 
 class Chen {
-	
+
 public: 
 	Chen ();
 

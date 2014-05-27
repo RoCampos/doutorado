@@ -20,7 +20,7 @@ void FilterSol::doFilter () {
 	
 	std::ifstream instance( str_file.c_str ());
 	
-	freopen (str_output_file.c_str (),"w",stdout);
+	freopen (str_output_file.c_str (),"a",stdout);
 	
 	int isReady = 0;
 	if (instance.good () ) {
