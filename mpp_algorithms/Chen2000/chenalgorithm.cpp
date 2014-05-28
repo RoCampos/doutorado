@@ -45,3 +45,9 @@ void Chen::pre_processing () {
 	
 	file_.close ();
 }
+
+void Chen::get_max_congestion () {
+
+	
+	
+}

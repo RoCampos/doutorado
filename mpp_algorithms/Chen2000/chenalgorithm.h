@@ -28,7 +28,7 @@ public:
 	 */
 	Chen (std::string _instance, std::string _input);
 	
-	
+	void get_max_congestion ();
 	
 private:
 	/*Método que inicializa as variáveis do MPP*/
