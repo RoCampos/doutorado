@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Chen::Chen (std::string _input) {
+Chen::Chen (std::string instance, std::string _input) {
 	
 	input = _input;
 	

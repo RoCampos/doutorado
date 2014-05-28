@@ -20,7 +20,7 @@ typedef struct sttree {
 class Chen {
 
 public: 
-	Chen (std::string _input);
+	Chen (std::string instance, std::string _input);
 	
 	/*pre processing step*/
 	void pre_processing ();
