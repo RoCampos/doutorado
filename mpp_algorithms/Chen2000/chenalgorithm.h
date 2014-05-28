@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
 
 typedef struct sttree {
 	
@@ -13,12 +14,15 @@ typedef struct sttree {
 class Chen {
 
 public: 
-	Chen (std::string input);
+	Chen (std::string _input);
 	
 	/*pre processing step*/
 	void pre_processing ();
 	
 private:
+	
+	std::string input;
+	
 	//matrix that stores the congestion over each egde
 	std::vector< std::vector<int> > edges;
 	

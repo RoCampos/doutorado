@@ -4,7 +4,9 @@
 
 int main (int argc, char**argv) {
 	
-	Chen c("input");
+	Chen c(argv[1]);
+	
+	c.pre_processing ();
 	
 	return 0;
 }
