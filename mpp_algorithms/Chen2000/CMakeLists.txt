@@ -22,7 +22,8 @@ target_link_libraries (datagen graph)
 add_executable (filter_sol filter.cpp ${includes})
 target_link_libraries (filter_sol graph)
 
-add_executable (chentest chentest.cpp chenalgorithm.h chenalgorithm.cpp)
+add_executable (chentest chentest.cpp chenalgorithm.h chenalgorithm.cpp ${includes})
+target_link_libraries (chentest graph)
 
 #adicionando teste
 #add_test (inicializacao )
