@@ -10,6 +10,7 @@
 
 #include "group.h"
 #include "network.h"
+#include "reader.h"
 
 typedef struct sttree {
 	
@@ -40,8 +41,8 @@ private:
 	std::vector<STTree> tree;
 	
 	/*MPP variables*/
-	shared_ptr<Network> m_net; //the network
-	std::vector<shared_ptr<Group>> m_groups //multicast groups
+	std::shared_ptr<rca::Network> m_net; //the network
+	std::vector< std::shared_ptr<rca::Group> > m_groups; //multicast groups
 	
 };
 
