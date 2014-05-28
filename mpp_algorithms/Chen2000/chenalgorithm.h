@@ -6,6 +6,11 @@
 #include <string>
 #include <fstream>
 
+#include <memory>
+
+#include "group.h"
+#include "network.h"
+
 typedef struct sttree {
 	
 	
@@ -33,6 +38,10 @@ private:
 	int alpha;
 	
 	std::vector<STTree> tree;
+	
+	/*MPP variables*/
+	shared_ptr<Network> m_net; //the network
+	std::vector<shared_ptr<Group>> m_groups //multicast groups
 	
 };
 
