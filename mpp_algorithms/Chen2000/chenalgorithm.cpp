@@ -7,6 +7,8 @@ Chen::Chen (std::string _instance, std::string _input) {
 	input = _input;
 	instance = _instance;
 	
+	m_net = make_shared<Network> ();
+	
 }
 
 void Chen::init () {
