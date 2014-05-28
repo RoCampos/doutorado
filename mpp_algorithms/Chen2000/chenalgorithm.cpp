@@ -7,7 +7,8 @@ Chen::Chen (std::string _instance, std::string _input) {
 	m_input = _input;
 	m_instance = _instance;
 	
-	m_net = make_shared<Network> ();
+	m_net = make_shared<Network> ();	
+	init ();
 	
 }
 
@@ -22,10 +23,8 @@ void Chen::init () {
 void Chen::pre_processing () {
 	
 	int NODES = m_net->getNumberNodes ();
-	m_edges = std::vector< std::vector<int>> (NODES);
-	for (int i=0; i < NODES; i++) {
-		m_edges[i] = std::vector<int> (NODES);
-	}
+	
+	int edges[NODES][NODES];
 	
 	ifstream file_ (m_input.c_str ());
 	
@@ -39,9 +38,9 @@ void Chen::pre_processing () {
 		str = str.substr (0, str.length () - 2);
 		x = atoi ( str.c_str () );
 		
-		cout << x << " " << y << endl;
-		//m_edges[y-1][x-1] += 1;
-		//m_edges[x-1][y-1] += 1;
+		//cout << --x << " " << --y << endl;
+		edges[y][x] += 1;
+		edges[x][y] += 1;
 	}
 	
 	file_.close ();
