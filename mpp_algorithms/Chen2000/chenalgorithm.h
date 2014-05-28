@@ -27,9 +27,10 @@ public:
 	 * O Segundo argumento indica uma arquivo pré-processado
 	 * referente a primeira instância.
 	 */
-	Chen (std::string _instance, std::string _input);
+	Chen (std::string _instance, std::string _input, int alpha);
 	
-	int get_max_congestion ();
+	//imprimir links utilizados e a congestão
+	void print_edges_xdot ();
 	
 private:
 	/*Método que inicializa as variáveis do MPP*/
@@ -37,6 +38,9 @@ private:
 	
 	/*pre processing step*/
 	void pre_processing ();
+	
+	/*métod que obtém a congestão máxima*/
+	int get_max_congestion ();
 	
 private:
 	
@@ -52,6 +56,7 @@ private:
 	//the parameter that indicates the dilation
 	int m_alpha;
 	
+	//list of steiner trees
 	std::vector<STTree> m_trees;
 	
 	/*MPP variables*/
