@@ -20,7 +20,16 @@ typedef struct sttree {
 class Chen {
 
 public: 
+	/**
+	 * Construtor recebe dois argumentos.
+	 * O primeiro argumento indica a instance do problema
+	 * O Segundo argumento indica uma arquivo pré-processado
+	 * referente a primeira instância.
+	 */
 	Chen (std::string instance, std::string _input);
+	
+	/*Método que inicializa as variáveis do MPP*/
+	void init ();
 	
 	/*pre processing step*/
 	void pre_processing ();
