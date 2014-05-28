@@ -26,7 +26,7 @@ public:
 	 * O Segundo argumento indica uma arquivo pré-processado
 	 * referente a primeira instância.
 	 */
-	Chen (std::string instance, std::string _input);
+	Chen (std::string _instance, std::string _input);
 	
 	/*Método que inicializa as variáveis do MPP*/
 	void init ();
@@ -37,6 +37,7 @@ public:
 private:
 	
 	std::string input;
+	std::string instance;
 	
 	//matrix that stores the congestion over each egde
 	std::vector< std::vector<int> > edges;

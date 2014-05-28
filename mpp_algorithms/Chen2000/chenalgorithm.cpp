@@ -2,16 +2,17 @@
 
 using namespace std;
 
-Chen::Chen (std::string instance, std::string _input) {
+Chen::Chen (std::string _instance, std::string _input) {
 	
 	input = _input;
+	instance = _instance;
 	
 }
 
 void Chen::init () {
 	
 	Reader reader (instance);
-	reader.configNetwork ( net.get () );
+	reader.configNetwork ( m_net.get () );
 	
 	
 }
