@@ -6,7 +6,9 @@ int main (int argc, char**argv) {
 	
 	Chen c(argv[1],argv[2]);
 	
-	c.pre_processing ();
+	int max = c.get_max_congestion ();
+	
+	cout << max << endl;
 	
 	return 0;
 }

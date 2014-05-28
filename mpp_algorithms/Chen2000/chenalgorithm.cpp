@@ -10,6 +10,7 @@ Chen::Chen (std::string _instance, std::string _input) {
 	m_net = make_shared<Network> ();
 	init ();
 	pre_processing ();
+	m_congestion = get_max_congestion ();
 }
 
 void Chen::init () {
@@ -23,8 +24,10 @@ void Chen::init () {
 void Chen::pre_processing () {
 	
 	int NODES = m_net->getNumberNodes ();
-	
-	int edges[NODES][NODES];
+	m_edges = std::vector< std::vector<int>> (NODES);
+	for (int i=0; i < NODES; i++) {
+		m_edges[i] = std::vector<int> (NODES);
+	}
 	
 	ifstream file_ (m_input.c_str ());
 	
@@ -39,15 +42,23 @@ void Chen::pre_processing () {
 		x = atoi ( str.c_str () );
 		
 		//cout << --x << " " << --y << endl;
-		edges[y][x] += 1;
-		edges[x][y] += 1;
+		m_edges[y][x] += 1;
+		m_edges[x][y] += 1;
 	}
 	
 	file_.close ();
 }
 
-void Chen::get_max_congestion () {
+int Chen::get_max_congestion () {
 
-	
-	
+	int NODES = m_net->getNumberNodes ();
+	int max = INT_MIN;
+	for (int i=0; i < NODES; i++) {
+		for (int j =0; j < i;j++) {
+			if (m_edges[i][j] > max) {
+				max = m_edges[i][j];
+			}
+		}
+	}
+	return max;
 }
