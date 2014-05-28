@@ -13,7 +13,7 @@ void Chen::init () {
 	
 	Reader reader (instance);
 	reader.configNetwork ( m_net.get () );
-	
+	m_groups = reader.readerGroup ();
 	
 }
 
