@@ -8,6 +8,8 @@ results/
 build/
 lib/
 
+*kate-swp
+
 #file
 *~
 $.a

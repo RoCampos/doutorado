@@ -6,7 +6,7 @@ int main (int argc, char**argv) {
 	
 	Chen c(argv[1],argv[2]);
 	
-	//c.init ();
+	c.pre_processing ();
 	
 	return 0;
 }
