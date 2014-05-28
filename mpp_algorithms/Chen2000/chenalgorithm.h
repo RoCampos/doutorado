@@ -37,19 +37,19 @@ private:
 	
 private:
 	
-	std::string input;
-	std::string instance;
+	std::string m_input;
+	std::string m_instance;
 	
 	//matrix that stores the congestion over each egde
-	std::vector< std::vector<int> > edges;
+	std::vector< std::vector<int> > m_edges;
 	
 	//current max congestion
-	double congestion;
+	double m_congestion;
 	
 	//the parameter that indicates the dilation
-	int alpha;
+	int m_alpha;
 	
-	std::vector<STTree> tree;
+	std::vector<STTree> m_trees;
 	
 	/*MPP variables*/
 	std::shared_ptr<rca::Network> m_net; //the network
