@@ -7,9 +7,9 @@ Chen::Chen (std::string _instance, std::string _input) {
 	m_input = _input;
 	m_instance = _instance;
 	
-	m_net = make_shared<Network> ();	
+	m_net = make_shared<Network> ();
 	init ();
-	
+	pre_processing ();
 }
 
 void Chen::init () {

@@ -28,12 +28,14 @@ public:
 	 */
 	Chen (std::string _instance, std::string _input);
 	
-	/*pre processing step*/
-	void pre_processing ();
+	
 	
 private:
 	/*Método que inicializa as variáveis do MPP*/
 	void init ();
+	
+	/*pre processing step*/
+	void pre_processing ();
 	
 private:
 	
