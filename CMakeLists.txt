@@ -26,6 +26,9 @@ results;
 ) 
 INCLUDE(CPack)
 
+#habilita test
+enable_testing ()
+
 project (Doutorado)
 
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
@@ -50,3 +53,8 @@ INSTALL (FILES CMakeLists.txt DESTINATION .)
 INSTALL (DIRECTORY include lib DESTINATION .)
 INSTALL (DIRECTORY results DESTINATION .)
 
+#my test
+#adicionando teste
+add_test (RUN ${PROJECT_BINARY_DIR}/build/chentest
+	"../MPP_instances/n30/b30_1.brite" 
+	"../MPP_instances/preprocessing/n30/b30_1.pre")

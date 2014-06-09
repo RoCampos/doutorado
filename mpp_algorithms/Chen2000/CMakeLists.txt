@@ -7,8 +7,6 @@ cmake_install*;
 CMakeCache*;
 )
 
-#enable_testing ();
-
 FILE (GLOB SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE (GLOB includes "${PROJECT_SOURCE_DIR}/include/*.h")
 FILE (GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
@@ -25,6 +23,4 @@ target_link_libraries (filter_sol graph)
 add_executable (chentest chentest.cpp chenalgorithm.h chenalgorithm.cpp ${includes})
 target_link_libraries (chentest graph)
 
-#adicionando teste
-#add_test (inicializacao )
 

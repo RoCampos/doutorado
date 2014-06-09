@@ -1,0 +1,44 @@
+Start testing: Jun 09 15:52 BRT
+----------------------------------------------------------
+1/1 Testing: RUN
+1/1 Test: RUN
+Command: "/home/romerito/workspace/Doutorado/TAtoST/build/chentest" "../MPP_instances/n30/b30_1.brite" "../MPP_instances/preprocessing/n30/b30_1.pre"
+Directory: /home/romerito/workspace/Doutorado/TAtoST
+"RUN" start time: Jun 09 15:52 BRT
+Output:
+----------------------------------------------------------
+19--4
+17--4
+17--0
+28--17
+27--25
+27--19
+4--3
+15--0
+25--7
+11--0
+10--0
+24--4
+8--7
+7--1
+7--5
+8--4
+23--1
+22--16
+20--7
+20--4
+13--4
+18--11
+16--9
+15--9
+15--8
+14--8
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"RUN" end time: Jun 09 15:52 BRT
+"RUN" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jun 09 15:52 BRT

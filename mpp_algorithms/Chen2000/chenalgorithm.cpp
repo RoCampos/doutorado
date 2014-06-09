@@ -110,14 +110,31 @@ std::vector<rca::Link> Chen::sort_edges () {
 
 void Chen::run () {
 	
+	bool running = true;
 	while (1) {
 		
 		std::vector<rca::Link> LE = sort_edges ();
 		int Z = get_max_congestion ();
-		for (auto it = LE.begin (); it != LE.end(); ++it) {
-			cout << *it << endl;
+		
+		for (auto it = LE.begin (); it != LE.end(); ++it) {			
+			
+			//here the code for rebuild is made
+			for (auto st_it = m_trees.begin (); 
+				 st_it != m_trees.end(); st_it++) {
+				
+				STTree sttree = *st_it;
+				if (std::find(sttree.edges.begin(),sttree.edges.end(), *it) != sttree.edges.end()) {
+					cout << "Aresta: " << *it << " Está em " << st_it->id << endl;
+				}
+			}
+			
 		}
 		
+		running = false;
+		
+		if (!running) {
+			break;
+		}
 	}
 	
 }
