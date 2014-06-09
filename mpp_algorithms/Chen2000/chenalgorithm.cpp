@@ -69,7 +69,8 @@ void Chen::print_edges_xdot () {
 	for (int i=0; i < NODES; i++) {
 		for (int j =0; j < i;j++) {
 			if (m_edges[i][j] > 0) {
-				cout << i << "--" << j << ":" << m_edges[i][j] << endl;
+				cout << i << "--" << j;
+				cout << "[label=" << m_edges[i][j] << "]\n";
 			}
 		}
 	}
