@@ -86,6 +86,31 @@ int Chen::get_max_congestion () {
 	return max;
 }
 
+void Chen::sort_edges () {
+	
+	std::vector<rca::Link> edges_congestion;
+	
+	int NODES = m_net->getNumberNodes ();
+	for (int i=0; i < NODES; i++) {
+		for (int j =0; j < i;j++) {
+			if (m_edges[i][j] > 0) {
+				
+				rca::Link link (i,j,m_edges[i][j]);
+				edges_congestion.push_back(link);
+			}
+		}
+	}
+	
+	std::sort (edges_congestion.begin(), edges_congestion.end());
+	
+	cout << edges_congestion.size () << endl;
+	std::vector<rca::Link>::iterator it = edges_congestion.begin ();
+	for (; it != edges_congestion.end (); it++) {
+		cout << it->getValue () << endl;
+	}
+	
+}
+
 void Chen::print_information () {
 	
 	cout << "Steiner Trees:" << m_trees.size () << endl;

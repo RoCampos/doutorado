@@ -7,6 +7,7 @@
 #include <fstream>
 #include <climits>
 #include <sstream>
+#include <algorithm>
 
 #include <memory>
 
@@ -41,8 +42,10 @@ public:
 	
 	//imprimir links utilizados e a congestão
 	void print_edges_xdot ();
-	
 	void print_information ();
+	
+	/*Método para ordenar as arestas pela congestão*/
+	void sort_edges ();
 	
 private:
 	/*Método que inicializa as variáveis do MPP*/
