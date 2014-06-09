@@ -11,6 +11,8 @@ Chen::Chen (std::string _instance, std::string _input, int alpha) : m_alpha(alph
 	init ();
 	pre_processing ();
 	m_congestion = get_max_congestion ();
+	
+	m_init_congestion = m_congestion;
 }
 
 void Chen::init () {

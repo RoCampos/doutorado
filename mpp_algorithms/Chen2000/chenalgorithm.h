@@ -53,6 +53,9 @@ private:
 	//current max congestion
 	double m_congestion;
 	
+	//initial congestion before start the algorithm
+	double m_init_congestion;
+	
 	//the parameter that indicates the dilation
 	int m_alpha;
 	
