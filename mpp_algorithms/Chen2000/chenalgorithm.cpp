@@ -35,28 +35,35 @@ void Chen::pre_processing () {
 	
 	int x;
 	int y;
-	string str;
-
+	string str_line;
+	
+	//creating st_tree
 	int id = 0;
-	while (getline (file_,str)) {
+	m_trees.push_back (STTree(id));
+	
+	while (getline (file_,str_line)) {
 		
-		if (str.empty ()) {
+		if (str_line.empty ()) {
 			//increment the id of st_trees during creation of 
 			//the trees.
 			id++;
+			m_trees.push_back (STTree(id));
 		}else {
 			
-			istringstream tmp_file(str);
+			istringstream tmp_file(str_line);
+			std::string str;
 			tmp_file >> y;
 			tmp_file >> str;
 			tmp_file >> str;
 			str = str.substr (0, str.length () - 2);
 			x = atoi ( str.c_str () );
 		
-			//cout << --x << " " << --y << endl;
+			x = x-1;
+			y = y-1;
 			m_edges[y][x] += 1;
 			m_edges[x][y] += 1;
 			
+			m_trees[id].addEdge (x,y);
 			
 		}
 		
