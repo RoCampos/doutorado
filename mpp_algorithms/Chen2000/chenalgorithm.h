@@ -23,7 +23,6 @@ typedef struct sttree {
 	
 	void addEdge (int i, int j) {
 		rca::Link  l = rca::Link(i,j,0);
-		cout << l << endl;
 		edges.push_back(l);
 	}
 	
