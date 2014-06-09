@@ -46,6 +46,14 @@ bool Link::operator <(const Link& link) const {
 
 }
 
+bool Link::operator >(const Link& link) const {
+
+	//return ((p < link.p) && (link != *this)) || (link != *this);
+	return (p > link.p);
+
+}
+
+
 Link& Link::operator =(const Link& link) {
 
 	this->x = link.getX();

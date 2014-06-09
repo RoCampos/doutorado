@@ -101,13 +101,9 @@ void Chen::sort_edges () {
 		}
 	}
 	
-	std::sort (edges_congestion.begin(), edges_congestion.end());
-	
-	cout << edges_congestion.size () << endl;
-	std::vector<rca::Link>::iterator it = edges_congestion.begin ();
-	for (; it != edges_congestion.end (); it++) {
-		cout << it->getValue () << endl;
-	}
+	std::sort (edges_congestion.begin(), 
+			   edges_congestion.end(),
+			   std::greater<rca::Link> () );
 	
 }
 

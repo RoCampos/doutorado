@@ -89,6 +89,15 @@ public:
 	 * @param Link
 	 */
 	bool operator<(const Link &) const;
+	
+	/**
+	 * Este operador verifica se um Link tem um peso
+	 * maior que outro.
+	 * Este operador é util em alguns conteiner como o std::set
+	 *
+	 * @param Link
+	 */
+	bool operator>(const Link &) const;
 
 	/**
 	 * Operador de atribuição.
