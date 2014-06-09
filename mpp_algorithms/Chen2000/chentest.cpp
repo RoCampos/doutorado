@@ -10,5 +10,7 @@ int main (int argc, char**argv) {
 	//c.print_information ();
 	//c.sort_edges ();
 	
+	c.run ();
+	
 	return 0;
 }

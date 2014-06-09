@@ -110,7 +110,15 @@ std::vector<rca::Link> Chen::sort_edges () {
 
 void Chen::run () {
 	
-	
+	while (1) {
+		
+		std::vector<rca::Link> LE = sort_edges ();
+		int Z = get_max_congestion ();
+		for (auto it = LE.begin (); it != LE.end(); ++it) {
+			cout << *it << endl;
+		}
+		
+	}
 	
 }
 
