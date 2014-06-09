@@ -57,7 +57,7 @@ private:
 	void init ();
 	
 	/*Método para ordenar as arestas pela congestão*/
-	void sort_edges ();
+	std::vector<rca::Link> sort_edges ();
 	
 	/*métod que obtém a congestão máxima*/
 	int get_max_congestion ();

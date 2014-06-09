@@ -86,7 +86,7 @@ int Chen::get_max_congestion () {
 	return max;
 }
 
-void Chen::sort_edges () {
+std::vector<rca::Link> Chen::sort_edges () {
 	
 	std::vector<rca::Link> edges_congestion;
 	
@@ -105,16 +105,12 @@ void Chen::sort_edges () {
 			   edges_congestion.end(),
 			   std::greater<rca::Link> () );
 	
+	return edges_congestion;
 }
 
 void Chen::run () {
 	
-	while (1) {
-		
-		sort_edges ();
-		
-		
-	}
+	
 	
 }
 
