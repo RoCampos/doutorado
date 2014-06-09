@@ -8,7 +8,7 @@ int main (int argc, char**argv) {
 	
 	//c.print_edges_xdot ();
 	//c.print_information ();
-	c.sort_edges ();
+	//c.sort_edges ();
 	
 	return 0;
 }

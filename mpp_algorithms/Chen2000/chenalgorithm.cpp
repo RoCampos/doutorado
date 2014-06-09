@@ -107,6 +107,17 @@ void Chen::sort_edges () {
 	
 }
 
+void Chen::run () {
+	
+	while (1) {
+		
+		sort_edges ();
+		
+		
+	}
+	
+}
+
 void Chen::print_information () {
 	
 	cout << "Steiner Trees:" << m_trees.size () << endl;

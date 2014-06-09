@@ -45,12 +45,19 @@ public:
 	void print_edges_xdot ();
 	void print_information ();
 	
-	/*Método para ordenar as arestas pela congestão*/
-	void sort_edges ();
+	void run ();
 	
 private:
+	/**Método para reconstruir uma árvore e atualizar
+	 lista de arestas*/
+	void update ();
+	void rebuild ();
+	
 	/*Método que inicializa as variáveis do MPP*/
 	void init ();
+	
+	/*Método para ordenar as arestas pela congestão*/
+	void sort_edges ();
 	
 	/*métod que obtém a congestão máxima*/
 	int get_max_congestion ();
