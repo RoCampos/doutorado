@@ -7,7 +7,7 @@ int main (int argc, char**argv) {
 	Chen c(argv[1],argv[2],0);
 	
 	//c.print_edges_xdot ();
-	cout << c.get_max_congestion () << endl;
+	c.print_information ();
 	
 	return 0;
 }

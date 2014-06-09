@@ -43,12 +43,14 @@ public:
 	//imprimir links utilizados e a congestão
 	void print_edges_xdot ();
 	
-	/*métod que obtém a congestão máxima*/
-	int get_max_congestion ();
+	void print_information ();
 	
 private:
 	/*Método que inicializa as variáveis do MPP*/
 	void init ();
+	
+	/*métod que obtém a congestão máxima*/
+	int get_max_congestion ();
 	
 	/*pre processing step*/
 	void pre_processing ();

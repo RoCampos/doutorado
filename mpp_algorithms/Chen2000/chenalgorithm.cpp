@@ -86,6 +86,13 @@ int Chen::get_max_congestion () {
 	return max;
 }
 
+void Chen::print_information () {
+	
+	cout << "Steiner Trees:" << m_trees.size () << endl;
+	cout << "Initial Congestion: " << m_init_congestion << endl;
+	
+}
+
 void Chen::print_edges_xdot () {
 	int NODES = m_net->getNumberNodes ();
 	cout << "Graph {\n";
