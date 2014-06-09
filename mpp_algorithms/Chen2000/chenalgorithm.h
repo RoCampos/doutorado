@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <climits>
+#include <sstream>
 
 #include <memory>
 
@@ -34,16 +35,16 @@ public:
 	//imprimir links utilizados e a congestão
 	void print_edges_xdot ();
 	
+	/*métod que obtém a congestão máxima*/
+	int get_max_congestion ();
+	
 private:
 	/*Método que inicializa as variáveis do MPP*/
 	void init ();
 	
 	/*pre processing step*/
 	void pre_processing ();
-	
-	/*métod que obtém a congestão máxima*/
-	int get_max_congestion ();
-	
+		
 private:
 	
 	std::string m_input;
