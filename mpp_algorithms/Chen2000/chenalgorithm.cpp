@@ -50,6 +50,7 @@ void Chen::pre_processing () {
 			m_trees.push_back (STTree(id));
 		}else {
 			
+			//getting the edges from file
 			istringstream tmp_file(str_line);
 			std::string str;
 			tmp_file >> y;
@@ -58,11 +59,13 @@ void Chen::pre_processing () {
 			str = str.substr (0, str.length () - 2);
 			x = atoi ( str.c_str () );
 		
-			x = x-1;
-			y = y-1;
+			//updating the edges congestion
+			--x;
+			--y;
 			m_edges[y][x] += 1;
 			m_edges[x][y] += 1;
 			
+			//adding the edges to steiner trees.	
 			m_trees[id].addEdge (x,y);
 			
 		}
@@ -116,7 +119,7 @@ void Chen::run () {
 		std::vector<rca::Link> LE = sort_edges ();
 		int Z = get_max_congestion ();
 		
-		for (auto it = LE.begin (); it != LE.end(); ++it) {			
+		for (auto it = LE.begin (); it != LE.end(); ++it) {
 			
 			//here the code for rebuild is made
 			for (auto st_it = m_trees.begin (); 
@@ -125,6 +128,8 @@ void Chen::run () {
 				STTree sttree = *st_it;
 				if (std::find(sttree.edges.begin(),sttree.edges.end(), *it) != sttree.edges.end()) {
 					cout << "Aresta: " << *it << " Está em " << st_it->id << endl;
+					//rebuild ();
+					getchar ();
 				}
 			}
 			
