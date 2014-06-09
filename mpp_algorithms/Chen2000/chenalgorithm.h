@@ -51,7 +51,7 @@ private:
 	/**Método para reconstruir uma árvore e atualizar
 	 lista de arestas*/
 	void update ();
-	void rebuild ();
+	void replace (STTree & st, rca::Link & link);
 	
 	/*Método que inicializa as variáveis do MPP*/
 	void init ();

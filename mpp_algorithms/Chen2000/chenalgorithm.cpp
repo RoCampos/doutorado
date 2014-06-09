@@ -111,6 +111,17 @@ std::vector<rca::Link> Chen::sort_edges () {
 	return edges_congestion;
 }
 
+/**
+ * Este método tem por objetivo substituir o Link link
+ * da árvore st por outro link da árvore. 
+ * 
+ */
+void replace (STTree & st, rca::Link & link) {
+	
+	cout << "in building..\n";
+	
+}
+
 void Chen::run () {
 	
 	bool running = true;
