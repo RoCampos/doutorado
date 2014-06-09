@@ -15,6 +15,8 @@
 
 typedef struct sttree {
 	
+	int id;
+	std::vector<rca::Link> edges;
 	
 }STTree;
 
