@@ -116,10 +116,73 @@ std::vector<rca::Link> Chen::sort_edges () {
  * da árvore st por outro link da árvore. 
  * 
  */
-void replace (STTree & st, rca::Link & link) {
+std::vector<int> Chen::cut_edge (STTree & st, rca::Link & link) {
 	
-	cout << "in building..\n";
+	//union_find operations
+	int NODES = m_net->getNumberNodes ();
+	std::vector<int> nodes_mark = std::vector<int> (NODES,0);
 	
+	//filas usadas no processamento
+	std::queue<int> nodes_x;
+	std::queue<int> nodes_y;
+	
+	int x = link.getX();
+	int y = link.getY();
+	nodes_x.push ( x );
+	nodes_y.push ( y );
+	
+	nodes_mark[x] = x;
+	nodes_mark[y] = y;
+	std::vector<rca::Link> edges = st.edges;
+	while (!nodes_x.empty () || !nodes_y.empty() ) {
+		
+		if (!nodes_x.empty())
+			x = nodes_x.front ();
+		
+		if (!nodes_y.empty())
+			y = nodes_y.front ();
+		
+		cout << "Processing X: " << x <<endl;
+		cout << "Processing Y: " << y <<endl;
+		
+		for (auto it = edges.begin (); it != edges.end(); it++) {
+			//se it->getX() é igula a x, então verifca se a outra
+			//aresta foi processada
+			if (!nodes_x.empty()) {
+			 if ( (it->getX () == x) && (nodes_mark[it->getY ()] == 0) ) {
+				//senão adicione-a a lisda de marcados e guarde 
+				//para processamento
+				nodes_mark[it->getY ()] = nodes_mark[x];
+				nodes_x.push (it->getY ());
+				
+				//faz o mesmo para o caso da aresta se it->getY()
+			 } else if ( (it->getY () == x) && (nodes_mark[it->getX ()] == 0) ) {
+				nodes_mark[it->getX ()] = nodes_mark[x];
+				nodes_x.push (it->getX ());
+			 }
+			}
+			 
+			 //processo semelhante para o nó y
+			 if (!nodes_y.empty()) {
+			 if (it->getX () == y && nodes_mark[it->getY ()] == 0) {
+				nodes_mark[it->getY ()] = nodes_mark[y];
+				nodes_y.push (it->getY ());
+			 } else if (it->getY () == y && nodes_mark[it->getX ()] == 0) {
+				nodes_mark[it->getX ()] = nodes_mark[y];
+				nodes_y.push (it->getX ());
+			 }
+			 }
+			 //getchar ();
+		}
+		
+		//remove nó processado
+		if (!nodes_x.empty())
+			nodes_x.pop ();
+		
+		if (!nodes_y.empty())
+			nodes_y.pop ();
+	}
+	return nodes_mark;
 }
 
 void Chen::run () {
@@ -136,10 +199,12 @@ void Chen::run () {
 			for (auto st_it = m_trees.begin (); 
 				 st_it != m_trees.end(); st_it++) {
 				
-				STTree sttree = *st_it;
-				if (std::find(sttree.edges.begin(),sttree.edges.end(), *it) != sttree.edges.end()) {
+				STTree sttr = *st_it;
+				if (std::find(sttr.edges.begin(),sttr.edges.end(), *it) != sttr.edges.end()) {
 					cout << "Aresta: " << *it << " Está em " << st_it->id << endl;
-					//rebuild ();
+					
+					cut_edge (sttr,*it);
+					
 					getchar ();
 				}
 			}
