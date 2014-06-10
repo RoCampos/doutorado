@@ -112,16 +112,19 @@ std::vector<rca::Link> Chen::sort_edges () {
 }
 
 /**
- * Este método tem por objetivo substituir o Link link
- * da árvore st por outro link da árvore. 
- * 
+ * Este método tem como objetivo fazer um corte na árvore
+ * de Steiner st passada como parâmetro. Tal corte criará
+ * duas subárvores. O corte é realizado removendo o link
+ * passado como parâmetro.
  */
 std::vector<int> Chen::cut_edge (STTree & st, rca::Link & link) {
 	
 	//union_find operations
 	int NODES = m_net->getNumberNodes ();
+	//marca as duas subárvores geradas
 	std::vector<int> nodes_mark = std::vector<int> (NODES,0);
 	
+	//estruturas auxiliares
 	//filas usadas no processamento
 	std::queue<int> nodes_x;
 	std::queue<int> nodes_y;
@@ -141,9 +144,6 @@ std::vector<int> Chen::cut_edge (STTree & st, rca::Link & link) {
 		
 		if (!nodes_y.empty())
 			y = nodes_y.front ();
-		
-		cout << "Processing X: " << x <<endl;
-		cout << "Processing Y: " << y <<endl;
 		
 		for (auto it = edges.begin (); it != edges.end(); it++) {
 			//se it->getX() é igula a x, então verifca se a outra
@@ -185,6 +185,54 @@ std::vector<int> Chen::cut_edge (STTree & st, rca::Link & link) {
 	return nodes_mark;
 }
 
+/**
+ * Este método tem por objetivo substituir o Link link
+ * da árvore st por outro link da árvore. 
+ * 
+ */
+void Chen::replace (STTree & st, rca::Link & link) {
+	cout << "replace" << endl;
+	//guarda arestas que podem subustituir o Link link
+	std::vector<rca::Link> newedges;	
+	//corte no grafo
+	std::vector<int> cut_xy = this->cut_edge (st, link);
+	//árvore com nó x = link.getX
+	std::vector<int> Tx;
+	//árvore com nó x = link.getY
+	std::vector<int> Ty;
+	
+	//separando árvore em árvore-x e árvore-y
+	for (size_t i = 0; i < cut_xy.size (); i++) {
+		if (cut_xy[i] == link.getX ()) {
+			Tx.push_back (i);
+		} else if (cut_xy[i] == link.getY ()) {
+			Ty.push_back (i);
+		}
+	}
+	
+	//separando as arestas no corte entre x e y
+	for (size_t i = 0; i < Tx.size (); i++) {
+		for (size_t j = 0; j < Ty.size (); j++) {
+			
+			//testa se a aresta existe
+			if ( m_net->getCost (Tx[i] , Ty[j]) > 0 ) {
+				//verifica se não está congestioanda
+				if (m_edges[ Tx[i] ][ Ty[j] ] < (get_max_congestion() -2) ) {
+					//adiciona link para processamento posterior
+					rca::Link link ( Tx[i], Ty[j], 0);
+					newedges.push_back ( link );
+				}
+			}
+		}
+	}
+	
+	//printing the edges
+	/*
+	for (size_t i = 0; i < newedges.size (); i++) {
+		cout << newedges[i] << endl;
+	}*/
+}
+
 void Chen::run () {
 	
 	bool running = true;
@@ -201,9 +249,9 @@ void Chen::run () {
 				
 				STTree sttr = *st_it;
 				if (std::find(sttr.edges.begin(),sttr.edges.end(), *it) != sttr.edges.end()) {
-					cout << "Aresta: " << *it << " Está em " << st_it->id << endl;
+					//cout << "Aresta: " << *it << " Está em " << st_it->id << endl;
 					
-					cut_edge (sttr,*it);
+					replace (sttr,*it);
 					
 					getchar ();
 				}
