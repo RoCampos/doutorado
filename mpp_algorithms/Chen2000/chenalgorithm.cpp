@@ -96,7 +96,8 @@ std::vector<rca::Link> Chen::sort_edges () {
 	int NODES = m_net->getNumberNodes ();
 	for (int i=0; i < NODES; i++) {
 		for (int j =0; j < i;j++) {
-			if (m_edges[i][j] > 0) {
+			//modificado (> 0) para (> 1)
+			if (m_edges[i][j] > 1) {
 				
 				rca::Link link (i,j,m_edges[i][j]);
 				edges_congestion.push_back(link);
@@ -193,7 +194,7 @@ std::vector<int> Chen::cut_edge (STTree & st, rca::Link & link) {
 void Chen::replace (STTree & st, rca::Link & link) {
 	cout << "replace" << endl;
 	//guarda arestas que podem subustituir o Link link
-	std::vector<rca::Link> newedges;	
+	std::vector<rca::Link> newedges;
 	//corte no grafo
 	std::vector<int> cut_xy = this->cut_edge (st, link);
 	//árvore com nó x = link.getX
@@ -227,10 +228,10 @@ void Chen::replace (STTree & st, rca::Link & link) {
 	}
 	
 	//printing the edges
-	/*
+	
 	for (size_t i = 0; i < newedges.size (); i++) {
 		cout << newedges[i] << endl;
-	}*/
+	}
 }
 
 void Chen::run () {
@@ -241,6 +242,13 @@ void Chen::run () {
 		std::vector<rca::Link> LE = sort_edges ();
 		int Z = get_max_congestion ();
 		
+		//-------------
+		cout << "Arestas\n" << endl;
+		for (auto it = LE.begin(); it != LE.end(); it++) {
+			cout << (*it) << " : " << m_edges[it->getX()][it->getY()] << endl;
+		}	
+		//-------------
+		
 		for (auto it = LE.begin (); it != LE.end(); ++it) {
 			
 			//here the code for rebuild is made
@@ -249,7 +257,7 @@ void Chen::run () {
 				
 				STTree sttr = *st_it;
 				if (std::find(sttr.edges.begin(),sttr.edges.end(), *it) != sttr.edges.end()) {
-					//cout << "Aresta: " << *it << " Está em " << st_it->id << endl;
+					cout << "Aresta: " << *it << " Está em " << st_it->id << endl;
 					
 					replace (sttr,*it);
 					
