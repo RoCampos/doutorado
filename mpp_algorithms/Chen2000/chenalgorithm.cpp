@@ -97,7 +97,7 @@ std::vector<rca::Link> Chen::sort_edges () {
 	for (int i=0; i < NODES; i++) {
 		for (int j =0; j < i;j++) {
 			//modificado (> 0) para (> 1)
-			if (m_edges[i][j] > 1) {
+			if (m_edges[i][j] > 0) {
 				
 				rca::Link link (i,j,m_edges[i][j]);
 				edges_congestion.push_back(link);
@@ -228,10 +228,18 @@ void Chen::replace (STTree & st, rca::Link & link) {
 	}
 	
 	//printing the edges
-	
+	cout << "Arestas possíveis" << endl;
 	for (size_t i = 0; i < newedges.size (); i++) {
 		cout << newedges[i] << endl;
 	}
+	
+	cout << "replacing" << endl;
+	
+	if ( !newedges.empty() ) {
+		st.replace (link, newedges[0]);
+	}
+	
+	
 }
 
 void Chen::run () {

@@ -29,6 +29,15 @@ typedef struct sttree {
 		edges.push_back(l);
 	}
 	
+	void replace (rca::Link & link, rca::Link & nlink) {
+		
+		auto it = find (edges.begin(), edges.end(), link);
+		if (it != edges.end()) {
+			edges.erase (it);
+		}		
+		edges.push_back (nlink);
+	}
+	
 }STTree;
 
 class Chen {
