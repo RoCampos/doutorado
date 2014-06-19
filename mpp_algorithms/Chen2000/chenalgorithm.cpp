@@ -221,7 +221,10 @@ bool Chen::replace (STTree & st, rca::Link & link) {
 				if (m_edges[ Tx[i] ][ Ty[j] ] < (get_max_congestion() -1) ) {
 					//adiciona link para processamento posterior
 					rca::Link l ( Tx[i], Ty[j], 0);
-					newedges.push_back ( l );
+					
+					if (l != link) {
+						newedges.push_back ( l );
+					}
 				}
 			}
 		}
@@ -243,10 +246,6 @@ bool Chen::replace (STTree & st, rca::Link & link) {
 	if ( !newedges.empty()  ) {
 		
 		int xx = rand() % newedges.size();
-		
-		if ((link == newedges[xx])) {
-			return false;
-		}
 		
 		st.replace (link, newedges[xx]);
 		int i = link.getX();
@@ -326,6 +325,17 @@ cout << "Click enter to continue...\n";
 		} 
 		
 	}
+	
+#ifdef DEBUG1
+	for (int i=0; i < m_edges.size (); i++) {
+		for (int j = 0; j < m_edges[i].size (); j++) {
+			cout << m_edges[i][j] << " "; 
+		}
+		cout << endl;
+	}
+
+#endif
+	
 	int Z = get_max_congestion ();
 	cout << m_init_congestion << endl;
 	cout << Z << endl;
