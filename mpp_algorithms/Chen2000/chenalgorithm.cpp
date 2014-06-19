@@ -282,9 +282,6 @@ void Chen::run () {
 	int cont = 0; 
 	while (running) {
 		
-		cout << get_max_congestion () << endl;
-		cout << cont << endl;
-		
 		std::vector<rca::Link> LE = sort_edges ();
 		//-------------
 #ifdef DEBUG1
@@ -329,7 +326,7 @@ cout << "Click enter to continue...\n";
 		} 
 		
 		cont++;
-		if (cont%50 == 0) {
+		if (cont % 50 == 0) {
 			if (get_max_congestion() < Z) {
 				Z = get_max_congestion ();
 				cont=0;
@@ -347,7 +344,7 @@ cout << "Click enter to continue...\n";
 		cout << endl;
 	}
 #endif
-#ifdef DEBUG
+#ifdef DEBUG1
 	for (int i=0; i < m_trees.size (); i++) {
 		m_trees[i].print ();
 		cout << endl;
@@ -356,7 +353,7 @@ cout << "Click enter to continue...\n";
 
 	
 	Z = get_max_congestion ();
-	cout << m_init_congestion << endl;
+	cout << m_init_congestion << " ";
 	cout << Z << endl;
 }
 
