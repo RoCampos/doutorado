@@ -34,7 +34,7 @@ project (Doutorado)
 if( CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]" )
     message( "INFO: DEBUG BUILD" )
     # for debug type builds, turn on verbose makefiles
-    SET(CMAKE_VERBOSE_MAKEFILE ON)
+    SET(CMAKE_VERBOSE_MAKEFILE OFF)
 
     # Tell other CMake files that we're doing a debug build
     SET( DEBUG_BUILD 1 )

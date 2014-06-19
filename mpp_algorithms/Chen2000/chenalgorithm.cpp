@@ -192,7 +192,7 @@ std::vector<int> Chen::cut_edge (STTree & st, rca::Link & link) {
  * 
  */
 bool Chen::replace (STTree & st, rca::Link & link) {
-	cout << "replace" << endl;
+	
 	//guarda arestas que podem subustituir o Link link
 	std::vector<rca::Link> newedges;
 	//corte no grafo
@@ -228,40 +228,51 @@ bool Chen::replace (STTree & st, rca::Link & link) {
 	}
 	
 	//printing the edges
-#ifdef DEBUG
+#ifdef DEBUG1
 	cout << "Arestas possíveis" << endl;
 	for (size_t i = 0; i < newedges.size (); i++) {
 		cout << newedges[i] << endl;
 	}
 #endif
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	cout << "-------replacing--------" << endl;
-	cout << "\tAntes\n";	
+	cout << "\tAntes\n";
 	st.print ();
 #endif
 	if ( !newedges.empty() ) {
-		st.replace (link, newedges[0]);
+		st.replace (link, newedges[rand() % newedges.size()]);
+		int i = link.getX();
+		int j = link.getY();
+		m_edges[i][j] -= 1;
+		m_edges[j][i] -= 1;
+		
+		i = newedges[0].getX();
+		j = newedges[0].getY();
+		m_edges[i][j] += 1;
+		m_edges[j][i] += 1;
+		
+#ifdef DEBUG1
+	cout << "\tdepois\n";
+	st.print ();
+#endif
+		
 		return true;
 	} else {
 		return false;
 	}
 	
-#ifdef DEBUG
-	cout << "\tdepois\n";
-	st.print ();
-#endif
-	
 }
 
 void Chen::run () {
 	
-	bool running;
-	while (1) {
+	bool running = true;
+	
+	while (running) {
 		
-		std::vector<rca::Link> LE = sort_edges ();
 		int Z = get_max_congestion ();
-		
+		cout << Z << endl;
+		std::vector<rca::Link> LE = sort_edges ();
 		//-------------
 #ifdef DEBUG
 		cout << "Arestas Congestionadas\n" << endl;
@@ -279,20 +290,34 @@ void Chen::run () {
 				
 				STTree sttr = *st_it;
 				if (std::find(sttr.edges.begin(),sttr.edges.end(), *it) != sttr.edges.end()) {
-#ifdef DEBUG
+#ifdef DEBUG1
 					cout << "Aresta: " << *it << " Está em " << st_it->id << endl;
 #endif		
 					running = replace (sttr,*it);
 					
+					if (running) {
+						goto BREAK_TEST;
+					}
+#ifdef DEBUG1
+cout << "Click enter to continue...\n";
 					getchar ();
+#endif		
 				}
 			}
-			
 		}
+		cout << "Esgotou" << endl;
+		getchar();
 		
+#ifdef DEBUG
+cout << "Click enter to continue...\n";
+					getchar ();
+#endif		
+		
+		BREAK_TEST:
 		if (!running) {
 			break;
-		}
+		} 
+		
 	}
 	
 }
