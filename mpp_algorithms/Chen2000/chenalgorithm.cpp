@@ -191,7 +191,7 @@ std::vector<int> Chen::cut_edge (STTree & st, rca::Link & link) {
  * da árvore st por outro link da árvore. 
  * 
  */
-void Chen::replace (STTree & st, rca::Link & link) {
+bool Chen::replace (STTree & st, rca::Link & link) {
 	cout << "replace" << endl;
 	//guarda arestas que podem subustituir o Link link
 	std::vector<rca::Link> newedges;
@@ -242,6 +242,9 @@ void Chen::replace (STTree & st, rca::Link & link) {
 #endif
 	if ( !newedges.empty() ) {
 		st.replace (link, newedges[0]);
+		return true;
+	} else {
+		return false;
 	}
 	
 #ifdef DEBUG
@@ -253,7 +256,7 @@ void Chen::replace (STTree & st, rca::Link & link) {
 
 void Chen::run () {
 	
-	bool running = true;
+	bool running;
 	while (1) {
 		
 		std::vector<rca::Link> LE = sort_edges ();
@@ -279,15 +282,13 @@ void Chen::run () {
 #ifdef DEBUG
 					cout << "Aresta: " << *it << " Está em " << st_it->id << endl;
 #endif		
-					replace (sttr,*it);
+					running = replace (sttr,*it);
 					
 					getchar ();
 				}
 			}
 			
 		}
-		
-		running = false;
 		
 		if (!running) {
 			break;

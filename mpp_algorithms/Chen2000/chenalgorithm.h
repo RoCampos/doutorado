@@ -68,7 +68,7 @@ private:
 	 lista de arestas*/
 	void update ();
 	std::vector<int> cut_edge (STTree & st, rca::Link & link);
-	void replace (STTree & st, rca::Link & link);
+	bool replace (STTree & st, rca::Link & link);
 	
 	/*Método que inicializa as variáveis do MPP*/
 	void init ();
