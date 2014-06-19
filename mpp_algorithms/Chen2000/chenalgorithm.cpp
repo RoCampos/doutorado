@@ -218,10 +218,10 @@ bool Chen::replace (STTree & st, rca::Link & link) {
 			//testa se a aresta existe
 			if ( m_net->getCost (Tx[i] , Ty[j]) > 0 ) {
 				//verifica se não está congestioanda
-				if (m_edges[ Tx[i] ][ Ty[j] ] < (get_max_congestion() -2) ) {
+				if (m_edges[ Tx[i] ][ Ty[j] ] < (get_max_congestion() -1) ) {
 					//adiciona link para processamento posterior
-					rca::Link link ( Tx[i], Ty[j], 0);
-					newedges.push_back ( link );
+					rca::Link l ( Tx[i], Ty[j], 0);
+					newedges.push_back ( l );
 				}
 			}
 		}
@@ -240,17 +240,28 @@ bool Chen::replace (STTree & st, rca::Link & link) {
 	cout << "\tAntes\n";
 	st.print ();
 #endif
-	if ( !newedges.empty() ) {
-		st.replace (link, newedges[rand() % newedges.size()]);
+	if ( !newedges.empty()  ) {
+		
+		int xx = rand() % newedges.size();
+		
+		if ((link == newedges[xx])) {
+			return false;
+		}
+		
+		st.replace (link, newedges[xx]);
 		int i = link.getX();
 		int j = link.getY();
 		m_edges[i][j] -= 1;
 		m_edges[j][i] -= 1;
 		
-		i = newedges[0].getX();
-		j = newedges[0].getY();
+		i = newedges[xx].getX();
+		j = newedges[xx].getY();
 		m_edges[i][j] += 1;
 		m_edges[j][i] += 1;
+		
+#ifdef DEBUG1
+		cout << link <<"|"<<newedges[xx] << endl;
+#endif
 		
 #ifdef DEBUG1
 	cout << "\tdepois\n";
@@ -270,11 +281,9 @@ void Chen::run () {
 	
 	while (running) {
 		
-		int Z = get_max_congestion ();
-		cout << Z << endl;
 		std::vector<rca::Link> LE = sort_edges ();
 		//-------------
-#ifdef DEBUG
+#ifdef DEBUG1
 		cout << "Arestas Congestionadas\n" << endl;
 		for (auto it = LE.begin(); it != LE.end(); it++) {
 			cout << (*it) << " : " << m_edges[it->getX()][it->getY()] << endl;
@@ -305,10 +314,8 @@ cout << "Click enter to continue...\n";
 				}
 			}
 		}
-		cout << "Esgotou" << endl;
-		getchar();
 		
-#ifdef DEBUG
+#ifdef DEBUG1
 cout << "Click enter to continue...\n";
 					getchar ();
 #endif		
@@ -319,7 +326,9 @@ cout << "Click enter to continue...\n";
 		} 
 		
 	}
-	
+	int Z = get_max_congestion ();
+	cout << m_init_congestion << endl;
+	cout << Z << endl;
 }
 
 void Chen::print_information () {
