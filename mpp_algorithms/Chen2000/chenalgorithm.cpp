@@ -278,7 +278,12 @@ void Chen::run () {
 	
 	bool running = true;
 	
+	int Z = get_max_congestion ();
+	int cont = 0; 
 	while (running) {
+		
+		cout << get_max_congestion () << endl;
+		cout << cont << endl;
 		
 		std::vector<rca::Link> LE = sort_edges ();
 		//-------------
@@ -288,8 +293,7 @@ void Chen::run () {
 			cout << (*it) << " : " << m_edges[it->getX()][it->getY()] << endl;
 		}	
 #endif
-		//-------------
-		
+		//-------------		
 		for (auto it = LE.begin (); it != LE.end(); ++it) {
 			
 			//here the code for rebuild is made
@@ -301,7 +305,7 @@ void Chen::run () {
 #ifdef DEBUG1
 					cout << "Aresta: " << *it << " Está em " << st_it->id << endl;
 #endif		
-					running = replace (sttr,*it);
+					running = replace (*st_it,*it);
 					
 					if (running) {
 						goto BREAK_TEST;
@@ -324,6 +328,15 @@ cout << "Click enter to continue...\n";
 			break;
 		} 
 		
+		cont++;
+		if (cont%50 == 0) {
+			if (get_max_congestion() < Z) {
+				Z = get_max_congestion ();
+				cont=0;
+			} else {
+				running = false;
+			}
+		}
 	}
 	
 #ifdef DEBUG1
@@ -333,10 +346,16 @@ cout << "Click enter to continue...\n";
 		}
 		cout << endl;
 	}
-
 #endif
+#ifdef DEBUG
+	for (int i=0; i < m_trees.size (); i++) {
+		m_trees[i].print ();
+		cout << endl;
+	}
+#endif
+
 	
-	int Z = get_max_congestion ();
+	Z = get_max_congestion ();
 	cout << m_init_congestion << endl;
 	cout << Z << endl;
 }
