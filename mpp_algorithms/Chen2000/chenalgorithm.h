@@ -38,6 +38,12 @@ typedef struct sttree {
 		edges.push_back (nlink);
 	}
 	
+	void print () {
+		for (auto it = edges.begin(); it != edges.end(); it++) {
+			cout << *it << endl;
+		}
+	}
+	
 }STTree;
 
 class Chen {

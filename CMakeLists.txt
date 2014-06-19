@@ -31,8 +31,25 @@ enable_testing ()
 
 project (Doutorado)
 
-set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -O3")
+if( CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]" )
+    message( "INFO: DEBUG BUILD" )
+    # for debug type builds, turn on verbose makefiles
+    SET(CMAKE_VERBOSE_MAKEFILE ON)
+
+    # Tell other CMake files that we're doing a debug build
+    SET( DEBUG_BUILD 1 )
+
+    # Tell C/C++ that we're doing a debug build
+    ADD_DEFINITIONS( -DDEBUG )
+    
+    #set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+endif()
+
+if( CMAKE_BUILD_TYPE MATCHES "[Rr][Ee][Ll][Ee][Aa][Ss][Ee]" )
+    message( "INFO: RELEASE BUILD" )
+    
+    set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -O3")
+endif()
 
 add_definitions ("-std=c++0x -Wall")
 

@@ -228,17 +228,26 @@ void Chen::replace (STTree & st, rca::Link & link) {
 	}
 	
 	//printing the edges
+#ifdef DEBUG
 	cout << "Arestas possíveis" << endl;
 	for (size_t i = 0; i < newedges.size (); i++) {
 		cout << newedges[i] << endl;
 	}
+#endif
 	
-	cout << "replacing" << endl;
-	
+#ifdef DEBUG
+	cout << "-------replacing--------" << endl;
+	cout << "\tAntes\n";	
+	st.print ();
+#endif
 	if ( !newedges.empty() ) {
 		st.replace (link, newedges[0]);
 	}
 	
+#ifdef DEBUG
+	cout << "\tdepois\n";
+	st.print ();
+#endif
 	
 }
 
@@ -251,10 +260,12 @@ void Chen::run () {
 		int Z = get_max_congestion ();
 		
 		//-------------
-		cout << "Arestas\n" << endl;
+#ifdef DEBUG
+		cout << "Arestas Congestionadas\n" << endl;
 		for (auto it = LE.begin(); it != LE.end(); it++) {
 			cout << (*it) << " : " << m_edges[it->getX()][it->getY()] << endl;
 		}	
+#endif
 		//-------------
 		
 		for (auto it = LE.begin (); it != LE.end(); ++it) {
@@ -265,8 +276,9 @@ void Chen::run () {
 				
 				STTree sttr = *st_it;
 				if (std::find(sttr.edges.begin(),sttr.edges.end(), *it) != sttr.edges.end()) {
+#ifdef DEBUG
 					cout << "Aresta: " << *it << " Está em " << st_it->id << endl;
-					
+#endif		
 					replace (sttr,*it);
 					
 					getchar ();
