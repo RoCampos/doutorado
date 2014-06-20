@@ -126,7 +126,7 @@ std::vector<int> Chen::cut_edge (STTree & st, rca::Link & link) {
 	//union_find operations
 	int NODES = m_net->getNumberNodes ();
 	//marca as duas subárvores geradas
-	std::vector<int> nodes_mark = std::vector<int> (NODES,0);
+	std::vector<int> nodes_mark = std::vector<int> (NODES,-1);
 	
 	//estruturas auxiliares
 	//filas usadas no processamento
@@ -153,14 +153,14 @@ std::vector<int> Chen::cut_edge (STTree & st, rca::Link & link) {
 			//se it->getX() é igula a x, então verifca se a outra
 			//aresta foi processada
 			if (!nodes_x.empty()) {
-			 if ( (it->getX () == x) && (nodes_mark[it->getY ()] == 0) ) {
+			 if ( (it->getX () == x) && (nodes_mark[it->getY ()] == -1) ) {
 				//senão adicione-a a lisda de marcados e guarde 
 				//para processamento
 				nodes_mark[it->getY ()] = nodes_mark[x];
 				nodes_x.push (it->getY ());
 				
 				//faz o mesmo para o caso da aresta se it->getY()
-			 } else if ( (it->getY () == x) && (nodes_mark[it->getX ()] == 0) ) {
+			 } else if ( (it->getY () == x) && (nodes_mark[it->getX ()] == -1) ) {
 				nodes_mark[it->getX ()] = nodes_mark[x];
 				nodes_x.push (it->getX ());
 			 }
@@ -168,10 +168,10 @@ std::vector<int> Chen::cut_edge (STTree & st, rca::Link & link) {
 			 
 			 //processo semelhante para o nó y
 			 if (!nodes_y.empty()) {
-			 if (it->getX () == y && nodes_mark[it->getY ()] == 0) {
+			 if (it->getX () == y && nodes_mark[it->getY ()] == -1) {
 				nodes_mark[it->getY ()] = nodes_mark[y];
 				nodes_y.push (it->getY ());
-			 } else if (it->getY () == y && nodes_mark[it->getX ()] == 0) {
+			 } else if (it->getY () == y && nodes_mark[it->getX ()] == -1) {
 				nodes_mark[it->getX ()] = nodes_mark[y];
 				nodes_y.push (it->getX ());
 			 }
@@ -205,6 +205,17 @@ bool Chen::replace (STTree & st, rca::Link & link) {
 	//árvore com nó x = link.getY
 	std::vector<int> Ty;
 	
+#ifdef DEBUG
+	cout << "--Debuggin cut_edge result--\n";
+	
+	for (int i=0; i < cut_xy.size (); i++) {
+		cout << i<<":"<<cut_xy[i] << " ";
+	}
+	cout << endl;
+	cout << "-------------------------\n";
+#endif
+	
+	
 	//separando árvore em árvore-x e árvore-y
 	for (size_t i = 0; i < cut_xy.size (); i++) {
 		if (cut_xy[i] == link.getX ()) {
@@ -234,7 +245,7 @@ bool Chen::replace (STTree & st, rca::Link & link) {
 	}
 	
 	//printing the edges
-#ifdef DEBUG1
+#ifdef DEBUG
 	cout << "Arestas possíveis" << endl;
 	for (size_t i = 0; i < newedges.size (); i++) {
 		cout << newedges[i] << endl;
@@ -261,7 +272,7 @@ bool Chen::replace (STTree & st, rca::Link & link) {
 		m_edges[i][j] += 1;
 		m_edges[j][i] += 1;
 		
-#ifdef DEBUG1
+#ifdef DEBUG
 		cout << link <<"|"<<newedges[xx] << endl;
 #endif
 		
@@ -302,10 +313,15 @@ void Chen::run () {
 				
 				STTree sttr = *st_it;
 				if (std::find(sttr.edges.begin(),sttr.edges.end(), *it) != sttr.edges.end()) {
-#ifdef DEBUG1
+#ifdef DEBUG
 					cout << "Aresta: " << *it << " Está em " << st_it->id << endl;
 #endif		
 					running = replace (*st_it,*it);
+
+#ifdef DEBUG
+cout << "Click enter to continue...\n";
+getchar ();
+#endif					
 					
 					if (running) {
 						goto BREAK_TEST;
@@ -319,7 +335,7 @@ cout << "Click enter to continue...\n";
 		}
 		
 #ifdef DEBUG1
-cout << "Click enter to continue...\n";
+cout << "Click enter to continue and test BREAK_TEST...\n";
 					getchar ();
 #endif
 		
