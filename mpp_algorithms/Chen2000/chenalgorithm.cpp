@@ -205,7 +205,7 @@ bool Chen::replace (STTree & st, rca::Link & link) {
 	//árvore com nó x = link.getY
 	std::vector<int> Ty;
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	cout << "--Debuggin cut_edge result--\n";
 	
 	for (int i=0; i < cut_xy.size (); i++) {
@@ -245,7 +245,7 @@ bool Chen::replace (STTree & st, rca::Link & link) {
 	}
 	
 	//printing the edges
-#ifdef DEBUG
+#ifdef DEBUG1
 	cout << "Arestas possíveis" << endl;
 	for (size_t i = 0; i < newedges.size (); i++) {
 		cout << newedges[i] << endl;
@@ -272,7 +272,7 @@ bool Chen::replace (STTree & st, rca::Link & link) {
 		m_edges[i][j] += 1;
 		m_edges[j][i] += 1;
 		
-#ifdef DEBUG
+#ifdef DEBUG1
 		cout << link <<"|"<<newedges[xx] << endl;
 #endif
 		
@@ -313,12 +313,12 @@ void Chen::run () {
 				
 				STTree sttr = *st_it;
 				if (std::find(sttr.edges.begin(),sttr.edges.end(), *it) != sttr.edges.end()) {
-#ifdef DEBUG
+#ifdef DEBUG1
 					cout << "Aresta: " << *it << " Está em " << st_it->id << endl;
 #endif		
 					running = replace (*st_it,*it);
 
-#ifdef DEBUG
+#ifdef DEBUG1
 cout << "Click enter to continue...\n";
 getchar ();
 #endif					
@@ -326,7 +326,7 @@ getchar ();
 					if (running) {
 						goto BREAK_TEST;
 					}
-#ifdef DEBUG1
+#ifdef DEBUG11
 cout << "Click enter to continue...\n";
 					getchar ();
 #endif		
