@@ -60,6 +60,9 @@ void Chen::pre_processing () {
 			x = atoi ( str.c_str () );
 		
 			//updating the edges congestion
+			//aqui subtrai um porque o GLPSOL roda com 
+			//vertices de 1..n
+			//na minha api os vértices são de 0..n-1
 			--x;
 			--y;
 			m_edges[y][x] += 1;
@@ -290,7 +293,7 @@ void Chen::run () {
 			cout << (*it) << " : " << m_edges[it->getX()][it->getY()] << endl;
 		}	
 #endif
-		//-------------		
+		//-------------
 		for (auto it = LE.begin (); it != LE.end(); ++it) {
 			
 			//here the code for rebuild is made
@@ -318,7 +321,7 @@ cout << "Click enter to continue...\n";
 #ifdef DEBUG1
 cout << "Click enter to continue...\n";
 					getchar ();
-#endif		
+#endif
 		
 		BREAK_TEST:
 		if (!running) {
@@ -344,7 +347,7 @@ cout << "Click enter to continue...\n";
 		cout << endl;
 	}
 #endif
-#ifdef DEBUG1
+#ifdef DEBUG
 	for (int i=0; i < m_trees.size (); i++) {
 		m_trees[i].print ();
 		cout << endl;
