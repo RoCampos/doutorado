@@ -8,6 +8,8 @@ _CPack_Packages
 results/
 build/
 lib/
+CPack*
+
 
 *kate-swp
 
