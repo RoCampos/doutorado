@@ -21,7 +21,8 @@ class MPPAlgorithm {
   
 public:
   MPPAlgorithm ();
-  MPPAlgorithm (std::string algo, std::string roblem, int objectives);
+  MPPAlgorithm (std::string algo, std::string roblem, 
+		int objectives, std::string instance);
   
 private:
   std::string m_algo_info; 
@@ -35,7 +36,7 @@ private:
 public:
   
   //método para iniciar variábeis do problema
-  void init (std::string file);
+  void init (rca::Network & network);
   
   //método para rodar os algoritmos
   void run ();

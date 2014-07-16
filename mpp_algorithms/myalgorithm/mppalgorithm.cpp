@@ -7,20 +7,25 @@ MPPAlgorithm::MPPAlgorithm () {
   
 }
 
-MPPAlgorithm::MPPAlgorithm (std::string algo, std::string problem, int objectives) {
+MPPAlgorithm::MPPAlgorithm (std::string algo, std::string problem, 
+			    int objectives, std::string instance) {
   
   m_algo_info = algo;
   m_problem = problem;
   m_objectives = objectives;
+  m_instance = instance;
   
 }	
 
-void MPPAlgorithm::init (std::string instance) {
+void MPPAlgorithm::init (rca::Network & network) {
   
-  m_instance = instance;  
-  m_net = make_shared<Network> ();  
-  Reader r(instance);
-  r.configNetwork ( m_net.get() );
+#ifdef DEBUG
+  cout << "Method Init: Line " <<__LINE__ << "." << endl;
+  cout << "Date: "<< __DATE__ << endl;
+#endif
+  
+  m_net = make_shared<rca::Network> (network);
   
 }
+
 
