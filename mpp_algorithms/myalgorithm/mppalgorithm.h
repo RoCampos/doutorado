@@ -4,6 +4,10 @@
 #include <iostream>
 #include <string>
 
+#include <memory>
+
+#include "network.h"
+
 /**
  * Classe que representa meu algoritmo
  * Esta classe contém as rotinas utilizadas para resolver
@@ -19,9 +23,22 @@ public:
   MPPAlgorithm (std::string algo, std::string roblem, int objectives);
   
 private:
-  std::string m_algol_info; 
+  std::string m_algo_info; 
   std::string m_problem;
   int m_objectives;
+ 
+  //variábeis do problema
+  std::string m_instance;
+  std::shared_ptr<rca::Network> net;
+  
+public:
+  
+  //método para iniciar variábeis do problema
+  void init (std::string file);
+  
+  //método para rodar os algoritmos
+  void run ();
+  
     
 };
 
