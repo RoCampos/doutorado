@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "network.h"
+#include "reader.h"
 
 /**
  * Classe que representa meu algoritmo
@@ -29,7 +30,7 @@ private:
  
   //variábeis do problema
   std::string m_instance;
-  std::shared_ptr<rca::Network> net;
+  std::shared_ptr<rca::Network> m_net;
   
 public:
   
