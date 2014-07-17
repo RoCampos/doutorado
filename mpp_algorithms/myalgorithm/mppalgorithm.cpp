@@ -17,14 +17,17 @@ MPPAlgorithm::MPPAlgorithm (std::string algo, std::string problem,
   
 }	
 
-void MPPAlgorithm::init (rca::Network & network) {
+void MPPAlgorithm::init (rca::Network & network, 
+			 std::vector<std::shared_ptr<Group>> groups) {
   
 #ifdef DEBUG
   cout << "Method Init: Line " <<__LINE__ << "." << endl;
   cout << "Date: "<< __DATE__ << endl;
+  cout << "Instance used: " << m_instance << endl;
 #endif
   
   m_net = make_shared<rca::Network> (network);
+  m_groups = groups;
   
 }
 

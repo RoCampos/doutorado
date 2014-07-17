@@ -32,11 +32,13 @@ private:
   //variábeis do problema
   std::string m_instance;
   std::shared_ptr<rca::Network> m_net;
+  std::vector<shared_ptr<rca::Group>> m_groups;
   
 public:
   
   //método para iniciar variábeis do problema
-  void init (rca::Network & network);
+  void init (rca::Network & network, 
+	     std::vector<shared_ptr<rca::Group>> groups);
   
   //método para rodar os algoritmos
   void run ();

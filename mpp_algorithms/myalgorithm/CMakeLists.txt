@@ -14,3 +14,6 @@ FILE (GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 add_executable (mppalgorithm mppalgorithm.cpp main.cpp mppalgorithm.h ${includes})
 target_link_libraries (mppalgorithm graph)
 
+add_executable (main_strategy main_strategy.cpp 
+		strategy_make_tree.cpp strategy_make_tree.h)
+
