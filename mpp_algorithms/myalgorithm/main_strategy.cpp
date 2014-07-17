@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "strategy_make_tree.h"
-//#include "strategy_make_tree.cpp"
 
 int main (int argv, char**argc) {
  
