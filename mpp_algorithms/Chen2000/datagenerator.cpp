@@ -101,7 +101,7 @@ void Generator::gen_terminal (std::ostream& out, int i) {
 	if ( Generator::st ) {
 		out << "param r := " << g->getSource () << ";\n";
 	} else {
-		out << "param r := " << g->getMember(0) + 1<< ";\n";
+		out << "param r := " << g->getSource () + 1<< ";\n";
 	}
 	
 	
