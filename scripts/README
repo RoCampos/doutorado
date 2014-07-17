@@ -4,6 +4,9 @@ Script para gerar arquivos compatíveis com o glpsol.
 Ele gera arquivos de entrada para o glpsol a partir de
 instância do MPP.
 
+recebe como entrada: DIRETÓRIO ONDE ESTÃO AS INSTÂNCIAS
+saída: CRIA UM DIRETÓRIO CHAMADO mpp_dat_files NO DIRETÓRIO ONDE ESTAVAM AS INSTÂNCIAS.
+
 
 limitgen.sh
 =========================
