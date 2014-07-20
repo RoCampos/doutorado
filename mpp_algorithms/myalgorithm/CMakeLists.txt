@@ -17,5 +17,6 @@ target_link_libraries (mppalgorithm graph)
 add_executable (main_strategy main_strategy.cpp 
 		strategy_make_tree.cpp strategy_make_tree.h)
 		
-add_executable (steinertest steiner_test.cpp)
+add_executable (steinertest steiner_test.cpp ${includes})
+target_link_libraries (steinertest graph)
 
