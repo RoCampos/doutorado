@@ -12,6 +12,8 @@ FILE(GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 add_library (sttree STATIC ${SRC})
 
+add_executable (steinertest steiner_test.cpp)
+
 INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION sttree)
 
 #install (TARGETS sttree
