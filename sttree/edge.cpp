@@ -64,3 +64,21 @@ Edge * LisfOfEdge::remove (Edge * edge) {
 		return NULL;
 	}	
 }
+
+bool LisfOfEdge::exist (int i, int j) {
+ 
+  Edge * aux = head;
+  
+  while (aux != NULL) {
+   
+    if ((aux->i == i && aux->j == j) || (aux->i == j && aux->j == i)) {
+      std::cout << "equals" << std::endl;
+      return 1;
+    }
+    
+    aux = aux->next;
+    
+  }
+  return 0;
+  
+}

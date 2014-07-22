@@ -51,6 +51,8 @@ struct LisfOfEdge {
 	Edge * tail;
 	int size;
 	
+	bool exist (int i, int j);
+	
 };
 
 #endif
