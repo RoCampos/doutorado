@@ -16,6 +16,9 @@ void print_paths (std::vector<Path> & paths);
 SteinerTree create_steiner_tree (std::vector<Path> & paths, 
 				 Network & net, Group & group);
 
+std::vector<std::vector<int>> 
+     matrix_congestion;
+
 int main (int argv, char**argc) {
 
     rca::Network network;
@@ -28,6 +31,11 @@ int main (int argv, char**argc) {
     
     //printing the terminals
     //print_terminals (*groups[0]);
+    
+    matrix_congestion = std::vector<std::vector<int>>(network.getNumberNodes());
+    for (unsigned int i = 0; i < network.getNumberNodes(); i++) {
+      matrix_congestion[i] = std::vector<int>(network.getNumberNodes());
+    }  
 
     //printing the paths: terminals to terminals
     for (int i=0; i < groups.size(); i++) {
@@ -39,6 +47,16 @@ int main (int argv, char**argc) {
       st.xdotFormat ();  
     }
     
+    int max = 0;
+    for (int i=0; i < network.getNumberNodes(); i++) {
+      for (int j = 0; j < network.getNumberNodes(); j++) {
+	if (matrix_congestion[i][j] > max) {
+	  max=matrix_congestion[i][j];
+	}
+      }
+    }
+    
+    cout << "CONGESTION: " << max << endl;
     //Edge *begin = st.listEdge.head;
     //double cost = 0.0;
     /*while (begin != NULL) {
@@ -46,7 +64,9 @@ int main (int argv, char**argc) {
 	begin = begin->next;
     }
     */
-      
+    
+   
+    
     return 0;
 }
 
@@ -128,6 +148,11 @@ SteinerTree create_steiner_tree (std::vector<Path> & paths,
       if (ds_edges.find(v) != ds_edges.find(w)) {
 	
 	st.addEdge (link.getX(), link.getY(), link.getValue() );
+	
+	//computing congestion
+	matrix_congestion[v][w]++;
+	matrix_congestion[w][v]++;
+	
 	ds_edges.simpleUnion (v,w);
       }
     }    
@@ -135,6 +160,8 @@ SteinerTree create_steiner_tree (std::vector<Path> & paths,
   
   cout << "Cost Before Prunning: " << st.getCost () << endl;
   st.prunning ();
+  
+  
   
   return st;
 }

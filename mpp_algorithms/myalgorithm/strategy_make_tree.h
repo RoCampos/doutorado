@@ -67,7 +67,19 @@ public:
   
 };
 
+/**
+ * Esta classe representa uma algoritmo simples para
+ * criação de árvores de steiner usando o algoritmo
+ * de caminho mais curto entre nós terminais.
+ * 
+ */ 
+class NaiveShortestPath : public TreeAlgorithmInterface {
 
-
+public:
+  void make_tree () {
+    std::cout << "Naive Shortest Path\n";
+  }
+  
+};
 
 #endif /*_STRATEGY_MAKE_TREE_*/
