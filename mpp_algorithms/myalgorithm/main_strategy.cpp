@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "strategy_make_tree.h"
+#include "steinertree.h"
 
 int main (int argv, char**argc) {
  
@@ -8,7 +9,8 @@ int main (int argv, char**argc) {
   
   TreeAlgorithm algorithm(tree_maker);
   
-  algorithm.execute ();
+  std::shared_ptr<SteinerTree> st;
+  algorithm.execute (st);
   
   return 0;
 }

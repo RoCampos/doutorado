@@ -15,7 +15,9 @@ add_executable (mppalgorithm mppalgorithm.cpp main.cpp mppalgorithm.h ${includes
 target_link_libraries (mppalgorithm graph)
 
 add_executable (main_strategy main_strategy.cpp 
-		strategy_make_tree.cpp strategy_make_tree.h)
+		strategy_make_tree.cpp strategy_make_tree.h ${includes})
+		
+target_link_libraries (main_strategy sttree)
 		
 add_executable (steinertest steiner_test.cpp ${includes})
 target_link_libraries (steinertest graph sttree)
