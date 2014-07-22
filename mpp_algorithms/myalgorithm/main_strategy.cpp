@@ -12,5 +12,7 @@ int main (int argv, char**argc) {
   std::shared_ptr<SteinerTree> st;
   algorithm.execute (st);
   
+  std::cout << st.use_count() << std::endl;
+  
   return 0;
 }

@@ -18,7 +18,7 @@ class TreeAlgorithmInterface {
  
 public:
   /*Este método resolve uma árvore de Steiner*/
-  virtual std::shared_ptr<SteinerTree> & make_tree () = 0;
+  virtual void make_tree (std::shared_ptr<SteinerTree> & st) = 0;
   
 };
 
@@ -40,9 +40,12 @@ public:
   
   void execute (std::shared_ptr<SteinerTree> & st) {
     
-    if (m_strategy != NULL) {          
-      m_strategy->make_tree ();
+    if (m_strategy != NULL) {         
+     
+      m_strategy->make_tree(st);     
+     
     }
+    
   }
   
   void set_strategy (TreeAlgorithmInterface & strategy) {
@@ -66,11 +69,9 @@ private:
 class ShortestPathTree : public TreeAlgorithmInterface {
   
 public:
-  std::shared_ptr<SteinerTree> & make_tree () {
-    std::cout << "Shortest Path\n";    
-    std::make_shared<SteinerTree> (0,0);
-    std::shared_ptr<SteinerTree> st;
-    return st;
+  void make_tree (std::shared_ptr<SteinerTree> & st) {
+    std::cout << "Shortest Path\n";
+    std::make_shared<SteinerTree>(1,0);
   }
   
 };
@@ -84,10 +85,9 @@ public:
 class NaiveShortestPath : public TreeAlgorithmInterface {
 
 public:
-  std::shared_ptr<SteinerTree> & make_tree () {
+  void make_tree (std::shared_ptr<SteinerTree> & st) {
     std::cout << "Naive Shortest Path\n";
-    std::shared_ptr<SteinerTree> st = std::make_shared<SteinerTree> (0,0);
-    return st;
+    st = std::make_shared<SteinerTree> (1,0);    
   }
   
 };
