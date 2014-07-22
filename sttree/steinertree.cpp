@@ -7,7 +7,7 @@ SteinerTree::SteinerTree (int nobj, int nnodes)
 }
 
 void SteinerTree::setTempStructures (std::vector<double> & objs, 
-							std::vector<SteinerNode> & _nodes)
+				std::vector<SteinerNode> & _nodes)
 {
 	objectives = objs;
 	vertexList = _nodes;
@@ -20,6 +20,12 @@ void SteinerTree::addEdge (int i, int j, int value)
 	{
 		return;
 	}
+	
+#ifdef DEGUB
+  std::cout << i << "-" << j;
+  std::cout << ": gfa(" << i << ")=" << vertexList[i].getFirstAdjc()<< std::endl;
+  std::cout << ": gfa(" << j << ")=" << vertexList[j].getFirstAdjc() << std::endl;
+#endif
 	
 	vertexList[i].increaseDegree ();
 	vertexList[j].increaseDegree ();
