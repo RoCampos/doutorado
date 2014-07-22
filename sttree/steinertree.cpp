@@ -21,6 +21,10 @@ void SteinerTree::addEdge (int i, int j, int value)
 		return;
 	}
 	
+	if (listEdge.exist (i,j)) {
+	  return;
+	}
+	
 #ifdef DEGUB
   std::cout << i << "-" << j;
   std::cout << ": gfa(" << i << ")=" << vertexList[i].getFirstAdjc()<< std::endl;
