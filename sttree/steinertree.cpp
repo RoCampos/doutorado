@@ -13,6 +13,7 @@ void SteinerTree::setTempStructures (std::vector<double> & objs,
 	vertexList = _nodes;
 }
 
+//this procedure takes O(n) since we must avoid duplicated edges.
 void SteinerTree::addEdge (int i, int j, int value)
 {
 	if (vertexList[i].getFirstAdjc () == j ||

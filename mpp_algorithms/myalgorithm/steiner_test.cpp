@@ -27,22 +27,26 @@ int main (int argv, char**argc) {
     groups = r.readerGroup ();
     
     //printing the terminals
-    print_terminals (*groups[0]);
+    //print_terminals (*groups[0]);
 
     //printing the paths: terminals to terminals
-    std::vector<Path> paths = getPaths (*groups[0], network);
-    print_paths (paths);
+    for (int i=0; i < groups.size(); i++) {
+      std::vector<Path> paths = getPaths (*groups[i], network);
+      //print_paths (paths);
     
-    SteinerTree st = create_steiner_tree (paths, network, *groups[0]);    
-    Edge *begin = st.listEdge.head;
-	double cost = 0.0;
-    while (begin != NULL) {
+      SteinerTree st = create_steiner_tree (paths, network, *groups[i]); 
+      cout << "Cost After Prunning: " << st.getCost() << endl;
+      st.xdotFormat ();  
+    }
+    
+    //Edge *begin = st.listEdge.head;
+    //double cost = 0.0;
+    /*while (begin != NULL) {
 	cost += begin->cost;
 	begin = begin->next;
     }
-    cout << "Cost After Prunning: " << cost << endl;
-    st.xdotFormat ();    
-    
+    */
+      
     return 0;
 }
 
@@ -109,6 +113,9 @@ SteinerTree create_steiner_tree (std::vector<Path> & paths,
   }
   st.setTerminal (group.getSource());
   
+  //disjoint set used to avoid circles
+  DisjointSet2 ds_edges (NODES);
+  
   for (int i=0; i < paths.size (); i++) {
     Path path = paths[i];
     
@@ -116,7 +123,13 @@ SteinerTree create_steiner_tree (std::vector<Path> & paths,
       int v = path[i];
       int w = path[i+1];
       Link link (v,w, net.getCost(v,w));
-      st.addEdge (link.getX(), link.getY(), link.getValue() );
+      
+      //testing if two vertex are in the same disjointSet
+      if (ds_edges.find(v) != ds_edges.find(w)) {
+	
+	st.addEdge (link.getX(), link.getY(), link.getValue() );
+	ds_edges.simpleUnion (v,w);
+      }
     }    
   }
   
