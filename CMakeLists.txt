@@ -40,18 +40,29 @@ if( CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]" )
     SET( DEBUG_BUILD 1 )
 
     # Tell C/C++ that we're doing a debug build
-    ADD_DEFINITIONS( -DDEBUG )
+    ADD_DEFINITIONS( -DDEBUG ) 
+    add_definitions ("-std=c++0x -Wall")
+    message("${CMAKE_CXX_FLAGS_DEBUG}")
     
-    #set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 endif()
 
 if( CMAKE_BUILD_TYPE MATCHES "[Rr][Ee][Ll][Ee][Aa][Ss][Ee]" )
-    message( "INFO: RELEASE BUILD" )
-    
-    set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -O3")
+    message( "INFO: RELEASE BUILD" )    
+    add_definitions ("-std=c++0x -Wall")    
+    message("${CMAKE_CXX_FLAGS_RELEASE}")
 endif()
 
-add_definitions ("-std=c++0x -Wall")
+if (CMAKE_BUILD_TYPE MATCHES "[Pp][Rr][Oo][Ff][Ii][Ll][Ee]")
+    message ("INFO: PROFILE BUILD")
+    
+    set (CMAKE_CXX_FLAGS_PROFILE "-O0 -pg")    
+    add_definitions ("-std=c++0x")
+    
+    message("${CMAKE_CXX_FLAGS_PROFILE}")
+    
+endif()
+
+
 
 set (EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/build")
 set (LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
