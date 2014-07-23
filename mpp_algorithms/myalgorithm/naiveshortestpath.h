@@ -18,10 +18,7 @@
 class NaiveShortestPath : public TreeAlgorithmInterface {
 
 public:
-  void make_tree (std::shared_ptr<SteinerTree> & st) {
-    std::cout << "Naive Shortest Path\n";
-    st = std::make_shared<SteinerTree> (1,0);    
-  }
+  void make_tree (std::shared_ptr<SteinerTree> & st);
   
 };
 
