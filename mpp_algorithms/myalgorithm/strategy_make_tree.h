@@ -9,6 +9,8 @@
 #include "group.h"
 #include "algorithm.h"
 
+#include "properties.h"
+
 /**
  * Classe que representa de forma abstra uma estratégia
  * para construir árvores de Steiner.

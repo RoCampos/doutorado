@@ -13,9 +13,13 @@
 //variaveis compartilhadas pelos algoritmos
 //otimizar acesso aos conteúdos
 
+namespace rca {
+
 extern std::shared_ptr<rca::Network> g_network;
 extern std::vector<std::shared_ptr<rca::Group>> g_groups;
   
-void init (std::string file);
+void init_properties (std::string file);
+
+}
 
 #endif /*_GLOBAL_PROPERTIES_H_*/

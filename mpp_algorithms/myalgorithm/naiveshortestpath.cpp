@@ -2,7 +2,7 @@
 
 void NaiveShortestPath::make_tree (std::shared_ptr<SteinerTree> & st) {
  
-  int GROUP_SIZE = m_groups.size();
+  int GROUP_SIZE = g_groups.size();
   for (int i=0; i < GROUP_SIZE; i++) {
       
     std::vector<rca::Path> paths;
