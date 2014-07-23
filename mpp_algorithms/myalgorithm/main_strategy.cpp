@@ -4,9 +4,22 @@
 #include "steinertree.h"
 #include "naiveshortestpath.h"
 
+#include "network.h"
+#include "reader.h"
+
+using namespace rca;
+
 int main (int argv, char**argc) {
  
-  ShortestPathTree tree_maker;  
+  rca::Network network;
+  std::vector<std::shared_ptr<Group>> groups;
+  
+  //reading informations about network and groups
+  Reader r(argc[1]);
+  r.configNetwork (&network);
+  groups = r.readerGroup ();
+  
+  NaiveShortestPath tree_maker(network, groups);  
   TreeAlgorithm algorithm(tree_maker);
   
   std::shared_ptr<SteinerTree> st;
