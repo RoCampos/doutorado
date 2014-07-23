@@ -19,7 +19,7 @@ int main (int argv, char**argc) {
   r.configNetwork (&network);
   groups = r.readerGroup ();
   
-  NaiveShortestPath tree_maker(network, groups);  
+  NaiveShortestPath tree_maker;  
   TreeAlgorithm algorithm(tree_maker);
   
   std::shared_ptr<SteinerTree> st;

@@ -20,11 +20,6 @@ class NaiveShortestPath : public TreeAlgorithmInterface {
 
 public:
   
-  NaiveShortestPath (rca::Network & network, 
-		    std::vector<std::shared_ptr<rca::Group>> &groups) :
-		    TreeAlgorithmInterface(network,groups) 
-		    {};
-  
   void make_tree (std::shared_ptr<SteinerTree> & st);
   
 private:
