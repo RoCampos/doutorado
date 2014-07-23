@@ -2,6 +2,7 @@
 
 #include "strategy_make_tree.h"
 #include "steinertree.h"
+#include "naiveshortestpath.h"
 
 int main (int argv, char**argc) {
  
