@@ -5,6 +5,8 @@
 #include <memory>
 
 #include "steinertree.h"
+#include "network.h"
+#include "group.h"
 
 /**
  * Classe que representa de forma abstra uma estratégia
@@ -17,8 +19,21 @@
 class TreeAlgorithmInterface {
  
 public:
+  
+  TreeAlgorithmInterface (rca::Network & net, 
+			  std::vector<std::shared_ptr<rca::Group>> & groups){
+    m_net = net;
+    m_groups = groups;
+    
+  }
+  
   /*Este método resolve uma árvore de Steiner*/
   virtual void make_tree (std::shared_ptr<SteinerTree> & st) = 0;
+  
+private:
+  rca::Network m_net;
+  std::vector<std::shared_ptr<rca::Group>> m_groups;
+  
   
 };
 

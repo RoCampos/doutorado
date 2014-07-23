@@ -6,8 +6,7 @@
 
 int main (int argv, char**argc) {
  
-  ShortestPathTree tree_maker;
-  
+  ShortestPathTree tree_maker;  
   TreeAlgorithm algorithm(tree_maker);
   
   std::shared_ptr<SteinerTree> st;
