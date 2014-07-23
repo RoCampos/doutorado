@@ -16,7 +16,8 @@ target_link_libraries (mppalgorithm graph)
 
 add_executable (main_strategy main_strategy.cpp 
 		strategy_make_tree.cpp strategy_make_tree.h
-		naiveshortestpath.h naiveshortestpath.cpp 
+		naiveshortestpath.h naiveshortestpath.cpp
+		properties.cpp
 		${includes})
 target_link_libraries (main_strategy sttree graph)
 		

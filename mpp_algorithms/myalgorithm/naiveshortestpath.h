@@ -9,6 +9,8 @@
 
 #include "path.h"
 
+#include "properties.h"
+
 
 /**
  * Esta classe representa uma algoritmo simples para
