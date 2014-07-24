@@ -27,7 +27,7 @@ public:
 private:
   void getPaths (int group_id, std::vector<rca::Path> & paths);
   void create_steiner_tree (int group_id, std::vector<rca::Path> & paths, 
-			    SteinerTree * st);
+			    std::shared_ptr<SteinerTree> & st);
   
 };
 

@@ -6,7 +6,7 @@ void NaiveShortestPath::make_tree (std::shared_ptr<SteinerTree> & st) {
   for (int i=0; i < GROUP_SIZE; i++) {
       
     std::vector<rca::Path> paths;
-      
+     
     getPaths (i, paths);
       
   }
@@ -29,5 +29,14 @@ void NaiveShortestPath::getPaths (int group_id, std::vector<rca::Path> & paths) 
     paths.push_back (path);
     
   }
+  
+}
+
+void NaiveShortestPath::create_steiner_tree  (int group_id, 
+				       std::vector<rca::Path> & paths, 
+				       std::shared_ptr<SteinerTree> & st) {
+  
+  
+  
   
 }
