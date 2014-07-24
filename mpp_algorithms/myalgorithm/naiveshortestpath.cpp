@@ -9,12 +9,15 @@ void NaiveShortestPath::make_tree (int group_id, std::shared_ptr<SteinerTree> & 
 
 void NaiveShortestPath::getPaths (int group_id, std::vector<rca::Path> & paths) {
   
+  //obtém um ponteiro para o group Group.
   rca::Group * group = rca::g_groups[group_id].get();
   
+  //obtém os terminais do Grupo group_id
   std::vector<int> terminals = group->getMembers ();
   //addicionando fonte com terminal
   terminals.push_back ( group->getSource() );
   
+  //Computando todos os caminhos entre os pares de terminais
   for (unsigned int i=0; i < terminals.size () -1; i++) {
     int v = terminals[i];
     int w = terminals[i+1];
@@ -27,22 +30,33 @@ void NaiveShortestPath::getPaths (int group_id, std::vector<rca::Path> & paths) 
 void NaiveShortestPath::create_steiner_tree  (int group_id, 
 				       std::vector<rca::Path> & paths, 
 				       std::shared_ptr<SteinerTree> & st) {
-  
+
+  //obtém o número de nós entre os terminais
   unsigned int NODES = rca::g_network->getNumberNodes();
+  
+  //cria um smart_pointer do tipo SteinerTree
   st = std::make_shared<SteinerTree> (1,NODES);
   
+  //obtém um ponteiro do tipo SteinerTree
   SteinerTree * st_tmp = st.get ();
   
+  //criar vetor objetivo
   std::vector<double> _objec(1);
+  
+  //criar vetor de elementos do tipo SteinerNode
   std::vector<SteinerNode> _nodes(NODES, SteinerNode(0,0,false));
   for (unsigned int i=0; i < NODES; i++) {
     _nodes[0].setIndex (i);
   }
+  
+  //adiciona as estruturas temporárias ao SteinerTree
   st_tmp->setTempStructures (_objec,_nodes);
   
+  //obtém ponteiro para o Grupo group_id
   Group *group = rca::g_groups[group_id].get();
   
-  for (unsigned int i=0; i < group->getSize(); i++) {
+  //Adiciona os terminais
+  for (int i=0; i < group->getSize(); i++) {
     st_tmp->setTerminal (group->getMember (i));
   }
   st_tmp->setTerminal (group->getSource());
