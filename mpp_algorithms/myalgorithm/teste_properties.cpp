@@ -16,10 +16,11 @@ int main (int argv, char **argc) {
   TreeAlgorithm algorithm(tree_maker);
   
   std::shared_ptr<SteinerTree> st;
-  algorithm.execute (0,st);
+  for (int i=0; i < rca::g_groups.size(); i++) {
+    algorithm.execute (i,st);
   
-  std::cout << st.use_count () << std::endl;
-  std::cout << st->getCost() << std::endl;
+    std::cout << st->getCost() << std::endl;
+  }
   
   return 0;
 }
