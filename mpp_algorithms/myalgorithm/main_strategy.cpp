@@ -23,7 +23,7 @@ int main (int argv, char**argc) {
   TreeAlgorithm algorithm(tree_maker);
   
   std::shared_ptr<SteinerTree> st;
-  algorithm.execute (st);
+  algorithm.execute (0,st);
   
   std::cout << st.use_count() << std::endl;
   

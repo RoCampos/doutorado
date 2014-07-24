@@ -22,7 +22,7 @@ class NaiveShortestPath : public TreeAlgorithmInterface {
 
 public:
   
-  void make_tree (std::shared_ptr<SteinerTree> & st);
+  void make_tree (int group_id,std::shared_ptr<SteinerTree> & st);
   
 private:
   void getPaths (int group_id, std::vector<rca::Path> & paths);

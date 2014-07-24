@@ -26,6 +26,8 @@ target_link_libraries (steinertest graph sttree)
 
 add_executable (test_properties teste_properties.cpp 
 		properties.h properties.cpp
+		strategy_make_tree.cpp strategy_make_tree.h
+		naiveshortestpath.h naiveshortestpath.cpp
 		${includes})
-target_link_libraries (test_properties graph)
+target_link_libraries (test_properties graph sttree)
 

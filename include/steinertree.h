@@ -7,6 +7,12 @@
 #include "steinernode.h"
 #include "edge.h"
 
+/**
+ * Esta classe representa uma árvore de Steiner.
+ * 
+ * @author Romerito Campos
+ * @date 04/20/2013
+ */
 class SteinerTree {
 	
 public:
