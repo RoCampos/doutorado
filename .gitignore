@@ -10,6 +10,7 @@ build/
 lib/
 CPack*
 
+gmon.out
 
 *kate-swp
 
