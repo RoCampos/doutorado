@@ -20,6 +20,10 @@ public:
 	
 	SteinerTree(int nobj, int nnodes);
 	
+	//construtor usado para árvore de Steiner com 1 objetivo
+	//as estruturas temporárias são inicializadas no construtor.
+	SteinerTree(int nnodes);
+	
 	//adiciona uma aresta da árvore
 	void addEdge(int i, int j, int value);
 	

@@ -6,6 +6,17 @@ SteinerTree::SteinerTree (int nobj, int nnodes)
 	
 }
 
+SteinerTree::SteinerTree(int nnodes) 
+: num_obj(1), num_nodes(nnodes)
+{
+  objectives = std::vector<double>(num_obj);
+  
+  vertexList = std::vector<SteinerNode>(num_nodes, 
+					SteinerNode(0,0,false));
+  for (int i=0; i < num_nodes; i++) {
+    vertexList[i].setIndex(i);
+  }
+}
 //deprecated
 /*
 void SteinerTree::setTempStructures (std::vector<double> & objs, 
