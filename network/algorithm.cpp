@@ -67,7 +67,7 @@ rca::Path shortest_path(int v, int w, rca::Network * network) {
 		path.push (s);
 		s = prev[s];
 		
-		if (s == -1 || s >= network->getNumberNodes ())
+		if (s == -1 || s >= NODES)
 		{
 			rca::Path path2;
 			return path2; //se não há caminho

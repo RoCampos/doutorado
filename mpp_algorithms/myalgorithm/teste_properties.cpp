@@ -15,12 +15,13 @@ int main (int argv, char **argc) {
   NaiveShortestPath tree_maker;  
   TreeAlgorithm algorithm(tree_maker);
   
-  std::shared_ptr<SteinerTree> st;
-  for (int i=0; i < rca::g_groups.size(); i++) {
-    algorithm.execute (i,st);
+  for (int i=0; i < 1000; i++) {
+    std::shared_ptr<SteinerTree> st;
+    for (int i=0; i < rca::g_groups.size(); i++) {
+      algorithm.execute (i,st);
   
-    std::cout << st->getCost() << std::endl;
-  }
-  
+      std::cout << st->getCost() << std::endl;
+    }
+  }	
   return 0;
 }
