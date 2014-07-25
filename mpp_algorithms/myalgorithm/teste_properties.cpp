@@ -20,7 +20,7 @@ int main (int argv, char **argc) {
     for (int i=0; i < rca::g_groups.size(); i++) {
       algorithm.execute (i,st);
   
-      std::cout << st->getCost() << std::endl;
+      //std::cout << st->getCost() << std::endl;
     }
   }	
   return 0;

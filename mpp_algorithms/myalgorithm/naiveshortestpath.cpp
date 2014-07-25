@@ -65,11 +65,14 @@ void NaiveShortestPath::create_steiner_tree  (int group_id,
   DisjointSet2 ds_edges (NODES);
   
   for (unsigned int i=0; i < paths.size (); i++) {
-    rca::Path path = paths[i];
+    //rca::Path path = paths[i];
     
-    for (unsigned int i=0; i < path.size ()-1; i++) {
-      int v = path[i];
-      int w = path[i+1];
+    auto it = paths[i].begin ();
+    auto end = paths[i].end ()-1;
+    //for (unsigned int j=0; j < paths[i].size ()-1; j++) {
+    for (; it != end; it++) {
+      int v = *it;
+      int w = *(it+1);
       rca::Link link (v,w, rca::g_network->getCost(v,w));
       
       //testing if two vertex are in the same disjointSet
