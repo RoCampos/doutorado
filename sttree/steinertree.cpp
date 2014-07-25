@@ -6,12 +6,15 @@ SteinerTree::SteinerTree (int nobj, int nnodes)
 	
 }
 
+//deprecated
+/*
 void SteinerTree::setTempStructures (std::vector<double> & objs, 
 				std::vector<SteinerNode> & _nodes)
 {
 	objectives = objs;
 	vertexList = _nodes;
 }
+*/
 
 //this procedure takes O(n) since we must avoid duplicated edges.
 void SteinerTree::addEdge (int i, int j, int value)

@@ -11,7 +11,8 @@
  * Esta classe representa uma árvore de Steiner.
  * 
  * @author Romerito Campos
- * @date 04/20/2013
+ * @date 07/25/2014
+ * @version 0.2 
  */
 class SteinerTree {
 	
@@ -23,8 +24,8 @@ public:
 	void addEdge(int i, int j, int value);
 	
 	//define estruturas, speed up the algorithm
-	void setTempStructures (std::vector<double>& objs, 
-							std::vector<SteinerNode>& vertexList);
+	//void setTempStructures (std::vector<double>& objs, 
+	//						std::vector<SteinerNode>& vertexList);
 	
 	//retorna a lista de nós da árvore
 	std::vector<SteinerNode> getNodes () {return vertexList;}
