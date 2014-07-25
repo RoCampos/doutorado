@@ -70,7 +70,7 @@ set (LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
 include_directories (${PROJECT_SOURCE_DIR})
 include_directories (include lib)
 
-add_subdirectory (algorithm)
+#add_subdirectory (algorithm)
 add_subdirectory (network)
 add_subdirectory (sttree)
 add_subdirectory (statistics)
