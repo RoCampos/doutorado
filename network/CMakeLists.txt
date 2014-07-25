@@ -12,8 +12,8 @@ FILE(GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 add_library (graph STATIC ${SRC})
 
-add_executable (Kpathtest main.cpp)
-target_link_libraries (Kpathtest graph sttree heuristic)
+#add_executable (Kpathtest main.cpp)
+#target_link_libraries (Kpathtest graph sttree heuristic)
 
 INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION network)
 
