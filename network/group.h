@@ -23,6 +23,7 @@ namespace rca {
  *
  * @date 27/09/2012
  * @author Roemrito Campos
+ * @version 0.2
  */
 class Group {
 public:
