@@ -16,8 +16,9 @@ int main (int argv, char **argc) {
   r.configNetwork (&network);
   groups = r.readerGroup ();
   
-  for (int i=0;i < 1000; i++) {
-    groups[0]->getMembers();
+  for (int i=0;i < 100000; i++) {
+    auto it = groups[0]->begin();
+    auto it_end = groups[0]->end();
   }
   
   return 0;

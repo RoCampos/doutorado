@@ -124,6 +124,14 @@ public:
 	 * @return vector<int>
 	 */
 	const std::vector<int> & getMembers (){return m_members;}
+	
+	const std::vector<int>::const_iterator begin() {
+	  return m_members.begin();
+	}
+	
+	const std::vector<int>::const_iterator end() {
+	  return m_members.end();
+	}
 
 	/**
 	 * Verifica se um nó é membro do grupo multicast.
