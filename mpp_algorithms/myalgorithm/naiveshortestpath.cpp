@@ -40,18 +40,6 @@ void NaiveShortestPath::create_steiner_tree  (int group_id,
   //obtém um ponteiro do tipo SteinerTree
   SteinerTree * st_tmp = st.get ();
   
-  //criar vetor objetivo
-  //std::vector<double> _objec(1);
-  
-  //criar vetor de elementos do tipo SteinerNode
-  //std::vector<SteinerNode> _nodes(NODES, SteinerNode(0,0,false));
-  //for (unsigned int i=0; i < NODES; i++) {
-   // _nodes[0].setIndex (i);
-  //}
-  
-  //adiciona as estruturas temporárias ao SteinerTree
-  //st_tmp->setTempStructures (_objec,_nodes);
-  
   //obtém ponteiro para o Grupo group_id
   Group *group = rca::g_groups[group_id].get();
   
