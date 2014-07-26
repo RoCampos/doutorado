@@ -9,6 +9,7 @@ results/
 build/
 lib/
 CPack*
+testes/
 
 gmon.out
 
