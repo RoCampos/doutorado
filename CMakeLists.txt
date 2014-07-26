@@ -62,7 +62,12 @@ if (CMAKE_BUILD_TYPE MATCHES "[Pp][Rr][Oo][Ff][Ii][Ll][Ee]")
     
 endif()
 
-
+#installation of boost libs
+find_package (Boost)
+if (Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIR})
+  add_definitions ("-DHASBOOT")
+endif()
 
 set (EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/build")
 set (LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
