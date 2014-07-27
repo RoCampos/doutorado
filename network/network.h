@@ -289,22 +289,11 @@ public:
 	    m_adjacent_vertex[v].push_back(adjacent);    
 	}
 	
-	/**
-	 * Método para retonar um iterator para a primeira posição
-	 * dos nós adjacents de vertex.
-	 * @param int vertex
-	 */
-	const std::vector<int>::const_iterator adjacent_begin (int vertex) const{
-	    return m_adjacent_vertex[vertex].begin ();
-	}
-	
-	/**
-	 * Método para retonar um iterator para a última posição na 
-	 * lista de adjacents de vertex.
-	 * @param int vertex
-	 */
-	const std::vector<int>::const_iterator adjacent_end (int vertex) const{
-	    return m_adjacent_vertex[vertex].end ();
+	typedef typename std::vector<int>::const_iterator c_iterator;
+	void get_iterator_adjacent(int vertex, std::pair<c_iterator,c_iterator> & _pair) 
+	{
+	  _pair = std::make_pair (m_adjacent_vertex[vertex].begin (),
+				 m_adjacent_vertex[vertex].end());
 	}
 	
 private:

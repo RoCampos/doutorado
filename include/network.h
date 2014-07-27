@@ -286,8 +286,7 @@ public:
 	 * @param int vertex adjacent to vertex
 	 */
 	void addAdjacentVertex (int v, int adjacent) {
-	    m_adjacent_vertex[v].push_back(adjacent);
-	    m_adjacent_vertex[adjacent].push_back(v);
+	    m_adjacent_vertex[v].push_back(adjacent);    
 	}
 	
 	/**
@@ -306,6 +305,13 @@ public:
 	 */
 	const std::vector<int>::const_iterator adjacent_end (int vertex) const{
 	    return m_adjacent_vertex[vertex].end ();
+	}
+	
+	typedef typename std::vector<int>::const_iterator c_iterator;
+	void get_iterator_adjacent(int vertex, std::pair<c_iterator,c_iterator> & _pair) 
+	{
+	  _pair = std::make_pair (m_adjacent_vertex[vertex].begin (),
+				 m_adjacent_vertex[vertex].end());
 	}
 	
 private:
