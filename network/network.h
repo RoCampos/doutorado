@@ -285,7 +285,10 @@ public:
 	 * @param int vertex
 	 * @param int vertex adjacent to vertex
 	 */
-	void addAjdacentVertex (int v, int adjacent);
+	void addAdjacentVertex (int v, int adjacent) {
+	    m_adjacent_vertex[v].push_back(adjacent);
+	    m_adjacent_vertex[adjacent].push_back(v);
+	}
 	
 private:
 	int m_nodes;
