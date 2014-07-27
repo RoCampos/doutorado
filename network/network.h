@@ -290,6 +290,14 @@ public:
 	    m_adjacent_vertex[adjacent].push_back(v);
 	}
 	
+	const std::vector<int>::const_iterator adjacent_begin (int vertex) const{
+	    return m_adjacent_vertex[vertex].begin ();
+	}
+	
+	const std::vector<int>::const_iterator adjacent_end (int vertex) const{
+	    return m_adjacent_vertex[vertex].end ();
+	}
+	
 private:
 	int m_nodes;
 	int m_edges;
