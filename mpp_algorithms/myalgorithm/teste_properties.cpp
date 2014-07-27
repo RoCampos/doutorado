@@ -4,7 +4,7 @@
 
 #include "properties.h"
 #include "steinertree.h"
-#include "naiveshortestpath.h"
+#include "breadth_search_tree.h"
 
 int main (int argv, char **argc) {
  
@@ -12,15 +12,13 @@ int main (int argv, char **argc) {
   //variables
   rca::init_properties (argc[1]);
     
-  NaiveShortestPath tree_maker;  
+  BeadthSearchTree tree_maker;  
   TreeAlgorithm algorithm(tree_maker);
   
   for (int i=0; i < 1000; i++) {
     std::shared_ptr<SteinerTree> st;
     for (int i=0; i < rca::g_groups.size(); i++) {
       algorithm.execute (i,st);
-  
-      //std::cout << st->getCost() << std::endl;
     }
   }	
   return 0;
