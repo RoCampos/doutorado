@@ -61,6 +61,9 @@ void Reader::configNetwork(Network * network) {
 
 		rca::Link link(from,to,d);
 		network->insertLink(link);
+		
+		network->addAdjacentVertex(from, to);
+		network->addAdjacentVertex(to, from);
 
 		getline (file, str);
 	}

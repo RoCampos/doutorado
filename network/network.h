@@ -286,14 +286,23 @@ public:
 	 * @param int vertex adjacent to vertex
 	 */
 	void addAdjacentVertex (int v, int adjacent) {
-	    m_adjacent_vertex[v].push_back(adjacent);
-	    m_adjacent_vertex[adjacent].push_back(v);
+	    m_adjacent_vertex[v].push_back(adjacent);    
 	}
 	
+	/**
+	 * Método para retonar um iterator para a primeira posição
+	 * dos nós adjacents de vertex.
+	 * @param int vertex
+	 */
 	const std::vector<int>::const_iterator adjacent_begin (int vertex) const{
 	    return m_adjacent_vertex[vertex].begin ();
 	}
 	
+	/**
+	 * Método para retonar um iterator para a última posição na 
+	 * lista de adjacents de vertex.
+	 * @param int vertex
+	 */
 	const std::vector<int>::const_iterator adjacent_end (int vertex) const{
 	    return m_adjacent_vertex[vertex].end ();
 	}

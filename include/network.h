@@ -31,8 +31,9 @@ namespace rca {
  * de links de uma rede. Isto é útil quando se está testando
  * algoritmos que removem links para computar diferentes caminhos.
  *
- * @date 27/09/2012
+ * @date 27/07/2014
  * @author Romerito Campos
+ * @version 0.2
  */
 class Network {
 public:
@@ -225,6 +226,14 @@ public:
 	 */
 	bool isConnected ();
 
+
+	/**
+	* Método para verificar se os terminais estão conectados entre si.
+	* Este Método permite que haja nós na rede que não estão conectados,
+	* É necessário verificar apenas se os terminais estão conecetados.
+	*/
+	bool isConnected2 ();
+
 	/**
 	 * Método que retorna os links já ordenados.
 	 * Os links são ordenados em ordem crescentes por
@@ -266,6 +275,39 @@ public:
 	 */
 	void clearRemovedVertex () {m_vertex = std::vector<bool>(m_nodes,false);}
 
+	
+	/**
+	 * O objetivo deste método é alimentar uma lista
+	 * de adjacência presente no grafo.
+	 * Assim melhor a complexidade do algoritmo que
+	 * necessitam procurar por vértices adjacentes a outros.
+	 * 
+	 * @param int vertex
+	 * @param int vertex adjacent to vertex
+	 */
+	void addAdjacentVertex (int v, int adjacent) {
+	    m_adjacent_vertex[v].push_back(adjacent);
+	    m_adjacent_vertex[adjacent].push_back(v);
+	}
+	
+	/**
+	 * Método para retonar um iterator para a primeira posição
+	 * dos nós adjacents de vertex.
+	 * @param int vertex
+	 */
+	const std::vector<int>::const_iterator adjacent_begin (int vertex) const{
+	    return m_adjacent_vertex[vertex].begin ();
+	}
+	
+	/**
+	 * Método para retonar um iterator para a última posição na 
+	 * lista de adjacents de vertex.
+	 * @param int vertex
+	 */
+	const std::vector<int>::const_iterator adjacent_end (int vertex) const{
+	    return m_adjacent_vertex[vertex].end ();
+	}
+	
 private:
 	int m_nodes;
 	int m_edges;
@@ -276,6 +318,9 @@ private:
 
 	std::set < Link > m_links;
 	std::vector < Link > m_removeds;
+	
+	//this varibles holds the vertex as adjacent list
+	std::vector<std::vector<int>> m_adjacent_vertex;
 
 public:
 	std::vector< std::vector<Link> > m_edgesByNodes;
