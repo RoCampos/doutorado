@@ -31,8 +31,9 @@ namespace rca {
  * de links de uma rede. Isto é útil quando se está testando
  * algoritmos que removem links para computar diferentes caminhos.
  *
- * @date 27/09/2012
+ * @date 27/07/2014
  * @author Romerito Campos
+ * @version 0.2
  */
 class Network {
 public:
@@ -274,6 +275,18 @@ public:
 	 */
 	void clearRemovedVertex () {m_vertex = std::vector<bool>(m_nodes,false);}
 
+	
+	/**
+	 * O objetivo deste método é alimentar uma lista
+	 * de adjacência presente no grafo.
+	 * Assim melhor a complexidade do algoritmo que
+	 * necessitam procurar por vértices adjacentes a outros.
+	 * 
+	 * @param int vertex
+	 * @param int vertex adjacent to vertex
+	 */
+	void addAjdacentVertex (int v, int adjacent);
+	
 private:
 	int m_nodes;
 	int m_edges;
@@ -286,7 +299,7 @@ private:
 	std::vector < Link > m_removeds;
 	
 	//this varibles holds the vertex as adjacent list
-	std::vector<std::vector<int>> adjacent_vertex;
+	std::vector<std::vector<int>> m_adjacent_vertex;
 
 public:
 	std::vector< std::vector<Link> > m_edgesByNodes;
