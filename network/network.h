@@ -284,6 +284,9 @@ private:
 
 	std::set < Link > m_links;
 	std::vector < Link > m_removeds;
+	
+	//this varibles holds the vertex as adjacent list
+	std::vector<std::vector<int>> adjacent_vertex;
 
 public:
 	std::vector< std::vector<Link> > m_edgesByNodes;
