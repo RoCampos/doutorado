@@ -17,7 +17,7 @@ target_link_libraries (mppalgorithm graph)
 add_executable (test_properties teste_properties.cpp 
 		properties.h properties.cpp
 		strategy_make_tree.cpp strategy_make_tree.h
-		naiveshortestpath.h naiveshortestpath.cpp
+		breadth_search_tree.h breadth_search_tree.cpp
 		${includes})
 target_link_libraries (test_properties graph sttree)
 

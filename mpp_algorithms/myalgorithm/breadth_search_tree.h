@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <memory>
+#include <queue>
 
 #include "network.h"
 #include "steinertree.h"
