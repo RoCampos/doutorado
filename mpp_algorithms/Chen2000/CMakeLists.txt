@@ -23,4 +23,5 @@ target_link_libraries (filter_sol graph)
 add_executable (chentest chentest.cpp chenalgorithm.h chenalgorithm.cpp ${includes})
 target_link_libraries (chentest graph)
 
-
+add_executable (parser parser.cpp parser.h)
+target_link_libraries (parser -lboost_regex)

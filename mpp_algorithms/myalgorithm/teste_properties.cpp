@@ -15,9 +15,10 @@ int main (int argv, char **argc) {
   BeadthSearchTree tree_maker;  
   TreeAlgorithm algorithm(tree_maker);
   
-  std::vector<std::vector<int>> congestion (30);
-  for (int i=0; i < 30; i++) {
-     congestion[i] = std::vector<int> (30,0);
+  int NODES = rca::g_network->getNumberNodes();
+  std::vector<std::vector<int>> congestion (NODES);
+  for (int i=0; i < NODES; i++) {
+     congestion[i] = std::vector<int> (NODES,0);
   }
   
   //for (int i=0; i < 1000; i++) {
@@ -43,7 +44,7 @@ int main (int argv, char **argc) {
     }
     
     int aux = 0;
-    for (int i=0; i< 30; i++) {
+    for (int i=0; i< NODES; i++) {
       for (int j=0; j < i; j++) {
 	if (congestion[i][j] > aux) {
 	  aux = congestion[i][j];
