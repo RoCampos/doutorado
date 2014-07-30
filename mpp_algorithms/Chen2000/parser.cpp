@@ -2,11 +2,11 @@
 
 void Gurobi::filter_sol (std::string input, std::string output) const
 {
- 
-  typedef typename std::numeric_limits<std::streamsize> line;
   
   std::ifstream f_input (input);
-  std::ofstream f_ouput (output);
+  std::ofstream f_output;
+  
+  f_output.open(output, std::ofstream::out | std::ofstream::app);
   
   f_input.ignore (std::numeric_limits<std::streamsize>::max(), '\n');
   f_input.ignore (std::numeric_limits<std::streamsize>::max(), '\n');  
@@ -23,12 +23,15 @@ void Gurobi::filter_sol (std::string input, std::string output) const
       
       std::string result = boost::regex_replace (str, ex, fmt);    
       if (result.at(0) != 'y') {
-	f_ouput << result << std::endl;
+	f_output << result << std::endl;
       }
       
     }    
   }
   
+  //adding a blank line to separete steiner trees
+  f_output << std::endl;
+  
   f_input.close ();
-  f_ouput.close ();
+  f_output.close ();
 }
