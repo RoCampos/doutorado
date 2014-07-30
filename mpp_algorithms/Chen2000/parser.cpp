@@ -29,9 +29,6 @@ void Gurobi::filter_sol (std::string input, std::string output) const
     }    
   }
   
-  //adding a blank line to separete steiner trees
-  f_output << std::endl;
-  
   f_input.close ();
   f_output.close ();
 }
