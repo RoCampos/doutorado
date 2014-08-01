@@ -58,27 +58,6 @@ void BeadthSearchTree::make_tree (int group_id,
 	} 
     }
     
-    //se o nó estiver desconecatdo de seus vizinhos
-    /*então escolha uma aresta e adicione
-    if (!connected) {
-      rca::g_network->get_iterator_adjacent (node, _pair);
-      int r = rand () % (std::distance (_pair.first, _pair.second));
-      
-      rca::Link link (node, *(_pair.first + r), 0.0);
-      
-      rca::g_network->undoRemoveEdge ( link );
-      getchar ();
-      
-      cout << link << endl;
-      double cost = rca::g_network->getCost(link.getX(), link.getY());
-      
-      st->addEdge (node, *(_pair.first + r), cost);
-      closed[ *(_pair.first + r) ] = true;
-      
-      _queue.push (*(_pair.first + r));
-    }*/
-    
-    
   }
   
   //fazendo prunning da árvore de steiner
