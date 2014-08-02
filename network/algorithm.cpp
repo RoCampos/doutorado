@@ -81,3 +81,55 @@ rca::Path shortest_path(int v, int w, rca::Network * network) {
 	
 	return path;
 }
+
+bool is_connected (rca::Network & network, rca::Group & group)
+{
+  
+typedef typename std::vector<int>::const_iterator c_iterator;
+#define WHITE 1
+#define GREY 2
+#define BLACK 3
+
+  std::vector<int> terminals = group.getMembers ();
+  terminals.push_back ( group.getSource () );
+  
+  std::vector<int> nodes ( network.getNumberNodes () , 1);
+  
+  int count_terminals = 0;
+  
+  std::stack<int> pilha;
+  
+  pilha.push (group.getSource ());
+  
+  while ( !pilha.empty () ) {
+    
+    int current_node = pilha.top ();
+    pilha.pop ();
+    nodes[current_node] = GREY;
+    
+    if (group.isMember (current_node) || group.getSource () == current_node) {
+      count_terminals++;
+    }
+    
+    std::pair<c_iterator, c_iterator> iterators;
+    network.get_iterator_adjacent (current_node, iterators);
+    
+    for (; iterators.first != iterators.second; iterators.first++) {
+     
+      int adjacent = *iterators.first;
+      
+      rca::Link l(current_node, adjacent, 0);
+      if ( !network.isRemoved(l) && nodes[adjacent] == WHITE) {
+	
+	nodes[adjacent] = GREY;
+	pilha.push (adjacent);
+	
+      }
+      
+    }
+    
+  }
+  
+  //std::cout << count_terminals << std::endl;
+  return (count_terminals == terminals.size () );
+}
