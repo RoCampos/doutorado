@@ -62,10 +62,5 @@ void BeadthSearchTree::make_tree (int group_id,
   
   //fazendo prunning da árvore de steiner
   st->prunning ();
-  Edge * it = st->listEdge.head;
-  while (it != NULL) {      
-      rca::g_network->removeEdge (rca::Link(it->i,it->j, 0.0));
-      it = it->next;
-  }
   
 }
