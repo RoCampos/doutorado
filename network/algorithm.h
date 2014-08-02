@@ -2,10 +2,14 @@
 #define _ALGORITHM_H_
 
 #include <vector>
+#include <stack>
 
 #include "path.h"
 #include "network.h"
+#include "group.h"
 
 rca::Path shortest_path (int v, int w, rca::Network * network);
+
+bool is_connected (rca::Network & network, rca::Group & group);
 
 #endif
