@@ -66,26 +66,49 @@ int main (int argv, char **argc) {
 	//O(G)
 	for (unsigned int i=0; i < rca::g_groups.size(); i++) {
 		
+#ifdef MDEBUG
+	cout << "__BUILDING__ST__:" << 	i << endl;
+#endif
+	
+#ifdef MDEBUG
+	auto begin = congestion_level.begin ();
+	auto end = congestion_level.end ();
+	
+	int tmp = 0;
+	for ( ; begin != end; begin++) {
+					
+		if (begin->getValue () > tmp) {
+			tmp = begin->getValue ();
+			cout << "Level: " << tmp << endl;  
+		}				
+	}
+	
+#endif
 		int level = 1;
 		while (!is_connected (*rca::g_network.get(), *rca::g_groups[i].get() )) {
       
-			std::cout << "undo Removing Level: " << level << endl;
+			//std::cout << "undo Removing Level: " << level << endl;
       
 			//iterator removendo de um level
 			auto begin = congestion_level.begin ();
 			auto end = congestion_level.end ();
 	
-			for ( ; begin != end && begin->getValue () == level; begin++) {
-				cout << *begin << ":" <<begin->getValue () << endl;
-				rca::g_network->undoRemoveEdge (*begin);  
+			for ( ; begin != end; begin++) {
+				//cout << *begin << ":" <<begin->getValue ();
+				
+				if (rca::g_network->isRemoved (*begin) && begin->getValue() == level) {
+					//cout << " is removed\n";
+					rca::g_network->undoRemoveEdge (*begin);  
+				}
+				
 			}	
-			level++;      
+			level++;
 			
 		}
     
 		//O(E+V)
 		algorithm.execute (i,st);   
-		//st->xdotFormat ();	
+		st->xdotFormat ();	
       
 		//O(E)
 		Edge * e = st->listEdge.head;
