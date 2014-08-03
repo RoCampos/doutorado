@@ -49,7 +49,7 @@ public:
 	
 	void xdotFormat ();
 	
-	void xdotToFile (std::string file, std::ostream& out);
+	void xdotToFile (std::string file);
 	
 private:
 	int num_obj;
