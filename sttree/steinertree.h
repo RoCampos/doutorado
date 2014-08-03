@@ -49,6 +49,8 @@ public:
 	
 	void xdotFormat ();
 	
+	void xdotToFile (std::string file, std::ostream& out);
+	
 private:
 	int num_obj;
 	int num_nodes;
