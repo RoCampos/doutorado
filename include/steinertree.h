@@ -2,6 +2,7 @@
 #define _STEINER_TREE_H_
 
 #include <vector>
+#include <fstream>
 
 #include "linkedlist.h"
 #include "steinernode.h"
@@ -48,6 +49,8 @@ public:
 	void prunning ();
 	
 	void xdotFormat ();
+	
+	void xdotToFile (std::string file);
 	
 private:
 	int num_obj;

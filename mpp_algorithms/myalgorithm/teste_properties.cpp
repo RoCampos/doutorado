@@ -107,8 +107,12 @@ int main (int argv, char **argc) {
 		}
     
 		//O(E+V)
-		algorithm.execute (i,st);   
-		st->xdotFormat ();	
+		algorithm.execute (i,st);
+		//char c = i;
+		//std::string str = "../graph_"+ std::to_string(i)+".xdot";
+		//cout << str << endl;
+		//st->xdotToFile (str);
+		//st->xdotFormat ();
       
 		//O(E)
 		Edge * e = st->listEdge.head;
