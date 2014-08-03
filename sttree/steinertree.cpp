@@ -191,11 +191,17 @@ void SteinerTree::xdotFormat () {
 void SteinerTree::xdotToFile (std::string file)
 {
 
-	printf ("Graph{\n");
+	std::ofstream output (file.c_str(), std::ofstream::out);
+	
+	
+	output << "Graph \n";
+	//printf ("Graph{\n");
 	
 	for (unsigned int i = 0; i < vertexList.size (); i++) {
-		if (vertexList[i].isTerminal() )
-			printf ("%d [format=circle,color=red];\n",i);
+		if (vertexList[i].isTerminal() ) {
+			//printf ("%d [format=circle,color=red];\n",i);
+			output << i << "[format=circle,color=red]\n";
+		}
 	}
 	
 	//imprimindo arestas
@@ -206,11 +212,18 @@ void SteinerTree::xdotToFile (std::string file)
 		int w = aux->j;
 		double value = aux->cost;
 		
-		printf ("%d--%d : %.2f\n",v,w,value);
+		//printf ("%d--%d : %.2f\n",v,w,value);
+		output << v;
+		output << "--";
+		output << w;
+		output << " : ";
+		output << value;
 		
 		aux = aux->next;
 		
 	}
-	printf ("}\n");
+	
+	//printf ("}\n");
+	output << "}\n";
 	
 }
