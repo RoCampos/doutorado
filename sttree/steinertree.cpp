@@ -194,13 +194,13 @@ void SteinerTree::xdotToFile (std::string file)
 	std::ofstream output (file.c_str(), std::ofstream::out);
 	
 	
-	output << "Graph \n";
+	output << "Graph {\n";
 	//printf ("Graph{\n");
 	
 	for (unsigned int i = 0; i < vertexList.size (); i++) {
 		if (vertexList[i].isTerminal() ) {
 			//printf ("%d [format=circle,color=red];\n",i);
-			output << i << "[format=circle,color=red]\n";
+			output << i << "[format=circle,color=red];\n";
 		}
 	}
 	
@@ -217,7 +217,7 @@ void SteinerTree::xdotToFile (std::string file)
 		output << "--";
 		output << w;
 		output << " : ";
-		output << value;
+		output << value << std::endl;
 		
 		aux = aux->next;
 		
