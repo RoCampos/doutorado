@@ -4,22 +4,25 @@
 #include "group.h"
 #include "reader.h"
 
+#include "mppalgorithm.h"
+
 #include <memory>
 
 int main (int argv, char **argc) {
   
-  rca::Network network;
-  std::vector<std::shared_ptr<rca::Group>> groups;
-  
   //reading informations about network and groups
   Reader r(argc[1]);
-  r.configNetwork (&network);
+  
+  std::shared_ptr<Network> network;
+  std::vector<std::shared_ptr<rca::Group>> groups;
+  
+  r.configNetwork (network.get());
   groups = r.readerGroup ();
   
-  for (int i=0;i < 100000; i++) {
-    auto it = groups[0]->begin();
-    auto it_end = groups[0]->end();
-  }
+  
+  
+  MPPAlgorithm<TreeAlgorithmInterface> 
+			myalgorithm (network, groups);
   
   return 0;
 }

@@ -51,9 +51,9 @@ int main (int argv, char **argc) {
 	//used_edges[0][1].second = congestion_level.push (rca::Link(0,1,11));
 	//used_edges[0][1].first = true;
   
-	if (used_edges[0][0].first == true) {
-		std::cout << (*((used_edges[0][0]).second)).getValue() << std::endl;
-	}
+	//if (used_edges[0][0].first == true) {
+		//std::cout << (*((used_edges[0][0]).second)).getValue() << std::endl;
+	//}
   
 	//(*used_edges[0][1].second).setValue (5);
 	//congestion_level.update (used_edges[0][1].second);

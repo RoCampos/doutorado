@@ -8,41 +8,34 @@
 
 #include "network.h"
 #include "reader.h"
+#include "strategy_make_tree.h"
 
+
+typedef typename std::vector<std::shared_ptr<rca::Group>> MulticatGroups;
+typedef typename std::shared_ptr<rca::Network> RCANetwork;
 /**
  * Classe que representa meu algoritmo
  * Esta classe contém as rotinas utilizadas para resolver
  * o Multicast Packing Problem com um objetivo.
  * 
  * @author Romerito Campos.
- * @version 0.1 07/11/2014
+ * @version 0.1 06/08/2014
  */
+template<typename TreeStrategy>
 class MPPAlgorithm {
-  
+
 public:
-  MPPAlgorithm ();
-  MPPAlgorithm (std::string algo, std::string roblem, 
-		int objectives, std::string instance);
-  
+	MPPAlgorithm (RCANetwork &, MulticatGroups &);
+	
+	void init_strategy (const TreeStrategy & T);
+	
+	void run ();
+	
 private:
-  std::string m_algo_info; 
-  std::string m_problem;
-  int m_objectives;
- 
-  //variábeis do problema
-  std::string m_instance;
-  std::shared_ptr<rca::Network> m_net;
-  std::vector<shared_ptr<rca::Group>> m_groups;
-  
-public:
-  
-  //método para iniciar variábeis do problema
-  void init (rca::Network & network, 
-	     std::vector<shared_ptr<rca::Group>> groups);
-  
-  //método para rodar os algoritmos
-  void run ();
-  
+	
+	TreeStrategy strategy;
+	RCANetwork m_network;
+	MulticatGroups m_groups;
     
 };
 
