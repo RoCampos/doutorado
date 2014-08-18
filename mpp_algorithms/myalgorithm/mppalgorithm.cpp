@@ -13,9 +13,9 @@ MPPAlgorithm<TreeStrategy>::MPPAlgorithm (const RCANetwork & net,const MulticatG
 }
 
 template <typename TreeStrategy> 
-void MPPAlgorithm<TreeStrategy>::init_strategy (const TreeStrategy & strategy)
+void MPPAlgorithm<TreeStrategy>::init_strategy (TreeStrategy & strategy)
 {
-	m_strategy = strategy;
+	m_strategy = &strategy;
 }
 
 template <typename TreeStrategy>
@@ -27,7 +27,6 @@ void MPPAlgorithm<TreeStrategy>::run ()
 	cout << "Run Method" << endl;
 #endif
 	
-
 	VMatrix congestion;
 	EHandleMatrix ehandles;
 	init_congestion_matrix (congestion);
@@ -35,22 +34,23 @@ void MPPAlgorithm<TreeStrategy>::run ()
 	
 	//heap that stores the edges by level of usage
 	FibonnacciHeap heap;
-
 	std::shared_ptr<SteinerTree> s_tree;
-	for (uint id = 0; id < m_groups.size (); id++) {
+	int NODES = m_network->getNumberNodes ();
+	for (uint id = 0; id < m_groups.size (); id++) 
+	{
 		
 		//prepare the network to build next steiner tree
 		connected_level(id, heap);
-		
-		m_strategy.make_tree ( *m_groups[id],
+		s_tree = std::make_shared<SteinerTree> (NODES);
+		m_strategy->make_tree ( *m_groups[id].get(),
 							   *m_network.get(),
 							   s_tree);
-	
-		update_congestion (heap, ehandles, s_tree);
 		
-	}	
+		update_congestion (heap, ehandles, s_tree);
+	}
 	
-	std::cout << heap.top ().getValue () << endl; 
+	int value = std::max_element (heap.begin (), heap.end())->getValue();
+	std::cout << value << std::endl;
 	
 }
 
@@ -101,7 +101,7 @@ int MPPAlgorithm<TreeStrategy>::connected_level (int group_id, FibonnacciHeap & 
 template <typename TreeStrategy>
 void MPPAlgorithm<TreeStrategy>::update_congestion (FibonnacciHeap& heap, 
 													EHandleMatrix& ehandles,
-													shared_ptr<SteinerTree> & st)
+													std::shared_ptr<SteinerTree> & st)
 {
 
 	Edge * e = st->listEdge.head;
