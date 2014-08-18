@@ -64,7 +64,7 @@ private:
 	
 	void init_handle_matrix (EHandleMatrix &);
 
-	void connected_levle (FibonnacciHeap & fheap);
+	int connected_level (int, FibonnacciHeap & fheap);
 	
 private:
 	
