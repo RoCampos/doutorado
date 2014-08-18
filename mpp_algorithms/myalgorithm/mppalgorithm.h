@@ -66,6 +66,8 @@ private:
 
 	int connected_level (int, FibonnacciHeap & fheap);
 	
+	void update_congestion (FibonnacciHeap&, EHandleMatrix&, shared_ptr<SteinerTree> & st);
+	
 private:
 	
 	TreeStrategy m_strategy;
