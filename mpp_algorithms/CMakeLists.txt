@@ -8,5 +8,4 @@ CMakeCache*;
 )
 
 add_subdirectory (Chen2000)
-add_subdirectory (Util)
 add_subdirectory (myalgorithm)
