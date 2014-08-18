@@ -7,13 +7,10 @@ cmake_install*;
 CMakeCache*;
 )
 
-FILE(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
+FILE(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE(GLOB HDRS "${PROJECT_SOURCE_DIR}/include/*.h")
 
 add_library (myutil STATIC ${SRC})
-
-add_executable (teste mystringtest.cpp ${HDRS})
-target_link_libraries (teste myutil)
 
 INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION myutil)
 
