@@ -1,4 +1,5 @@
 #include "mppalgorithm.h"
+#include "rcatime.h"
 
 using namespace rca;
 using namespace std;
@@ -32,10 +33,14 @@ void MPPAlgorithm<TreeStrategy>::run ()
 	init_congestion_matrix (congestion);
 	init_handle_matrix (ehandles);
 	
+	rca::time::elapsed_time time;
+		
 	//heap that stores the edges by level of usage
 	FibonnacciHeap heap;
 	std::shared_ptr<SteinerTree> s_tree;
-	int NODES = m_network->getNumberNodes ();
+	int NODES = m_network->getNumberNodes ();	
+	
+	time.started ();
 	for (uint id = 0; id < m_groups.size (); id++) 
 	{
 		
@@ -48,10 +53,8 @@ void MPPAlgorithm<TreeStrategy>::run ()
 		
 		update_congestion (heap, ehandles, s_tree);
 	}
-	
-	int value = std::max_element (heap.begin (), heap.end())->getValue();
-	std::cout << value << std::endl;
-	
+	time.finished ();
+	std::cout << time.get_elapsed () << std::endl;
 }
 
 template <typename TreeStrategy>
