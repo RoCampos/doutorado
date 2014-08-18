@@ -26,7 +26,13 @@ void MPPAlgorithm<TreeStrategy>::run ()
 #endif
 
 	VMatrix congestion;
-	init_congestion_matrix(congestion);
+	EHandleMatrix ehandles;
+	init_congestion_matrix (congestion);
+	init_handle_matrix (ehandles);
+	
+	//heap that stores the edges by level of usage
+	boost::heap::fibonacci_heap<rca::Link, Comparator> congestion_level;
+
 	
 	
 }
@@ -40,3 +46,16 @@ void MPPAlgorithm<TreeStrategy>::init_congestion_matrix (VMatrix &matrix) {
 	}
 	matrix = std::move(congestion);
 }
+
+template <typename TreeStrategy>
+void MPPAlgorithm<TreeStrategy>::init_handle_matrix (EHandleMatrix &matrix) {
+	
+	int NODES = m_network->getNumberNodes ();
+	EHandleMatrix used_edges(NODES);
+	for (int i=0; i < NODES; i++) {
+		used_edges[i] = std::vector<HCell>(NODES);
+	}
+
+	matrix = std::move(used_edges);	
+}
+
