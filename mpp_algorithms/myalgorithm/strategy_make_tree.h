@@ -9,7 +9,7 @@
 #include "group.h"
 #include "algorithm.h"
 
-#include "properties.h"
+//#include "properties.h"
 
 /**
  * Classe que representa de forma abstra uma estratégia
@@ -24,7 +24,8 @@ class TreeAlgorithmInterface {
 public:
   
   /*Este método resolve uma árvore de Steiner*/
-  virtual void make_tree (int group_id,std::shared_ptr<SteinerTree> & st){};
+  virtual void make_tree (const Group&, const Network &, 
+						  std::shared_ptr<SteinerTree> & st){};
   
 };
 
@@ -44,11 +45,12 @@ public:
   
   TreeAlgorithm (TreeAlgorithmInterface & param);
   
-  void execute (int group_id, std::shared_ptr<SteinerTree> & st) {
+  void execute (const Group& g, const Network & net,
+				std::shared_ptr<SteinerTree> & st) {
     
     if (m_strategy != NULL) {         
      
-      m_strategy->make_tree(group_id, st);     
+      m_strategy->make_tree(g, net, st);     
      
     }
     
@@ -75,7 +77,8 @@ private:
 class ShortestPathTree : public TreeAlgorithmInterface {
   
 public:
-  void make_tree (int group_id, std::shared_ptr<SteinerTree> & st) {
+  void make_tree (const Group&, const Network &, 
+				  std::shared_ptr<SteinerTree> & st) {
     std::cout << "Shortest Path\n";
     std::make_shared<SteinerTree>(1,0);
   }

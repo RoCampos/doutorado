@@ -6,24 +6,25 @@
 
 #include "mppalgorithm.h"
 #include "mppalgorithm.cpp"
+#include "breadth_search_tree.h"
 
 #include <memory>
 
 int main (int argv, char **argc) {
   
-  //reading informations about network and groups
-  Reader r(argc[1]);
-  
-  std::shared_ptr<rca::Network> network = make_shared<rca::Network>();
-  std::vector<std::shared_ptr<rca::Group>> groups;
-  
-  r.configNetwork (network.get());
-  groups = r.readerGroup ();
-  
+	//reading informations about network and groups
+	Reader r(argc[1]);
 	
-    
-  MPPAlgorithm<TreeAlgorithmInterface> 
+	std::shared_ptr<rca::Network> network = make_shared<rca::Network>();
+	std::vector<std::shared_ptr<rca::Group>> groups;
+  
+	r.configNetwork (network.get());
+	groups = r.readerGroup ();
+
+	MPPAlgorithm<TreeAlgorithmInterface> 
 			myalgorithm (network, groups);
   
+	myalgorithm.run ();
+			
   return 0;
 }
