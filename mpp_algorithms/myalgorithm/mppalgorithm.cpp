@@ -34,12 +34,23 @@ void MPPAlgorithm<TreeStrategy>::run ()
 	init_handle_matrix (ehandles);
 	
 	//heap that stores the edges by level of usage
-	boost::heap::fibonacci_heap<rca::Link, Comparator> congestion_level;
+	FibonnacciHeap heap;
 
-	int level = 0;
-	for (uint i = 0; i < m_groups.size (); i++) {
+	std::shared_ptr<SteinerTree> s_tree;
+	for (uint id = 0; id < m_groups.size (); id++) {
+		
+		//prepare the network to build next steiner tree
+		connected_level(id, heap);
+		
+		m_strategy.make_tree ( *m_groups[id],
+							   *m_network.get(),
+							   s_tree);
+	
+		update_congestion (heap, ehandles, s_tree);
 		
 	}	
+	
+	std::cout << heap.top ().getValue () << endl; 
 	
 }
 
@@ -86,5 +97,39 @@ int MPPAlgorithm<TreeStrategy>::connected_level (int group_id, FibonnacciHeap & 
 	}	
 	return level;
 }
+
+template <typename TreeStrategy>
+void MPPAlgorithm<TreeStrategy>::update_congestion (FibonnacciHeap& heap, 
+													EHandleMatrix& ehandles,
+													shared_ptr<SteinerTree> & st)
+{
+
+	Edge * e = st->listEdge.head;
+	while (e != NULL) {
+	
+		m_network->removeEdge (rca::Link(e->i,e->j, 0.0));
+	
+		//NÃO ESTÁ FUNCIONANDO!!!
+		//TENHO QUE PROVER OUTRO MEIO PARA MANTER AS ARESTAS EM NÍVEIS
+		rca::Link link (e->i, e->j, 0);
+		int x = link.getX ();
+		int y = link.getY ();
+		if (ehandles[x][y].first == true) {
+			//std::cout << (*((used_edges[x][y]).second)).getValue() << std::endl;
+			int valor = (*((ehandles[x][y]).second)).getValue();
+			(*((ehandles[x][y]).second)).setValue (valor+1);
+			heap.update ((ehandles[x][y]).second);
+		} else {
+			ehandles[x][y].first = true;
+			link.setValue (1);
+			ehandles[x][y].second = heap.push (link);
+		}
+		
+		e = e->next;
+	}	
+	e = NULL;
+	
+}
+
 
 
