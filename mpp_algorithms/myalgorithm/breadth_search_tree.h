@@ -13,7 +13,8 @@
 class BreadthSearchTree : public TreeAlgorithmInterface {
 
 public:
-  void make_tree (Group&, Network &, std::shared_ptr<SteinerTree> & st);
+  void make_tree (rca::Group&, rca::Network &, 
+				  std::shared_ptr<SteinerTree> & st);
   
 };
 

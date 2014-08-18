@@ -1,6 +1,6 @@
 #include "breadth_search_tree.h"
 
-void BreadthSearchTree::make_tree (Group & group, Network & net,
+void BreadthSearchTree::make_tree (rca::Group & group, rca::Network & net,
 				  std::shared_ptr<SteinerTree> & st) {
   
 #ifdef DEBUG
