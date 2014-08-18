@@ -3,13 +3,17 @@
 void BreadthSearchTree::make_tree (Group & group, Network & net,
 				  std::shared_ptr<SteinerTree> & st) {
   
+#ifdef DEBUG
+	std::cout << "Running: BreadthSearchTree." << std::endl;
+#endif
+	
   typedef typename std::vector<int>::const_iterator c_iterator;
   
   //número de nós
   unsigned int NODES = net.getNumberNodes ();
   
   //alocação de memória para ST
-  st = make_shared<SteinerTree> (NODES);
+  //st = make_shared<SteinerTree> (NODES);
   
   //acessando grupo
   //Group * group = rca::g_groups[group_id].get () ;
