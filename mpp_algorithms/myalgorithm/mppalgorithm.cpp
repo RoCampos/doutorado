@@ -22,7 +22,9 @@ template <typename TreeStrategy>
 void MPPAlgorithm<TreeStrategy>::run ()
 {
 #ifdef DEBUG
-	cout << "Printig a message" << endl;
+	cout << "Run Method" << endl;
 #endif
+
+	
 	
 }

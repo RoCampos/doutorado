@@ -27,6 +27,7 @@ int main (int argv, char **argc) {
 	MPPAlgorithm<TreeAlgorithmInterface> 
 			myalgorithm (network, groups);
   
+	myalgorithm.init_strategy (bst);
 	myalgorithm.run ();
 			
   return 0;

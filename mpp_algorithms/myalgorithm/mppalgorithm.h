@@ -9,9 +9,36 @@
 #include "network.h"
 #include "reader.h"
 #include "strategy_make_tree.h"
+#include <boost/heap/fibonacci_heap.hpp>
 
+//struct to compare two edges in fibonnaci heap
+template<class T>
+struct not_equal{
+  bool operator() (const T& l1, const T& l2) const
+  {
+	  //return ((p < link.p) && (link != *this)) || (link != *this);
+	  return (l1 > l2);
+  }
+};
+
+//Tipos Network e Vector de Groups
 typedef typename std::vector<std::shared_ptr<rca::Group>> MulticatGroups;
 typedef typename std::shared_ptr<rca::Network> RCANetwork;
+
+//Matriz de inteiros
+typedef typename std::vector<std::vector<int>> VMatrix;
+
+//types used to control the heap_fibonnacti during algorithm execution
+typedef typename boost::heap::compare<not_equal<rca::Link>> Comparator;
+typedef typename boost::heap::fibonacci_heap<rca::Link, Comparator>::handle_type edge_handle;
+
+//define um pair bool e um manipulador de aresta
+//este manipulador indica se uma aresta está ou no heap
+typedef typename std::pair<bool, edge_handle> HCell;
+
+//vetor de manipuladores de arestas
+typedef typename std::vector<std::vector< HCell >> EHandleMatrix;
+
 /**
  * Classe que representa meu algoritmo
  * Esta classe contém as rotinas utilizadas para resolver
@@ -29,7 +56,12 @@ public:
 	void init_strategy (const TreeStrategy & strategy);
 	
 	void run ();
+
+private:
+	void init_congestion_matrix (VMatrix &m);
 	
+	void init_handle_matrix (EHandleMatrix &);
+
 private:
 	
 	TreeStrategy m_strategy;
