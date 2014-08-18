@@ -4,7 +4,7 @@ using namespace rca;
 using namespace std;
 
 template <typename TreeStrategy>
-MPPAlgorithm<TreeStrategy>::MPPAlgorithm (RCANetwork & net, MulticatGroups & vgroup) 
+MPPAlgorithm<TreeStrategy>::MPPAlgorithm (const RCANetwork & net,const MulticatGroups & vgroup) 
 {
 
 	m_network = net;

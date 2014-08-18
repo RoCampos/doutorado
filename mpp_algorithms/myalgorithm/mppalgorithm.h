@@ -10,7 +10,6 @@
 #include "reader.h"
 #include "strategy_make_tree.h"
 
-
 typedef typename std::vector<std::shared_ptr<rca::Group>> MulticatGroups;
 typedef typename std::shared_ptr<rca::Network> RCANetwork;
 /**
@@ -25,7 +24,7 @@ template<typename TreeStrategy>
 class MPPAlgorithm {
 
 public:
-	MPPAlgorithm (RCANetwork &, MulticatGroups &);
+	MPPAlgorithm (const RCANetwork &, const MulticatGroups &);
 	
 	void init_strategy (const TreeStrategy & T);
 	
