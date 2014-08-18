@@ -16,8 +16,9 @@ add_executable (mppalgorithm
 				mppalgorithm.cpp 				
 				mppalgorithm.h
 				breadth_search_tree.h
+				breadth_search_tree.cpp
 				${includes})
-target_link_libraries (mppalgorithm graph sttree)
+target_link_libraries (mppalgorithm graph sttree myutil)
 
 
 #add_executable (test_properties teste_properties.cpp 
