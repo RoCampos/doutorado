@@ -25,6 +25,18 @@ void MPPAlgorithm<TreeStrategy>::run ()
 	cout << "Run Method" << endl;
 #endif
 
+	VMatrix congestion;
+	init_congestion_matrix(congestion);
 	
 	
+}
+
+template <typename TreeStrategy>
+void MPPAlgorithm<TreeStrategy>::init_congestion_matrix (VMatrix &matrix) {
+	int NODES = m_network->getNumberNodes ();
+	VMatrix congestion (NODES);
+	for (int i=0; i < NODES; i++) {
+		congestion[i] = std::vector<int> (NODES,0);
+	}
+	matrix = std::move(congestion);
 }
