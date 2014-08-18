@@ -15,13 +15,14 @@ MPPAlgorithm<TreeStrategy>::MPPAlgorithm (const RCANetwork & net,const MulticatG
 template <typename TreeStrategy> 
 void MPPAlgorithm<TreeStrategy>::init_strategy (const TreeStrategy & strategy)
 {
-	m_strategy(strategy);
+	m_strategy = strategy;
 }
 
 template <typename TreeStrategy>
 void MPPAlgorithm<TreeStrategy>::run ()
 {
-
+#ifdef DEBUG
 	cout << "Printig a message" << endl;
+#endif
 	
 }

@@ -26,13 +26,13 @@ class MPPAlgorithm {
 public:
 	MPPAlgorithm (const RCANetwork &, const MulticatGroups &);
 	
-	void init_strategy (const TreeStrategy & T);
+	void init_strategy (const TreeStrategy & strategy);
 	
 	void run ();
 	
 private:
 	
-	TreeStrategy strategy;
+	TreeStrategy m_strategy;
 	RCANetwork m_network;
 	MulticatGroups m_groups;
     
