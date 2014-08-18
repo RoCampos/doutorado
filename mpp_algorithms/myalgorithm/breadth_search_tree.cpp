@@ -1,34 +1,34 @@
 #include "breadth_search_tree.h"
 
-void BreadthSearchTree::make_tree (int group_id,
+void BreadthSearchTree::make_tree (Group & group, Network & net,
 				  std::shared_ptr<SteinerTree> & st) {
   
   typedef typename std::vector<int>::const_iterator c_iterator;
   
   //número de nós
-  unsigned int NODES = rca::g_network->getNumberNodes ();
+  unsigned int NODES = net.getNumberNodes ();
   
   //alocação de memória para ST
   st = make_shared<SteinerTree> (NODES);
   
   //acessando grupo
-  Group * group = rca::g_groups[group_id].get () ;
+  //Group * group = rca::g_groups[group_id].get () ;
   
   //definindo nós de Steiner
-  auto it_g = group->begin();
-  auto end_g = group->end();
+  auto it_g = group.begin();
+  auto end_g = group.end();
   for (; it_g != end_g; it_g++) {
       st->setTerminal (*it_g);
   }
-  st->setTerminal ( group->getSource() );
+  st->setTerminal ( group.getSource() );
   
   //iniciado a busca
   std::queue<int> _queue;  
-  _queue.push(group->getSource ());
+  _queue.push(group.getSource ());
   
   //marcador de nós
   std::vector<bool> closed(NODES);
-  closed[group->getSource ()] = true;
+  closed[group.getSource ()] = true;
   
   //loop para achar todos os nós
   while ( !_queue.empty () ) {
@@ -39,7 +39,7 @@ void BreadthSearchTree::make_tree (int group_id,
     
     //iterator sobre os vizinho de "node"
     std::pair<c_iterator, c_iterator> _pair;
-    rca::g_network->get_iterator_adjacent (node, _pair);
+    net.get_iterator_adjacent (node, _pair);
     
     auto it = _pair.first;
     auto end = _pair.second;
@@ -48,8 +48,8 @@ void BreadthSearchTree::make_tree (int group_id,
     for (; it != end; it++) {      
 	//se o nó *it não está fechado então entra na busca.
 	rca::Link link (node, *it, 0.0);
-	if (!closed[*it] && !rca::g_network->isRemoved(link)) {
-	  double cost = rca::g_network->getCost(node,*it);
+	if (!closed[*it] && !net.isRemoved(link)) {
+	  double cost = net.getCost(node,*it);
 	  _queue.push (*(it));
 	  st->addEdge (node, (*it), cost);
 	  closed[ (*it) ] = true;  
