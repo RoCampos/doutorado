@@ -66,10 +66,25 @@ void MPPAlgorithm<TreeStrategy>::init_handle_matrix (EHandleMatrix &matrix) {
 }
 
 template <typename TreeStrategy>
-void MPPAlgorithm<TreeStrategy>::connected_levle (FibonnacciHeap & fheap) {
+int MPPAlgorithm<TreeStrategy>::connected_level (int group_id, FibonnacciHeap & fheap) {
 
-	
-	
+	int level = 1;
+	while (!is_connected (*m_network.get(), *m_groups[group_id] )) {
+     
+		//iterator removendo de um level
+		auto begin = fheap.begin ();
+		auto end = fheap.end ();
+			for ( ; begin != end; begin++) {
+			//cout << *begin << ":" <<begin->getValue ();
+			
+			if (m_network->isRemoved (*begin) && begin->getValue() == level) {
+				//cout << " is removed\n";
+				m_network->undoRemoveEdge (*begin);  
+			}			
+		}	
+		level++;			
+	}	
+	return level;
 }
 
 
