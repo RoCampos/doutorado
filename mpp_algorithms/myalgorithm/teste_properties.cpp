@@ -29,7 +29,7 @@ int main (int argv, char **argc) {
 	//variables
 	rca::init_properties (argc[1]);
     
-	BeadthSearchTree tree_maker;  
+	BreadthSearchTree tree_maker;  
 	TreeAlgorithm algorithm(tree_maker);
   
 	int NODES = rca::g_network->getNumberNodes();

@@ -1,6 +1,6 @@
 #include "breadth_search_tree.h"
 
-void BeadthSearchTree::make_tree (int group_id,
+void BreadthSearchTree::make_tree (int group_id,
 				  std::shared_ptr<SteinerTree> & st) {
   
   typedef typename std::vector<int>::const_iterator c_iterator;

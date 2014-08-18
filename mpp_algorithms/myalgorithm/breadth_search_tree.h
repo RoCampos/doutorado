@@ -11,7 +11,7 @@
 #include "properties.h"
 #include "strategy_make_tree.h"
 
-class BeadthSearchTree : public TreeAlgorithmInterface {
+class BreadthSearchTree : public TreeAlgorithmInterface {
 
 public:
   void make_tree (int group_id, std::shared_ptr<SteinerTree> & st);

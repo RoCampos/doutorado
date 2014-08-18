@@ -19,6 +19,8 @@ int main (int argv, char **argc) {
   
   r.configNetwork (network.get());
   groups = r.readerGroup ();
+  
+	
     
   MPPAlgorithm<TreeAlgorithmInterface> 
 			myalgorithm (network, groups);
