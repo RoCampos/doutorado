@@ -32,6 +32,8 @@ typedef typename std::vector<std::vector<int>> VMatrix;
 typedef typename boost::heap::compare<not_equal<rca::Link>> Comparator;
 typedef typename boost::heap::fibonacci_heap<rca::Link, Comparator>::handle_type edge_handle;
 
+typedef typename boost::heap::fibonacci_heap<rca::Link, Comparator> FibonnacciHeap;
+
 //define um pair bool e um manipulador de aresta
 //este manipulador indica se uma aresta está ou no heap
 typedef typename std::pair<bool, edge_handle> HCell;
@@ -62,6 +64,8 @@ private:
 	
 	void init_handle_matrix (EHandleMatrix &);
 
+	void connected_levle (FibonnacciHeap & fheap);
+	
 private:
 	
 	TreeStrategy m_strategy;
