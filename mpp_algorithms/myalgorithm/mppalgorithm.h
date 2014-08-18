@@ -9,6 +9,7 @@
 #include "network.h"
 #include "reader.h"
 #include "strategy_make_tree.h"
+#include "breadth_search_tree.h"
 #include <boost/heap/fibonacci_heap.hpp>
 
 //struct to compare two edges in fibonnaci heap
@@ -55,7 +56,7 @@ class MPPAlgorithm {
 public:
 	MPPAlgorithm (const RCANetwork &, const MulticatGroups &);
 	
-	void init_strategy (const TreeStrategy & strategy);
+	void init_strategy (TreeStrategy & strategy);
 	
 	void run ();
 
@@ -66,11 +67,12 @@ private:
 
 	int connected_level (int, FibonnacciHeap & fheap);
 	
-	void update_congestion (FibonnacciHeap&, EHandleMatrix&, shared_ptr<SteinerTree> & st);
+	void update_congestion (FibonnacciHeap&, EHandleMatrix&, 
+							std::shared_ptr<SteinerTree> & st);
 	
 private:
 	
-	TreeStrategy m_strategy;
+	TreeStrategy * m_strategy;
 	RCANetwork m_network;
 	MulticatGroups m_groups;
     
