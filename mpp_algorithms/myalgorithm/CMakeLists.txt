@@ -11,8 +11,13 @@ FILE (GLOB SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE (GLOB includes "${PROJECT_SOURCE_DIR}/include/*.h")
 FILE (GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
-add_executable (mppalgorithm mppalgorithm.cpp main.cpp mppalgorithm.h ${includes})
-target_link_libraries (mppalgorithm graph)
+add_executable (mppalgorithm 
+				main.cpp 
+				mppalgorithm.cpp 				
+				mppalgorithm.h
+				breadth_search_tree.h				
+				${includes})
+target_link_libraries (mppalgorithm graph sttree)
 
 add_executable (test_properties teste_properties.cpp 
 		properties.h properties.cpp
