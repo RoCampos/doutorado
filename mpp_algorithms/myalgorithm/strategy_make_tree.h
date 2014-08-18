@@ -24,7 +24,7 @@ class TreeAlgorithmInterface {
 public:
   
   /*Este método resolve uma árvore de Steiner*/
-  virtual void make_tree (int group_id,std::shared_ptr<SteinerTree> & st) = 0;
+  virtual void make_tree (int group_id,std::shared_ptr<SteinerTree> & st){};
   
 };
 
