@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <functional>
 #include <queue>
+#include <iomanip>
 
 #include <memory>
 
@@ -81,6 +82,9 @@ private:
 	
 	/*pre processing step*/
 	void pre_processing ();
+	
+private:
+	double evaluate_cost ();
 		
 private:
 	
