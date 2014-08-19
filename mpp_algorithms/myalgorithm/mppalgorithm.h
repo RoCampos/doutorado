@@ -70,6 +70,8 @@ private:
 	void update_congestion (FibonnacciHeap&, EHandleMatrix&, 
 							std::shared_ptr<SteinerTree> & st);
 	
+	double evaluate_cost (FibonnacciHeap&);
+	
 private:
 	
 	TreeStrategy * m_strategy;
