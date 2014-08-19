@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <fstream>
+#include <iomanip>
 
 #include "linkedlist.h"
 #include "steinernode.h"
@@ -26,7 +27,7 @@ public:
 	SteinerTree(int nnodes);
 	
 	//adiciona uma aresta da árvore
-	void addEdge(int i, int j, int value);
+	void addEdge(int i, int j, double value);
 	
 	//define estruturas, speed up the algorithm
 	//void setTempStructures (std::vector<double>& objs, 
