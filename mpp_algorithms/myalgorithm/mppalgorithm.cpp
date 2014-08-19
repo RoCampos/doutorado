@@ -60,6 +60,15 @@ void MPPAlgorithm<TreeStrategy>::run ()
 	}
 	time.finished ();
 	
+#ifdef DEBUG
+	
+	auto it = vtrees.begin ();
+	for ( ; it != vtrees.end(); it++) {
+		(*it)->xdotFormat ();
+	}
+	
+#endif
+	
 	std::cout << evaluate_cost (heap) << " ";
 	std::cout << time.get_elapsed () << std::endl;
 	
@@ -151,7 +160,7 @@ double MPPAlgorithm<TreeStrategy>:: evaluate_cost (FibonnacciHeap & heap)
 	
 	double cost = 0.0;
 	while (begin != end) {
-		cost = m_network->getCost (begin->getX(), begin->getY());
+		cost += m_network->getCost (begin->getX(), begin->getY());
 		begin++;
 	}
 	
