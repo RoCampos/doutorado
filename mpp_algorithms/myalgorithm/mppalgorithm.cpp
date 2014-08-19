@@ -81,8 +81,9 @@ void MPPAlgorithm<TreeStrategy>::run ()
 #endif
 	
 	std::cout << m_congestion << " ";
-	printf ("%.2f ", m_cost);
-	std::cout << time.get_elapsed () << std::endl;
+	std::cout << std::fixed;
+	std::cout << std::setprecision(3) << m_cost << " ";
+	std::cout << std::setprecision(5) << time.get_elapsed () << std::endl;
 	
 }
 
