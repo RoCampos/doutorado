@@ -38,7 +38,10 @@ void MPPAlgorithm<TreeStrategy>::run ()
 	//heap that stores the edges by level of usage
 	FibonnacciHeap heap;
 	std::shared_ptr<SteinerTree> s_tree;
-	int NODES = m_network->getNumberNodes ();	
+	int NODES = m_network->getNumberNodes ();
+	
+	//storing the trees for post-processing
+	std::vector<SteinerTree*> vtrees(m_groups.size()); 
 	
 	time.started ();
 	for (uint id = 0; id < m_groups.size (); id++) 
@@ -51,10 +54,15 @@ void MPPAlgorithm<TreeStrategy>::run ()
 							   *m_network.get(),
 							   s_tree);
 		
+		vtrees[id] = std::move( s_tree.get() );
+		
 		update_congestion (heap, ehandles, s_tree);
 	}
 	time.finished ();
+	
+	std::cout << evaluate_cost (heap) << " ";
 	std::cout << time.get_elapsed () << std::endl;
+	
 }
 
 template <typename TreeStrategy>
@@ -132,6 +140,22 @@ void MPPAlgorithm<TreeStrategy>::update_congestion (FibonnacciHeap& heap,
 	}	
 	e = NULL;
 	
+}
+
+template <typename TreeStrategy>
+double MPPAlgorithm<TreeStrategy>:: evaluate_cost (FibonnacciHeap & heap)
+{
+	
+	auto begin = heap.ordered_begin ();
+	auto end = heap.ordered_end ();
+	
+	double cost = 0.0;
+	while (begin != end) {
+		cost = m_network->getCost (begin->getX(), begin->getY());
+		begin++;
+	}
+	
+	return cost;
 }
 
 
