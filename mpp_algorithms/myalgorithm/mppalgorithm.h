@@ -77,6 +77,9 @@ private:
 	TreeStrategy * m_strategy;
 	RCANetwork m_network;
 	MulticatGroups m_groups;
+	
+	double m_congestion;
+	double m_cost;
     
 };
 
