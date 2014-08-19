@@ -34,6 +34,11 @@ void Generator::init () {
 	
 }
 
+/**
+ * Gera informações sobre a rede no formato suportado 
+ * pelo GLPSOL.
+ * 
+ */
 const ostream& Generator::gen_network (std::ostream & out) {
 	
 	out << "param n := ";
@@ -76,6 +81,12 @@ const ostream& Generator::gen_network (std::ostream & out) {
 	
 }
 
+/**
+ * Gera informações sobre os mebros de um grupo 
+ * no formato GLPSOL
+ * 
+ * 
+ */
 void Generator::gen_terminal (std::ostream& out, int i) {
 	
 	Group * g = groups[i].get ();
