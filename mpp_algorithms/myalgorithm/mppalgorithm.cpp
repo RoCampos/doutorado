@@ -24,7 +24,7 @@ void MPPAlgorithm<TreeStrategy>::run ()
 {
 	typedef unsigned int uint;
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	cout << "Run Method" << endl;
 #endif
 	
@@ -37,11 +37,11 @@ void MPPAlgorithm<TreeStrategy>::run ()
 		
 	//heap that stores the edges by level of usage
 	FibonnacciHeap heap;
-	std::shared_ptr<SteinerTree> s_tree;
+	//std::shared_ptr<SteinerTree> s_tree;
 	int NODES = m_network->getNumberNodes ();
 	
 	//storing the trees for post-processing
-	std::vector<SteinerTree*> vtrees(m_groups.size()); 
+	std::vector<std::shared_ptr<SteinerTree>> vtrees; 
 	
 	time.started ();
 	for (uint id = 0; id < m_groups.size (); id++) 
@@ -49,22 +49,31 @@ void MPPAlgorithm<TreeStrategy>::run ()
 		
 		//prepare the network to build next steiner tree
 		connected_level(id, heap);
-		s_tree = std::make_shared<SteinerTree> (NODES);
+		vtrees.push_back( std::make_shared<SteinerTree> (NODES) );
+		//s_tree = std::make_shared<SteinerTree> (NODES);
 		m_strategy->make_tree ( *m_groups[id].get(),
 							   *m_network.get(),
-							   s_tree);
+								vtrees[id]);
+		//						s_tree)
+							  
+
+		//update_congestion (heap, ehandles, s_tree);		
+		update_congestion (heap, ehandles, vtrees[id]);
 		
-		vtrees[id] = std::move( s_tree.get() );
+#ifdef DEBUG1
+		cout << id << endl;
+		cout << *m_groups[id] << endl;
+		//s_tree->xdotFormat ();
+#endif
 		
-		update_congestion (heap, ehandles, s_tree);
 	}
 	time.finished ();
 	
 #ifdef DEBUG
 	
-	auto it = vtrees.begin ();
-	for ( ; it != vtrees.end(); it++) {
-		(*it)->xdotFormat ();
+	for(uint i = 0; i < vtrees.size (); i++) {
+		std::cout << "adsf\n";
+		vtrees[i]->xdotFormat ();
 	}
 	
 #endif
