@@ -28,7 +28,7 @@ void SteinerTree::setTempStructures (std::vector<double> & objs,
 */
 
 //this procedure takes O(n) since we must avoid duplicated edges.
-void SteinerTree::addEdge (int i, int j, int value)
+void SteinerTree::addEdge (int i, int j, double value)
 {
 	if (vertexList[i].getFirstAdjc () == j ||
 		vertexList[j].getFirstAdjc () == i)
@@ -179,7 +179,7 @@ void SteinerTree::xdotFormat () {
 		int w = aux->j;
 		double value = aux->cost;
 		
-		printf ("%d--%d : %.2f\n",v,w,value);
+		printf ("%d--%d : %.3f\n",v,w,value);
 		
 		aux = aux->next;
 		
@@ -217,7 +217,7 @@ void SteinerTree::xdotToFile (std::string file)
 		output << "--";
 		output << w;
 		output << " : ";
-		output << value << std::endl;
+		output << std::setprecision(3) << value << std::endl;
 		
 		aux = aux->next;
 		
