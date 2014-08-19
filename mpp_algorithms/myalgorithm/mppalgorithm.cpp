@@ -43,6 +43,9 @@ void MPPAlgorithm<TreeStrategy>::run ()
 	//storing the trees for post-processing
 	std::vector<std::shared_ptr<SteinerTree>> vtrees; 
 	
+	m_congestion = 0.0;
+	m_cost = 0.0;
+	
 	time.started ();
 	for (uint id = 0; id < m_groups.size (); id++) 
 	{
@@ -72,13 +75,13 @@ void MPPAlgorithm<TreeStrategy>::run ()
 #ifdef DEBUG
 	
 	for(uint i = 0; i < vtrees.size (); i++) {
-		std::cout << "adsf\n";
 		vtrees[i]->xdotFormat ();
 	}
 	
 #endif
 	
-	std::cout << evaluate_cost (heap) << " ";
+	std::cout << m_congestion << " ";
+	printf ("%.2f ", m_cost);
 	std::cout << time.get_elapsed () << std::endl;
 	
 }
@@ -148,10 +151,18 @@ void MPPAlgorithm<TreeStrategy>::update_congestion (FibonnacciHeap& heap,
 			int valor = (*((ehandles[x][y]).second)).getValue();
 			(*((ehandles[x][y]).second)).setValue (valor+1);
 			heap.update ((ehandles[x][y]).second);
+			
+			if (valor+1 > m_congestion) {
+				m_congestion = (valor + 1);
+			}
+			
 		} else {
 			ehandles[x][y].first = true;
 			link.setValue (1);
 			ehandles[x][y].second = heap.push (link);
+			
+			m_cost += m_network->getCost (link.getX(), link.getY());
+			
 		}
 		
 		e = e->next;
