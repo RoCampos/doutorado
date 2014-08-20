@@ -24,7 +24,7 @@ target_link_libraries (mppalgorithm graph sttree myutil)
 add_executable (test_properties teste_properties.cpp 
 		properties.h properties.cpp
 		strategy_make_tree.cpp strategy_make_tree.h
-		breadth_search_tree.h breadth_search_tree.cpp
+		bstcost.h bstcost.cpp
 		${includes})
 target_link_libraries (test_properties graph sttree ${Boost_LIBRARIES})
 
