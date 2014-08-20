@@ -50,16 +50,16 @@ void BreadthSearchTree::make_tree (rca::Group & group, rca::Network & net,
     
     bool connected = false;
     for (; it != end; it++) {      
-	//se o nó *it não está fechado então entra na busca.
-	rca::Link link (node, *it, 0.0);
-	if (!closed[*it] && !net.isRemoved(link)) {
-	  double cost = net.getCost(node,*it);
-	  _queue.push (*(it));
-	  st->addEdge (node, (*it), cost);
-	  closed[ (*it) ] = true;  
+		//se o nó *it não está fechado então entra na busca.
+		rca::Link link (node, *it, 0.0);
+		if (!closed[*it] && !net.isRemoved(link)) {
+			double cost = net.getCost(node,*it);
+			_queue.push (*(it));
+			st->addEdge (node, (*it), cost);
+			closed[ (*it) ] = true;  
 	  
-	  connected = true;
-	} 
+			connected = true;
+		} 
     }
     
   }
