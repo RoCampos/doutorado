@@ -9,7 +9,6 @@
 #include "network.h"
 #include "reader.h"
 #include "strategy_make_tree.h"
-#include "breadth_search_tree.h"
 #include <boost/heap/fibonacci_heap.hpp>
 
 //struct to compare two edges in fibonnaci heap
