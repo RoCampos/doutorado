@@ -7,6 +7,7 @@
 #include "mppalgorithm.h"
 #include "mppalgorithm.cpp"
 #include <memory>
+#include "breadth_search_tree.h"
 
 int main (int argv, char **argc) {
   
