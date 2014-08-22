@@ -7,7 +7,14 @@
 #include "mppalgorithm.h"
 #include "mppalgorithm.cpp"
 #include <memory>
+
+#ifdef BSTTREE
 #include "breadth_search_tree.h"
+#endif
+
+#ifdef BSTCOST
+#include "bstcost.h"
+#endif
 
 int main (int argv, char **argc) {
   
@@ -20,7 +27,13 @@ int main (int argv, char **argc) {
 	r.configNetwork (network.get());
 	groups = r.readerGroup ();
 
+#ifdef BSTTREE
 	BreadthSearchTree bst;
+#endif 
+	
+#ifdef BSTCOST
+	BreadthSearchCost bst;
+#endif
 	
 	MPPAlgorithm<TreeAlgorithmInterface> 
 			myalgorithm (network, groups);

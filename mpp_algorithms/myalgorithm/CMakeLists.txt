@@ -11,20 +11,42 @@ FILE (GLOB SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE (GLOB includes "${PROJECT_SOURCE_DIR}/include/*.h")
 FILE (GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
-add_executable (mppalgorithm 
+set (BST ON)
+set (BSTCOST OFF)
+set (TESTALGO OFF)
+
+#COMPILATION DEFINITION FO BSTREE
+IF (BST) 
+add_definitions ( -DBSTTREE )
+add_executable (bstree 
 				main.cpp 
 				mppalgorithm.cpp 				
 				mppalgorithm.h
 				breadth_search_tree.h
 				breadth_search_tree.cpp
 				${includes})
-target_link_libraries (mppalgorithm graph sttree myutil)
+target_link_libraries (bstree graph sttree myutil)
+ENDIF()
+
+#COMPILATION DEFINITION FOR BST_COST ALGORITHM
+IF (BSTCOST)
+add_definitions ( -DBSTCOST )
+add_executable (bscost 
+				main.cpp 
+				mppalgorithm.cpp
+				mppalgorithm.h
+				bstcost.h
+				bstcost.cpp
+				${includes})
+target_link_libraries (bscost graph sttree myutil)
+ENDIF ()
 
 
+IF (TESTALGO)
 add_executable (test_properties teste_properties.cpp 
 		properties.h properties.cpp
 		strategy_make_tree.cpp strategy_make_tree.h
 		bstcost.h bstcost.cpp
 		${includes})
 target_link_libraries (test_properties graph sttree ${Boost_LIBRARIES})
-
+ENDIF ()
