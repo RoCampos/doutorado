@@ -1,15 +1,19 @@
 #include "bstmean.h"
 
-#include "bstcost.h"
-
 void BreadthSearchMean::make_tree (rca::Group& group, rca::Network & net, 
 				  std::shared_ptr<SteinerTree> & st) {
 	
 #ifdef DEBUG
-	std::cout << "BreadthSearchCost\n";
+	std::cout << "BreadthSearchMean\n";
 #endif
 	
 	priority_queue_edge queue;
+	
+	//------------------EXPERIMENTAL ---------------
+	
+	std::vector<rca::Link> links;
+	remove_edges_by_mean(net, group, links);
+	//----------------------------------------/
 	
 	//número de nós
 	unsigned int NODES = net.getNumberNodes ();
@@ -51,9 +55,6 @@ void BreadthSearchMean::make_tree (rca::Group& group, rca::Network & net,
 			double value = net.getCost (link.getX(), link.getY());
 			st->addEdge (link.getX(), link.getY(), value );
 			
-#ifdef DEBUG
-	cout << "Edge added: " << link << endl;
-#endif
 			
 		}else if (!closed[link.getY()] && !net.isRemoved(link)) { //abrir o vértice Y caso contrário.
 			
@@ -67,15 +68,21 @@ void BreadthSearchMean::make_tree (rca::Group& group, rca::Network & net,
 			double value = net.getCost (link.getX(), link.getY());
 			st->addEdge (link.getX(), link.getY(), value );
 			
-#ifdef DEBUG
-	cout << "Edge added: " << link << endl;
-#endif
-			
 		}
 		
 	} while (!queue.empty ());
 	
 	st->prunning ();
+	
+	
+	//removendo nós da lista de custos
+	auto it = links.begin ();
+	auto end = links.end ();
+		
+	for (; it != end; it++) {
+		net.undoRemoveEdge (*it);
+	}
+	
 }
 
 void BreadthSearchMean::update_best_edge (int node, 
@@ -100,6 +107,89 @@ void BreadthSearchMean::update_best_edge (int node,
 		
 		queue.push (link);
 		
+	}
+	
+}
+
+void BreadthSearchMean::remove_edges_by_mean (rca::Network & net, 
+											  rca::Group &gp,
+											  std::vector<rca::Link> & links)
+{
+	unsigned i = 0;
+	
+	//getting the maximun and minimun edges
+	double max = std::numeric_limits<double>::min ();
+	double min = std::numeric_limits<double>::max ();
+	for (; i < net.getNumberNodes (); i++) {
+			
+		for (unsigned j = 0; j < i; j++) {
+		
+			double cost = net.getCost (i,j);
+			if (cost > 0) {
+				
+				if (cost > max) {
+					max = cost;
+				} 
+				
+				if (cost < min) {
+					min = cost;
+				}
+			}
+			
+		}
+	}
+
+	//calculating the mean
+	double mean =  ((max + min)/2)* m_mean_modificator;
+#ifdef DEBUG
+	std::cout << "Max: " << max << std::endl;
+	std::cout << "Min: " << min << std::endl;
+	std::cout << std::fixed << std::endl;
+	std::cout << "Mean: " << std::setprecision(2) << mean << std::endl;
+#endif
+	
+	//removing the edges that has values upon mean
+	i=0;
+	for (; i < net.getNumberNodes (); i++) {
+			
+		for (unsigned j = 0; j < i; j++) {
+		
+			double cost = net.getCost (i,j);
+			if (cost > mean) {
+				
+				rca::Link link (i,j,0.0);
+				
+				//links.push_back (link);
+				
+				
+				if (!net.isRemoved(link)) {
+					net.removeEdge (link);
+					if (net.isRemoved(link)) {
+						links.push_back (link);
+					}
+				}
+				
+				
+			}
+			
+		}
+	}
+	
+#ifdef DEBUG
+	std::cout << "Number of removed edges: " << links.size ()<<std::endl;
+#endif
+	
+	//testing if the graph is connected
+	if (!is_connected (net, gp)) {
+#ifdef DEBUG
+	std::cout << "Not Connected after remotions" << std::endl;	
+#endif
+		auto it = links.begin ();
+		auto end = links.end ();
+		
+		for (; it != end; it++) {
+			net.undoRemoveEdge (*it);
+		}
 	}
 	
 }
