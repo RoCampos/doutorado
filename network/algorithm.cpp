@@ -121,8 +121,8 @@ typedef typename std::vector<int>::const_iterator c_iterator;
       rca::Link l(current_node, adjacent, 0);
       if ( !network.isRemoved(l) && nodes[adjacent] == WHITE) {
 	
-	nodes[adjacent] = GREY;
-	pilha.push (adjacent);
+		nodes[adjacent] = GREY;
+		pilha.push (adjacent);
 	
       }
       
