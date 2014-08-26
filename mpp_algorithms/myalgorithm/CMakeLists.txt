@@ -11,9 +11,10 @@ FILE (GLOB SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE (GLOB includes "${PROJECT_SOURCE_DIR}/include/*.h")
 FILE (GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
-set (BST ON)
+set (BST OFF)
 set (BSTCOST OFF)
 set (TESTALGO OFF)
+set (BMEAN ON)
 
 #COMPILATION DEFINITION FO BSTREE
 IF (BST) 
@@ -41,6 +42,17 @@ add_executable (bscost
 target_link_libraries (bscost graph sttree myutil)
 ENDIF ()
 
+IF (BMEAN)
+add_definitions ( -DBSTMEAN )
+add_executable (bsmean 
+				main.cpp 
+				mppalgorithm.cpp
+				mppalgorithm.h
+				bstmean.h
+				bstmean.cpp
+				${includes})
+target_link_libraries (bsmean graph sttree myutil)
+ENDIF()
 
 IF (TESTALGO)
 add_executable (test_properties teste_properties.cpp 
