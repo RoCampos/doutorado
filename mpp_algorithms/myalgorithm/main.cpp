@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <cstdlib>
+
 #include "network.h"
 #include "group.h"
 #include "reader.h"
@@ -41,6 +43,8 @@ int main (int argv, char **argc) {
 	
 #ifdef BSTMEAN
 	BreadthSearchMean bst;
+	double mean = atof(argc[2]);
+	bst.set_mean_modificator (mean);
 #endif
 
 	MPPAlgorithm<TreeAlgorithmInterface> 
