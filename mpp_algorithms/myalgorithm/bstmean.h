@@ -23,7 +23,7 @@ public:
 	void make_tree (rca::Group&, rca::Network &, 
 				  std::shared_ptr<SteinerTree> & st);
 	
-	inline void set_mean_moficator (double value) {
+	inline void set_mean_modificator (double value) {
 		m_mean_modificator = value;
 	}
 	
