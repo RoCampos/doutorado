@@ -16,6 +16,10 @@
 #include "bstcost.h"
 #endif
 
+#ifdef BSTMEAN
+#include "bstmean.h"
+#endif
+
 int main (int argv, char **argc) {
   
 	//reading informations about network and groups
@@ -35,6 +39,10 @@ int main (int argv, char **argc) {
 	BreadthSearchCost bst;
 #endif
 	
+#ifdef BSTMEAN
+	BreadthSearchMean bst;
+#endif
+
 	MPPAlgorithm<TreeAlgorithmInterface> 
 			myalgorithm (network, groups);
 			
