@@ -31,6 +31,19 @@ protected:
 	void update_pheromone ();
 	void solution_construction ();
 	void initialization ();
+	
+	/**
+	 * This method is used to configurate
+	 * the informations of the problem.
+	 * 
+	 * It receives a string as parameter. This
+	 * string is the instance tha must be read.
+	 * 
+	 * inside this method all attributes are instatiated.
+	 * 
+	 * @author Romerito Campos
+	 * @date 29/08/2014
+	 */
 	void configurate (std::string file);
 
 public:
