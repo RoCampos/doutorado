@@ -3,8 +3,13 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
+#include "network.h"
+#include "reader.h"
+#include "group.h"
 
+typedef typename std::vector<rca::Group> VGroup;
 
 namespace rca {
 
@@ -27,6 +32,10 @@ protected:
 	void initialization () const;
 	void configurate (std::string file) const;
 
+public:
+	rca::Network m_network;
+	VGroups m_groups;
+	
 };
 
 }
