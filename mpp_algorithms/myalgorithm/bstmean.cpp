@@ -4,7 +4,7 @@ void BreadthSearchMean::make_tree (rca::Group& group, rca::Network & net,
 				  std::shared_ptr<SteinerTree> & st) {
 	
 #ifdef DEBUG
-	std::cout << "BreadthSearchMean\n";
+	std::cout << __FILE__<< ":" <<__FUNCTION__ <<":"<< __LINE__ << std::endl;	
 #endif
 	
 	priority_queue_edge queue;
@@ -78,10 +78,18 @@ void BreadthSearchMean::make_tree (rca::Group& group, rca::Network & net,
 	//removendo nós da lista de custos
 	auto it = links.begin ();
 	auto end = links.end ();
-		
+	
+#ifdef DEBUG
+	std::cout << "Size of Links: " << links.size () << std::endl;
+#endif
 	for (; it != end; it++) {
 		net.undoRemoveEdge (*it);
 	}
+	
+#ifdef DEBUG
+	std::cout << "Network:removed edges after undo remove edges by mean\n";
+	net.showRemovedEdges ();
+#endif
 	
 }
 
@@ -91,7 +99,7 @@ void BreadthSearchMean::update_best_edge (int node,
 										 rca::Network& net)
 {
 #ifdef DEBUG
-	std::cout << "Updating the Queue of best edges." << std::endl;
+	std::cout << __FILE__<< ":" <<__FUNCTION__ <<":"<< __LINE__ << std::endl;
 #endif
 	
 	//iterator sobre os vizinho de "node"
@@ -115,6 +123,10 @@ void BreadthSearchMean::remove_edges_by_mean (rca::Network & net,
 											  rca::Group &gp,
 											  std::vector<rca::Link> & links)
 {
+	
+#ifdef DEBUG
+	std::cout << __FILE__<< ":" <<__FUNCTION__ <<":"<< __LINE__ << std::endl;
+#endif
 	unsigned i = 0;
 	
 	//getting the maximun and minimun edges
@@ -142,10 +154,12 @@ void BreadthSearchMean::remove_edges_by_mean (rca::Network & net,
 	//calculating the mean
 	double mean =  ((max + min)/2)* m_mean_modificator;
 #ifdef DEBUG
-	std::cout << "Max: " << max << std::endl;
-	std::cout << "Min: " << min << std::endl;
+	std::cout << "\tMax: " << max << std::endl;
+	std::cout << "\tMin: " << min << std::endl;
 	std::cout << std::fixed << std::endl;
-	std::cout << "Mean: " << std::setprecision(2) << mean << std::endl;
+	std::cout << "\tMean: " << std::setprecision(2) << mean << std::endl;
+	
+	std::cout << "\tRemoving edges!\n";
 #endif
 	
 	//removing the edges that has values upon mean
@@ -157,16 +171,17 @@ void BreadthSearchMean::remove_edges_by_mean (rca::Network & net,
 			double cost = net.getCost (i,j);
 			if (cost > mean) {
 				
-				rca::Link link (i,j,0.0);
-				
-				//links.push_back (link);
-				
+				rca::Link link (i,j,net.getCost (i,j));
 				
 				if (!net.isRemoved(link)) {
-					net.removeEdge (link);
-					if (net.isRemoved(link)) {
+					//net.removeEdge (link);
+					//if (net.isRemoved(link)) {
+#ifdef DEBUG
+	std::cout << "\t"<<link << std::endl;
+#endif
+						
 						links.push_back (link);
-					}
+					//}
 				}
 				
 				
@@ -176,13 +191,19 @@ void BreadthSearchMean::remove_edges_by_mean (rca::Network & net,
 	}
 	
 #ifdef DEBUG
-	std::cout << "Number of removed edges: " << links.size ()<<std::endl;
+	std::cout << "\tNumber of removed edges: " << links.size ()<<std::endl;
 #endif
+	
+	std::sort (links.begin (), links.end(), std::greater<rca::Link>());
+	for (int i=0; i < links.size ()/2; i++) {
+		net.removeEdge (links[i]);
+	}
+	
 	
 	//testing if the graph is connected
 	if (!is_connected (net, gp)) {
 #ifdef DEBUG
-	std::cout << "Not Connected after remotions" << std::endl;	
+	std::cout << "\tNot Connected after remotions" << std::endl;	
 #endif
 		auto it = links.begin ();
 		auto end = links.end ();
