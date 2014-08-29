@@ -10,7 +10,7 @@
 #include "reader.h"
 #include "group.h"
 
-typedef typename std::vector<rca::Group> MGroups;
+typedef typename std::vector<std::shared_ptr<rca::Group>> MGroups;
 
 namespace rca {
 
@@ -28,13 +28,13 @@ namespace rca {
 class AcoMPP {
 	
 protected:
-	void update_pheromone () const;
-	void solution_construction () const;
-	void initialization () const;
-	void configurate (std::string file) const;
+	void update_pheromone ();
+	void solution_construction ();
+	void initialization ();
+	void configurate (std::string file);
 
 public:
-	rca::Network m_network;
+	rca::Network * m_network;
 	MGroups m_groups;
 	
 };
