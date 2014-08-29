@@ -3,10 +3,9 @@
 using namespace rca;
 
 template<typename AcoHandle>
-void ACO<AcoHandle>::run () const{
+void ACO<AcoHandle>::run () {
 
 	std::cout << "Running: " << m_instance << std::endl;
-	
 	configurate (m_instance);
 	
 	initialization ();

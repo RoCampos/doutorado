@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <memory>
+#include <string>
 
 #include "network.h"
 #include "group.h"
@@ -19,15 +20,14 @@ using AcoHandle::initialization;
 using AcoHandle::configurate;
 
 public:
-	void run () const;
-	
-	inline void set_instance (std::string instance) {
+	void run ();
+	inline void set_instance (std::string & instance) {
 		m_instance = instance;
-	};
+	}
 	
 private:
 	std::string m_instance;
-
+	
 };
 
 }
