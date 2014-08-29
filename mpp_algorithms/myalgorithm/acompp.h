@@ -5,11 +5,12 @@
 #include <string>
 #include <vector>
 
+#include "reader.h"
 #include "network.h"
 #include "reader.h"
 #include "group.h"
 
-typedef typename std::vector<rca::Group> VGroup;
+typedef typename std::vector<rca::Group> MGroups;
 
 namespace rca {
 
@@ -34,7 +35,7 @@ protected:
 
 public:
 	rca::Network m_network;
-	VGroups m_groups;
+	MGroups m_groups;
 	
 };
 
