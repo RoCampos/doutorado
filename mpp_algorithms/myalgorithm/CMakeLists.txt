@@ -13,8 +13,8 @@ FILE (GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 set (BST OFF)
 set (BSTCOST OFF)
-set (TESTALGO OFF)
-set (BMEAN ON)
+set (TESTALGO ON)
+set (BMEAN OFF)
 
 #COMPILATION DEFINITION FO BSTREE
 IF (BST) 
@@ -56,9 +56,8 @@ ENDIF()
 
 IF (TESTALGO)
 add_executable (test_properties teste_properties.cpp 
-		properties.h properties.cpp
-		strategy_make_tree.cpp strategy_make_tree.h
-		bstcost.h bstcost.cpp
+		aco.h aco.cpp 
+		acompp.h acompp.cpp
 		${includes})
 target_link_libraries (test_properties graph sttree ${Boost_LIBRARIES})
 ENDIF ()
