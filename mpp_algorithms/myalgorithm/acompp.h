@@ -1,6 +1,11 @@
 #ifndef _MPP_ACO_HANDLEs_
 #define _MPP_ACO_HANDLEs_
 
+#include <iostream>
+#include <string>
+
+
+
 namespace rca {
 
 /**
@@ -16,6 +21,12 @@ namespace rca {
  */
 class AcoMPP {
 	
+protected:
+	void update_pheromone () const;
+	void solution_construction () const;
+	void initialization () const;
+	void configurate (std::string file) const;
+
 };
 
 }
