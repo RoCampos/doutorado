@@ -48,8 +48,8 @@ public:
 	 */
 	void configurate (std::string file);
 	
-	void create_ants_by_group (int g_id, std::vector<rca::Ant> & pool);
-
+	void create_ants_by_group (int g_id, std::vector<rca::Ant> & pool); 
+	
 private:
 	
 	rca::Network * m_network;

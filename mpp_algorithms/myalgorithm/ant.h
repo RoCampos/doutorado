@@ -25,7 +25,7 @@ namespace rca {
 class Ant {
 	
 public:
-	Ant (int id) : m_id (id){};
+	Ant (int id) : m_id (id), m_current_pos(id) {};
 	
 	//method that makes the ant moving forward in the graph
 	void move (int to);
@@ -50,7 +50,7 @@ private:
 	
 	//links in the solution
 	std::vector<rca::Link> links;
-	
+
 	
 };
 
