@@ -47,8 +47,12 @@ protected:
 	void configurate (std::string file);
 
 public:
+	
 	rca::Network * m_network;
+	
 	MGroups m_groups;
+	
+	std::vector<Ant> ant_pool;
 	
 };
 
