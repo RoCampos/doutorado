@@ -50,7 +50,7 @@ public:
 	
 	void create_ants_by_group (int g_id, std::vector<rca::Ant> & pool);
 
-public:
+private:
 	
 	rca::Network * m_network;
 	
