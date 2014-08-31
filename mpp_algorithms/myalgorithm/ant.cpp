@@ -2,7 +2,7 @@
 
 using namespace rca;
 
-void Ant::move () {
+void Ant::move (int to) {
 
 #ifdef DEBUG
 	std::cout << "Doing move ()\n";
@@ -16,4 +16,12 @@ void Ant::join (const Ant & move) {
 	std::cout << "Doing join ()\n";
 #endif
 	
+}
+
+int Ant::get_current_position () const {
+	return m_current_pos;
+}
+
+int Ant::get_id () const {
+	return m_id;
 }
