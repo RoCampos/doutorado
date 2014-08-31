@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <ostream>
 
 #include "link.h"
 
@@ -37,6 +38,8 @@ public:
 	
 	int get_id () const;
 	
+	friend std::ostream& operator << (std::ostream & os, const Ant & ant);
+
 	
 private:
 	//id of the node. The path start by the id	
