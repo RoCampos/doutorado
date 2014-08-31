@@ -10,6 +10,8 @@
 #include "reader.h"
 #include "group.h"
 
+#include "ant.h"
+
 typedef typename std::vector<std::shared_ptr<rca::Group>> MGroups;
 
 namespace rca {
@@ -27,7 +29,7 @@ namespace rca {
  */
 class AcoMPP {
 	
-protected:
+public:
 	void update_pheromone ();
 	void solution_construction ();
 	void initialization ();
@@ -45,14 +47,14 @@ protected:
 	 * @date 29/08/2014
 	 */
 	void configurate (std::string file);
+	
+	void create_ants_by_group (int g_id, std::vector<rca::Ant> & pool);
 
 public:
 	
 	rca::Network * m_network;
 	
 	MGroups m_groups;
-	
-	std::vector<Ant> ant_pool;
 	
 };
 
