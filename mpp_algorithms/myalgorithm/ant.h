@@ -29,7 +29,7 @@ class Ant {
 public:
 	Ant (int id) : m_id (id), m_current_pos(id) {
 		m_nodes.push_back (m_id);
-		mcpos == 0;
+		mcpos = 0;
 	};
 	
 	//method that makes the ant moving forward in the graph

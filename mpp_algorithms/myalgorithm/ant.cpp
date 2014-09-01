@@ -14,6 +14,8 @@ void Ant::move (int to) {
 	m_nodes.push_back (to); 
 	m_links.push_back (link);
 	
+	mcpos = m_nodes.size()-1;
+	
 }
 
 void Ant::join (const Ant & move) {
@@ -32,6 +34,9 @@ void Ant::join (const Ant & move) {
 	
 	m_current_pos = m_nodes[m_nodes.size()-1];
 	
+	//corrigindo a posição do para method back
+	mcpos = m_nodes.size()-1;
+	
 	auto l = move.m_links.begin ();
 	for (; l != move.m_links.end(); l++) {
 		m_links.push_back (*l);
@@ -49,8 +54,10 @@ int Ant::get_id () const {
 
 void Ant::back () {
 
-	
-	
+	if (--mcpos < 0) {
+		mcpos = m_nodes.size ()-1;
+	}	
+		
 }
 
 namespace rca {
