@@ -86,9 +86,11 @@ void AcoMPP::initialization () {
 			
 			//if next == -1 é necessário mudar a forrmiga de lugar
 			if (next != -1) {
-				
+
+#ifdef DEBUG1				
 				std::cout << "from: " << c_vertex << " id: " << visited[c_vertex];
 				std::cout << " >> to: " << next << " id: " << visited[next] << std::endl;
+#endif
 				
 				//TODO check with to groups has been joined
 				if ( visited[next] > -1 && (visited[c_vertex] != visited[next]) ) {
@@ -101,7 +103,7 @@ void AcoMPP::initialization () {
 					rca::Link link (c_vertex, next, 0.0);
 					m_network->removeEdge(link);
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 					std::cout << link << std::endl;
 					std::cout << "join: " << pool[ant].get_id () << ":" << visited[next] << "\n";
 #endif
@@ -110,18 +112,6 @@ void AcoMPP::initialization () {
 						
 						if (pool[i].get_id() == visited[next]) {
 							
-							//update visisted
-							/*
-							for (unsigned j=0; j < visited.size(); j++) {
-								if (visited[j] == visited[next] ) {
-									
-									//join to the ant partition
-									visited[j] = pool[ant].get_id ();
-									
-								}
-							}*/
-							
-							//marcando a remoção
 							join = i;
 							in = ant;
 							
@@ -165,7 +155,7 @@ void AcoMPP::initialization () {
 		
 		if (join != -1 && join != in) {
 
-#ifdef DEBUG
+#ifdef DEBUG1
 			//in representa a formiga que encontra com o "join"(outra formiga)
 			std::cout <<"-------------------\n"<< std::endl;
 			
@@ -185,7 +175,7 @@ void AcoMPP::initialization () {
 			}
 			
 
-#ifdef DEBUG
+#ifdef DEBUG1
 			std::cout << "----RESULTADO\n";
 			std::cout << pool[in] << std::endl;
 			
@@ -205,7 +195,9 @@ void AcoMPP::initialization () {
 		
 	}//endof while
 	
-	std::cout << pool[0] << std::endl;
+	
+#ifdef DEBUG
+	//std::cout << pool[0] << std::endl;
 	SteinerTree st(m_network->getNumberNodes ());
 	
 	st.setTerminal (m_groups[0]->getSource());
@@ -223,6 +215,7 @@ void AcoMPP::initialization () {
 	st.prunning ();
 	std::cout << st.getCost () << std::endl;
 	st.xdotFormat ();
+#endif
 	
 }
 
