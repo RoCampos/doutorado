@@ -8,7 +8,12 @@ void Ant::move (int to) {
 	std::cout << "Doing move ()\n";
 #endif 
 	
+	rca::Link link(m_current_pos, to, 0.0);
 	m_current_pos = to;
+	
+	m_nodes.push_back (to); 
+	m_links.push_back (link);
+	
 }
 
 void Ant::join (const Ant & move) {
