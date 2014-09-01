@@ -39,6 +39,9 @@ std::ostream& operator << (std::ostream & os, const Ant & ant)
 
 	os << "ID: " << ant.get_id () << "\n";
 	os << "Current Pos: " << ant.get_current_position () << "\n";
+	for (int i=0; i < ant.m_links.size (); i++) {
+		os << ant.m_links[i] << std::endl;
+	}
 	
 	return os;
 }
