@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <utility>
-
+#include <cassert>
 
 #include "reader.h"
 #include "network.h"
@@ -57,6 +57,20 @@ public:
 	void configurate2 (std::string file);
 	
 	void create_ants_by_group (int g_id, std::vector<rca::Ant> & pool); 
+	
+private:
+	
+	/**
+	 * This method is used to find the id of the the ant that found
+	 * the node next. 
+	 * 
+	 * The parameter pool is the pool of ants.
+	 * 
+	 * The parameter next_id is the id of the ant that found the
+	 * next node.
+	 * 
+	 */
+	int select_ant_id (const std::vector<Ant>& pool, const int & next_id);
 	
 private:
 	
