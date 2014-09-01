@@ -11,9 +11,10 @@ int main (int argv, char **argc) {
     
 	std::string str = argc[1];
 	
-	ACO<AcoMPP> algorithm;
-	algorithm.set_instance (str);
-	algorithm.run ();
+	AcoMPP acompp;
+	
+	acompp.configurate2 (str);
+	acompp.initialization ();
 	
 	return 0;
 }

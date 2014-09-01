@@ -109,7 +109,6 @@ void AcoMPP::initialization () {
 							join = i;
 							in = ant;
 							
-							ants--;
 							break;
 						}
 					}
@@ -137,7 +136,7 @@ void AcoMPP::initialization () {
 			
 		}//endof for
 		
-		if (join != -1) {
+		if (join != -1 && join != in) {
 			
 			//in representa a formiga que encontra com o "join"(outra formiga)
 			std::cout <<"-------------------\n"<< pool[in] << std::endl;
@@ -149,19 +148,11 @@ void AcoMPP::initialization () {
 			std::cout << pool[in] << std::endl;
 			pool.erase (pool.begin () + join);
 			
+			ants--;
 			//getchar ();
 			
 		} 
 		
-		if (ants == 4) {
-			std::cout << std::endl;
-			for (int antts=0; antts < pool.size(); antts++) {
-				//std::cout << pool[antts] << std::endl;
-			}
-			
-		}
-		
-	
 	}//endof while
 	
 	/*

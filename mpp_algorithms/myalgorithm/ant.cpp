@@ -58,7 +58,7 @@ void Ant::back () {
 		mcpos = m_nodes.size ()-1;
 	}	
 
-	m_current_pos = m_nodes[mcpos];		
+	m_current_pos = m_nodes[mcpos];
 }
 
 namespace rca {
