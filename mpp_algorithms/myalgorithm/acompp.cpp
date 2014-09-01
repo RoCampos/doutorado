@@ -62,28 +62,8 @@ void AcoMPP::initialization () {
 			//current vertex
 			int c_vertex = pool[ant].get_current_position();
 		
+			//gettting the next
 			int next = m_network->get_adjacent_by_minimun_cost (c_vertex);
-			
-			//TODO ADICIONAR UM MÉTODO A CLASSE NETWORK PARA
-			//TODO RETONAR A ARESTA COM MENOR CUSTO
-			//TODO OU MENOR BANDA ETC
-			//getting the next vertex by the minimum cost
-			/*
-			std::pair<c_iterator, c_iterator> iters;
-			m_network->get_iterator_adjacent (c_vertex, iters);
-			auto it = iters.first;
-			double cost = std::numeric_limits<double>::max();
-			int next = -1;
-			for (; it != iters.second; ++it) {
-			
-				rca::Link link (c_vertex, *it, 0.0);
-				if ( !m_network->isRemoved( link )  ) {
-					if (m_network->getCost (c_vertex, *it) < cost) {
-						cost = m_network->getCost (c_vertex, *it);
-						next = *it;
-					}
-				}
-			}*/
 			
 #ifdef DEBUG1
 			std::cout << " " << next << std::endl;
@@ -112,17 +92,13 @@ void AcoMPP::initialization () {
 					std::cout << link << std::endl;
 					std::cout << "join: " << pool[ant].get_id () << ":" << visited[next] << "\n";
 #endif
+	
+					//selecionando o id da formiga que 
+					//chegou ao nó next
+					join = select_ant_id (pool, visited[next]);
+					in = ant;
 					
-					for (unsigned i=0; i < pool.size(); i++) {
-						
-						if (pool[i].get_id() == visited[next]) {
-							
-							join = i;
-							in = ant;
-							
-							break;
-						}
-					}
+					//breaking the for.
 					break;
 					
 				} else {
@@ -281,4 +257,22 @@ void AcoMPP::configurate2 (std::string file){
 	std::shared_ptr<rca::Group> g(gg);
 	m_groups.push_back (g);
 	
+}
+
+/**
+ * private methods here
+ */
+
+int AcoMPP::select_ant_id (const std::vector<Ant>& pool, const int & next_id)
+{
+
+	for (unsigned i=0; i < pool.size(); i++) {
+
+		if (pool[i].get_id() == next_id) {
+					
+			return i;
+		}
+	}
+	
+	return -1;
 }
