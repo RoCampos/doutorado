@@ -55,6 +55,14 @@ public:
 		return m_nodes.cend ();
 	}
 	
+	const std::vector<rca::Link>::const_iterator links_begin (){
+		return m_links.cbegin ();
+	}
+	
+	const std::vector<rca::Link>::const_iterator links_end (){
+		return m_links.cend ();
+	}
+	
 private:
 	//id of the node. The path start by the id	
 	int m_id;
