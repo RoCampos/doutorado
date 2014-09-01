@@ -47,6 +47,14 @@ public:
 	
 	friend std::ostream& operator << (std::ostream & os, const Ant & ant);
 	
+	const std::vector<int>::const_iterator  nodes_begin () {
+		return m_nodes.cbegin ();
+	}
+	
+	const std::vector<int>::const_iterator nodes_end () {
+		return m_nodes.cend ();
+	}
+	
 private:
 	//id of the node. The path start by the id	
 	int m_id;
