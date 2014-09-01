@@ -41,7 +41,6 @@ public:
 	int get_id () const;
 	
 	friend std::ostream& operator << (std::ostream & os, const Ant & ant);
-
 	
 private:
 	//id of the node. The path start by the id	

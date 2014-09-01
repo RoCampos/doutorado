@@ -22,6 +22,16 @@ void Ant::join (const Ant & move) {
 	std::cout << "Doing join ()\n";
 #endif
 	
+	auto it = move.m_nodes.begin ();
+	for (; it != move.m_nodes.end(); it++) {
+		m_nodes.push_back (*it);
+	}
+	
+	auto l = move.m_links.begin ();
+	for (; l != move.m_links.end(); l++) {
+		m_links.push_back (*l);
+	}
+	
 }
 
 int Ant::get_current_position () const {
@@ -39,8 +49,12 @@ std::ostream& operator << (std::ostream & os, const Ant & ant)
 
 	os << "ID: " << ant.get_id () << "\n";
 	os << "Current Pos: " << ant.get_current_position () << "\n";
-	for (int i=0; i < ant.m_links.size (); i++) {
+	for (unsigned i=0; i < ant.m_links.size (); i++) {
 		os << ant.m_links[i] << std::endl;
+	}
+	os << "Nodes: ";
+	for (unsigned i=0; i < ant.m_nodes.size (); i++) {
+		os << ant.m_nodes[i] << " ";
 	}
 	
 	return os;
