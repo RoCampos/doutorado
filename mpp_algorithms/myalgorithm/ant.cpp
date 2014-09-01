@@ -24,8 +24,13 @@ void Ant::join (const Ant & move) {
 	
 	auto it = move.m_nodes.begin ();
 	for (; it != move.m_nodes.end(); it++) {
-		m_nodes.push_back (*it);
+		
+		if (std::find (m_nodes.begin(), m_nodes.end(), *it) == m_nodes.end()) {
+			m_nodes.push_back (*it);
+		}
 	}
+	
+	m_current_pos = m_nodes[m_nodes.size()-1];
 	
 	auto l = move.m_links.begin ();
 	for (; l != move.m_links.end(); l++) {

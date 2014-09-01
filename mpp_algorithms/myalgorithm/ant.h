@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <ostream>
+#include <algorithm>
 
 #include "link.h"
 
