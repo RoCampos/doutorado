@@ -178,4 +178,26 @@ void Network::showRemovedEdges() {
 
 }
 
+const int Network::get_adjacent_by_minimun_cost (const int & vertex)  {
+
+	double min = std::numeric_limits<double>::max ();
+	int adjacent = -1;
+	
+	auto it = m_adjacent_vertex[vertex].cbegin ();
+	auto end = m_adjacent_vertex[vertex].cend ();
+	for (; it != end; it++) {
+		rca::Link link (vertex, *it, 0.0);
+		
+		if (!isRemoved(link)) {
+			double value = getCost (vertex,*it);
+			if ( value < min ) {
+				min = value;
+				adjacent = *it;
+			}
+		}
+	}
+	
+	return adjacent;
+}
+
 } /* namespace rca */

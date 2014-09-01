@@ -303,6 +303,8 @@ public:
 				 m_adjacent_vertex[vertex].end());
 	}
 	
+	const int get_adjacent_by_minimun_cost (const int & vertex) ;
+	
 private:
 	int m_nodes;
 	int m_edges;
