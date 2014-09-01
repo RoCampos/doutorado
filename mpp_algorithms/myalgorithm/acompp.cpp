@@ -15,8 +15,6 @@ void AcoMPP::solution_construction () {
 }
 
 void AcoMPP::initialization () {
-	
-	typedef typename std::vector<int>::const_iterator c_iterator;
 
 #ifdef DEBUG
 	std::cout << "initialization\n";
