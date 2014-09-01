@@ -64,12 +64,16 @@ SteinerReader::SteinerReader(std::string file) {
 			m_edges[edge1][edge2] = weigth;
 			m_edges[edge2][edge1] = weigth;
 
+			
+			
 		}
 
 		if (str.compare("T") == 0) {
 			int t;
 			file_ >> t;
-			m_terminais.push_back(t);
+			
+			//modification to see the terminals with -1
+			m_terminais.push_back( (t-1) );
 		}
 	}
 
@@ -92,6 +96,10 @@ void SteinerReader::configNetwork(Network* network) {
 		network->setCost(link.getY(),link.getX(),link.getValue());
 
 		network->insertLink(link);
+		
+		//adding adjacent vertex support
+		network->addAdjacentVertex(link.getX(), link.getY());
+		network->addAdjacentVertex(link.getY(), link.getX());
 
 	}
 
