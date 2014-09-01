@@ -30,7 +30,8 @@ void AcoMPP::initialization () {
 	
 	//marking the partitions
 	for (unsigned ant = 0; ant < pool.size (); ant++) {
-		int id = pool[ant].get_id();
+		
+		int id = pool[ant].get_id();		
 		visited[ id ] = id;
 	}
 	
@@ -40,12 +41,19 @@ void AcoMPP::initialization () {
 	//while the number of ants is greater than 1(number of partitions)
 	while (ants > 1) {
 		
+		std::cout << "Number of Ants : " << ants << std::endl;
+		std::cout << "pool size: " << pool.size () <<std::endl;
+		
 		//flag mark the join
 		int join = -1;
+		int in = -1;
 		
 		//for each ant make a moviment
 		for (unsigned ant = 0; ant < pool.size (); ant++) {
 		
+			std::cout << "Origem :" << pool[ant].get_id ();
+			std::cout << " Examinig: " << pool[ant].get_current_position();
+			
 			//current vertex
 			int c_vertex = pool[ant].get_current_position();
 		
@@ -66,8 +74,10 @@ void AcoMPP::initialization () {
 				}
 			}
 			
+			std::cout << " " << next << std::endl;
+			
 			//TODO O QUE FAZE SE PEGAR UM VERTEX BLOQUADO?
-		
+			
 			//if next == -1 é necessário mudar a forrmiga de lugar
 			if (next != -1) {
 				
@@ -97,9 +107,11 @@ void AcoMPP::initialization () {
 							
 							//marcando a remoção
 							join = i;
+							in = ant;
+							
 							ants--;
 							break;
-						}						
+						}
 					}
 					break;
 					
@@ -114,22 +126,45 @@ void AcoMPP::initialization () {
 				
 					std::cout << link << std::endl;
 					
-					
-					
 				}
+			} else {
+				std::cout << c_vertex << " has non neighboor: " << next << std::endl;
+				
+				std::cout << pool[ant].get_current_position () << std::endl;
+				pool[ant].back ();
+				std::cout << pool[ant].get_current_position () << std::endl;
 			}
 			
 		}//endof for
 		
-		if (join != -1) {			
+		if (join != -1) {
+			
+			//in representa a formiga que encontra com o "join"(outra formiga)
+			std::cout <<"-------------------\n"<< pool[in] << std::endl;
+			
+			std::cout << pool[join] << std::endl;
+			
+			pool[in].join ( pool[join] );
+			
+			std::cout << pool[in] << std::endl;
 			pool.erase (pool.begin () + join);
+			
+			//getchar ();
+			
+		} 
+		
+		if (ants == 4) {
+			std::cout << std::endl;
+			for (int antts=0; antts < pool.size(); antts++) {
+				//std::cout << pool[antts] << std::endl;
+			}
+			
 		}
 		
-		//count++;
-		//getchar ();
 	
 	}//endof while
 	
+	/*
 	auto its = pool.begin ();
 	for (; its != pool.end(); its++) {
 		std::cout << *its << std::endl;
@@ -137,7 +172,7 @@ void AcoMPP::initialization () {
 	
 	for (int i=0;i < visited.size (); i++) {
 		std::cout << i << ":" << visited[i] << std::endl;
-	}
+	}*/
 	
 }
 
@@ -167,6 +202,7 @@ void AcoMPP::create_ants_by_group (int g_id,
 		//One ant is create for each "terminal node"(source and)
 		//destinations
 		Ant ant (m_groups[g_id]->getMember (i));
+		
 		pool.push_back (ant);
 		
 	}
@@ -174,5 +210,25 @@ void AcoMPP::create_ants_by_group (int g_id,
 	//creating a ant to start de search from the source
 	Ant ant (m_groups[g_id]->getSource ());
 	pool.push_back (ant);
+	
+}
+
+void AcoMPP::configurate2 (std::string file){
+	
+	SteinerReader reader (file);
+	
+	m_network = new rca::Network;
+	
+	reader.configNetwork (m_network);
+	
+	Group group = reader.terminalsAsGroup ();
+	
+	Group * gg = new Group(0, group.getSource(), 0);
+	for (int i=0; i < group.getSize (); i++) {
+		gg->addMember (group.getMember(i));
+	}
+	std::cout << group << std::endl;
+	std::shared_ptr<rca::Group> g(gg);
+	m_groups.push_back (g);
 	
 }

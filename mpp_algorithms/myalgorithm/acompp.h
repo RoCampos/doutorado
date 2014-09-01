@@ -11,6 +11,9 @@
 #include "reader.h"
 #include "group.h"
 
+
+#include "steinerReader.h"
+
 #include "ant.h"
 
 typedef typename std::vector<std::shared_ptr<rca::Group>> MGroups;
@@ -48,6 +51,8 @@ public:
 	 * @date 29/08/2014
 	 */
 	void configurate (std::string file);
+	
+	void configurate2 (std::string file);
 	
 	void create_ants_by_group (int g_id, std::vector<rca::Ant> & pool); 
 	
