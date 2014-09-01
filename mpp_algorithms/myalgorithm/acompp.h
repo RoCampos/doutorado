@@ -72,6 +72,23 @@ private:
 	 */
 	int select_ant_id (const std::vector<Ant>& pool, const int & next_id);
 	
+	/**
+	 * This method is used to join an ant into other.
+	 * 
+	 * The first parameter is the pool of ant the has size n.
+	 * In the final of execution of this method the size of pool is (n-1).
+	 * 
+	 * The second parameter is the ant the is receive the informations of the
+	 * another ant.
+	 * 
+	 * The third parameter is the ant the will be removed of the pool.
+	 * 
+	 * the fourth parameter is the vector of visited nodes.
+	 * 
+	 * @author Romerito Campos. 
+	 */
+	void join_ants (std::vector<Ant>& pool, const int&, const int&, std::vector<int>&);
+	
 private:
 	
 	rca::Network * m_network;
