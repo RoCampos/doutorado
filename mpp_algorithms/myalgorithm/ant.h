@@ -29,6 +29,7 @@ class Ant {
 public:
 	Ant (int id) : m_id (id), m_current_pos(id) {
 		m_nodes.push_back (m_id);
+		mcpos == 0;
 	};
 	
 	//method that makes the ant moving forward in the graph
@@ -36,6 +37,9 @@ public:
 	
 	//method to join an ant to another in the search
 	void join (const Ant & ant);
+	
+	//method to change the current_pos
+	void back ();
 	
 	int get_current_position () const;
 	
@@ -50,11 +54,16 @@ private:
 	//current position
 	int m_current_pos;
 	
+	//index in m_nodes of the current_pos
+	int mcpos;
+	
 	//nodes searched by m_id
 	std::vector<int> m_nodes;
 	
 	//links in the solution
 	std::vector<rca::Link> m_links;
+	
+	
 
 	
 };

@@ -47,6 +47,12 @@ int Ant::get_id () const {
 	return m_id;
 }
 
+void Ant::back () {
+
+	
+	
+}
+
 namespace rca {
 
 std::ostream& operator << (std::ostream & os, const Ant & ant) 
