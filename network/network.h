@@ -289,6 +289,13 @@ public:
 	    m_adjacent_vertex[v].push_back(adjacent);    
 	}
 	
+	/**
+	 * Este método é utilizado para se obter os iterators da lista
+	 * de adjacentes de um determinado vertex.
+	 * 
+	 * @param int vertex
+	 * @param std::pair<c_iterator,c_iterator>
+	 */
 	typedef typename std::vector<int>::const_iterator c_iterator;
 	void get_iterator_adjacent(int vertex, std::pair<c_iterator,c_iterator> & _pair) 
 	{
