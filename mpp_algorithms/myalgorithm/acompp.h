@@ -6,6 +6,8 @@
 #include <vector>
 #include <utility>
 
+
+
 #include "reader.h"
 #include "network.h"
 #include "reader.h"
@@ -15,6 +17,7 @@
 #include "steinerReader.h"
 
 #include "ant.h"
+#include "steinertree.h"
 
 typedef typename std::vector<std::shared_ptr<rca::Group>> MGroups;
 

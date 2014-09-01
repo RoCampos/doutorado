@@ -17,8 +17,10 @@ void AcoMPP::solution_construction () {
 void AcoMPP::initialization () {
 	
 	typedef typename std::vector<int>::const_iterator c_iterator;
-	
+
+#ifdef DEBUG	
 	std::cout << "initialization\n";
+#endif
 	
 	std::vector<int> visited(m_network->getNumberNodes(), -1);
 	
@@ -40,19 +42,22 @@ void AcoMPP::initialization () {
 	
 	//while the number of ants is greater than 1(number of partitions)
 	while (ants > 1) {
-		
+	
+#ifdef DEBUG1
 		std::cout << "Number of Ants : " << ants << std::endl;
 		std::cout << "pool size: " << pool.size () <<std::endl;
-		
+#endif
 		//flag mark the join
 		int join = -1;
 		int in = -1;
 		
 		//for each ant make a moviment
 		for (unsigned ant = 0; ant < pool.size (); ant++) {
-		
+	
+#ifdef DEBUG1
 			std::cout << "Origem :" << pool[ant].get_id ();
 			std::cout << " Examinig: " << pool[ant].get_current_position();
+#endif
 			
 			//current vertex
 			int c_vertex = pool[ant].get_current_position();
@@ -73,37 +78,48 @@ void AcoMPP::initialization () {
 					}
 				}
 			}
-			
+
+#ifdef DEBUG1
 			std::cout << " " << next << std::endl;
-			
+#endif		
 			//TODO O QUE FAZE SE PEGAR UM VERTEX BLOQUADO?
 			
 			//if next == -1 é necessário mudar a forrmiga de lugar
 			if (next != -1) {
 				
+				std::cout << "from: " << c_vertex << " id: " << visited[c_vertex];
+				std::cout << " >> to: " << next << " id: " << visited[next] << std::endl;
+				
 				//TODO check with to groups has been joined
 				if ( visited[next] > -1 && (visited[c_vertex] != visited[next]) ) {
-					
+	
+#ifdef DEBUG1
 					std::cout << "Moving from " << c_vertex << " to " << next << "\n";
+#endif 
 					pool[ant].move (next);
 			
 					rca::Link link (c_vertex, next, 0.0);
 					m_network->removeEdge(link);
-				
+	
+#ifdef DEBUG
 					std::cout << link << std::endl;
+					std::cout << "join: " << pool[ant].get_id () << ":" << visited[next] << "\n";
+#endif
 					
-					std::cout << "join: " << pool[ant].get_id () << ":" << next << "\n";
-					
-					for (int i=0; i < pool.size(); i++) {
+					for (unsigned i=0; i < pool.size(); i++) {
 						
 						if (pool[i].get_id() == visited[next]) {
 							
 							//update visisted
-							for (int j=0; j < visited.size(); j++) {
+							/*
+							for (unsigned j=0; j < visited.size(); j++) {
 								if (visited[j] == visited[next] ) {
+									
+									//join to the ant partition
 									visited[j] = pool[ant].get_id ();
+									
 								}
-							}
+							}*/
 							
 							//marcando a remoção
 							join = i;
@@ -115,55 +131,98 @@ void AcoMPP::initialization () {
 					break;
 					
 				} else {
-					
+		
+#ifdef DEBUG1
 					std::cout << "Moving from " << c_vertex << " to " << next << "\n";
+#endif
+					
 					pool[ant].move (next);
 					visited[next] = pool[ant].get_id ();
 			
 					rca::Link link (c_vertex, next, 0.0);
 					m_network->removeEdge(link);
-				
+#ifdef DEBUG1	
 					std::cout << link << std::endl;
+#endif
 					
 				}
-			} else {
-				std::cout << c_vertex << " has non neighboor: " << next << std::endl;
 				
+			} else {
+	
+#ifdef DEBUG1
+				std::cout << c_vertex << " has non neighboor: " << next << std::endl;
 				std::cout << pool[ant].get_current_position () << std::endl;
+#endif	
 				pool[ant].back ();
+
+#ifdef DEBUG1
 				std::cout << pool[ant].get_current_position () << std::endl;
+#endif
+				
 			}
 			
 		}//endof for
 		
 		if (join != -1 && join != in) {
-			
+
+#ifdef DEBUG
 			//in representa a formiga que encontra com o "join"(outra formiga)
-			std::cout <<"-------------------\n"<< pool[in] << std::endl;
-			
-			std::cout << pool[join] << std::endl;
-			
-			pool[in].join ( pool[join] );
+			std::cout <<"-------------------\n"<< std::endl;
 			
 			std::cout << pool[in] << std::endl;
-			pool.erase (pool.begin () + join);
+			std::cout << "----\n";
 			
+			std::cout << pool[join] << std::endl;
+			std::cout << "----\n";
+#endif
+			pool[in].join ( pool[join] );
+			
+			//marking the vertex
+			auto cbegin = pool[in].nodes_begin ();
+			auto cend = pool[in].nodes_end();
+			for (; cbegin != cend; cbegin++) {
+				visited[*cbegin] = pool[in].get_id ();
+			}
+			
+
+#ifdef DEBUG
+			std::cout << "----RESULTADO\n";
+			std::cout << pool[in] << std::endl;
+			
+
+			std::cout << "Visited after join\n";
+			for (unsigned i = 0; i < visited.size (); i++) {
+				std::cout << i << ":" << visited[i] << "| ";
+			}
+			std::cout << "\n";
+			getchar ();
+#endif			
+			pool.erase (pool.begin () + join);			
 			ants--;
-			//getchar ();
+			
 			
 		} 
 		
 	}//endof while
 	
-	/*
-	auto its = pool.begin ();
-	for (; its != pool.end(); its++) {
-		std::cout << *its << std::endl;
+	std::cout << pool[0] << std::endl;
+	SteinerTree st(m_network->getNumberNodes ());
+	
+	st.setTerminal (m_groups[0]->getSource());
+	for (int i = 0; i < m_groups[0]->getSize (); i++) {
+		st.setTerminal (m_groups[0]->getMember (i));
 	}
 	
-	for (int i=0;i < visited.size (); i++) {
-		std::cout << i << ":" << visited[i] << std::endl;
-	}*/
+	auto link = pool[0].links_begin ();
+	for (; link != pool[0].links_end(); link++) {
+		
+		st.addEdge (link->getX(), link->getY(), 
+					m_network->getCost (link->getX(), link->getY()) );
+	}
+	
+	st.prunning ();
+	std::cout << st.getCost () << std::endl;
+	st.xdotFormat ();
 	
 }
 
@@ -218,7 +277,9 @@ void AcoMPP::configurate2 (std::string file){
 	for (int i=0; i < group.getSize (); i++) {
 		gg->addMember (group.getMember(i));
 	}
+	
 	std::cout << group << std::endl;
+	
 	std::shared_ptr<rca::Group> g(gg);
 	m_groups.push_back (g);
 	
