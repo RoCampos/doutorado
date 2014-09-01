@@ -18,7 +18,7 @@ void AcoMPP::initialization () {
 	
 	typedef typename std::vector<int>::const_iterator c_iterator;
 
-#ifdef DEBUG	
+#ifdef DEBUG
 	std::cout << "initialization\n";
 #endif
 	
@@ -33,7 +33,7 @@ void AcoMPP::initialization () {
 	//marking the partitions
 	for (unsigned ant = 0; ant < pool.size (); ant++) {
 		
-		int id = pool[ant].get_id();		
+		int id = pool[ant].get_id();
 		visited[ id ] = id;
 	}
 	
@@ -62,7 +62,13 @@ void AcoMPP::initialization () {
 			//current vertex
 			int c_vertex = pool[ant].get_current_position();
 		
+			int next = m_network->get_adjacent_by_minimun_cost (c_vertex);
+			
+			//TODO ADICIONAR UM MÉTODO A CLASSE NETWORK PARA
+			//TODO RETONAR A ARESTA COM MENOR CUSTO
+			//TODO OU MENOR BANDA ETC
 			//getting the next vertex by the minimum cost
+			/*
 			std::pair<c_iterator, c_iterator> iters;
 			m_network->get_iterator_adjacent (c_vertex, iters);
 			auto it = iters.first;
@@ -72,17 +78,16 @@ void AcoMPP::initialization () {
 			
 				rca::Link link (c_vertex, *it, 0.0);
 				if ( !m_network->isRemoved( link )  ) {
-					if (cost > m_network->getCost (c_vertex, *it)) {
+					if (m_network->getCost (c_vertex, *it) < cost) {
 						cost = m_network->getCost (c_vertex, *it);
 						next = *it;
 					}
 				}
-			}
-
+			}*/
+			
 #ifdef DEBUG1
 			std::cout << " " << next << std::endl;
 #endif		
-			//TODO O QUE FAZE SE PEGAR UM VERTEX BLOQUADO?
 			
 			//if next == -1 é necessário mudar a forrmiga de lugar
 			if (next != -1) {
