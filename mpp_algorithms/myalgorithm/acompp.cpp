@@ -134,41 +134,8 @@ void AcoMPP::initialization () {
 		
 		if (join != -1 && join != in) {
 
-#ifdef DEBUG1
-			//in representa a formiga que encontra com o "join"(outra formiga)
-			std::cout <<"-------------------\n"<< std::endl;
-			
-			std::cout << pool[in] << std::endl;
-			std::cout << "----\n";
-			
-			std::cout << pool[join] << std::endl;
-			std::cout << "----\n";
-#endif
-			pool[in].join ( pool[join] );
-			
-			//marking the vertex
-			auto cbegin = pool[in].nodes_begin ();
-			auto cend = pool[in].nodes_end();
-			for (; cbegin != cend; cbegin++) {
-				visited[*cbegin] = pool[in].get_id ();
-			}
-			
-
-#ifdef DEBUG1
-			std::cout << "----RESULTADO\n";
-			std::cout << pool[in] << std::endl;
-			
-
-			std::cout << "Visited after join\n";
-			for (unsigned i = 0; i < visited.size (); i++) {
-				std::cout << i << ":" << visited[i] << "| ";
-			}
-			std::cout << "\n";
-			getchar ();
-#endif			
-			pool.erase (pool.begin () + join);			
+			join_ants (pool, in, join, visited);
 			ants--;
-			
 			
 		} 
 		
@@ -273,4 +240,19 @@ int AcoMPP::select_ant_id (const std::vector<Ant>& pool, const int & next_id)
 	}
 	
 	return -1;
+}
+
+void AcoMPP::join_ants (std::vector<Ant>& pool, const int& in, const int& join, std::vector<int>& visited)
+{
+	
+	//making the join
+	pool[in].join ( pool[join] );
+	//marking the vertex
+	auto cbegin = pool[in].nodes_begin ();
+	auto cend = pool[in].nodes_end();
+	for (; cbegin != cend; cbegin++) {
+		visited[*cbegin] = pool[in].get_id ();
+	}
+	pool.erase (pool.begin () + join);
+	
 }
