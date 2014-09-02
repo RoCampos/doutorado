@@ -7,11 +7,12 @@
 #include <utility>
 #include <cassert>
 
+#include <boost/heap/fibonacci_heap.hpp>
+
 #include "reader.h"
 #include "network.h"
 #include "reader.h"
 #include "group.h"
-
 
 #include "steinerReader.h"
 

@@ -10,10 +10,8 @@ using namespace rca;
 int main (int argv, char **argc) {
     
 	std::string str = argc[1];
-	
 	AcoMPP acompp;
-	
-	acompp.configurate2 (str);
+	acompp.configurate (str);
 	acompp.initialization ();
 	
 	return 0;
