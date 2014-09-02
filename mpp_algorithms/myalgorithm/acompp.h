@@ -6,6 +6,7 @@
 #include <vector>
 #include <utility>
 #include <cassert>
+#include <cstdlib>
 
 #include <boost/heap/fibonacci_heap.hpp>
 

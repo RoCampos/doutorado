@@ -128,8 +128,6 @@ void AcoMPP::initialization () {
 	m_congestion = 0.0;
 	
 	for (unsigned i = 0; i < m_groups.size (); i++) {
-	
-		std::cout << i << "\n";
 		
 		std::shared_ptr<SteinerTree> 
 				st = std::make_shared<SteinerTree> (m_network->getNumberNodes());
@@ -148,7 +146,16 @@ void AcoMPP::initialization () {
 		
 #ifdef DEBUG
 		std::cout << st->getCost () << std::endl; 
-		st->xdotFormat ();
+		std::string file ="/home/romeritocampos/workspace/Doutorado/inst_test/aco-test";
+		file = file+"/saida.xdot";
+		std::cout << file << std::endl;
+		st->xdotToFile (file);
+		std::string cmd ("xdot");
+		cmd += " " + file;
+		
+		system (cmd.c_str ());
+		
+		getchar ();		
 #endif		
 	
 	}
@@ -159,7 +166,10 @@ void AcoMPP::initialization () {
 
 void AcoMPP::configurate (std::string m_instance) {
 
+#ifdef DEBUG	
 	std::cout << "configuring data\n";
+#endif
+	
 	Reader r(m_instance);
 	
 	//creating the network object
