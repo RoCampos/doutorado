@@ -3,6 +3,9 @@
 #include "network.h"
 #include "group.h"
 #include "algorithm.h"
+#include "steinertree.h"
+
+#include "acompp.h"
 
 #include <boost/heap/fibonacci_heap.hpp>
 
@@ -51,6 +54,7 @@ typedef typename std::vector<std::vector< HCell >> EHandleMatrix;
  * @author Romerito Campos.
  */
 class EdgeContainer {
+	friend class AcoMPP;
 	
 public:
 	void init_congestion_matrix (int nodes);
@@ -62,8 +66,13 @@ public:
 	int connected_level (rca::Group & group, rca::Network & Network);
 	
 private:
+	//this matrix holds the congestion
 	VMatrix m_matrix;
+	
+	//this matrix holds the handles to heap elements
 	EHandleMatrix m_ehandle_matrix;
+	
+	//this heap holds the edges form minimun congestion to max.
 	FibonnacciHeap m_heap;
 
 };
