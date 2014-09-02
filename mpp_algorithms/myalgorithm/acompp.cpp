@@ -90,7 +90,11 @@ void AcoMPP::build_tree (int id,
 					st->addEdge (link.getX(), link.getY(), 
 								m_network->getCost(link.getX(), link.getY()) );
 				} else {
-					pool[ant].back ();	
+					
+					rca::Link l(c_vertex, next, 0.0);
+					toRemove.push_back (l);
+					
+					pool[ant].back ();
 				}
 				
 			} else {
@@ -105,6 +109,10 @@ void AcoMPP::build_tree (int id,
 
 			join_ants (pool, in, join, visited);
 			ants--;
+			
+		} else {
+		
+				
 			
 		}
 	}//endof while
@@ -144,7 +152,7 @@ void AcoMPP::initialization () {
 		
 		update_congestion (st, ec);
 		
-#ifdef DEBUG
+#ifdef DEBUG1
 		std::cout << st->getCost () << std::endl; 
 		std::string file ="/home/romeritocampos/workspace/Doutorado/inst_test/aco-test";
 		file = file+"/saida.xdot";
