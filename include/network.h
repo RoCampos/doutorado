@@ -305,6 +305,9 @@ public:
 	
 	const int get_adjacent_by_minimun_cost (const int & vertex) ;
 	
+	const int get_adjacent_by_minimun_cost (const int & vertex, 
+											std::vector<rca::Link>&) ;
+	
 private:
 	int m_nodes;
 	int m_edges;
