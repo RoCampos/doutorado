@@ -26,14 +26,7 @@ void AcoMPP::initialization () {
 	
 	//creating the pool of edges
 	int id = 0;
-	create_ants_by_group (id, pool);
-	
-	//marking the partitions
-	for (unsigned ant = 0; ant < pool.size (); ant++) {
-		
-		int id = pool[ant].get_id();
-		visited[ id ] = id;
-	}
+	create_ants_by_group (id, pool, visited);
 	
 	//getting the number of ants
 	int ants = pool.size ();
@@ -41,55 +34,28 @@ void AcoMPP::initialization () {
 	//while the number of ants is greater than 1(number of partitions)
 	while (ants > 1) {
 	
-#ifdef DEBUG1
-		std::cout << "Number of Ants : " << ants << std::endl;
-		std::cout << "pool size: " << pool.size () <<std::endl;
-#endif
 		//flag mark the join
 		int join = -1;
 		int in = -1;
 		
 		//for each ant make a moviment
 		for (unsigned ant = 0; ant < pool.size (); ant++) {
-	
-#ifdef DEBUG1
-			std::cout << "Origem :" << pool[ant].get_id ();
-			std::cout << " Examinig: " << pool[ant].get_current_position();
-#endif
 			
 			//current vertex
 			int c_vertex = pool[ant].get_current_position();
 		
 			//gettting the next
-			int next = m_network->get_adjacent_by_minimun_cost (c_vertex);
-			
-#ifdef DEBUG1
-			std::cout << " " << next << std::endl;
-#endif		
+			int next = m_network->get_adjacent_by_minimun_cost (c_vertex);	
 			
 			//if next == -1 é necessário mudar a forrmiga de lugar
 			if (next != -1) {
-
-#ifdef DEBUG1				
-				std::cout << "from: " << c_vertex << " id: " << visited[c_vertex];
-				std::cout << " >> to: " << next << " id: " << visited[next] << std::endl;
-#endif
-				
-				//TODO check with to groups has been joined
+			
 				if ( visited[next] > -1 && (visited[c_vertex] != visited[next]) ) {
 	
-#ifdef DEBUG1
-					std::cout << "Moving from " << c_vertex << " to " << next << "\n";
-#endif 
 					pool[ant].move (next);
 			
 					rca::Link link (c_vertex, next, 0.0);
 					m_network->removeEdge(link);
-	
-#ifdef DEBUG1
-					std::cout << link << std::endl;
-					std::cout << "join: " << pool[ant].get_id () << ":" << visited[next] << "\n";
-#endif
 	
 					//selecionando o id da formiga que 
 					//chegou ao nó next
@@ -100,33 +66,17 @@ void AcoMPP::initialization () {
 					break;
 					
 				} else {
-		
-#ifdef DEBUG1
-					std::cout << "Moving from " << c_vertex << " to " << next << "\n";
-#endif
 					
 					pool[ant].move (next);
 					visited[next] = pool[ant].get_id ();
 			
 					rca::Link link (c_vertex, next, 0.0);
-					m_network->removeEdge(link);
-#ifdef DEBUG1	
-					std::cout << link << std::endl;
-#endif
-					
+					m_network->removeEdge(link);			
 				}
 				
 			} else {
 	
-#ifdef DEBUG1
-				std::cout << c_vertex << " has non neighboor: " << next << std::endl;
-				std::cout << pool[ant].get_current_position () << std::endl;
-#endif	
 				pool[ant].back ();
-
-#ifdef DEBUG1
-				std::cout << pool[ant].get_current_position () << std::endl;
-#endif
 				
 			}
 			
@@ -182,7 +132,8 @@ void AcoMPP::configurate (std::string m_instance) {
 }
 
 void AcoMPP::create_ants_by_group (int g_id, 
-								   std::vector<rca::Ant> & pool)
+								   std::vector<rca::Ant> & pool, 
+								   std::vector<int> & visited)
 {
 	
 	//creating the ants
@@ -190,15 +141,18 @@ void AcoMPP::create_ants_by_group (int g_id,
 	
 		//One ant is create for each "terminal node"(source and)
 		//destinations
-		Ant ant (m_groups[g_id]->getMember (i));
-		
+		Ant ant (m_groups[g_id]->getMember (i));		
 		pool.push_back (ant);
+		
+		visited[ant.get_id()];
 		
 	}
 	
 	//creating a ant to start de search from the source
 	Ant ant (m_groups[g_id]->getSource ());
 	pool.push_back (ant);
+	
+	visited[ant.get_id()];
 	
 }
 
@@ -230,7 +184,7 @@ void AcoMPP::configurate2 (std::string file){
 
 int AcoMPP::select_ant_id (const std::vector<Ant>& pool, const int & next_id)
 {
-
+	//seaching for the position of the ant that found next
 	for (unsigned i=0; i < pool.size(); i++) {
 
 		if (pool[i].get_id() == next_id) {
