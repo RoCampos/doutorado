@@ -46,12 +46,13 @@ void AcoMPP::build_tree (int id,
 			int c_vertex = pool[ant].get_current_position();
 		
 			//gettting the next
-			int next = m_network->get_adjacent_by_minimun_cost (c_vertex);	
+			//TODO sem implementar
+			int next = m_network->get_adjacent_by_minimun_cost (c_vertex);
 			
 			//if next == -1 é necessário mudar a forrmiga de lugar
 			if (next != -1) {
 			
-				if ( visited[next] > -1 && (visited[c_vertex] != visited[next]) ) {
+				if ( (visited[next] > -1) && (visited[c_vertex] != visited[next]) ) {
 	
 					//moving the ant
 					pool[ant].move (next);
@@ -61,7 +62,7 @@ void AcoMPP::build_tree (int id,
 					
 					//adding the edges to st structure
 					st->addEdge (link.getX(), link.getY(), 
-								m_network->getCost(link.getX(), link.getY()) );
+					m_network->getCost(link.getX(), link.getY()) );
 	
 					//selecionando o id da formiga que 
 					//chegou ao nó next
@@ -71,7 +72,8 @@ void AcoMPP::build_tree (int id,
 					//breaking the for.
 					break;
 					
-				} else {
+					//added to avoid cicle
+				} else if (visited[c_vertex] != visited[next]){
 					
 					//moving the ant
 					pool[ant].move (next);
