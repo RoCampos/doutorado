@@ -45,6 +45,8 @@ int EdgeContainer::connected_level (rca::Group & group, rca::Network & network) 
 #ifdef DEBUG
 	if (level > 1) {
 		std::cout << "Executed\n";
+	}else {
+		std::cout << std::endl;
 	}
 #endif
 	
