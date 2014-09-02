@@ -98,11 +98,17 @@ private:
 	 */
 	void join_ants (std::vector<Ant>& pool, const int&, const int&, std::vector<int>&);
 	
+	void update_congestion (std::shared_ptr<SteinerTree>&,
+							rca::EdgeContainer &ec);
+	
 private:
 	
 	rca::Network * m_network;
 	
 	MGroups m_groups;
+	
+	double m_cost;
+	double m_congestion;
 	
 };
 

@@ -32,6 +32,7 @@ void AcoMPP::build_tree (int id,
 	int ants = pool.size ();
 	
 	//while the number of ants is greater than 1(number of partitions)
+	int start = 0;
 	while (ants > 1) {
 	
 		//flag mark the join
@@ -100,7 +101,6 @@ void AcoMPP::build_tree (int id,
 			ants--;
 			
 		} 
-		
 	}//endof while
 	
 }
@@ -111,24 +111,37 @@ void AcoMPP::initialization () {
 	std::cout << "initialization\n";
 #endif
 	
+	//initialization of the strutctures that suppor congestion evaluation
 	EdgeContainer ec;
 	ec.init_congestion_matrix (m_network->getNumberNodes ());
 	ec.init_handle_matrix (m_network->getNumberNodes ());
 	
+	m_cost = 0.0;
+	m_congestion = 0.0;
 	
-	std::shared_ptr<SteinerTree> 
-			st = std::make_shared<SteinerTree> (m_network->getNumberNodes());
+	for (unsigned i = 0; i < m_groups.size (); i++) {
 	
-	int id = 0;
-	for (int i=0; i < m_groups[id]->getSize(); i++) {
-		st->setTerminal (m_groups[id]->getMember (i));
-	}	
-	st->setTerminal (m_groups[id]->getSource ());
+		std::cout << i << "\n";
 		
-	build_tree (id, st, ec);
+		std::shared_ptr<SteinerTree> 
+				st = std::make_shared<SteinerTree> (m_network->getNumberNodes());
+		
+		ec.connected_level ( *m_groups[i].get() , *m_network);
+		
+		//steiner tree initializatioon
+		for (int j=0; j < m_groups[i]->getSize(); j++) {
+			st->setTerminal (m_groups[i]->getMember (j));
+		}	
+		st->setTerminal (m_groups[i]->getSource ());
+			
+		build_tree (i, st, ec);
+		
+		update_congestion (st, ec);
+		
+		std::cout << st->getCost () << std::endl; 
+		st->xdotFormat ();
 	
-	std::cout << st->getCost () << std::endl; 
-	st->xdotFormat ();
+	}
 	
 }
 
@@ -228,5 +241,44 @@ void AcoMPP::join_ants (std::vector<Ant>& pool,
 		visited[*cbegin] = pool[in].get_id ();
 	}
 	pool.erase (pool.begin () + join);
+	
+}
+
+void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
+							rca::EdgeContainer & ec)
+{
+	
+	Edge * e = st->listEdge.head;
+	while (e != NULL) {
+	
+		//m_network->removeEdge (rca::Link(e->i,e->j, 0.0));
+	
+		//NÃO ESTÁ FUNCIONANDO!!!
+		//TENHO QUE PROVER OUTRO MEIO PARA MANTER AS ARESTAS EM NÍVEIS
+		rca::Link link (e->i, e->j, 0);
+		int x = link.getX ();
+		int y = link.getY ();
+		if (ec.m_ehandle_matrix[x][y].first == true) {
+			
+			int valor = (*((ec.m_ehandle_matrix[x][y]).second)).getValue();
+			(*((ec.m_ehandle_matrix[x][y]).second)).setValue (valor+1);
+			ec.m_heap.update ((ec.m_ehandle_matrix[x][y]).second);
+			
+			if (valor+1 > m_congestion) {
+				m_congestion = (valor + 1);
+			}
+			
+		} else {
+			ec.m_ehandle_matrix[x][y].first = true;
+			link.setValue (1);
+			ec.m_ehandle_matrix[x][y].second = ec.m_heap.push (link);
+			
+			m_cost += m_network->getCost (link.getX(), link.getY());
+			
+		}
+		
+		e = e->next;
+	}	
+	e = NULL;
 	
 }
