@@ -31,8 +31,9 @@ void AcoMPP::build_tree (int id,
 	//getting the number of ants
 	int ants = pool.size ();
 	
-	//while the number of ants is greater than 1(number of partitions)
-	int start = 0;
+	std::vector<rca::Link> toRemove(m_network->getRemovedEdges());
+	
+	//while the number of ants is greater than 1(number of partitions)	
 	while (ants > 1) {
 	
 		//flag mark the join
@@ -47,7 +48,7 @@ void AcoMPP::build_tree (int id,
 		
 			//gettting the next
 			//TODO sem implementar
-			int next = m_network->get_adjacent_by_minimun_cost (c_vertex);
+			int next = m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
 			
 			//if next == -1 é necessário mudar a forrmiga de lugar
 			if (next != -1) {
@@ -58,11 +59,12 @@ void AcoMPP::build_tree (int id,
 					pool[ant].move (next);
 			
 					rca::Link link (c_vertex, next, 0.0);
-					m_network->removeEdge(link);
+					//m_network->removeEdge(link);
+					toRemove.push_back (link);
 					
 					//adding the edges to st structure
 					st->addEdge (link.getX(), link.getY(), 
-					m_network->getCost(link.getX(), link.getY()) );
+						m_network->getCost(link.getX(), link.getY()) );
 	
 					//selecionando o id da formiga que 
 					//chegou ao nó next
@@ -81,13 +83,14 @@ void AcoMPP::build_tree (int id,
 					//joining the next to the ant group of vertex
 					visited[next] = pool[ant].get_id ();
 			
-					//
 					rca::Link link (c_vertex, next, 0.0);
-					m_network->removeEdge(link);
+					toRemove.push_back (link);
+					//m_network->removeEdge(link);
 					
 					st->addEdge (link.getX(), link.getY(), 
 								m_network->getCost(link.getX(), link.getY()) );
 				}
+				//adicionar clausula back()
 				
 			} else {
 					
@@ -104,7 +107,9 @@ void AcoMPP::build_tree (int id,
 			
 		}
 	}//endof while
-
+	
+	st->prunning ();
+	
 }
 
 void AcoMPP::initialization () {
@@ -137,7 +142,6 @@ void AcoMPP::initialization () {
 		st->setTerminal (m_groups[i]->getSource ());
 			
 		build_tree (i, st, ec);
-		st->prunning ();
 		
 		update_congestion (st, ec);
 		
@@ -262,7 +266,8 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 	Edge * e = st->listEdge.head;
 	while (e != NULL) {
 	
-		//m_network->removeEdge (rca::Link(e->i,e->j, 0.0));
+		//removing the edges from network
+		m_network->removeEdge (rca::Link(e->i,e->j, 0.0));
 	
 		//NÃO ESTÁ FUNCIONANDO!!!
 		//TENHO QUE PROVER OUTRO MEIO PARA MANTER AS ARESTAS EM NÍVEIS
