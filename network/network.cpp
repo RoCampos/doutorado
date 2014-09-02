@@ -200,4 +200,33 @@ const int Network::get_adjacent_by_minimun_cost (const int & vertex)  {
 	return adjacent;
 }
 
+const int 
+Network::get_adjacent_by_minimun_cost 
+					(const int & vertex, 
+					 std::vector<rca::Link> & toRemove) 
+{
+	
+	double min = std::numeric_limits<double>::max ();
+	int adjacent = -1;
+	
+	auto it = m_adjacent_vertex[vertex].cbegin ();
+	auto end = m_adjacent_vertex[vertex].cend ();
+	for (; it != end; it++) {
+		rca::Link link (vertex, *it, 0.0);
+		
+		auto element = std::find(toRemove.begin(), toRemove.end(), link);
+		
+		if ( element == toRemove.end() ) {
+			double value = getCost (vertex,*it);
+			if ( value < min ) {
+				min = value;
+				adjacent = *it;
+			}
+		}
+	}
+	
+	return adjacent;
+	
+}
+
 } /* namespace rca */
