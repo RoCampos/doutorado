@@ -59,6 +59,7 @@ add_executable (test_properties teste_properties.cpp
 		aco.h aco.cpp 
 		acompp.h acompp.cpp
 		ant.h ant.cpp
+		edgecontainer.h edgecontainer.cpp
 		${includes})
 target_link_libraries (test_properties graph sttree ${Boost_LIBRARIES})
 ENDIF ()
