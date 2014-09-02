@@ -14,6 +14,8 @@
 #include "reader.h"
 #include "group.h"
 
+#include "edgecontainer.h"
+
 #include "steinerReader.h"
 
 #include "ant.h"
@@ -40,6 +42,10 @@ public:
 	void update_pheromone ();
 	void solution_construction ();
 	void initialization ();
+	
+	void build_tree (int id, 
+					 std::shared_ptr<SteinerTree> & st, 
+					 EdgeContainer & ec);
 	
 	/**
 	 * This method is used to configurate

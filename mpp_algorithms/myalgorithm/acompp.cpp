@@ -14,20 +14,18 @@ void AcoMPP::solution_construction () {
 	
 }
 
-void AcoMPP::initialization () {
+void AcoMPP::build_tree (int id, 
+						 std::shared_ptr<SteinerTree> & st, 
+						 EdgeContainer & ec) 
+{
 
-#ifdef DEBUG
-	std::cout << "initialization\n";
-#endif
-	
 	//container that marks the partions created by ants
 	std::vector<int> visited(m_network->getNumberNodes(), -1);
 	
 	//container that stores the ants 
 	std::vector<Ant> pool;
 	
-	//creating the pool of edges
-	int id = 0;
+	//creating the pool of edges	
 	create_ants_by_group (id, pool, visited);
 	
 	//getting the number of ants
@@ -59,6 +57,10 @@ void AcoMPP::initialization () {
 			
 					rca::Link link (c_vertex, next, 0.0);
 					m_network->removeEdge(link);
+					
+					//adding the edges to st structure
+					st->addEdge (link.getX(), link.getY(), 
+								m_network->getCost(link.getX(), link.getY()) );
 	
 					//selecionando o id da formiga que 
 					//chegou ao nó next
@@ -78,7 +80,10 @@ void AcoMPP::initialization () {
 			
 					//
 					rca::Link link (c_vertex, next, 0.0);
-					m_network->removeEdge(link);			
+					m_network->removeEdge(link);
+					
+					st->addEdge (link.getX(), link.getY(), 
+								m_network->getCost(link.getX(), link.getY()) );
 				}
 				
 			} else {
@@ -98,27 +103,32 @@ void AcoMPP::initialization () {
 		
 	}//endof while
 	
-	
+}
+
+void AcoMPP::initialization () {
+
 #ifdef DEBUG
-	//std::cout << pool[0] << std::endl;
-	SteinerTree st(m_network->getNumberNodes ());
-	
-	st.setTerminal (m_groups[0]->getSource());
-	for (int i = 0; i < m_groups[0]->getSize (); i++) {
-		st.setTerminal (m_groups[0]->getMember (i));
-	}
-	
-	auto link = pool[0].links_begin ();
-	for (; link != pool[0].links_end(); link++) {
-		
-		st.addEdge (link->getX(), link->getY(), 
-					m_network->getCost (link->getX(), link->getY()) );
-	}
-	
-	st.prunning ();
-	std::cout << st.getCost () << std::endl;
-	st.xdotFormat ();
+	std::cout << "initialization\n";
 #endif
+	
+	EdgeContainer ec;
+	ec.init_congestion_matrix (m_network->getNumberNodes ());
+	ec.init_handle_matrix (m_network->getNumberNodes ());
+	
+	
+	std::shared_ptr<SteinerTree> 
+			st = std::make_shared<SteinerTree> (m_network->getNumberNodes());
+	
+	int id = 0;
+	for (int i=0; i < m_groups[id]->getSize(); i++) {
+		st->setTerminal (m_groups[id]->getMember (i));
+	}	
+	st->setTerminal (m_groups[id]->getSource ());
+		
+	build_tree (id, st, ec);
+	
+	std::cout << st->getCost () << std::endl; 
+	st->xdotFormat ();
 	
 }
 
@@ -203,7 +213,10 @@ int AcoMPP::select_ant_id (const std::vector<Ant>& pool, const int & next_id)
 	return -1;
 }
 
-void AcoMPP::join_ants (std::vector<Ant>& pool, const int& in, const int& join, std::vector<int>& visited)
+void AcoMPP::join_ants (std::vector<Ant>& pool, 
+						const int& in, 
+						const int& join, 
+						std::vector<int>& visited)
 {
 	
 	//making the join
