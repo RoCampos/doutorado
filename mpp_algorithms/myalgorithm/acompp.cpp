@@ -20,8 +20,10 @@ void AcoMPP::initialization () {
 	std::cout << "initialization\n";
 #endif
 	
+	//container that marks the partions created by ants
 	std::vector<int> visited(m_network->getNumberNodes(), -1);
 	
+	//container that stores the ants 
 	std::vector<Ant> pool;
 	
 	//creating the pool of edges
@@ -52,6 +54,7 @@ void AcoMPP::initialization () {
 			
 				if ( visited[next] > -1 && (visited[c_vertex] != visited[next]) ) {
 	
+					//moving the ant
 					pool[ant].move (next);
 			
 					rca::Link link (c_vertex, next, 0.0);
@@ -67,9 +70,13 @@ void AcoMPP::initialization () {
 					
 				} else {
 					
+					//moving the ant
 					pool[ant].move (next);
+					
+					//joining the next to the ant group of vertex
 					visited[next] = pool[ant].get_id ();
 			
+					//
 					rca::Link link (c_vertex, next, 0.0);
 					m_network->removeEdge(link);			
 				}
