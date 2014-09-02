@@ -102,7 +102,7 @@ void AcoMPP::build_tree (int id,
 			
 		}
 	}//endof while
-	
+
 }
 
 void AcoMPP::initialization () {
@@ -135,13 +135,18 @@ void AcoMPP::initialization () {
 		st->setTerminal (m_groups[i]->getSource ());
 			
 		build_tree (i, st, ec);
+		st->prunning ();
 		
 		update_congestion (st, ec);
 		
+#ifdef DEBUG
 		std::cout << st->getCost () << std::endl; 
 		st->xdotFormat ();
+#endif		
 	
 	}
+	
+	std::cout << m_congestion << " " << m_cost << std::endl;
 	
 }
 
@@ -247,6 +252,10 @@ void AcoMPP::join_ants (std::vector<Ant>& pool,
 void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 							rca::EdgeContainer & ec)
 {
+#ifdef DEBUG
+	std::cout << __FUNCTION__ << std::endl;
+#endif
+	
 	
 	Edge * e = st->listEdge.head;
 	while (e != NULL) {

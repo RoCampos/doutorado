@@ -4,7 +4,7 @@ using namespace rca;
 
 void Ant::move (int to) {
 
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << "Doing move ()\n";
 #endif 
 	
@@ -20,7 +20,7 @@ void Ant::move (int to) {
 
 void Ant::join (const Ant & move) {
 
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << "Doing join ()\n";
 #endif
 	

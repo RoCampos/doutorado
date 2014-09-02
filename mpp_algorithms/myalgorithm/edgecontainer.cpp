@@ -21,6 +21,10 @@ void EdgeContainer::init_handle_matrix (int nodes)
 
 int EdgeContainer::connected_level (rca::Group & group, rca::Network & network) {
 	
+#ifdef DEBUG
+	std::cout << __FUNCTION__ << ": ";
+#endif
+	
 	int level = 1;
 	while ( !is_connected (network, group) ) {
      
@@ -38,6 +42,11 @@ int EdgeContainer::connected_level (rca::Group & group, rca::Network & network) 
 		
 		level++;			
 	}	
+#ifdef DEBUG
+	if (level > 1) {
+		std::cout << "Executed\n";
+	}
+#endif
 	
 	return level; 
 		
