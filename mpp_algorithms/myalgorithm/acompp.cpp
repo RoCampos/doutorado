@@ -88,9 +88,9 @@ void AcoMPP::build_tree (int id,
 				}
 				
 			} else {
-	
+					
 				pool[ant].back ();
-				
+								
 			}
 			
 		}//endof for
@@ -100,7 +100,7 @@ void AcoMPP::build_tree (int id,
 			join_ants (pool, in, join, visited);
 			ants--;
 			
-		} 
+		}
 	}//endof while
 	
 }
@@ -131,7 +131,7 @@ void AcoMPP::initialization () {
 		//steiner tree initializatioon
 		for (int j=0; j < m_groups[i]->getSize(); j++) {
 			st->setTerminal (m_groups[i]->getMember (j));
-		}	
+		}		
 		st->setTerminal (m_groups[i]->getSource ());
 			
 		build_tree (i, st, ec);
@@ -171,10 +171,10 @@ void AcoMPP::create_ants_by_group (int g_id,
 	
 		//One ant is create for each "terminal node"(source and)
 		//destinations
-		Ant ant (m_groups[g_id]->getMember (i));		
+		Ant ant (m_groups[g_id]->getMember (i));
 		pool.push_back (ant);
 		
-		visited[ant.get_id()];
+		visited[ant.get_id()] = ant.get_id();
 		
 	}
 	
@@ -182,7 +182,7 @@ void AcoMPP::create_ants_by_group (int g_id,
 	Ant ant (m_groups[g_id]->getSource ());
 	pool.push_back (ant);
 	
-	visited[ant.get_id()];
+	visited[ant.get_id()] = ant.get_id();
 	
 }
 
