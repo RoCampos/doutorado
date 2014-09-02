@@ -89,8 +89,9 @@ void AcoMPP::build_tree (int id,
 					
 					st->addEdge (link.getX(), link.getY(), 
 								m_network->getCost(link.getX(), link.getY()) );
+				} else {
+					pool[ant].back ();	
 				}
-				//adicionar clausula back()
 				
 			} else {
 					
