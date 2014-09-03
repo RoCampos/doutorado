@@ -41,8 +41,10 @@ void AcoMPP::build_tree (int id,
 		int in = -1;
 		
 		//for each ant make a moviment
-		for (unsigned ant = 0; ant < pool.size (); ant++) {
-			
+		//for (unsigned ant = 0; ant < pool.size (); ant++) {
+		
+		int ant = rand() % pool.size ();
+		
 			//current vertex
 			int c_vertex = pool[ant].get_current_position();
 		
@@ -72,7 +74,7 @@ void AcoMPP::build_tree (int id,
 					in = ant;
 					
 					//breaking the for.
-					break;
+					//break;
 					
 					//added to avoid cicle
 				} else if (visited[c_vertex] != visited[next]){
@@ -103,18 +105,14 @@ void AcoMPP::build_tree (int id,
 								
 			}
 			
-		}//endof for
+		//}//endof for
 		
 		if (join != -1 && join != in) {
 
 			join_ants (pool, in, join, visited);
 			ants--;
-			
-		} else {
+		} 
 		
-				
-			
-		}
 	}//endof while
 	
 	st->prunning ();
@@ -152,7 +150,7 @@ void AcoMPP::initialization () {
 		
 		update_congestion (st, ec);
 		
-#ifdef DEBUG1
+#ifdef DEBUG
 		std::cout << st->getCost () << std::endl; 
 		std::string file ="/home/romeritocampos/workspace/Doutorado/inst_test/aco-test";
 		file = file+"/saida.xdot";
@@ -163,7 +161,7 @@ void AcoMPP::initialization () {
 		
 		system (cmd.c_str ());
 		
-		getchar ();		
+		getchar ();
 #endif		
 	
 	}
