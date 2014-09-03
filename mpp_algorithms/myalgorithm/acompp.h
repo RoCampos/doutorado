@@ -24,6 +24,8 @@
 
 typedef typename std::vector<std::shared_ptr<rca::Group>> MGroups;
 
+typedef typename std::vector<std::vector<double>> PheromenMatrix;
+
 namespace rca {
 
 /**
@@ -108,8 +110,16 @@ private:
 	
 	MGroups m_groups;
 	
+	//value of cost
 	double m_cost;
+	
+	//value of congestion
 	double m_congestion;
+	
+	//pheromene matrix
+	PheromenMatrix m_pmatrix;
+	
+	std::vector<SteinerTree> m_best_solution;
 	
 };
 
