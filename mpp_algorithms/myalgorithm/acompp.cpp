@@ -18,6 +18,9 @@ void AcoMPP::build_tree (int id,
 						 std::shared_ptr<SteinerTree> & st, 
 						 EdgeContainer & ec) 
 {
+#ifdef DEBUG
+	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+#endif 
 
 	//container that marks the partions created by ants
 	std::vector<int> visited(m_network->getNumberNodes(), -1);
@@ -47,7 +50,12 @@ void AcoMPP::build_tree (int id,
 			
 		//gettting the next
 		//TODO sem implementar
-		int next = m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
+		//int next = m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
+		//std::cout << "next" << next << std::endl;
+		//std::cout << "Choosed:" << next_component (c_vertex, toRemove) << std::endl;
+		
+		int next = next_component (c_vertex, toRemove);
+		
 			
 		//if next == -1 é necessário mudar a forrmiga de lugar
 		if (next != -1) {
@@ -115,15 +123,14 @@ void AcoMPP::build_tree (int id,
 void AcoMPP::initialization () {
 
 #ifdef DEBUG
-	std::cout << "initialization\n";
-#endif
+	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+#endif 
 	
+	for (int iter =0; iter < 10; iter++) {
 	//initialization of the strutctures that suppor congestion evaluation
 	EdgeContainer ec;
 	ec.init_congestion_matrix (m_network->getNumberNodes ());
 	ec.init_handle_matrix (m_network->getNumberNodes ());
-	
-	
 	
 	std::vector<SteinerTree> solutions;
 	double m_cost = 0.0;
@@ -156,14 +163,16 @@ void AcoMPP::initialization () {
 	//partial solution
 	std::cout << m_congestion << " " << m_cost << std::endl;
 	
+	}
+	
 }
 
 void AcoMPP::configurate (std::string m_instance) 
 {
 
-#ifdef DEBUG	
-	std::cout << "configuring data\n";
-#endif
+#ifdef DEBUG
+	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+#endif 
 	
 	Reader r(m_instance);
 	
@@ -196,6 +205,10 @@ void AcoMPP::create_ants_by_group (int g_id,
 								   std::vector<int> & visited)
 {
 	
+#ifdef DEBUG
+	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+#endif 
+	
 	//creating the ants
 	for (int i = 0; i < m_groups[g_id]->getSize(); i++) {
 	
@@ -218,6 +231,10 @@ void AcoMPP::create_ants_by_group (int g_id,
 
 void AcoMPP::configurate2 (std::string file)
 {
+	
+#ifdef DEBUG
+	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+#endif 
 	
 	SteinerReader reader (file);
 	
@@ -245,6 +262,11 @@ void AcoMPP::configurate2 (std::string file)
 
 int AcoMPP::select_ant_id (const std::vector<Ant>& pool, const int & next_id)
 {
+
+#ifdef DEBUG
+	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+#endif 
+	
 	//seaching for the position of the ant that found next
 	for (unsigned i=0; i < pool.size(); i++) {
 
@@ -262,6 +284,9 @@ void AcoMPP::join_ants (std::vector<Ant>& pool,
 						const int& join, 
 						std::vector<int>& visited)
 {
+#ifdef DEBUG
+	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+#endif 
 	
 	//making the join
 	pool[in].join ( pool[join] );
@@ -281,8 +306,8 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 							double& m_congestion)
 {
 #ifdef DEBUG
-	std::cout << __FUNCTION__ << std::endl;
-#endif
+	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+#endif 
 	
 	
 	Edge * e = st->listEdge.head;
@@ -325,6 +350,10 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 void AcoMPP::update_pheromone_matrix (rca::EdgeContainer & ec)
 {
 	
+#ifdef DEBUG
+	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+#endif 
+	
 	auto it = ec.m_heap.begin ();
 	for (; it != ec.m_heap.end(); it++) {
 	
@@ -340,9 +369,17 @@ void AcoMPP::update_pheromone_matrix (rca::EdgeContainer & ec)
 
 int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 {
+
+#ifdef DEBUG
+	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+#endif 
+	
 	typedef typename std::vector<int>::const_iterator c_iterator;
 		
 	double r = my_random.rand ();
+	
+	double best = std::numeric_limits<double>::min ();
+	int returned = c_vertex;
 	
 	if (r <= 0.5) {
 		//TODO develop the code no qual a solução com mais feromônio.
@@ -384,13 +421,17 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 				double h = m_pmatrix[link.getX()][link.getY()];				
 				double denominador = pow(h,m_alpha) * pow(1,m_betha);
 				
-				std::cout << std::fixed << (double)denominador/value << std::endl;
+				if ( ((double)denominador/value) > best) {
+					best = ((double)denominador/value);
+					std::cout << "Updating best: " << std::fixed << best << std::endl;
+					returned = *begin;
+				}
 			}
 			
 			begin++;
 		}
 		
-		return -1;
+		return returned;
 	} else {
 		return m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
 	}
