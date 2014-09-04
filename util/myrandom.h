@@ -15,13 +15,15 @@ namespace rca {
  * @version 1.0
  * @date 09/03/2014
  */
-template<class Engine, class Dist>
+template<class Engine, class Dist, typename TypeValue>
 struct myrandom {
 
 	Engine engine;
 	Dist distribution;
 	
-	myrandom (long seed, int a, int b) {
+	myrandom(){}
+	
+	myrandom (long seed, TypeValue a, TypeValue b) {
 		
 		//initializing the engine
 		engine = Engine (seed);
@@ -30,8 +32,8 @@ struct myrandom {
 		distribution = Dist (a, b);
 	}
 	
-	int rand () {
-		int w = distribution(engine);
+	TypeValue rand () {
+		TypeValue w = distribution(engine);
 		return w;
 	}
 	
@@ -54,3 +56,6 @@ struct myseed {
 };
 	
 }
+
+template class rca::myrandom<std::mt19937, std::uniform_int_distribution<int>, int>;
+template class rca::myrandom<std::mt19937, std::uniform_real_distribution<double>, double>;
