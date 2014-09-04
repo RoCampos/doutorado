@@ -40,74 +40,65 @@ void AcoMPP::build_tree (int id,
 		int join = -1;
 		int in = -1;
 		
-		//for each ant make a moviment
-		//for (unsigned ant = 0; ant < pool.size (); ant++) {
-		
 		int ant = rand() % pool.size ();
 		
-			//current vertex
-			int c_vertex = pool[ant].get_current_position();
-		
-			next_component (c_vertex, toRemove);
+		//current vertex
+		int c_vertex = pool[ant].get_current_position();
 			
-			//gettting the next
-			//TODO sem implementar
-			int next = m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
+		//gettting the next
+		//TODO sem implementar
+		int next = m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
 			
-			//if next == -1 é necessário mudar a forrmiga de lugar
-			if (next != -1) {
+		//if next == -1 é necessário mudar a forrmiga de lugar
+		if (next != -1) {
 			
-				if ( (visited[next] > -1) && (visited[c_vertex] != visited[next]) ) {
-	
-					//moving the ant
-					pool[ant].move (next);
+			if ( (visited[next] > -1) && (visited[c_vertex] != visited[next]) ) {
+				//moving the ant
+				pool[ant].move (next);
 			
-					rca::Link link (c_vertex, next, 0.0);
-					//m_network->removeEdge(link);
-					toRemove.push_back (link);
-					
-					//adding the edges to st structure
-					st->addEdge (link.getX(), link.getY(), 
-						m_network->getCost(link.getX(), link.getY()) );
-	
-					//selecionando o id da formiga que 
-					//chegou ao nó next
-					join = select_ant_id (pool, visited[next]);
-					in = ant;
-					
-					//breaking the for.
-					//break;
-					
-					//added to avoid cicle
-				} else if (visited[c_vertex] != visited[next]){
-					
-					//moving the ant
-					pool[ant].move (next);
-					
-					//joining the next to the ant group of vertex
-					visited[next] = pool[ant].get_id ();
-			
-					rca::Link link (c_vertex, next, 0.0);
-					toRemove.push_back (link);
-					//m_network->removeEdge(link);
-					
-					st->addEdge (link.getX(), link.getY(), 
-								m_network->getCost(link.getX(), link.getY()) );
-				} else {
-					
-					rca::Link l(c_vertex, next, 0.0);
-					toRemove.push_back (l);
-					
-					pool[ant].back ();
-				}
+				rca::Link link (c_vertex, next, 0.0);
+				//m_network->removeEdge(link);
+				toRemove.push_back (link);
 				
+				//adding the edges to st structure
+				st->addEdge (link.getX(), link.getY(), 
+				m_network->getCost(link.getX(), link.getY()) );
+				//selecionando o id da formiga que 
+				//chegou ao nó next
+				join = select_ant_id (pool, visited[next]);
+				in = ant;
+					
+				//breaking the for.
+				//break;
+				
+				//added to avoid cicle
+			} else if (visited[c_vertex] != visited[next]){
+					
+				//moving the ant
+				pool[ant].move (next);
+					
+				//joining the next to the ant group of vertex
+				visited[next] = pool[ant].get_id ();
+			
+				rca::Link link (c_vertex, next, 0.0);
+				toRemove.push_back (link);
+				//m_network->removeEdge(link);
+					
+				st->addEdge (link.getX(), link.getY(), 
+					m_network->getCost(link.getX(), link.getY()) );
 			} else {
 					
+				rca::Link l(c_vertex, next, 0.0);
+				toRemove.push_back (l);
+					
 				pool[ant].back ();
-								
 			}
-			
-		//}//endof for
+				
+		} else {
+					
+			pool[ant].back ();
+								
+		}
 		
 		if (join != -1 && join != in) {
 
