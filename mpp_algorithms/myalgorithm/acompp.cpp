@@ -155,18 +155,17 @@ void AcoMPP::run (int iterations) {
 	
 		}//end for in solutioon construction
 	
-		//updating the pheromene
-		update_pheromone_matrix (ec);
 		
 		//partial solution
-		std::cout << congestion << " " << cost << std::endl;
+		//std::cout << congestion << " " << cost << std::endl;
 		
-		if (congestion < m_bcongestion) {
-			m_bcongestion = congestion;
-		}
-		
-		if (cost < m_bcost) {
+		if ((cost < m_bcost && congestion <= m_bcongestion) ||
+			(cost <= m_bcost && congestion < m_bcongestion)) 
+		{
 			m_bcost = cost;
+			m_bcongestion = congestion;
+			//updating the pheromene
+			update_pheromone_matrix (ec);
 		}
 		
 		//clean the network
@@ -281,6 +280,28 @@ void AcoMPP::configurate2 (std::string file)
 	
 	std::shared_ptr<rca::Group> g(gg);
 	m_groups.push_back (g);
+	
+	//matrix of Pheromene
+	int NODES = m_network->getNumberNodes();
+	m_pmatrix = PheromenMatrix(NODES);
+	for (unsigned i = 0; i < m_pmatrix.size (); i++) {
+		m_pmatrix[i] = std::vector<double>(NODES, 0.5);
+	}
+	
+	//initialization of pheromene rate
+	m_phe_rate = 0.9;
+	m_alpha = 0.8;
+	m_betha = 0.2;
+	
+	//initialization of random number genarator
+	long seed = rca::myseed::seed();
+	my_random = Random(seed,0.0, 1.0);
+	
+	//used to register the best values of each tree
+	double max = std::numeric_limits<double>::max();
+	std::vector<double> m_best_trees = std::vector<double> (m_groups.size(),max) ;
+	m_bcost = max;
+	m_bcongestion = max;
 	
 #ifdef DEBUG
 	std::cout << "------------------------------" << std::endl;
@@ -490,13 +511,17 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 
 void AcoMPP::print_results () {
 
-	std::cout << "Individual Best Cost: " << m_bcost<<std::endl;
-	std::cout << "Individual Best congestion "<< m_bcongestion << std::endl;
+	//std::cout << "Individual Best Cost: " << m_bcost<<std::endl;
+	//std::cout << "Individual Best congestion "<< m_bcongestion << std::endl;
 	
+	std::cout << m_bcongestion << " ";
+	std::cout << m_bcost << "\n";
+	
+	/*
 	auto it = m_best_trees.begin ();
 	for ( ; it != m_best_trees.end(); it++) {
 		std::cout << *it << "\n";
-	}
+	}*/
 	
 	
 }
