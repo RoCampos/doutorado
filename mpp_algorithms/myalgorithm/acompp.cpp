@@ -137,22 +137,22 @@ void AcoMPP::initialization () {
 	
 	for (unsigned i = 0; i < m_groups.size (); i++) {
 		
-		std::shared_ptr<SteinerTree> 
-				st = std::make_shared<SteinerTree> (m_network->getNumberNodes());
+		
+		
+		ptr_SteinerTree 
+			st = std::make_shared<SteinerTree> (m_network->getNumberNodes (), 
+												m_groups[i]->getSource(), 
+												m_groups[i]->getMembers ()
+												);
 		
 		ec.connected_level ( *m_groups[i].get() , *m_network);
 		
-		//steiner tree initializatioon
-		for (int j=0; j < m_groups[i]->getSize(); j++) {
-			st->setTerminal (m_groups[i]->getMember (j));
-		}		
-		st->setTerminal (m_groups[i]->getSource ());
-			
+		
 		build_tree (i, st, ec);
 		
 		update_congestion (st, ec);
 		
-#ifdef DEBUG1
+#ifdef DEBUG
 		std::cout << st->getCost () << std::endl; 
 		std::string file ="/home/romeritocampos/workspace/Doutorado/inst_test/aco-test";
 		file = file+"/saida.xdot";

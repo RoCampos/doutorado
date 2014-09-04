@@ -27,6 +27,8 @@ typedef typename std::vector<std::shared_ptr<rca::Group>> MGroups;
 
 typedef typename std::vector<std::vector<double>> PheromenMatrix;
 
+typedef typename std::shared_ptr<SteinerTree> ptr_SteinerTree;
+
 namespace rca {
 
 /**
