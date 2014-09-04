@@ -126,8 +126,8 @@ void AcoMPP::run (int iterations) {
 		ec.init_handle_matrix (m_network->getNumberNodes ());
 	
 		std::vector<SteinerTree> solutions;
-		double m_cost = 0.0;
-		double m_congestion = 0.0;
+		double cost = 0.0;
+		double congestion = 0.0;
 	
 		//creating a solution
 		for (unsigned i = 0; i < m_groups.size (); i++) {
@@ -146,7 +146,11 @@ void AcoMPP::run (int iterations) {
 			build_tree (i, st, ec);
 			
 			//updating congestion heap
-			update_congestion (st, ec, m_cost, m_congestion);
+			update_congestion (st, ec, cost, congestion);
+			
+			if (m_best_cost[i] > st->getCost ()) {
+				m_best_cost[i]  = st->getCost ();
+			}
 	
 		}
 	
@@ -154,7 +158,7 @@ void AcoMPP::run (int iterations) {
 		update_pheromone_matrix (ec);
 		
 		//partial solution
-		std::cout << m_congestion << " " << m_cost << std::endl;
+		std::cout << congestion << " " << cost << std::endl;
 		
 		m_network->clearRemovedEdges ();
 	
@@ -199,6 +203,10 @@ void AcoMPP::configurate (std::string m_instance)
 	//initialization of random number genarator
 	long seed = rca::myseed::seed();
 	my_random = Random(seed,0.0, 1.0);
+	
+	//used to register the best values of each tree
+	double max = std::numeric_limits<double>::max();
+	std::vector<double> m_best_cost = std::vector<double> (m_groups.size(),max) ;
 	
 #ifdef DEBUG
 	std::cout << "------------------------------" << std::endl;
