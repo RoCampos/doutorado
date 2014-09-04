@@ -7,6 +7,7 @@
 #include <utility>
 #include <cassert>
 #include <cstdlib>
+#include <iomanip>
 
 #include <boost/heap/fibonacci_heap.hpp>
 
@@ -66,10 +67,6 @@ public:
 	
 	void configurate2 (std::string file);
 	
-	void create_ants_by_group (int g_id, 
-							   std::vector<rca::Ant> & pool,
-							   std::vector<int>&); 
-	
 private:
 	
 	/**
@@ -101,8 +98,28 @@ private:
 	 */
 	void join_ants (std::vector<Ant>& pool, const int&, const int&, std::vector<int>&);
 	
+	void create_ants_by_group (int g_id, 
+							   std::vector<rca::Ant> & pool,
+							   std::vector<int>&);
+		
 	void update_congestion (std::shared_ptr<SteinerTree>&,
 							rca::EdgeContainer &ec);
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 */
+	void update_pheromone_matrix (std::vector<SteinerTree> & solution);
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 */
+	void next_component (int c_vertex, 
+						 std::vector<rca::Link>& toRemove);
+	
 	
 private:
 	
