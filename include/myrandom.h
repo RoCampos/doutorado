@@ -38,9 +38,18 @@ struct myrandom {
 		distribution = Dist (a, b);
 	}
 	
+	myrandom (const Engine & e, TypeValue a, TypeValue b) {
+		engine = e;
+		distribution = Dist (a, b);
+	}
+	
 	TypeValue rand () {
 		TypeValue w = distribution(engine);
 		return w;
+	}
+	
+	const Engine& get_engine () const{
+		return engine;
 	}
 	
 };
