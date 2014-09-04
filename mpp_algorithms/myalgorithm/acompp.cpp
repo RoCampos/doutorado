@@ -168,6 +168,8 @@ void AcoMPP::initialization () {
 	
 	}
 	
+	update_pheromone_matrix (ec);
+	
 	std::cout << m_congestion << " " << m_cost << std::endl;
 	
 }
@@ -189,6 +191,14 @@ void AcoMPP::configurate (std::string m_instance) {
 	//creating the groups
 	m_groups = r.readerGroup ();
 	
+	//matrix of Pheromene
+	int NODES = m_network->getNumberNodes();
+	m_pmatrix = PheromenMatrix();
+	for (unsigned i = 0; i < m_pmatrix.size (); i++) {
+		m_pmatrix[i] = std::vector<double>(NODES, 0.5);
+	}
+	
+	m_phe_rate = 0.9;
 }
 
 void AcoMPP::create_ants_by_group (int g_id, 
@@ -319,9 +329,27 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 }
 
 
-void AcoMPP::update_pheromone_matrix (std::vector<SteinerTree> & solution)
+void AcoMPP::update_pheromone_matrix (rca::EdgeContainer & ec)
 {
+	
+	auto it = ec.m_heap.begin ();
+	for (; it != ec.m_heap.end(); it++) {
+	
+		//aqui soma 10 do valor de feromônio ao 
+		//valor atual
+		double v = m_pmatrix[it->getX()][it->getY()];
+		m_pmatrix[it->getX()][it->getY()] += (1-m_phe_rate)*v;
+		
+	}
+	
+}
 
+
+int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
+{
+	
+	m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
 	
 	
+	return 0;
 }
