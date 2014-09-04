@@ -79,6 +79,8 @@ public:
 	
 	void configurate2 (std::string file);
 	
+	void print_results ();
+	
 private:
 	
 	/**
@@ -164,7 +166,7 @@ private:
 	
 	
 	/*solution results*/
-	std::vector<double> m_best_cost;
+	std::vector<double> m_best_trees;
 	
 	double m_bcost;
 	double m_bcongestion;

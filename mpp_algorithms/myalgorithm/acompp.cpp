@@ -145,12 +145,13 @@ void AcoMPP::run (int iterations) {
 			//building the tree
 			build_tree (i, st, ec);
 			
+			/*
+			if (m_best_trees[i] > st->getCost ()) {
+				m_best_trees[i] = st->getCost ();
+			}*/
+			
 			//updating congestion heap
 			update_congestion (st, ec, cost, congestion);
-			
-			if (m_best_cost[i] > st->getCost ()) {
-				m_best_cost[i] = st->getCost ();
-			}
 	
 		}//end for in solutioon construction
 	
@@ -176,6 +177,8 @@ void AcoMPP::run (int iterations) {
 #ifdef DEBUG
 	std::cout << "------------------------------" << std::endl;
 #endif
+	
+	print_results ();
 	
 }
 
@@ -215,7 +218,7 @@ void AcoMPP::configurate (std::string m_instance)
 	
 	//used to register the best values of each tree
 	double max = std::numeric_limits<double>::max();
-	std::vector<double> m_best_cost = std::vector<double> (m_groups.size(),max) ;
+	std::vector<double> m_best_trees = std::vector<double> (m_groups.size(),max) ;
 	m_bcost = max;
 	m_bcongestion = max;
 	
@@ -481,5 +484,19 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 #ifdef DEBUG
 	std::cout << "------------------------------" << std::endl;
 #endif
+	
+}
+
+
+void AcoMPP::print_results () {
+
+	std::cout << "Individual Best Cost: " << m_bcost<<std::endl;
+	std::cout << "Individual Best congestion "<< m_bcongestion << std::endl;
+	
+	auto it = m_best_trees.begin ();
+	for ( ; it != m_best_trees.end(); it++) {
+		std::cout << *it << "\n";
+	}
+	
 	
 }
