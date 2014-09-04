@@ -124,7 +124,7 @@ public:
 	 *
 	 * @return vector<int>
 	 */
-	const std::vector<int> & getMembers (){return m_members;}
+	const std::vector<int> & getMembers () const {return m_members;}
 	
 	/**
 	 * Retornar um const_iterator para os mebros do grupo.

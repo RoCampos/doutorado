@@ -23,6 +23,7 @@ namespace rca {
  *
  * @date 27/09/2012
  * @author Roemrito Campos
+ * @version 0.2
  */
 class Group {
 public:
@@ -123,12 +124,22 @@ public:
 	 *
 	 * @return vector<int>
 	 */
-	const std::vector<int> & getMembers (){return m_members;}
+	const std::vector<int> & getMembers () const {return m_members;}
 	
+	/**
+	 * Retornar um const_iterator para os mebros do grupo.
+	 * O const_iterator corresponde ao primeiro elemento da
+	 * lista.
+	 */
 	const std::vector<int>::const_iterator begin() {
 	  return m_members.begin();
 	}
 	
+	/**
+	 * Retorna um const_iterator para os membros do grupo.
+	 * O const_iterator corresponde ao último elemento da
+	 * lista.
+	 */
 	const std::vector<int>::const_iterator end() {
 	  return m_members.end();
 	}
