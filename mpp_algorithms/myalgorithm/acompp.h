@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <iomanip>
+#include <random>
 
 #include <boost/heap/fibonacci_heap.hpp>
 
@@ -15,6 +16,8 @@
 #include "network.h"
 #include "reader.h"
 #include "group.h"
+
+#include "myrandom.h"
 
 #include "edgecontainer.h"
 
@@ -28,6 +31,10 @@ typedef typename std::vector<std::shared_ptr<rca::Group>> MGroups;
 typedef typename std::vector<std::vector<double>> PheromenMatrix;
 
 typedef typename std::shared_ptr<SteinerTree> ptr_SteinerTree;
+
+
+typedef typename 
+	rca::myrandom<std::mt19937, std::uniform_real_distribution<double>, double> Random;
 
 namespace rca {
 
@@ -125,6 +132,10 @@ private:
 	
 private:
 	
+	Random my_random;
+	
+	//*----------------------*
+	//PROBLEM objects
 	rca::Network * m_network;
 	
 	MGroups m_groups;
