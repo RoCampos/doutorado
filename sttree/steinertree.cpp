@@ -17,15 +17,28 @@ SteinerTree::SteinerTree(int nnodes)
     vertexList[i].setIndex(i);
   }
 }
-//deprecated
-/*
-void SteinerTree::setTempStructures (std::vector<double> & objs, 
-				std::vector<SteinerNode> & _nodes)
+
+SteinerTree::SteinerTree (int nnodes, 
+						  int source, 
+						  const std::vector<int> & terminals)
+: num_obj (1), num_nodes (nnodes)
 {
-	objectives = objs;
-	vertexList = _nodes;
+
+	objectives = std::vector<double>(num_obj);
+	vertexList = std::vector<SteinerNode> (num_nodes,SteinerNode(0,0,false));
+	
+	for (int i=0; i < num_nodes; i++) {
+		vertexList[i].setIndex (i);
+	}
+	
+	//defining the destinations as terminals
+	for (unsigned i = 0; i < terminals.size (); i++) {
+		setTerminal ( terminals[i] );
+	}
+	//adding the source to termainl's group
+	setTerminal (source);
+	
 }
-*/
 
 //this procedure takes O(n) since we must avoid duplicated edges.
 void SteinerTree::addEdge (int i, int j, double value)
