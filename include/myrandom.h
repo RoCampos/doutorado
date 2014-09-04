@@ -23,6 +23,12 @@ struct myrandom {
 	
 	myrandom(){}
 	
+	myrandom(const myrandom<Engine, Dist, TypeValue> & ref) {
+		
+		engine = ref.engine;
+		distribution = ref.distribution;
+	}
+	
 	myrandom (long seed, TypeValue a, TypeValue b) {
 		
 		//initializing the engine
