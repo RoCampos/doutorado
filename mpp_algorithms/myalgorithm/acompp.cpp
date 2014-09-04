@@ -48,6 +48,8 @@ void AcoMPP::build_tree (int id,
 			//current vertex
 			int c_vertex = pool[ant].get_current_position();
 		
+			next_component (c_vertex, toRemove);
+			
 			//gettting the next
 			//TODO sem implementar
 			int next = m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
@@ -193,12 +195,16 @@ void AcoMPP::configurate (std::string m_instance) {
 	
 	//matrix of Pheromene
 	int NODES = m_network->getNumberNodes();
-	m_pmatrix = PheromenMatrix();
+	m_pmatrix = PheromenMatrix(NODES);
 	for (unsigned i = 0; i < m_pmatrix.size (); i++) {
 		m_pmatrix[i] = std::vector<double>(NODES, 0.5);
 	}
 	
+	//initialization of pheromene rate
 	m_phe_rate = 0.9;
+	
+	my_random = Random(rca::myseed::seed(),0.0, 1.0);
+	
 }
 
 void AcoMPP::create_ants_by_group (int g_id, 
@@ -348,8 +354,11 @@ void AcoMPP::update_pheromone_matrix (rca::EdgeContainer & ec)
 int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 {
 	
-	m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
+	//m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
 	
+	double r = my_random.rand ();
 	
+	std::cout << "Prob:" << r << std::endl;
+		
 	return 0;
 }
