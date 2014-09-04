@@ -56,9 +56,8 @@ namespace rca {
 class AcoMPP {
 	
 public:
-	void update_pheromone ();
-	void solution_construction ();
-	void initialization ();
+	
+	void run (int);
 	
 	void build_tree (int id, 
 					 std::shared_ptr<SteinerTree> & st, 

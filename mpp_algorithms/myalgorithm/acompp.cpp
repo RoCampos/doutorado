@@ -2,18 +2,6 @@
 
 using namespace rca;
 
-void AcoMPP::update_pheromone () {
-
-	std::cout << "Updating Pheromene\n";
-	
-}
-
-void AcoMPP::solution_construction () {
-
-	std::cout << "solution_construction\n";
-	
-}
-
 void AcoMPP::build_tree (int id, 
 						 std::shared_ptr<SteinerTree> & st, 
 						 EdgeContainer & ec) 
@@ -125,50 +113,50 @@ void AcoMPP::build_tree (int id,
 	
 }
 
-void AcoMPP::initialization () {
+void AcoMPP::run (int iterations) {
 
 #ifdef DEBUG
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
+
+	for (int iter =0; iter < iterations; iter++) {
+		//initialization of the strutctures that suppor congestion evaluation
+		EdgeContainer ec;
+		ec.init_congestion_matrix (m_network->getNumberNodes ());
+		ec.init_handle_matrix (m_network->getNumberNodes ());
 	
-	for (int iter =0; iter < 10; iter++) {
-	//initialization of the strutctures that suppor congestion evaluation
-	EdgeContainer ec;
-	ec.init_congestion_matrix (m_network->getNumberNodes ());
-	ec.init_handle_matrix (m_network->getNumberNodes ());
+		std::vector<SteinerTree> solutions;
+		double m_cost = 0.0;
+		double m_congestion = 0.0;
 	
-	std::vector<SteinerTree> solutions;
-	double m_cost = 0.0;
-	double m_congestion = 0.0;
-	
-	//creating a solution
-	for (unsigned i = 0; i < m_groups.size (); i++) {
+		//creating a solution
+		for (unsigned i = 0; i < m_groups.size (); i++) {
+			
+			//initialization of steiner tree
+			ptr_SteinerTree 
+				st = std::make_shared<SteinerTree> (m_network->getNumberNodes (), 
+													m_groups[i]->getSource(), 
+													m_groups[i]->getMembers ()
+													);
 		
-		//initialization of steiner tree
-		ptr_SteinerTree 
-			st = std::make_shared<SteinerTree> (m_network->getNumberNodes (), 
-												m_groups[i]->getSource(), 
-												m_groups[i]->getMembers ()
-												);
+			//verify the graph for connectivity
+			ec.connected_level ( *m_groups[i].get() , *m_network);
+			
+			//building the tree
+			build_tree (i, st, ec);
+			
+			//updating congestion heap
+			update_congestion (st, ec, m_cost, m_congestion);
+	
+		}
+	
+		//updating the pheromene
+		update_pheromone_matrix (ec);
 		
-		//verify the graph for connectivity
-		ec.connected_level ( *m_groups[i].get() , *m_network);
+		//partial solution
+		std::cout << m_congestion << " " << m_cost << std::endl;
 		
-		//building the tree
-		build_tree (i, st, ec);
-		
-		//updating congestion heap
-		update_congestion (st, ec, m_cost, m_congestion);
-	
-	}
-	
-	//updating the pheromene
-	update_pheromone_matrix (ec);
-	
-	//partial solution
-	std::cout << m_congestion << " " << m_cost << std::endl;
-	
-	m_network->clearRemovedEdges ();
+		m_network->clearRemovedEdges ();
 	
 	}
 	
