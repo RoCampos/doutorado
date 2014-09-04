@@ -138,6 +138,15 @@ private:
 	
 	std::vector<SteinerTree> m_best_solution;
 	
+	/*---------------------------------*/
+	//AcoMPP parameters
+	
+	double m_phe_rate; //evaporation rate
+	
+	double m_alpha; //parameter alpha
+	
+	double m_betha; //parameter betha
+	
 };
 
 }
