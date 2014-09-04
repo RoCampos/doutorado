@@ -6,14 +6,10 @@ template<typename AcoHandle>
 void ACO<AcoHandle>::run () {
 
 	std::cout << "Running: " << m_instance << std::endl;
+	
+	//configurating the data
 	configurate (m_instance);
 	
-	initialization ();
-	int i = 0;
-	while (++i < 10) {
-	
-		solution_construction ();
-		update_pheromone ();
-		
-	}
+	//running the algorithm
+	run (m_iterations);
 }

@@ -14,9 +14,7 @@ namespace rca {
 template <typename AcoHandle>
 class ACO : private AcoHandle {
 
-using AcoHandle::update_pheromone;
-using AcoHandle::solution_construction;
-using AcoHandle::initialization;
+using AcoHandle::run;
 using AcoHandle::configurate;
 
 public:
@@ -24,10 +22,13 @@ public:
 	inline void set_instance (std::string & instance) {
 		m_instance = instance;
 	}
+	inline void set_iterations (int it) {
+		m_iterations = it;
+	}
 	
 private:
 	std::string m_instance;
-	
+	int m_iterations;
 };
 
 }
