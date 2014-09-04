@@ -9,6 +9,6 @@ do
 	pre=$1preprocessing/n30/${file}
 
 
-	./build/test_properties ${inst}
+	./build/test_properties ${inst} 100
 done
 
