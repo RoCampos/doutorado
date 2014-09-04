@@ -112,14 +112,14 @@ private:
 	 * 
 	 * 
 	 */
-	void update_pheromone_matrix (std::vector<SteinerTree> & solution);
+	void update_pheromone_matrix (rca::EdgeContainer & ec);
 	
 	/**
 	 * 
 	 * 
 	 * 
 	 */
-	void next_component (int c_vertex, 
+	int next_component (int c_vertex, 
 						 std::vector<rca::Link>& toRemove);
 	
 	
