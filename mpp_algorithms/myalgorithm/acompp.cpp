@@ -133,6 +133,8 @@ void AcoMPP::initialization () {
 	m_cost = 0.0;
 	m_congestion = 0.0;
 	
+	std::vector<SteinerTree> solutions;
+	
 	for (unsigned i = 0; i < m_groups.size (); i++) {
 		
 		std::shared_ptr<SteinerTree> 
@@ -150,7 +152,7 @@ void AcoMPP::initialization () {
 		
 		update_congestion (st, ec);
 		
-#ifdef DEBUG
+#ifdef DEBUG1
 		std::cout << st->getCost () << std::endl; 
 		std::string file ="/home/romeritocampos/workspace/Doutorado/inst_test/aco-test";
 		file = file+"/saida.xdot";
@@ -313,5 +315,13 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 		e = e->next;
 	}	
 	e = NULL;
+	
+}
+
+
+void AcoMPP::update_pheromone_matrix (std::vector<SteinerTree> & solution)
+{
+
+	
 	
 }
