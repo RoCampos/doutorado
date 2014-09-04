@@ -176,7 +176,8 @@ void AcoMPP::initialization () {
 	
 }
 
-void AcoMPP::configurate (std::string m_instance) {
+void AcoMPP::configurate (std::string m_instance) 
+{
 
 #ifdef DEBUG	
 	std::cout << "configuring data\n";
@@ -203,6 +204,7 @@ void AcoMPP::configurate (std::string m_instance) {
 	//initialization of pheromene rate
 	m_phe_rate = 0.9;
 	
+	//initialization of random number genarator
 	my_random = Random(rca::myseed::seed(),0.0, 1.0);
 	
 }
@@ -232,7 +234,8 @@ void AcoMPP::create_ants_by_group (int g_id,
 	
 }
 
-void AcoMPP::configurate2 (std::string file){
+void AcoMPP::configurate2 (std::string file)
+{
 	
 	SteinerReader reader (file);
 	
@@ -353,12 +356,59 @@ void AcoMPP::update_pheromone_matrix (rca::EdgeContainer & ec)
 
 int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 {
-	
-	//m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
-	
+	typedef typename std::vector<int>::const_iterator c_iterator;
+		
 	double r = my_random.rand ();
 	
-	std::cout << "Prob:" << r << std::endl;
+	if (r <= 0.5) {
+		//TODO develop the code no qual a solução com mais feromônio.
+		std::pair<c_iterator, c_iterator> iters;
+		m_network->get_iterator_adjacent (c_vertex, iters);
 		
-	return 0;
+		auto begin = iters.first;
+		
+		//this takes O(adj(c_vertex)) == O(V)
+		while (begin != iters.second) {
+			
+			//this it has the value of the c_{c_vertex}^{j} component
+			rca::Link link(c_vertex, *begin, 0.0);
+			
+			//se o link candiato não estiver removido verifica a chance de escolhe-lo
+			//this takes O(E)
+			if (std::find (toRemove.begin (), toRemove.end(), link) == toRemove.end()) 
+			{
+				double value = 0.0;
+				
+				//sum_{c_vertex}^{k} for all permited
+				auto perc = iters.first;
+				for (; perc != iters.second; perc++) {
+			
+					rca::Link lk (c_vertex, *perc, 0.0);
+					
+					//pulando nó c_ij = c_ik
+					if (*begin == *perc) {
+						continue;
+					} else if (std::find (toRemove.begin (), toRemove.end(), lk) == toRemove.end()){
+						
+						//valor heurístico igual para todos
+						value += m_pmatrix[lk.getX()][lk.getY()] * 1;
+						
+					}
+				}
+				
+				//calculating the prob for c_vertex, begins
+				double h = m_pmatrix[link.getX()][link.getY()];				
+				double denominador = pow(h,m_alpha) * pow(1,m_betha);
+				
+				std::cout << std::fixed << (double)denominador/value << std::endl;
+			}
+			
+			begin++;
+		}
+		
+		return -1;
+	} else {
+		return m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
+	}
+	
 }
