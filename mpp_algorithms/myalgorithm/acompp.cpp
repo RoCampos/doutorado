@@ -132,46 +132,37 @@ void AcoMPP::initialization () {
 	ec.init_congestion_matrix (m_network->getNumberNodes ());
 	ec.init_handle_matrix (m_network->getNumberNodes ());
 	
-	m_cost = 0.0;
-	m_congestion = 0.0;
+	
 	
 	std::vector<SteinerTree> solutions;
+	double cost = 0.0;
+	double congestion = 0.0;
 	
+	//creating a solution
 	for (unsigned i = 0; i < m_groups.size (); i++) {
 		
-		
-		
+		//initialization of steiner tree
 		ptr_SteinerTree 
 			st = std::make_shared<SteinerTree> (m_network->getNumberNodes (), 
 												m_groups[i]->getSource(), 
 												m_groups[i]->getMembers ()
 												);
 		
+		//verify the graph for connectivity
 		ec.connected_level ( *m_groups[i].get() , *m_network);
 		
-		
+		//building the tree
 		build_tree (i, st, ec);
 		
+		//updating congestion heap
 		update_congestion (st, ec);
-		
-#ifdef DEBUG
-		std::cout << st->getCost () << std::endl; 
-		std::string file ="/home/romeritocampos/workspace/Doutorado/inst_test/aco-test";
-		file = file+"/saida.xdot";
-		std::cout << file << std::endl;
-		st->xdotToFile (file);
-		std::string cmd ("xdot");
-		cmd += " " + file;
-		
-		system (cmd.c_str ());
-		
-		getchar ();
-#endif		
 	
 	}
 	
+	//updating the pheromene
 	update_pheromone_matrix (ec);
 	
+	//partial solution
 	std::cout << m_congestion << " " << m_cost << std::endl;
 	
 }
