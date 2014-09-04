@@ -205,6 +205,8 @@ void AcoMPP::configurate (std::string m_instance)
 	
 	//initialization of pheromene rate
 	m_phe_rate = 0.9;
+	m_alpha = 0.8;
+	m_betha = 0.2;
 	
 	//initialization of random number genarator
 	long seed = rca::myseed::seed();
@@ -414,7 +416,7 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 	double best = std::numeric_limits<double>::min ();
 	int returned = c_vertex;
 	
-	if (r <= 0.5) {
+	if (r <= 0.7) {
 		//TODO develop the code no qual a solução com mais feromônio.
 		std::pair<c_iterator, c_iterator> iters;
 		m_network->get_iterator_adjacent (c_vertex, iters);
