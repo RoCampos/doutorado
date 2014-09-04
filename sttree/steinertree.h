@@ -26,6 +26,14 @@ public:
 	//as estruturas temporárias são inicializadas no construtor.
 	SteinerTree(int nnodes);
 	
+	/**
+	 * This constructor receive the number of nodes in the network,
+	 * the source of a multicast group that is interpreted as a terminal and
+	 * the list of destinations that is interpreted as terminals as well.
+	 * 
+	 */
+	SteinerTree(int nnodes, int source, const std::vector<int> & terminals);
+	
 	//adiciona uma aresta da árvore
 	void addEdge(int i, int j, double value);
 	
