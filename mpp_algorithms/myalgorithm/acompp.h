@@ -37,6 +37,9 @@ typedef typename std::shared_ptr<SteinerTree> ptr_SteinerTree;
 typedef typename 
 	rca::myrandom<std::mt19937, std::uniform_real_distribution<double>, double> Random;
 
+typedef typename 
+	rca::myrandom<std::mt19937, std::uniform_int_distribution<int>, int> AntRandom;	
+	
 namespace rca {
 
 /**

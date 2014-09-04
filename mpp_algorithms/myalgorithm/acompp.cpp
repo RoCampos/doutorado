@@ -43,7 +43,8 @@ void AcoMPP::build_tree (int id,
 		int join = -1;
 		int in = -1;
 		
-		int ant = rand() % pool.size ();
+		AntRandom a( my_random.get_engine() , 0, (int)pool.size()-1 );
+		int ant = a.rand ();
 		
 		//current vertex
 		int c_vertex = pool[ant].get_current_position();
@@ -118,6 +119,10 @@ void AcoMPP::build_tree (int id,
 	
 	st->prunning ();
 	
+#ifdef DEBUG
+	std::cout << "------------------------------" << std::endl;
+#endif
+	
 }
 
 void AcoMPP::initialization () {
@@ -163,7 +168,13 @@ void AcoMPP::initialization () {
 	//partial solution
 	std::cout << m_congestion << " " << m_cost << std::endl;
 	
+	m_network->clearRemovedEdges ();
+	
 	}
+	
+#ifdef DEBUG
+	std::cout << "------------------------------" << std::endl;
+#endif
 	
 }
 
@@ -196,7 +207,12 @@ void AcoMPP::configurate (std::string m_instance)
 	m_phe_rate = 0.9;
 	
 	//initialization of random number genarator
-	my_random = Random(rca::myseed::seed(),0.0, 1.0);
+	long seed = rca::myseed::seed();
+	my_random = Random(seed,0.0, 1.0);
+	
+#ifdef DEBUG
+	std::cout << "------------------------------" << std::endl;
+#endif
 	
 }
 
@@ -254,6 +270,10 @@ void AcoMPP::configurate2 (std::string file)
 	std::shared_ptr<rca::Group> g(gg);
 	m_groups.push_back (g);
 	
+#ifdef DEBUG
+	std::cout << "------------------------------" << std::endl;
+#endif
+	
 }
 
 /**
@@ -276,7 +296,12 @@ int AcoMPP::select_ant_id (const std::vector<Ant>& pool, const int & next_id)
 		}
 	}
 	
+	
+	#ifdef DEBUG
+		std::cout << "------------------------------" << std::endl;
+	#endif
 	return -1;
+	
 }
 
 void AcoMPP::join_ants (std::vector<Ant>& pool, 
@@ -297,6 +322,10 @@ void AcoMPP::join_ants (std::vector<Ant>& pool,
 		visited[*cbegin] = pool[in].get_id ();
 	}
 	pool.erase (pool.begin () + join);
+	
+#ifdef DEBUG
+	std::cout << "------------------------------" << std::endl;
+#endif
 	
 }
 
@@ -344,6 +373,10 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 	}	
 	e = NULL;
 	
+#ifdef DEBUG
+	std::cout << "------------------------------" << std::endl;
+#endif
+	
 }
 
 
@@ -354,8 +387,8 @@ void AcoMPP::update_pheromone_matrix (rca::EdgeContainer & ec)
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
 	
-	auto it = ec.m_heap.begin ();
-	for (; it != ec.m_heap.end(); it++) {
+	auto it = ec.m_heap.ordered_begin ();
+	for (; it != ec.m_heap.ordered_end(); it++) {
 	
 		//aqui soma 10 do valor de feromônio ao 
 		//valor atual
@@ -423,7 +456,7 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 				
 				if ( ((double)denominador/value) > best) {
 					best = ((double)denominador/value);
-					std::cout << "Updating best: " << std::fixed << best << std::endl;
+					//std::cout << "Updating best: " << std::fixed << best << std::endl;
 					returned = *begin;
 				}
 			}
@@ -435,5 +468,9 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 	} else {
 		return m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
 	}
+	
+#ifdef DEBUG
+	std::cout << "------------------------------" << std::endl;
+#endif
 	
 }
