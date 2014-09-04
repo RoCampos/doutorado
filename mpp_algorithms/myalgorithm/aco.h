@@ -16,6 +16,7 @@ class ACO : private AcoHandle {
 
 using AcoHandle::run;
 using AcoHandle::configurate;
+using AcoHandle::configurate2;
 
 public:
 	void run ();
