@@ -135,8 +135,8 @@ void AcoMPP::initialization () {
 	
 	
 	std::vector<SteinerTree> solutions;
-	double cost = 0.0;
-	double congestion = 0.0;
+	double m_cost = 0.0;
+	double m_congestion = 0.0;
 	
 	//creating a solution
 	for (unsigned i = 0; i < m_groups.size (); i++) {
@@ -155,7 +155,7 @@ void AcoMPP::initialization () {
 		build_tree (i, st, ec);
 		
 		//updating congestion heap
-		update_congestion (st, ec);
+		update_congestion (st, ec, m_cost, m_congestion);
 	
 	}
 	
@@ -285,7 +285,9 @@ void AcoMPP::join_ants (std::vector<Ant>& pool,
 }
 
 void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
-							rca::EdgeContainer & ec)
+							rca::EdgeContainer & ec, 
+							double&m_cost,
+							double& m_congestion)
 {
 #ifdef DEBUG
 	std::cout << __FUNCTION__ << std::endl;

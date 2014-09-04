@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <random>
+#include <cmath>
 
 #include <boost/heap/fibonacci_heap.hpp>
 
@@ -112,7 +113,7 @@ private:
 							   std::vector<int>&);
 		
 	void update_congestion (std::shared_ptr<SteinerTree>&,
-							rca::EdgeContainer &ec);
+							rca::EdgeContainer &ec, double&, double&);
 	
 	/**
 	 * 
@@ -141,10 +142,10 @@ private:
 	MGroups m_groups;
 	
 	//value of cost
-	double m_cost;
+	//double m_cost;
 	
 	//value of congestion
-	double m_congestion;
+	//double m_congestion;
 	
 	//pheromene matrix
 	PheromenMatrix m_pmatrix;
