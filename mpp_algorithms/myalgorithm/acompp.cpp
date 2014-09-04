@@ -149,10 +149,10 @@ void AcoMPP::run (int iterations) {
 			update_congestion (st, ec, cost, congestion);
 			
 			if (m_best_cost[i] > st->getCost ()) {
-				m_best_cost[i]  = st->getCost ();
+				m_best_cost[i] = st->getCost ();
 			}
 	
-		}
+		}//end for in solutioon construction
 	
 		//updating the pheromene
 		update_pheromone_matrix (ec);
@@ -160,6 +160,15 @@ void AcoMPP::run (int iterations) {
 		//partial solution
 		std::cout << congestion << " " << cost << std::endl;
 		
+		if (congestion < m_bcongestion) {
+			m_bcongestion = congestion;
+		}
+		
+		if (cost < m_bcost) {
+			m_bcost = cost;
+		}
+		
+		//clean the network
 		m_network->clearRemovedEdges ();
 	
 	}
@@ -207,6 +216,8 @@ void AcoMPP::configurate (std::string m_instance)
 	//used to register the best values of each tree
 	double max = std::numeric_limits<double>::max();
 	std::vector<double> m_best_cost = std::vector<double> (m_groups.size(),max) ;
+	m_bcost = max;
+	m_bcongestion = max;
 	
 #ifdef DEBUG
 	std::cout << "------------------------------" << std::endl;
