@@ -112,11 +112,17 @@ void AcoMPP::build_tree (int id,
 	
 }
 
-void AcoMPP::run (int iterations) {
+void AcoMPP::run (va_list & arglist) {
 
 #ifdef DEBUG
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
-#endif 
+#endif
+	
+	int iterations = va_arg(arglist, int);
+	m_alpha = va_arg (arglist, double);
+	m_betha = va_arg (arglist, double);
+	m_phe_rate = va_arg (arglist, double);
+	double m_prob = va_arg (arglist, double);
 
 	for (int iter =0; iter < iterations; iter++) {
 		//initialization of the strutctures that suppor congestion evaluation

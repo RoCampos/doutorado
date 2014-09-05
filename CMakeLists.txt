@@ -83,7 +83,7 @@ add_subdirectory (mpp_algorithms)
 add_subdirectory (util)
 
 #directory for test of libraries and some mpp_algorithms
-#add_subdirectory (testes)
+add_subdirectory (testes)
 
 INSTALL (FILES CMakeLists.txt DESTINATION .)
 INSTALL (DIRECTORY include lib DESTINATION .)

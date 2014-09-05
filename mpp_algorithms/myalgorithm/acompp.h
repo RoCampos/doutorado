@@ -11,6 +11,8 @@
 #include <random>
 #include <cmath>
 
+#include <cstdarg>
+
 #include <boost/heap/fibonacci_heap.hpp>
 
 #include "reader.h"
@@ -57,7 +59,7 @@ class AcoMPP {
 	
 public:
 	
-	void run (int);
+	void run (va_list & arglist);
 	
 	void build_tree (int id, 
 					 std::shared_ptr<SteinerTree> & st, 

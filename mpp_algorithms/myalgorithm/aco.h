@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <cstdarg>
 
 #include "network.h"
 #include "group.h"
@@ -19,7 +20,7 @@ using AcoHandle::configurate;
 using AcoHandle::configurate2;
 
 public:
-	void run (std::string instance, int iter, ...);
+	void run (int numArgs, std::string instance, ...);
 	
 private:
 	std::string m_instance;
