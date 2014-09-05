@@ -154,6 +154,19 @@ void AcoMPP::run (int iterations) {
 			
 			//updating congestion heap
 			update_congestion (st, ec, cost, congestion);
+		
+//showing the tree in debug mode
+#ifdef DEBUG
+	std::cout << st->getCost () << std::endl;
+    std::string file ="/home/romeritocampos/workspace/Doutorado/inst_test/aco-test";
+    file = file+"/saida.xdot";
+    std::cout << file << std::endl;
+    st->xdotToFile (file);
+    std::string cmd ("xdot");
+    cmd += " " + file;
+	system (cmd.c_str ());
+	getchar ();
+#endif
 	
 		}//end for in solutioon construction
 	
@@ -464,12 +477,11 @@ void AcoMPP::local_update (SteinerTree * st)
 	
 }
 
-
 int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 {
 
 #ifdef DEBUG
-	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+	std::cout << __FUNCTION__ << ":" << __LINE__;
 #endif 
 	
 	typedef typename std::vector<int>::const_iterator c_iterator;
@@ -516,8 +528,12 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 				}
 				
 				//calculating the prob for c_vertex, begins
-				double h = m_pmatrix[link.getX()][link.getY()];				
-				double denominador = pow(h,m_alpha) * pow(1,m_betha);
+				double phe = m_pmatrix[link.getX()][link.getY()];
+
+				//getting the cost of edge to used as a heuristic information
+				double heur = m_network->getCost (link.getX(), link.getY());
+					
+				double denominador = pow( phe , m_alpha) * pow( (1/heur) ,m_betha);
 				
 				if ( ((double)denominador/value) > best) {
 					best = ((double)denominador/value);
@@ -529,8 +545,15 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 			begin++;
 		}
 		
+#ifdef DEBUG
+	std::cout << " Using Heuristic Informations\n";
+#endif
+		
 		return returned;
 	} else {
+		#ifdef DEBUG
+			std::cout << " Using greedy procedure\n";
+		#endif
 		return m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
 	}
 	
