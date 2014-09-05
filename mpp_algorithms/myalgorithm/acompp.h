@@ -135,6 +135,8 @@ private:
 						 std::vector<rca::Link>& toRemove);
 	
 	
+	void local_update (SteinerTree * st);
+	
 private:
 	
 	Random my_random;

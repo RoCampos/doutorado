@@ -44,7 +44,6 @@ void AcoMPP::build_tree (int id,
 		//std::cout << "Choosed:" << next_component (c_vertex, toRemove) << std::endl;
 		
 		int next = next_component (c_vertex, toRemove);
-		
 			
 		//if next == -1 é necessário mudar a forrmiga de lugar
 		if (next != -1) {
@@ -145,10 +144,12 @@ void AcoMPP::run (int iterations) {
 			//building the tree
 			build_tree (i, st, ec);
 			
-			/*
+			
 			if (m_best_trees[i] > st->getCost ()) {
 				m_best_trees[i] = st->getCost ();
-			}*/
+				
+				local_update (st.get());
+			}
 			
 			//updating congestion heap
 			update_congestion (st, ec, cost, congestion);
@@ -217,7 +218,9 @@ void AcoMPP::configurate (std::string m_instance)
 	
 	//used to register the best values of each tree
 	double max = std::numeric_limits<double>::max();
-	std::vector<double> m_best_trees = std::vector<double> (m_groups.size(),max) ;
+	
+	m_best_trees = std::vector<double> (m_groups.size(),max) ;
+	
 	m_bcost = max;
 	m_bcongestion = max;
 	
@@ -432,6 +435,29 @@ void AcoMPP::update_pheromone_matrix (rca::EdgeContainer & ec)
 	
 }
 
+void AcoMPP::local_update (SteinerTree * st) 
+{
+#ifdef DEBUG
+	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+#endif
+
+	Edge * e = st->listEdge.head;
+	while (e != NULL) {
+	
+		rca::Link link (e->i, e->j, 0.0);
+		double value = m_pmatrix[link.getX()][link.getY()];
+		m_pmatrix[link.getX()][link.getY()] += value * 0.1;
+		
+		e = e->next;
+	}
+	
+	
+#ifdef DEBUG
+	std::cout << "------------------------------" << std::endl;
+#endif
+	
+}
+
 
 int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 {
@@ -447,7 +473,7 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 	double best = std::numeric_limits<double>::min ();
 	int returned = c_vertex;
 	
-	if (r <= 0.7) {
+	if (r <= 0.5) {
 		//TODO develop the code no qual a solução com mais feromônio.
 		std::pair<c_iterator, c_iterator> iters;
 		m_network->get_iterator_adjacent (c_vertex, iters);
@@ -511,9 +537,6 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 
 void AcoMPP::print_results () {
 
-	//std::cout << "Individual Best Cost: " << m_bcost<<std::endl;
-	//std::cout << "Individual Best congestion "<< m_bcongestion << std::endl;
-	
 	std::cout << m_bcongestion << " ";
 	std::cout << m_bcost << "\n";
 	
