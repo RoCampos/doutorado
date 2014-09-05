@@ -166,6 +166,8 @@ void AcoMPP::run (int iterations) {
 			m_bcongestion = congestion;
 			//updating the pheromene
 			update_pheromone_matrix (ec);
+			
+			m_best_iter = iter;
 		}
 		
 		//clean the network
@@ -218,10 +220,15 @@ void AcoMPP::configurate (std::string m_instance)
 	//used to register the best values of each tree
 	double max = std::numeric_limits<double>::max();
 	
+	//store the best steiner tree found during the search
 	m_best_trees = std::vector<double> (m_groups.size(),max) ;
 	
+	//initilize the congestion and the cost with max double values
 	m_bcost = max;
 	m_bcongestion = max;
+	
+	//store the best iteratios, where the best solution was found
+	m_best_iter = 0;;
 	
 #ifdef DEBUG
 	std::cout << "------------------------------" << std::endl;
@@ -537,7 +544,8 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 void AcoMPP::print_results () {
 
 	std::cout << m_bcongestion << " ";
-	std::cout << m_bcost << "\n";
+	std::cout << m_bcost << " ";
+	std::cout << m_best_iter << "\n";
 	
 	/*
 	auto it = m_best_trees.begin ();

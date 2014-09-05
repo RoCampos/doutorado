@@ -10,9 +10,11 @@ using namespace rca;
 int main (int argv, char **argc) {
     
 	std::string str = argc[1];
-	AcoMPP acompp;
-	acompp.configurate (str);
-	acompp.initialization ();
+	ACO<AcoMPP> aco;
+	aco.set_instance (str);
+	aco.set_iterations ( atoi (argc[2]) );
+	
+	aco.run ();
 	
 	return 0;
 }

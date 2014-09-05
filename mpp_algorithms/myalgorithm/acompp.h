@@ -172,6 +172,7 @@ private:
 	
 	double m_bcost;
 	double m_bcongestion;
+	double m_best_iter;
 	
 };
 
