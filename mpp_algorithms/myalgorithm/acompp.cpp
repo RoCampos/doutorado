@@ -144,7 +144,8 @@ void AcoMPP::run (int iterations) {
 			//building the tree
 			build_tree (i, st, ec);
 			
-			
+			//if the i-th tree is the best found util now
+			//update the eges by 0.1 porcent
 			if (m_best_trees[i] > st->getCost ()) {
 				m_best_trees[i] = st->getCost ();
 				
@@ -156,10 +157,8 @@ void AcoMPP::run (int iterations) {
 	
 		}//end for in solutioon construction
 	
-		
-		//partial solution
-		//std::cout << congestion << " " << cost << std::endl;
-		
+		//if the current solution is the best so far
+		//update its edges
 		if ((cost < m_bcost && congestion <= m_bcongestion) ||
 			(cost <= m_bcost && congestion < m_bcongestion)) 
 		{
