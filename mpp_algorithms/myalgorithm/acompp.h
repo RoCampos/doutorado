@@ -168,6 +168,7 @@ private:
 	
 	double m_betha; //parameter betha
 	
+	double m_heuristic_prob;
 	
 	/*solution results*/
 	std::vector<double> m_best_trees;

@@ -122,7 +122,7 @@ void AcoMPP::run (va_list & arglist) {
 	m_alpha = va_arg (arglist, double);
 	m_betha = va_arg (arglist, double);
 	m_phe_rate = va_arg (arglist, double);
-	double m_prob = va_arg (arglist, double);
+	m_heuristic_prob = va_arg (arglist, double);
 
 	for (int iter =0; iter < iterations; iter++) {
 		//initialization of the strutctures that suppor congestion evaluation
@@ -497,7 +497,7 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 	double best = std::numeric_limits<double>::min ();
 	int returned = c_vertex;
 	
-	if (r <= 0.5) {
+	if (r <= m_heuristic_prob) {
 		//TODO develop the code no qual a solução com mais feromônio.
 		std::pair<c_iterator, c_iterator> iters;
 		m_network->get_iterator_adjacent (c_vertex, iters);
