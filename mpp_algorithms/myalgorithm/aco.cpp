@@ -3,11 +3,11 @@
 using namespace rca;
 
 template<typename AcoHandle>
-void ACO<AcoHandle>::run () {
+void ACO<AcoHandle>::run (std::string instance, int iter, ...) {
 	
 	//configurating the data
-	configurate (m_instance);
+	configurate2 (instance);
 	
 	//running the algorithm
-	run (m_iterations);
+	run (iter);
 }

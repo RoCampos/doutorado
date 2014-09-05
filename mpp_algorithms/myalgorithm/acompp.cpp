@@ -321,7 +321,7 @@ void AcoMPP::configurate2 (std::string file)
 	
 	//used to register the best values of each tree
 	double max = std::numeric_limits<double>::max();
-	std::vector<double> m_best_trees = std::vector<double> (m_groups.size(),max) ;
+	m_best_trees = std::vector<double> (m_groups.size(),max) ;
 	m_bcost = max;
 	m_bcongestion = max;
 	

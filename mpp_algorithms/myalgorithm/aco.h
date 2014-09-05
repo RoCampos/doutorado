@@ -19,13 +19,7 @@ using AcoHandle::configurate;
 using AcoHandle::configurate2;
 
 public:
-	void run ();
-	inline void set_instance (std::string & instance) {
-		m_instance = instance;
-	}
-	inline void set_iterations (int it) {
-		m_iterations = it;
-	}
+	void run (std::string instance, int iter, ...);
 	
 private:
 	std::string m_instance;
