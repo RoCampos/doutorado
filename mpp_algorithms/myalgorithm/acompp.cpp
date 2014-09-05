@@ -521,8 +521,10 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 						continue;
 					} else if (std::find (toRemove.begin (), toRemove.end(), lk) == toRemove.end()){
 						
+						
+						double heur = m_network->getCost (lk.getX(), lk.getY());
 						//valor heurístico igual para todos
-						value += m_pmatrix[lk.getX()][lk.getY()] * 1;
+						value = value +  (m_pmatrix[lk.getX()][lk.getY()] * (1/heur));
 						
 					}
 				}
