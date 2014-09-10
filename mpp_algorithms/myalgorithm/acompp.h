@@ -201,20 +201,44 @@ private:
 	
 	/**
 	 * 
+	 * This method is used to update the pheromene matrix.
 	 * 
+	 * It receives a reference to a EdgeContainer object.
+	 * 
+	 * This refence contains all the edges used to build a solution.
 	 * 
 	 */
 	void update_pheromone_matrix (rca::EdgeContainer & ec);
 	
 	/**
+	 * This method is used to find a next component based
+	 * on the heuristic informations or the ant probabilities.
 	 * 
+	 * It receive a int that is the vertex where the ant is.
 	 * 
+	 * Beside, a vector of ineligible edges.
 	 * 
+	 * The return is a int that represent the next vertex on the 
+	 * graph.
+	 * @param int c_vertex
+	 * @param std::vector<Link> ineligible edges
+	 * @return the next step on the search.
 	 */
 	int next_component (int c_vertex, 
 						 std::vector<rca::Link>& toRemove);
 	
-	
+	/**
+	 * This method is used to do local updates on the pheromene
+	 * matrix.
+	 * 
+	 * After build a steiner tree it's possible verify if this tree
+	 * is the best one tree found for the current group.
+	 * 
+	 * So if the tree is the best one found os far, than the local
+	 * update of the PheromenMatrix is release.
+	 * 
+	 * @param SteinerTree
+	 */
 	void local_update (SteinerTree * st);
 	
 private:
