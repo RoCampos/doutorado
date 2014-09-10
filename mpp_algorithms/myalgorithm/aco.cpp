@@ -9,9 +9,8 @@ void ACO<AcoHandle>::run (int numArgs, std::string instance, ...) {
 	va_start (vl, numArgs);
 	
 	//configurating the data
-	configurate2 (instance);
+	configurate (instance);
 
-	
 	//running the algorithm
 	run (vl);
 }
