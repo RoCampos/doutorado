@@ -40,7 +40,7 @@ typedef typename
 	rca::myrandom<std::mt19937, std::uniform_real_distribution<double>, double> Random;
 
 typedef typename 
-	rca::myrandom<std::mt19937, std::uniform_int_distribution<int>, int> AntRandom;	
+	rca::myrandom<std::mt19937, std::uniform_int_distribution<int>, int> AntRandom;
 	
 namespace rca {
 
@@ -59,8 +59,38 @@ class AcoMPP {
 	
 public:
 	
+	/**
+	 * This method is the initial point of the 
+	 * execution.
+	 * 
+	 * It receives a va_list variable define in cstdarg.
+	 * The arguments are extracted from the va_list and
+	 * used to initialize the parameters of the algorithm.
+	 * 
+	 * @param va_list
+	 * @author Romerito Campos.
+	 */
 	void run (va_list & arglist);
 	
+	/**
+	 * This method is used to create a steiner tree multiple
+	 * ants. 
+	 * 
+	 * Each ant start its search from a terminal node (and source).
+	 * There is a loop where the stop condition is the number of
+	 * ants in the current graph.
+	 * 
+	 * During the loop an ant is randomly choosed and perform its 
+	 * moviment.
+	 * 
+	 * The central idea is join all ants forming a tree. After this
+	 * the prunning method from SteinerTree class is perfomed to
+	 * remove unnecessary edges.
+	 * 
+	 * @param int id of the group
+	 * @param SteinerTree a reference to steinertree
+	 * @param EdgeContainer the container of used edges
+	 */
 	void build_tree (int id, 
 					 std::shared_ptr<SteinerTree> & st, 
 					 EdgeContainer & ec);
@@ -79,14 +109,30 @@ public:
 	 */
 	void configurate (std::string file);
 	
+	/**
+	 * This method is used only for test. It inialize
+	 * the struct to support the algorithm solve a Steiner Tree
+	 * problem.
+	 * 
+	 * The parameter file is a stp file
+	 * 
+	 * @param string file in stp format
+	 * @author Romerito Campos.
+	 */
 	void configurate2 (std::string file);
 	
+	/**
+	 * This method is used to print some informations
+	 * About the results obtained by the algoritm
+	 * 
+	 * @author Romerito Campops.
+	 */
 	void print_results ();
 	
 private:
 	
 	/**
-	 * This method is used to find the id of the the ant that found
+	 * This method is used to find the id of the ant that found
 	 * the node next. 
 	 * 
 	 * The parameter pool is the pool of ants.
@@ -94,6 +140,12 @@ private:
 	 * The parameter next_id is the id of the ant that found the
 	 * next node.
 	 * 
+	 * With the returned int the algorithm can join two partitions
+	 * formed by two ants.
+	 * 
+	 * @param std::vector<Ant> the ants
+	 * @param int the id associated with the next next_component
+	 * @return the ant that found the component next
 	 */
 	int select_ant_id (const std::vector<Ant>& pool, const int & next_id);
 	
@@ -114,10 +166,36 @@ private:
 	 */
 	void join_ants (std::vector<Ant>& pool, const int&, const int&, std::vector<int>&);
 	
+	
+	/**
+	 * This method is used just for initialize the pool
+	 * of ants.
+	 * 
+	 * @param int group id
+	 * @param vector<Ant> the pool of ants
+	 * @param vector<int> the vector to control cicles in the tree building
+	 */
 	void create_ants_by_group (int g_id, 
 							   std::vector<rca::Ant> & pool,
 							   std::vector<int>&);
 		
+	/**
+	 * This method is used to update the congestion on the network.
+	 * 
+	 * The method receive four parameters.
+	 *  
+	 * The first parameter is the tree that will use the resources.
+	 * 
+	 * The second parameter is the container of used edges. This 
+	 * container holds the information updated.
+	 * 
+	 * The third parameter is the cost of the current solution, it is
+	 * create outside the method. After each tree is builded this value
+	 * is update. So it is passed as a reference.
+	 * 
+	 * The four value is, in the same way of the cost, passed as reference.
+	 * 
+	 */
 	void update_congestion (std::shared_ptr<SteinerTree>&,
 							rca::EdgeContainer &ec, double&, double&);
 	
@@ -141,19 +219,15 @@ private:
 	
 private:
 	
+	//random number generator
 	Random my_random;
 	
 	//*----------------------*
 	//PROBLEM objects
 	rca::Network * m_network;
 	
+	//vector of multicast groups
 	MGroups m_groups;
-	
-	//value of cost
-	//double m_cost;
-	
-	//value of congestion
-	//double m_congestion;
 	
 	//pheromene matrix
 	PheromenMatrix m_pmatrix;
@@ -173,9 +247,9 @@ private:
 	/*solution results*/
 	std::vector<double> m_best_trees;
 	
-	double m_bcost;
-	double m_bcongestion;
-	double m_best_iter;
+	double m_bcost; //the best cost value
+	double m_bcongestion; //the best congestion value
+	double m_best_iter; //the best iteration
 	
 };
 
