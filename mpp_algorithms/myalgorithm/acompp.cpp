@@ -162,7 +162,7 @@ void AcoMPP::run (va_list & arglist) {
 			update_congestion (st, ec, cost, congestion);
 		
 //showing the tree in debug mode
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << st->getCost () << std::endl;
     std::string file ="/home/romeritocampos/workspace/Doutorado/inst_test/aco-test";
     file = file+"/saida.xdot";
@@ -234,7 +234,7 @@ void AcoMPP::configurate (std::string m_instance)
 	
 	//initialization of random number genarator
 	long seed = rca::myseed::seed();
-	my_random = Random(seed,0.0, 1.0);
+	my_random = Random(seed,1, 10);
 	
 	//used to register the best values of each tree
 	double max = std::numeric_limits<double>::max();
@@ -492,7 +492,7 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 	
 	typedef typename std::vector<int>::const_iterator c_iterator;
 		
-	double r = my_random.rand ();
+	double r = (double)my_random.rand ()/10.0;
 	
 	double best = std::numeric_limits<double>::min ();
 	int returned = c_vertex;
