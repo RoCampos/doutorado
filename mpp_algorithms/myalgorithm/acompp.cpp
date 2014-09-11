@@ -202,10 +202,10 @@ void AcoMPP::run (va_list & arglist) {
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
-	std::cout << m_bcongestion << " ";
-	std::cout << m_bcost << " ";
-	std::cout << m_best_iter << " ";
-	std::cout << time_elapsed.get_elapsed () << " ";
+	std::cout << m_bcongestion << "\t";
+	std::cout << m_bcost << "\t";
+	std::cout << m_best_iter << "\t";
+	std::cout << time_elapsed.get_elapsed () << "\t";
 	std::cout << m_seed << std::endl;
 	
 }
