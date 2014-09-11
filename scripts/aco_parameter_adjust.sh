@@ -44,6 +44,7 @@ mheuristicprob="0.1 0.2 0.3 0.4 0.5 0.7 0.8 0.9"
 
 #total runs = 7 * 9 * 9 * 9 = 7 * 9³ = (5103 combinations * 30 times)
 
+count=0;
 
 #testing all the iteration values
 for iter in ${iterations} 
@@ -63,16 +64,19 @@ do
 				
 				for inst in `ls -vH $input_dir`
 				do
+					
+					file_=`echo $inst | sed -e 's:.brite::'`
+					out=$file_"_"acopar_$iter"_"$alpha"_"$betha"_"$mp"_"$h".txt"					
+					echo -e "Cong\tCost\titer\ttime\tseed " > $output_dir$out
+
 					#number of execution
 					for i in $(seq ${runs})
 					do
-				
-						file_=`echo $inst | sed -e 's:.brite::'`
-						out=$file_"_"acopar_$iter"_"$alpha"_"$betha"_"$mp"_"$h".txt"
 
-						echo "Running: " $out;
-					
 						$bin $input_dir$inst $iter $alpha $betha $mp $h >> $output_dir$out
+						count=$((count+1))
+						per=`echo "$count * 100 / 5103" | bc`
+						echo Percentual: $per > $output_dir""statistics
 						sleep 1
 
 					done
