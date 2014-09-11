@@ -13,8 +13,9 @@ FILE (GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 set (BST OFF)
 set (BSTCOST OFF)
-set (TESTALGO ON)
+set (TESTALGO OFF)
 set (BMEAN OFF)
+set (ACOMPP ON)
 
 #COMPILATION DEFINITION FO BSTREE
 IF (BST) 
@@ -53,6 +54,16 @@ add_executable (bsmean
 				${includes})
 target_link_libraries (bsmean graph sttree myutil)
 ENDIF()
+
+IF (ACOMPP)
+add_executable (acompp acomppmain.cpp 
+		aco.h aco.cpp 
+		acompp.h acompp.cpp
+		ant.h ant.cpp
+		edgecontainer.h edgecontainer.cpp
+		${includes})
+target_link_libraries (acompp graph sttree ${Boost_LIBRARIES})
+ENDIF ()
 
 IF (TESTALGO)
 add_executable (test_properties teste_properties.cpp 
