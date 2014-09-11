@@ -62,7 +62,7 @@ add_executable (acompp acomppmain.cpp
 		ant.h ant.cpp
 		edgecontainer.h edgecontainer.cpp
 		${includes})
-target_link_libraries (acompp graph sttree ${Boost_LIBRARIES})
+target_link_libraries (acompp graph sttree myutil ${Boost_LIBRARIES})
 ENDIF ()
 
 IF (TESTALGO)

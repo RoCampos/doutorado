@@ -21,6 +21,7 @@
 #include "group.h"
 
 #include "myrandom.h"
+#include "rcatime.h"
 
 #include "edgecontainer.h"
 
@@ -274,6 +275,8 @@ private:
 	double m_bcost; //the best cost value
 	double m_bcongestion; //the best congestion value
 	double m_best_iter; //the best iteration
+	
+	rca::time::elapsed_time time_elapsed;
 	
 };
 

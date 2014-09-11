@@ -124,6 +124,8 @@ void AcoMPP::run (va_list & arglist) {
 	m_phe_rate = va_arg (arglist, double);
 	m_heuristic_prob = va_arg (arglist, double);
 
+	
+	time_elapsed.started ();
 	for (int iter =0; iter < iterations; iter++) {
 		//initialization of the strutctures that suppor congestion evaluation
 		EdgeContainer ec;
@@ -194,11 +196,17 @@ void AcoMPP::run (va_list & arglist) {
 	
 	}
 	
+	time_elapsed.finished ();
+	
 #ifdef DEBUG
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
 	print_results ();
+	std::cout << m_bcongestion << " ";
+	std::cout << m_bcost << " ";
+	std::cout << m_best_iter << " ";
+	std::cout << time_elapsed.get_elapsed () << "\n";
 	
 }
 
