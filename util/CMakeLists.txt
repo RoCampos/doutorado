@@ -8,7 +8,7 @@ CMakeCache*;
 )
 
 FILE(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-FILE(GLOB HDRS "${PROJECT_SOURCE_DIR}/include/*.h")
+FILE(GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 add_library (myutil STATIC ${SRC})
 

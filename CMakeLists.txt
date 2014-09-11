@@ -87,7 +87,7 @@ add_subdirectory (testes)
 
 INSTALL (FILES CMakeLists.txt DESTINATION .)
 INSTALL (DIRECTORY include lib DESTINATION .)
-INSTALL (DIRECTORY results DESTINATION .)
+INSTALL (DIRECTORY scripts DESTINATION .)
 
 #my test
 #adicionando teste

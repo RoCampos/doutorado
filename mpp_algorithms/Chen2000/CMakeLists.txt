@@ -11,6 +11,8 @@ FILE (GLOB SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE (GLOB includes "${PROJECT_SOURCE_DIR}/include/*.h")
 FILE (GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
+INSTALL (FILES ${SRCS} ${HDRS} DESTINATION chen2000)
+
 add_executable (lowerbound lowerbound.cpp ${includes})
 target_link_libraries (lowerbound graph)
 
