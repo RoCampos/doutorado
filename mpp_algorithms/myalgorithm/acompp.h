@@ -247,6 +247,8 @@ private:
 	//random number generator
 	Random my_random;
 	
+	long m_seed;
+	
 	//*----------------------*
 	//PROBLEM objects
 	rca::Network * m_network;

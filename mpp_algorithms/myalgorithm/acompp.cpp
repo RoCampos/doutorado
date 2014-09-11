@@ -202,11 +202,11 @@ void AcoMPP::run (va_list & arglist) {
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
-	print_results ();
 	std::cout << m_bcongestion << " ";
 	std::cout << m_bcost << " ";
 	std::cout << m_best_iter << " ";
-	std::cout << time_elapsed.get_elapsed () << "\n";
+	std::cout << time_elapsed.get_elapsed () << " ";
+	std::cout << m_seed << std::endl;
 	
 }
 
@@ -241,8 +241,8 @@ void AcoMPP::configurate (std::string m_instance)
 	m_betha = 0.2;
 	
 	//initialization of random number genarator
-	long seed = rca::myseed::seed();
-	my_random = Random(seed,1, 10);
+	m_seed = rca::myseed::seed();
+	my_random = Random(m_seed,1, 10);
 	
 	//used to register the best values of each tree
 	double max = std::numeric_limits<double>::max();
