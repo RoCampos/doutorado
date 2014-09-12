@@ -76,7 +76,7 @@ do
 						$bin $input_dir$inst $iter $alpha $betha $mp $h >> $output_dir$out
 						count=$((count+1))
 						per=`echo "$count * 100 / 5103" | bc`
-						echo Percentual: $per > $output_dir""statistics
+						echo Executions: $count Percentual: $per > $output_dir""statistics
 						sleep 1
 
 					done
