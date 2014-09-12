@@ -116,7 +116,7 @@ void Network::init(unsigned nodes, unsigned edges) {
 	m_adjacent_vertex = std::vector<std::vector<int>>(m_nodes);
 	
 	m_removeds_edge = std::vector<std::vector<EdgeRemoved>> (m_nodes);
-	for (unsigned i = 0; i < m_nodes; i++) {
+	for (int i = 0; i < m_nodes; i++) {
 		m_removeds_edge[i] = std::vector<EdgeRemoved>(m_nodes);
 	}
 	
@@ -124,8 +124,9 @@ void Network::init(unsigned nodes, unsigned edges) {
 
 bool Network::isRemoved(const Link& link) const{
 
-	return std::find(m_removeds.begin(),m_removeds.end(),link) !=
-			m_removeds.end();
+	//return std::find(m_removeds.begin(),m_removeds.end(),link) !=
+	//		m_removeds.end();
+	return m_removeds_edge[link.getX()][link.getY()].removed;
 }
 
 std::ostream& operator <<(std::ostream& os,
