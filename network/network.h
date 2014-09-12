@@ -21,6 +21,17 @@ using std::cout;
 using std::endl;
 
 namespace rca {
+	
+struct EdgeRemoved {	
+	
+	EdgeRemoved () : removed(false), pos(0){};
+	EdgeRemoved (const EdgeRemoved & c) {removed = c.removed; pos = c.pos;
+		std::cout << "copy constructor" << std::endl;
+	};
+	
+	bool removed;
+	int pos;
+};
 
 /**
  * Esta classe representa um rede com custo e capaciade associados
@@ -325,6 +336,8 @@ private:
 	
 	//this varibles holds the vertex as adjacent list
 	std::vector<std::vector<int>> m_adjacent_vertex;
+	
+	std::vector<std::vector<EdgeRemoved>> m_removeds_edge;
 
 public:
 	std::vector< std::vector<Link> > m_edgesByNodes;
