@@ -31,8 +31,19 @@ void Network::setBand(unsigned row, unsigned col, double value) {
 
 void Network::removeEdge(const Link& link) {
 
+	if (m_removeds_edge[link.getX()][link.getY()].removed == false) {
+		m_removeds.push_back (link);
+		
+		int pos = m_removeds.size () - 1;
+		
+		m_removeds_edge[link.getX()][link.getY()].removed = true;
+		m_removeds_edge[link.getX()][link.getY()].pos = pos;
+	}
+	
+	/*
 	if (!isRemoved (link))
 		m_removeds.push_back (link);
+	*/
 }
 
 void Network::undoRemoveEdge(const Link& link) {
