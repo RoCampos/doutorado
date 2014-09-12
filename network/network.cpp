@@ -47,11 +47,25 @@ void Network::removeEdge(const Link& link) {
 }
 
 void Network::undoRemoveEdge(const Link& link) {
+	
+	if (m_removeds_edge[link.getX()][link.getY()].removed == true) {
+		
+		int pos = m_removeds_edge[link.getX()][link.getY()].pos;
+		
+		m_removeds_edge[link.getX()][link.getY()].removed = true;
+		m_removeds_edge[link.getX()][link.getY()].pos = -1;
+				
+		m_removeds.erase ( m_removeds.begin () + pos);
+		
+	}	
+	
+	/*
 	std::vector<Link>::iterator it;
 	it = std::find (m_removeds.begin(), m_removeds.end(), link);
 
 	if (it != m_removeds.end())
 		m_removeds.erase (it);
+	*/
 }
 
 void Network::undoRemoveEdge(const std::set<Link>& toUndoRemove) {
