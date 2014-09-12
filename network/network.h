@@ -24,7 +24,7 @@ namespace rca {
 	
 struct EdgeRemoved {	
 	
-	EdgeRemoved () : removed(false), pos(0){};
+	EdgeRemoved () : removed(false), pos(-1){};
 	EdgeRemoved (const EdgeRemoved & c) {removed = c.removed; pos = c.pos;
 		std::cout << "copy constructor" << std::endl;
 	};
