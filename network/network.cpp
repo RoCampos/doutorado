@@ -37,6 +37,7 @@ bool Network::isRemoved(const Link& link) const{
 void Network::removeEdge(const Link& link) {
 
 	if (m_removeds_edge[link.getX()][link.getY()].removed == false) {
+		
 		m_removeds.push_back (link);
 		
 		int pos = m_removeds.size () - 1;
@@ -203,8 +204,7 @@ void Network::showRemovedEdges() {
 
 	std::vector<Link>::const_iterator it = m_removeds.begin();
 	for (; it != m_removeds.end(); ++it) {
-		if (isRemoved(*it))
-			cout << *it << endl;
+		cout << *it << endl;
 	}
 
 }
