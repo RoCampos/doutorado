@@ -200,7 +200,18 @@ public:
 	 * todas as arestas que foram marcadas como removidas.
 	 *
 	 */
-	void clearRemovedEdges () {m_removeds.clear();}
+	void clearRemovedEdges () {
+		
+		auto it = m_removeds.begin ();
+		for ( ; it != m_removeds.end (); it++) {
+			
+			m_removeds_edge[it->getX()][it->getY()].removed = false;
+			m_removeds_edge[it->getX()][it->getY()].pos = -1;
+			
+		}
+		m_removeds.clear();
+		
+	}
 
 	/**
 	 * Método para iniciar as estruturas de dados da rede.
