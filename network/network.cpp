@@ -29,6 +29,11 @@ void Network::setBand(unsigned row, unsigned col, double value) {
 	m_bandMatrix.assign(row,col,value);
 }
 
+bool Network::isRemoved(const Link& link) const{
+
+	return m_removeds_edge[ link.getX() ][ link.getY() ].removed;
+}
+
 void Network::removeEdge(const Link& link) {
 
 	if (m_removeds_edge[link.getX()][link.getY()].removed == false) {
@@ -52,7 +57,7 @@ void Network::undoRemoveEdge(const Link& link) {
 		
 		int pos = m_removeds_edge[link.getX()][link.getY()].pos;
 		
-		m_removeds_edge[link.getX()][link.getY()].removed = true;
+		m_removeds_edge[link.getX()][link.getY()].removed = false;
 		m_removeds_edge[link.getX()][link.getY()].pos = -1;
 				
 		m_removeds.erase ( m_removeds.begin () + pos);
@@ -122,12 +127,6 @@ void Network::init(unsigned nodes, unsigned edges) {
 	
 }
 
-bool Network::isRemoved(const Link& link) const{
-
-	//return std::find(m_removeds.begin(),m_removeds.end(),link) !=
-	//		m_removeds.end();
-	return m_removeds_edge[link.getX()][link.getY()].removed;
-}
 
 std::ostream& operator <<(std::ostream& os,
 		const Network& network) {
