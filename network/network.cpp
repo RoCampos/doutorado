@@ -6,6 +6,7 @@
  */
 
 #include "network.h"
+#include <cassert>
 
 namespace rca {
 
@@ -60,8 +61,9 @@ void Network::undoRemoveEdge(const Link& link) {
 		
 		m_removeds_edge[link.getX()][link.getY()].removed = false;
 		m_removeds_edge[link.getX()][link.getY()].pos = -1;
-				
-		m_removeds.erase ( m_removeds.begin () + pos);
+		
+		auto it = std::find (m_removeds.begin (), m_removeds.end(), link);
+		m_removeds.erase ( it );
 		
 	}	
 	
