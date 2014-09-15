@@ -21,6 +21,17 @@ using std::cout;
 using std::endl;
 
 namespace rca {
+	
+struct EdgeRemoved {	
+	
+	EdgeRemoved () : removed(false), pos(-1){};
+	EdgeRemoved (const EdgeRemoved & c) {removed = c.removed; pos = c.pos;
+		std::cout << "copy constructor" << std::endl;
+	};
+	
+	bool removed;
+	int pos;
+};
 
 /**
  * Esta classe representa um rede com custo e capaciade associados
@@ -189,7 +200,18 @@ public:
 	 * todas as arestas que foram marcadas como removidas.
 	 *
 	 */
-	void clearRemovedEdges () {m_removeds.clear();}
+	void clearRemovedEdges () {
+		
+		auto it = m_removeds.begin ();
+		for ( ; it != m_removeds.end (); it++) {
+			
+			m_removeds_edge[it->getX()][it->getY()].removed = false;
+			m_removeds_edge[it->getX()][it->getY()].pos = -1;
+			
+		}
+		m_removeds.clear();
+		
+	}
 
 	/**
 	 * Método para iniciar as estruturas de dados da rede.
@@ -325,6 +347,8 @@ private:
 	
 	//this varibles holds the vertex as adjacent list
 	std::vector<std::vector<int>> m_adjacent_vertex;
+	
+	std::vector<std::vector<EdgeRemoved>> m_removeds_edge;
 
 public:
 	std::vector< std::vector<Link> > m_edgesByNodes;

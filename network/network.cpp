@@ -6,6 +6,7 @@
  */
 
 #include "network.h"
+#include <cassert>
 
 namespace rca {
 
@@ -29,18 +30,50 @@ void Network::setBand(unsigned row, unsigned col, double value) {
 	m_bandMatrix.assign(row,col,value);
 }
 
+bool Network::isRemoved(const Link& link) const{
+
+	return m_removeds_edge[ link.getX() ][ link.getY() ].removed;
+}
+
 void Network::removeEdge(const Link& link) {
 
+	if (m_removeds_edge[link.getX()][link.getY()].removed == false) {
+		
+		m_removeds.push_back (link);
+		
+		int pos = m_removeds.size () - 1;
+		
+		m_removeds_edge[link.getX()][link.getY()].removed = true;
+		m_removeds_edge[link.getX()][link.getY()].pos = pos;
+	}
+	
+	/*
 	if (!isRemoved (link))
 		m_removeds.push_back (link);
+	*/
 }
 
 void Network::undoRemoveEdge(const Link& link) {
+	
+	if (m_removeds_edge[link.getX()][link.getY()].removed == true) {
+		
+		int pos = m_removeds_edge[link.getX()][link.getY()].pos;
+		
+		m_removeds_edge[link.getX()][link.getY()].removed = false;
+		m_removeds_edge[link.getX()][link.getY()].pos = -1;
+		
+		auto it = std::find (m_removeds.begin (), m_removeds.end(), link);
+		m_removeds.erase ( it );
+		
+	}	
+	
+	/*
 	std::vector<Link>::iterator it;
 	it = std::find (m_removeds.begin(), m_removeds.end(), link);
 
 	if (it != m_removeds.end())
 		m_removeds.erase (it);
+	*/
 }
 
 void Network::undoRemoveEdge(const std::set<Link>& toUndoRemove) {
@@ -89,13 +122,14 @@ void Network::init(unsigned nodes, unsigned edges) {
 	m_vertex = std::vector<bool> (m_nodes,false);
 	
 	m_adjacent_vertex = std::vector<std::vector<int>>(m_nodes);
+	
+	m_removeds_edge = std::vector<std::vector<EdgeRemoved>> (m_nodes);
+	for (int i = 0; i < m_nodes; i++) {
+		m_removeds_edge[i] = std::vector<EdgeRemoved>(m_nodes);
+	}
+	
 }
 
-bool Network::isRemoved(const Link& link) const{
-
-	return std::find(m_removeds.begin(),m_removeds.end(),link) !=
-			m_removeds.end();
-}
 
 std::ostream& operator <<(std::ostream& os,
 		const Network& network) {
@@ -172,8 +206,7 @@ void Network::showRemovedEdges() {
 
 	std::vector<Link>::const_iterator it = m_removeds.begin();
 	for (; it != m_removeds.end(); ++it) {
-		if (isRemoved(*it))
-			cout << *it << endl;
+		cout << *it << endl;
 	}
 
 }
