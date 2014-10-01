@@ -22,9 +22,12 @@ Network * m_network;
 int main (int argv, char**argc) {
 	
 	Reader reader (argc[1]);
-	
-	
 	string str(argc[2]);
+	
+	m_network = new Network;
+	
+	reader.configNetwork (m_network);
+	
 	preprocessing (str);
 	
 	return 0;
@@ -66,21 +69,35 @@ double preprocessing (std::string file) {
 				str = str.substr (0, str.size () - 2);
 				y = atoi (str.c_str() );
 				
-				rca::Link link (x, y, 0.0);
+				--x;
+				--y;
+				
+				double c = m_network->getCost (x, y);
+				rca::Link link (x, y, c);
 				
 				//inserting the link in the alltrees structure
 				auto it = std::find (alltrees.begin(), alltrees.end(), link);
 				if ( it == alltrees.end()) {
 					alltrees.push_back (link);
+					
+					cost += link.getValue();
+					
 				}
 				
-				costbytree++;
+				costbytree += link.getValue();
 			
 			}
 			
 		}
 		
 	}//endif
+	
+	cout << cost;
+	auto lperc = trees.begin();
+	for ( ; lperc != trees.end(); ++lperc) {
+		cout <<"\t"<<*lperc;
+	}
+	cout << endl;
 	
 	return cost;
 }
