@@ -1,5 +1,8 @@
 #include <iostream>
 #include <string>
+#include <fstream>
+
+#include "reader.h"
 
 using namespace std;
 
@@ -13,8 +16,18 @@ double preprocessing (std::string file);
 int main (int argv, char**argc) {
 	
 	Reader reader (argc[1]);
-	reader.configNetwork ( m_net.get () );
-	m_groups = reader.readerGroup ();
 	
 	return 0;
+}
+
+double preprocessing (std::string file) {
+
+	ifstream archive (file.c_str());
+	
+	double cost = 0.0;
+	if (archive.good ()) {
+		
+	}
+	
+	return cost;
 }
