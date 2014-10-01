@@ -1,5 +1,9 @@
 #/bin/bash
 
+#exemplo de entrada
+#/scripts/compute_optimal_cost.sh ../MPP_instances/n30/ ../MPP_instances/preprocessing/n30/ ../MPP_instances/optimal/
+
+
 #directory where the intances are
 instances=`ls -vH $1`
 
