@@ -40,12 +40,16 @@ double preprocessing (std::string file) {
 	
 	std::vector<double> trees;
 	
+	std::vector<int> num_links;
+	
 	std::vector<rca::Link> alltrees;
 	
 	if (archive.good ()) {
 			
 		std::string str;
 		double costbytree = 0.0;
+			
+		int nlinks = 0;
 		
 		while ( getline (archive, str) ) {
 						
@@ -53,6 +57,10 @@ double preprocessing (std::string file) {
 				
 				trees.push_back (costbytree);
 				costbytree = 0.0;
+				
+				num_links.push_back (nlinks);
+				nlinks = 0;
+				
 				
 			} else {
 			
@@ -84,6 +92,10 @@ double preprocessing (std::string file) {
 					
 				}
 				
+				//computing the num of links in each tree
+				nlinks++;
+				
+				//computing the cost of each tree
 				costbytree += link.getValue();
 			
 			}
@@ -95,9 +107,16 @@ double preprocessing (std::string file) {
 	cout << cost;
 	auto lperc = trees.begin();
 	for ( ; lperc != trees.end(); ++lperc) {
-		cout <<"\t"<<*lperc;
+		cout <<"\t"<< *lperc;
 	}
+	
+	auto ln = num_links.begin ();
+	for ( ; ln != num_links.end(); ln++) {
+		cout <<"\t" << *ln;
+	}
+	
 	cout << endl;
+	
 	
 	return cost;
 }
