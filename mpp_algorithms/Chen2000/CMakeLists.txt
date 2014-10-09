@@ -27,3 +27,6 @@ target_link_libraries (chentest graph)
 
 add_executable (parser parser.cpp parser.h)
 target_link_libraries (parser -lboost_regex)
+
+add_executable (optimalmpp optimalmpp.cpp)
+target_link_libraries (optimalmpp graph)
