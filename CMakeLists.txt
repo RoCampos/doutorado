@@ -81,6 +81,7 @@ add_subdirectory (sttree)
 add_subdirectory (statistics)
 add_subdirectory (mpp_algorithms)
 add_subdirectory (util)
+add_subdirectory (stalgorithm)
 
 #directory for test of libraries and some mpp_algorithms
 add_subdirectory (testes)
