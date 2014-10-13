@@ -11,6 +11,7 @@ FILE(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE(GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 add_library (sttalgo STATIC ${SRC})
+target_link_libraries (sttalgo sttree graph)
 
 INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION sttalgo)
 
