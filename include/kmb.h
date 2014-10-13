@@ -1,8 +1,11 @@
 #include <iostream>
 
+#include <algorithm>
+
 #include "network.h"
 #include "steinertree.h"
 #include "algorithm.h"
+#include "path.h"
 
 class KMB {
 
