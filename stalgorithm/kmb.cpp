@@ -10,8 +10,14 @@ void KMB::heuristic (rca::Network & net, SteinerTree & st, rca::Group & g) {
 	nodes[0] = 0;
 	std::partial_sum (nodes.begin (), nodes.end(), nodes.begin(), std::plus<int>());
 	
+	//defining the source as terminal
+	st.setTerminal (g.getSource ());
+	
 	auto i = g.begin ();
 	for ( ;i != g.end (); i++) {
+		
+		//setting the terminal node
+		st.setTerminal (*i);
 	
 		rca::Path ps = shortest_path (*i, g.getSource (), &net);
 		
@@ -38,18 +44,6 @@ void KMB::heuristic (rca::Network & net, SteinerTree & st, rca::Group & g) {
 	
 	std::sort (paths.begin (), paths.end());
 	
-	/*
-	auto p_it = paths.begin ();
-	for (; p_it != paths.end (); ++p_it) {
-	
-		std::cout << *p_it << ":" << p_it->getCost () << std::endl;
-		
-	}*/
-	/*
-	for (int i =0; i < nodes.size (); i++) {
-		std::cout << nodes[i] << std::endl;
-	}*/
-	
 	for (unsigned i = 0; i < paths.size (); i++) {
 		
 		int v = paths[i][ 0 ];
@@ -68,11 +62,22 @@ void KMB::heuristic (rca::Network & net, SteinerTree & st, rca::Group & g) {
 			}
 			
 			nodes [w] = nodes [v];
-			printf ("%d - %d\n", v, w);			
+			//printf ("%d - %d\n", v, w);			
+			std::cout << paths[i] << std::endl;
+			auto it = paths[i].begin ();
+			for ( ; it != paths[i].end()-1; ++it) {
+				
+				rca::Link l (*it, *(it+1), net.getCost(*it, *(it+1) ) );
+				st.addEdge (l.getX(), l.getY(), l.getValue() );
+				
+			}
 			
 		}
 		
 	}
+	
+	st.prunning ();
+	st.xdotFormat ();
 	
 	
 }
