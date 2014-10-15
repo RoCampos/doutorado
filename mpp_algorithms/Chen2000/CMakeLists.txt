@@ -30,3 +30,6 @@ target_link_libraries (parser -lboost_regex)
 
 add_executable (optimalmpp optimalmpp.cpp)
 target_link_libraries (optimalmpp graph)
+
+add_executable (kmbopt stalgo.cpp ${includes})
+target_link_libraries (kmbopt graph sttree sttalgo)
