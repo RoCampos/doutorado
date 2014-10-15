@@ -72,7 +72,10 @@ bool LisfOfEdge::exist (int i, int j) {
   while (aux != NULL) {
    
     if ((aux->i == i && aux->j == j) || (aux->i == j && aux->j == i)) {
+		
+#ifdef DEBUG
       std::cout << "equals" << std::endl;
+#endif
       return 1;
     }
     
