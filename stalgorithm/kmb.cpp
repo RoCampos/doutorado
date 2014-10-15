@@ -63,7 +63,7 @@ void KMB::heuristic (rca::Network & net, SteinerTree & st, rca::Group & g) {
 			
 			nodes [w] = nodes [v];
 			//printf ("%d - %d\n", v, w);			
-			std::cout << paths[i] << std::endl;
+			//std::cout << paths[i] << std::endl;
 			auto it = paths[i].begin ();
 			for ( ; it != paths[i].end()-1; ++it) {
 				
@@ -77,7 +77,6 @@ void KMB::heuristic (rca::Network & net, SteinerTree & st, rca::Group & g) {
 	}
 	
 	st.prunning ();
-	st.xdotFormat ();
-	
+	//st.xdotFormat ();	
 	
 }
