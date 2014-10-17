@@ -9,3 +9,5 @@ CMakeCache*;
 
 add_subdirectory (Chen2000)
 add_subdirectory (myalgorithm)
+
+INSTALL (FILES CMakeLists.txt DESTINATION mpp_algorithms)

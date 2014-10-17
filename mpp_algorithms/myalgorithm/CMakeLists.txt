@@ -11,7 +11,7 @@ FILE (GLOB SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE (GLOB includes "${PROJECT_SOURCE_DIR}/include/*.h")
 FILE (GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
-INSTALL ( FILES ${SRCS} ${HDRS} CMakeLists.txt DESTINATION myalgorithm)
+INSTALL ( FILES ${SRCS} ${HDRS} CMakeLists.txt DESTINATION mpp_algorithms/myalgorithm)
 
 set (BST OFF)
 set (BSTCOST OFF)
