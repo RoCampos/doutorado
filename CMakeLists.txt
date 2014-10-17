@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8.7)
 
 SET (CPACK_PACKAGE_CONTACT romerito.campos@gmail.com)
 SET (CPACK_PACKAGE_VERSION_MAJOR 0)
-SET (CPACK_PACKAGE_VERSION_MINOR 1)
+SET (CPACK_PACKAGE_VERSION_MINOR 2)
 SET (CPACK_PACKAGE_VERSION_PATCH 0)
 SET (CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
 SET (CPACK_PACKAGE_NAME doutorado)
@@ -81,6 +81,7 @@ add_subdirectory (sttree)
 add_subdirectory (statistics)
 add_subdirectory (mpp_algorithms)
 add_subdirectory (util)
+add_subdirectory (stalgorithm)
 
 #directory for test of libraries and some mpp_algorithms
 add_subdirectory (testes)

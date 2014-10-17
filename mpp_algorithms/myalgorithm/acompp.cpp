@@ -124,6 +124,7 @@ void AcoMPP::run (va_list & arglist) {
 	m_phe_rate = va_arg (arglist, double);
 	m_heuristic_prob = va_arg (arglist, double);
 
+	std::vector<SteinerTree> bestNLinks;
 	
 	time_elapsed.started ();
 	for (int iter =0; iter < iterations; iter++) {
@@ -160,6 +161,8 @@ void AcoMPP::run (va_list & arglist) {
 				local_update (st.get());
 			}
 			
+			solutions.push_back (*st.get());
+			
 			//updating congestion heap
 			update_congestion (st, ec, cost, congestion);
 		
@@ -189,6 +192,8 @@ void AcoMPP::run (va_list & arglist) {
 			update_pheromone_matrix (ec);
 			
 			m_best_iter = iter;
+			
+			bestNLinks = solutions;
 		}
 		
 		//clean the network
@@ -206,7 +211,20 @@ void AcoMPP::run (va_list & arglist) {
 	std::cout << m_bcost << "\t";
 	std::cout << m_best_iter << "\t";
 	std::cout << time_elapsed.get_elapsed () << "\t";
-	std::cout << m_seed << std::endl;
+	std::cout << m_seed << "\t";
+	
+	auto it = bestNLinks.begin ();
+	for (; it != bestNLinks.end(); it++) {
+		Edge * e = (*it).listEdge.first();
+		int i=0;
+		while (e != NULL) {
+			i++;
+			e = e->next;
+		}
+		std::cout << i << "\t";
+	}
+	std::cout << std::endl;
+	
 	
 }
 

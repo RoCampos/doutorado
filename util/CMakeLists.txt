@@ -12,6 +12,6 @@ FILE(GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 add_library (myutil STATIC ${SRC})
 
-INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION myutil)
+INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION util)
 
 

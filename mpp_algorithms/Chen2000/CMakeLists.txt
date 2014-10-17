@@ -11,7 +11,7 @@ FILE (GLOB SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE (GLOB includes "${PROJECT_SOURCE_DIR}/include/*.h")
 FILE (GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
-INSTALL (FILES ${SRCS} ${HDRS} DESTINATION chen2000)
+INSTALL (FILES ${SRCS} ${HDRS} CMakeLists.txt DESTINATION mpp_algorithms/Chen2000)
 
 add_executable (lowerbound lowerbound.cpp ${includes})
 target_link_libraries (lowerbound graph)
@@ -27,3 +27,9 @@ target_link_libraries (chentest graph)
 
 add_executable (parser parser.cpp parser.h)
 target_link_libraries (parser -lboost_regex)
+
+add_executable (optimalmpp optimalmpp.cpp)
+target_link_libraries (optimalmpp graph)
+
+add_executable (kmbopt stalgo.cpp ${includes})
+target_link_libraries (kmbopt graph sttree sttalgo)
