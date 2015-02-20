@@ -14,7 +14,7 @@ FILE (GLOB INCLUDE "${PROJECT_SOURCE_DIR}/include/*.h")
 
 add_library (myutil STATIC ${SRC})
 
-add_executable (modelData SolverDataGenerator.cpp ${INCLUDE})
+add_executable (modelData DataGenerator.cpp SolverDataGenerator.h SolverDataGenerator.cpp ${INCLUDE})
 target_link_libraries (modelData graph sttree)
 
 INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION util)
