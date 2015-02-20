@@ -4,10 +4,10 @@
 #include <iostream>
 #include <ostream>
 
-#include "group.h"
+#include <memory>
+
 #include "network.h"
-#include "reader.h"
-#include "steinerReader.h"
+#include "group.h"
 
 template <typename Model>
 class DataGenerator : private Model
@@ -21,7 +21,7 @@ public:
 		
 	}
 	
-	void run (rca::Network * network, std::vector<std::shared_ptr<Group>>& g) {
+	void run (rca::Network * network, std::vector<std::shared_ptr<rca::Group>>& g) {
 		generate (network, g);
 	}
 	
@@ -43,7 +43,7 @@ class MultipleMulticastCommodityFormulation
 
 public:
 	void generate (rca::Network * network, 
-					std::vector<std::shared_ptr<Group>>&);
+					std::vector<std::shared_ptr<rca::Group>>&);
 	
 };
 

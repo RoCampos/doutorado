@@ -118,21 +118,14 @@ void MultipleMulticastCommodityFormulation::generate (rca::Network * network,
 
 		}	
 	}
-	std::cout << ";\n";	
-	
-}
+	std::cout << ";\n";
 
-int main (int argc, char**argv) {
-
+	std::cout << "param traffic := \n";
+	for (unsigned int i=0; i < groups.size (); i++) {
+		
+		std::cout << "\t" << i+1 << " " << groups[i]->getTrequest () << "\n";
+		
+	}
+	std::cout << ";\n";
 	
-	Network * net = new Network;	
-	Reader r (argv[1]);
-	r.configNetwork ( net );
-	
-	std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
-	
-	DataGenerator<MultipleMulticastCommodityFormulation> dg;
-	dg.run (net, g);	
-	
-	return 0;
 }
