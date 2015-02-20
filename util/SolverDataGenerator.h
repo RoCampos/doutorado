@@ -16,10 +16,13 @@ class DataGenerator : private Model
 	
 public:
 	
-	void run (rca::Network * network, rca::Group *g) {
-		
+	void run (rca::Network * network, rca::Group *g) {		
 		generate (network, g);
 		
+	}
+	
+	void run (rca::Network * network, std::vector<std::shared_ptr<Group>>& g) {
+		generate (network, g);
 	}
 	
 	

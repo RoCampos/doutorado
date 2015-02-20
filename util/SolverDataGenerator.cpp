@@ -54,7 +54,7 @@ void MultipleMulticastCommodityFormulation::generate (rca::Network * network,
 													  std::vector<std::shared_ptr<Group>> & groups)
 {
 	//gerando o conjunto de vértices
-	std::cout << "set V := ";
+	std::cout << "set VERTEX := ";
 	for (int i=0;i < network->getNumberNodes (); i++) {
 		std::cout << i + 1 << " ";
 	}
@@ -94,11 +94,12 @@ void MultipleMulticastCommodityFormulation::generate (rca::Network * network,
 		std::vector<int> members = groups[i]->getMembers ();
 		for (unsigned int j = 0; j < members.size (); j++) {
 			
-			std::cout << "\t" << groups[i]->getSource ()+1 << " " << (members[j] + 1) << " "; 
+			std::cout << "\t" << i+1 << " " << (members[j] + 1) << "\n"; 
 			
 		}
 		
 	}
+	std::cout << ";\n";
 	
 	//gerando parametros de cost e delay
 	std::cout << "param : cost cap:=";
@@ -117,22 +118,21 @@ void MultipleMulticastCommodityFormulation::generate (rca::Network * network,
 
 		}	
 	}
-	
-	
+	std::cout << ";\n";	
 	
 }
 
 int main (int argc, char**argv) {
 
-	rca::SteinerReader r (argv[1]);
-	Network * net = new Network;
 	
+	Network * net = new Network;	
+	Reader r (argv[1]);
 	r.configNetwork ( net );
 	
-	Group g = r.terminalsAsGroup ();
+	std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
 	
-	DataGenerator<MultiCommidityFormulation> dg;
-	dg.run (net, &g);	
+	DataGenerator<MultipleMulticastCommodityFormulation> dg;
+	dg.run (net, g);	
 	
 	return 0;
 }
