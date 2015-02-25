@@ -10,7 +10,10 @@ bool MMMSTPGurobiResult::do_test (std::string instance, std::string result, int 
 
 	
 	int obj = objective_test (net, groups, result);
-	//std::cout << obj << " " << (tree ? "true": "false") << "\n";
+	
+	for (int i=0; i < (int)groups.size (); i++) {
+		steiner_tree_test (net, groups[i].get(), result);
+	}
 	
 	delete net;
 	
@@ -66,10 +69,48 @@ int MMMSTPGurobiResult::objective_test (rca::Network * net,
 }
 
 bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net, 
-										 Group * group, 
+										 rca::Group * group, 
 										 std::string result)
 {
 
+	int NODES = net->getNumberNodes ();
+	std::vector<int> nodes = std::vector<int> (NODES,0);
+	
+	int GROUP_ID = group->getId();
+	
+	std::cout << "Checking Steiner Tree (" << GROUP_ID << "):\n";
+	
+	std::ifstream file (result);
+	std::string line;
+	while ( getline (file, line)) 
+	{
+		
+		int v = -1;
+		int w = -1;
+		int g = -1;
+		sscanf (line.c_str (), "%d - %d:%d;", &v, &w , &g);
+		if (g == GROUP_ID) {
+			nodes[v-1]++;
+			nodes[w-1]++;
+		}
+	}
+	
+	//testing terminals number
+	int count = 0;
+	for (unsigned int j = 0; j < nodes.size (); j++) {
+		
+		if ( nodes [j] > 0) {
+			
+			if (group->isMember ( (int)j ) && 
+				group->getSource () == (int)j)
+			{
+				count++;
+			}			
+		}
+	}
+	
+	assert (count == (group->getSize () + 1) );
+	std::cout << "\t Terminals Test: " <<(count == (group->getSize() + 1))<< "\n";
 	
 	return true;
 }
