@@ -80,6 +80,8 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 	
 	std::cout << "Checking Steiner Tree (" << GROUP_ID << "):\n";
 	
+	DisjointSet2 dset (NODES);
+	
 	std::ifstream file (result);
 	std::string line;
 	while ( getline (file, line)) 
@@ -89,28 +91,60 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 		int w = -1;
 		int g = -1;
 		sscanf (line.c_str (), "%d - %d:%d;", &v, &w , &g);
-		if (g == GROUP_ID) {
+		if ( (g-1) == GROUP_ID) {
+			//printf ("%d - %d:%d;\n", v-1, w-1 , g-1);
 			nodes[v-1]++;
 			nodes[w-1]++;
+			
+			if ( dset.find2 ( (v-1) ) != dset.find2( (w-1) ) ) {
+				dset.simpleUnion ( (v-1), (w-1) );
+			}
 		}
 	}
+	int non_used_vertex = 0;
 	
 	//testing terminals number
 	int count = 0;
 	for (unsigned int j = 0; j < nodes.size (); j++) {
 		
+		//std::cout << j << "degree(" << nodes[j] <<")"<< std::endl;
 		if ( nodes [j] > 0) {
 			
-			if (group->isMember ( (int)j ) && 
+			if (group->isMember ( (int)j ) || 
 				group->getSource () == (int)j)
 			{
 				count++;
 			}			
+		} 
+		
+		if ( nodes [j] == 0) {
+			non_used_vertex++;
 		}
 	}
 	
 	assert (count == (group->getSize () + 1) );
-	std::cout << "\t Terminals Test: " <<(count == (group->getSize() + 1))<< "\n";
+	std::cout << "\t - Terminals Test: " <<(count == (group->getSize() + 1))<< "\n";
+	//std::cout << "\t"<<count << " --- " << group->getSize() + 1 << std::endl;
+	
+	bool flag = false;
+	for (unsigned int j = 0; j < nodes.size (); j++) {
+	
+		if ( nodes [j] == 1) {
+			
+			if ( !(group->isMember ( (int)j ) ||
+				 group->getSource () == (int)j) )
+			{
+				std::cout << j << "non-leaf with degree 1\n"; 
+				flag = true;
+			}
+			
+		}		
+	}
+	assert ( flag == false);
+	std::cout << "\t - Non-leaf with degree test: " << (flag == false) << std::endl;
+	
+	//std::cout << dset.getSize () << std::endl;
+	assert ( (dset.getSize () - non_used_vertex) == 1);
 	
 	return true;
 }
