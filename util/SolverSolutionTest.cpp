@@ -10,10 +10,13 @@ bool MMMSTPGurobiResult::do_test (std::string instance, std::string result, int 
 
 	
 	int obj = objective_test (net, groups, result);
-	
+	bool teste = true;
 	for (int i=0; i < (int)groups.size (); i++) {
-		steiner_tree_test (net, groups[i].get(), result);
+		teste = teste && steiner_tree_test (net, groups[i].get(), result);
 	}
+	
+	std::cout << "objective: "<< obj << " Teste:" << (teste ? "ok":"nok")<< " ";
+	std::cout << "cost: " << cost (net,result) << std::endl;
 	
 	delete net;
 	
@@ -147,6 +150,26 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 	assert ( (dset.getSize () - non_used_vertex) == 1);
 	
 	return true;
+}
+
+double MMMSTPGurobiResult::cost (rca::Network * net,std::string result)
+{
+	double sol_cost = 0.0;
+	
+	std::ifstream file (result);
+	std::string line;
+	while ( getline (file, line))
+	{
+	
+		int w = -1;
+		int v = -1;
+		int g = -1;
+		sscanf (line.c_str (), "%d - %d:%d;", &v, &w, &g);
+		
+		sol_cost += net->getCost (v,w);
+		
+	}
+	return sol_cost;
 }
 
 int main (int argv, char**argc)
