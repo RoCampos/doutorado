@@ -33,7 +33,7 @@ public:
 	
 private:
 	int objective_test (rca::Network *,list_groups, std::string result);
-	bool steiner_tree_test (rca::Network *,list_groups, std::string result);
+	bool steiner_tree_test (rca::Network *,rca::Group *g, std::string result);
 	
 
 };
