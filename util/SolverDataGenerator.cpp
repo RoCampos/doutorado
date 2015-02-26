@@ -108,11 +108,11 @@ void MultipleMulticastCommodityFormulation::generate (rca::Network * network,
 			
 			if (network->getCost (i,j) > 0.0) {
 				std::cout <<"\n\t" <<  i+1 << "\t" << j+1;
-				std::cout <<"\t" << network->getCost (i,j);
+				std::cout <<"\t" << (int)network->getCost (i,j);
 				std::cout <<"\t" << (int)network->getBand (i,j);
 				
 				std::cout <<"\n\t" <<  j+1 << "\t" << i+1;
-				std::cout <<"\t" << network->getCost (i,j);
+				std::cout <<"\t" << (int)network->getCost (i,j);
 				std::cout <<"\t" << (int)network->getBand (i,j);
 			}			
 
