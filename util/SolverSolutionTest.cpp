@@ -166,7 +166,7 @@ double MMMSTPGurobiResult::cost (rca::Network * net,std::string result)
 		int g = -1;
 		sscanf (line.c_str (), "%d - %d:%d;", &v, &w, &g);
 		
-		sol_cost += net->getCost (v,w);
+		sol_cost += net->getCost (v-1,w-1);
 		
 	}
 	return sol_cost;
