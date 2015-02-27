@@ -37,11 +37,11 @@ void MultiCommidityFormulation::generate (rca::Network * network,
 			
 			if (network->getCost (i,j) > 0.0) {
 				std::cout <<"\n\t" <<  i+1 << "\t" << j+1;
-				std::cout <<"\t" << network->getCost (i,j);
+				std::cout <<"\t" << (int)network->getCost (i,j);
 				std::cout <<"\t" << (int)network->getBand (i,j);
 				
 				std::cout <<"\n\t" <<  j+1 << "\t" << i+1;
-				std::cout <<"\t" << network->getCost (i,j);
+				std::cout <<"\t" << (int)network->getCost (i,j);
 				std::cout <<"\t" << (int)network->getBand (i,j);
 			}			
 
@@ -123,7 +123,7 @@ void MultipleMulticastCommodityFormulation::generate (rca::Network * network,
 	std::cout << "param traffic := \n";
 	for (unsigned int i=0; i < groups.size (); i++) {
 		
-		std::cout << "\t" << i+1 << " " << groups[i]->getTrequest () << "\n";
+		std::cout << "\t" << i+1 << " " << (int)groups[i]->getTrequest () << "\n";
 		
 	}
 	std::cout << ";\n";
