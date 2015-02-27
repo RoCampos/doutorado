@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <ostream>
-
+#include <sstream>
 #include <memory>
 
 #include "network.h"
@@ -44,6 +44,42 @@ class MultipleMulticastCommodityFormulation
 public:
 	void generate (rca::Network * network, 
 					std::vector<std::shared_ptr<rca::Group>>&);
+	
+};
+
+
+/**
+ * Esta classe é utilizada para criar instâncias para serem utilizas
+ * no gurobi.
+ * 
+ * O modelo matemático utilizado é o mmstp.
+ * 
+ * O arquivo gerado é o farmato LP.
+ * 
+ */
+class MultipleMulticastCommodityLP 
+{
+	
+public:
+	void generate (rca::Network *,
+				   std::vector<std::shared_ptr<rca::Group>>&);
+	
+private:
+	
+	void constraint1 (rca::Network *,
+				   std::vector<std::shared_ptr<rca::Group>>&);
+	void constraint2 (rca::Network *,
+				   std::vector<std::shared_ptr<rca::Group>>&);
+	
+	void constraint3 (rca::Network *,
+				   std::vector<std::shared_ptr<rca::Group>>&);
+	void constraint4 ();
+	void constraint5 ();
+	void constraint6 ();
+	void constraint7 ();
+	void constraint8 ();
+	
+	void bounds ();
 	
 };
 
