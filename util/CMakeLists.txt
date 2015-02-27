@@ -12,7 +12,7 @@ FILE(GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 FILE (GLOB INCLUDE "${PROJECT_SOURCE_DIR}/include/*.h")
 
-add_library (myutil STATIC ${SRC})
+add_library (myutil STATIC rcatime.cpp)
 
 add_executable (modelData DataGenerator.cpp SolverDataGenerator.h SolverDataGenerator.cpp ${INCLUDE})
 target_link_libraries (modelData graph sttree)
