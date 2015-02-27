@@ -139,13 +139,13 @@ void MultipleMulticastCommodityLP::generate (rca::Network * network,
 {
 	std::cout << "Maximize\nobjective: + Z\n\nSubject to\n";
 	
-	constraint1 (network, groups);
-	constraint2 (network, groups);
-	constraint3 (network, groups);
-	constraint4 (network, groups);
-	constraint5 (network, groups);
+	//constraint1 (network, groups);
+	//constraint2 (network, groups);
+	//constraint3 (network, groups);
+	//constraint4 (network, groups);
+	//constraint5 (network, groups);
 	//void constraint6 ();
-	//void constraint7 ();
+	constraint7 (network, groups);
 	//void constraint8 ();
 	
 	bounds (network, groups);
@@ -422,5 +422,42 @@ void MultipleMulticastCommodityLP::bounds (rca::Network *net,
 	
 	
 	printf ("Z\n\nEND");
+	
+}
+
+void MultipleMulticastCommodityLP::constraint7 (rca::Network *net,
+				   std::vector<std::shared_ptr<rca::Group>>&groups )
+{
+	
+	//VOID CIRCLE
+	//r7{i in VERTEX, k in GROUPS}:
+	//	sum { (j,m) in LINKS: m=i and m <> Mroot[k]} y[j,m,k] <=1;
+
+	int GROUPS = groups.size ();
+	int NODES = net->getNumberNodes ();
+	
+	for (int i=0; i < NODES; i++) {
+	
+		for (int k =0; k < GROUPS; k++) {
+		
+			if ( i == groups[k]->getSource ()) {
+				continue;
+			}
+			
+			printf (" r7(%d,%d): ",i+1,k+1);
+			
+			for (int j=0; j < NODES; j++) {
+				
+				if (net->getCost (i,j) > 0.0) {
+					printf (" + (%d,%d,%d)",j+1,i+1,k+1);
+				}
+			}
+			
+			printf (" <= 1\n");
+		
+		}
+		
+	}
+	
 	
 }
