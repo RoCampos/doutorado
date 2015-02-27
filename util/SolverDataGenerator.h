@@ -83,7 +83,8 @@ private:
 	void constraint7 (rca::Network *,
 				   std::vector<std::shared_ptr<rca::Group>>&);
 	
-	void constraint8 ();
+	void constraint8 (rca::Network *,
+				   std::vector<std::shared_ptr<rca::Group>>&);
 	
 	void bounds (rca::Network *,
 				   std::vector<std::shared_ptr<rca::Group>>&);
