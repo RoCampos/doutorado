@@ -148,7 +148,7 @@ void MultipleMulticastCommodityLP::generate (rca::Network * network,
 	//void constraint7 ();
 	//void constraint8 ();
 	
-	void bounds ();
+	bounds (network, groups);
 	
 }
 
@@ -361,29 +361,66 @@ void MultipleMulticastCommodityLP::bounds (rca::Network *net,
 	int GROUPS = groups.size ();
 	int NODES = net->getNumberNodes ();
 	
-	//{k in groups,
-	for (int k=0; k < (int)groups.size (); k++) {	
-		
-		std::vector<int> g_i = groups[k]->getMembers ();
-		
-		// d in MGROUPS[K]}
-		for (int i=0; i < (int)g_i.size (); i++) {
-			
-			for (int v = 0; v < NODES; v++) {
-				for (int w = 0; w < NODES; w++) {
-					
-					if (net->getCost (w,v) >0) {
-						
-						printf ("0 <= y(%d,%d,%d,%d) <= 1",v+1, w+1, k+1, g_i[i]+1);
-						printf ("0 <= y(%d,%d,%d,%d) <= 1",w+1, v+1, k+1, g_i[i]+1);
-						
-					}
-					
+	printf ("\nBounds\n");
+	
+	
+	for (int k=0; k < GROUPS; k++) {
+		for (int v = 0; v < NODES; v++) {
+			for (int w = 0; w < NODES; w++) {
+				if (net->getCost (w,v) >0) {
+					printf ("0 <= y(%d,%d,%d) <= 1\n",v+1, w+1, k+1);
+					printf ("0 <= y(%d,%d,%d) <= 1\n",w+1, v+1, k+1);
 				}
-				
-			}
-			
-		}
-		
+			}			
+		}		
 	}
+	
+	//{k in groups,
+	for (int k=0; k < GROUPS; k++) {		
+		std::vector<int> g_i = groups[k]->getMembers ();		
+		// d in MGROUPS[K]}
+		for (int i=0; i < (int)g_i.size (); i++) {			
+			for (int v = 0; v < NODES; v++) {
+				for (int w = 0; w < NODES; w++) {					
+					if (net->getCost (w,v) >0) {						
+						printf ("0 <= x(%d,%d,%d,%d) <= 1\n",v+1, w+1, k+1, g_i[i]+1);
+						printf ("0 <= x(%d,%d,%d,%d) <= 1\n",w+1, v+1, k+1, g_i[i]+1);						
+					}					
+				}				
+			}			
+		}		
+	}
+	
+	printf ("\n\nGenerals\n");
+	
+	for (int k=0; k < GROUPS; k++) {
+		for (int v = 0; v < NODES; v++) {
+			for (int w = 0; w < NODES; w++) {
+				if (net->getCost (w,v) >0) {
+					printf ("y(%d,%d,%d)\n",v+1, w+1, k+1);
+					printf ("y(%d,%d,%d)\n",w+1, v+1, k+1);
+				}
+			}			
+		}		
+	}
+	
+	//{k in groups,
+	for (int k=0; k < GROUPS; k++) {		
+		std::vector<int> g_i = groups[k]->getMembers ();		
+		// d in MGROUPS[K]}
+		for (int i=0; i < (int)g_i.size (); i++) {			
+			for (int v = 0; v < NODES; v++) {
+				for (int w = 0; w < NODES; w++) {					
+					if (net->getCost (w,v) >0) {						
+						printf ("x(%d,%d,%d,%d)\n",v+1, w+1, k+1, g_i[i]+1);
+						printf ("x(%d,%d,%d,%d)\n",w+1, v+1, k+1, g_i[i]+1);							
+					}					
+				}				
+			}			
+		}		
+	}
+	
+	
+	printf ("Z\n\nEND");
+	
 }
