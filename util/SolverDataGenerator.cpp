@@ -141,8 +141,8 @@ void MultipleMulticastCommodityLP::generate (rca::Network * network,
 	
 	//constraint1 (network, groups); ok
 	//constraint2 (network, groups); ok
-	constraint3 (network, groups);
-	//constraint4 (network, groups);
+	//constraint3 (network, groups); ok
+	constraint4 (network, groups);
 	//constraint5 (network, groups);
 	//void constraint6 ();
 	//constraint7 (network, groups);
@@ -303,18 +303,24 @@ void MultipleMulticastCommodityLP::constraint4 (rca::Network *net,
 	for (int k=0; k < GROUPS; k++) {	
 		
 		std::vector<int> g_i = groups[k]->getMembers ();
+		std::sort (g_i.begin (), g_i.end());
 		
 		// d in MGROUPS[K]}
 		for (int i=0; i < (int)g_i.size (); i++) {
 			
 			for (int v = 0; v < NODES; v++) {
-				for (int w = 0; w < NODES; w++) {
+				for (int w = 0; w < v; w++) {
 					
 					if (net->getCost (w,v) >0) {
 					
 						printf (" r4(%d,%d,%d,%d):",k+1,g_i[i]+1, w+1,v+1);
 						printf (" - y(%d,%d,%d)",w+1,v+1,k+1);
 						printf (" + x(%d,%d,%d,%d)",w+1, v+1, k+1, g_i[i]+1);
+						printf (" <= -0 \n");
+						
+						printf (" r4(%d,%d,%d,%d):",k+1,g_i[i]+1, v+1,w+1);
+						printf (" - y(%d,%d,%d)",v+1,w+1,k+1);
+						printf (" + x(%d,%d,%d,%d)",v+1, w+1, k+1, g_i[i]+1);
 						printf (" <= -0 \n");
 					}
 					
