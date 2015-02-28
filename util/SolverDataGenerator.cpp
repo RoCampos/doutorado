@@ -264,7 +264,7 @@ void MultipleMulticastCommodityLP::constraint3 (rca::Network * net,
 			
 			for (int j=0; j < NODES; j++) {
 		
-				if (groups[k]->isMember( j )) continue;
+				if (j == g_i[i]) continue;
 				if (source == j) continue;
 				
 				printf (" r3(%d,%d,%d): ", k+1, g_i[i] +1, j+1);
