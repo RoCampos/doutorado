@@ -142,8 +142,8 @@ void MultipleMulticastCommodityLP::generate (rca::Network * network,
 	//constraint1 (network, groups); ok
 	//constraint2 (network, groups); ok
 	//constraint3 (network, groups); ok
-	constraint4 (network, groups);
-	//constraint5 (network, groups);
+	//constraint4 (network, groups);
+	constraint5 (network, groups);
 	//void constraint6 ();
 	//constraint7 (network, groups);
 	//constraint8 (network, groups);
@@ -349,16 +349,16 @@ void MultipleMulticastCommodityLP::constraint5 (rca::Network *net,
 			if (net->getBand (v,w) > 0.0) {
 				
 				printf (" r5(%d,%d): - Z",v+1,w+1);
-				for (int k = 0; k < GROUPS; k++) {					
+				for (int k = GROUPS-1; k >=0; k--) {					
 					int traffic = (int)groups[k]->getTrequest();
-					printf (" - %d y(%d,%d,%d) - %d y(%d,%d,%d)", traffic, v+1,w+1,k+1, traffic, w+1, v+1,k+1);					
+					printf (" - %d y(%d,%d,%d) - %d y(%d,%d,%d)", traffic, w+1,v+1,k+1, traffic, v+1, w+1,k+1);					
 				}
 				printf (" >= %d\n", -1*cap);	
 				
 				printf (" r5(%d,%d): - Z",w+1,v+1);
-				for (int k = 0; k < GROUPS; k++) {					
+				for (int k = GROUPS-1; k >=0; k--) {					
 					int traffic = (int)groups[k]->getTrequest();
-					printf (" - %d y(%d,%d,%d) - %d y(%d,%d,%d)", traffic, w+1, v+1,k+1, traffic, v+1,w+1,k+1);					
+					printf (" - %d y(%d,%d,%d) - %d y(%d,%d,%d)", traffic, v+1, w+1,k+1, traffic, w+1,v+1,k+1);					
 				}
 				printf (" >= %d\n", -1*cap);	
 				
