@@ -137,7 +137,7 @@ void MultipleMulticastCommodityFormulation::generate (rca::Network * network,
 void MultipleMulticastCommodityLP::generate (rca::Network * network, 
 							std::vector<std::shared_ptr<rca::Group>> & groups)
 {
-	std::cout << "Maximize\nobjective: + Z\n\nSubject to\n";
+	std::cout << "Maximize\n objective: + Z\n\nSubject To\n";
 	
 	constraint1 (network, groups);
 	constraint2 (network, groups);
@@ -281,7 +281,7 @@ void MultipleMulticastCommodityLP::constraint3 (rca::Network * net,
 				//		printf ("- x(%d,%d,%d,%d) ",j+1, l+1,k+1, g_i[i] + 1);
 				//	}
 				//}
-				printf ("= 0\n");
+				printf ("= -0\n");
 			}
 			
 		}
@@ -372,6 +372,10 @@ void MultipleMulticastCommodityLP::bounds (rca::Network *net,
 				   std::vector<std::shared_ptr<rca::Group>>&groups )
 {
 	
+	//var y{ (i,j) in LINKS, k in GROUPS}, binary;
+	//var x{ (i,j) in LINKS, k in GROUPS, d in MGROUPS[k]}, binary;
+
+	
 	int GROUPS = groups.size ();
 	int NODES = net->getNumberNodes ();
 	
@@ -380,10 +384,12 @@ void MultipleMulticastCommodityLP::bounds (rca::Network *net,
 	
 	for (int k=0; k < GROUPS; k++) {
 		for (int v = 0; v < NODES; v++) {
-			for (int w = 0; w < NODES; w++) {
-				if (net->getCost (w,v) >0) {
-					printf ("0 <= y(%d,%d,%d) <= 1\n",v+1, w+1, k+1);
-					printf ("0 <= y(%d,%d,%d) <= 1\n",w+1, v+1, k+1);
+			for (int w = 0; w < v; w++) {
+				
+				if (net->getCost (w,v) > 0.0) {
+					
+					printf (" 0 <= y(%d,%d,%d) <= 1\n",v+1, w+1, k+1);
+					printf (" 0 <= y(%d,%d,%d) <= 1\n",w+1, v+1, k+1);
 				}
 			}			
 		}		
@@ -395,24 +401,24 @@ void MultipleMulticastCommodityLP::bounds (rca::Network *net,
 		// d in MGROUPS[K]}
 		for (int i=0; i < (int)g_i.size (); i++) {			
 			for (int v = 0; v < NODES; v++) {
-				for (int w = 0; w < NODES; w++) {					
-					if (net->getCost (w,v) >0) {						
-						printf ("0 <= x(%d,%d,%d,%d) <= 1\n",v+1, w+1, k+1, g_i[i]+1);
-						printf ("0 <= x(%d,%d,%d,%d) <= 1\n",w+1, v+1, k+1, g_i[i]+1);						
+				for (int w = 0; w < v; w++) {					
+					if (net->getCost (w,v) > 0.0) {						
+						printf (" 0 <= x(%d,%d,%d,%d) <= 1\n",v+1, w+1, k+1, g_i[i]+1);
+						printf (" 0 <= x(%d,%d,%d,%d) <= 1\n",w+1, v+1, k+1, g_i[i]+1);						
 					}					
 				}				
 			}			
 		}		
 	}
 	
-	printf ("\n\nBinaries\n");
+	printf ("\n\nGENERALS\n");
 	
 	for (int k=0; k < GROUPS; k++) {
 		for (int v = 0; v < NODES; v++) {
-			for (int w = 0; w < NODES; w++) {
+			for (int w = 0; w < v; w++) {
 				if (net->getCost (w,v) >0) {
-					printf ("y(%d,%d,%d)\n",v+1, w+1, k+1);
-					printf ("y(%d,%d,%d)\n",w+1, v+1, k+1);
+					printf (" y(%d,%d,%d)\n",v+1, w+1, k+1);
+					printf (" y(%d,%d,%d)\n",w+1, v+1, k+1);
 				}
 			}			
 		}		
@@ -422,20 +428,20 @@ void MultipleMulticastCommodityLP::bounds (rca::Network *net,
 	for (int k=0; k < GROUPS; k++) {		
 		std::vector<int> g_i = groups[k]->getMembers ();		
 		// d in MGROUPS[K]}
-		for (int i=0; i < (int)g_i.size (); i++) {			
+		for (int i=0; i < (int)g_i.size (); i++) {
 			for (int v = 0; v < NODES; v++) {
-				for (int w = 0; w < NODES; w++) {					
-					if (net->getCost (w,v) >0) {						
-						printf ("x(%d,%d,%d,%d)\n",v+1, w+1, k+1, g_i[i]+1);
-						printf ("x(%d,%d,%d,%d)\n",w+1, v+1, k+1, g_i[i]+1);							
+				for (int w = 0; w < v; w++) {
+					if (net->getCost (w,v) >0) {
+						printf (" x(%d,%d,%d,%d)\n",v+1, w+1, k+1, g_i[i]+1);
+						printf (" x(%d,%d,%d,%d)\n",w+1, v+1, k+1, g_i[i]+1);							
 					}					
 				}				
 			}			
 		}		
 	}
 	
-	printf ("\n\nGeneral\n");
-	printf ("Z\n\nEND");
+	//printf ("\n\nGeneral\n");
+	printf (" Z\n\nEnd");
 	
 }
 
