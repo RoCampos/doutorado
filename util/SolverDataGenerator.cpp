@@ -469,7 +469,7 @@ void MultipleMulticastCommodityLP::constraint7 (rca::Network *net,
 			for (int j=0; j < NODES; j++) {
 				
 				if (net->getCost (i,j) > 0.0) {
-					printf (" + (%d,%d,%d)",j+1,i+1,k+1);
+					printf (" + y(%d,%d,%d)",j+1,i+1,k+1);
 				}
 			}
 			
