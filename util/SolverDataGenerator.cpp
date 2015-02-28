@@ -142,11 +142,11 @@ void MultipleMulticastCommodityLP::generate (rca::Network * network,
 	//constraint1 (network, groups); ok
 	//constraint2 (network, groups); ok
 	//constraint3 (network, groups); ok
-	//constraint4 (network, groups);
-	constraint5 (network, groups);
+	//constraint4 (network, groups); ok
+	//constraint5 (network, groups); ok
 	//void constraint6 ();
-	//constraint7 (network, groups);
-	//constraint8 (network, groups);
+	//constraint7 (network, groups); ok
+	constraint8 (network, groups);
 	
 	//bounds (network, groups); OK
 	
@@ -487,10 +487,10 @@ void MultipleMulticastCommodityLP::constraint8 (rca::Network *net,
 	int NODES = net->getNumberNodes ();
 	
 	for (int i = 0; i < NODES; i++) {
-		for (int j = 0; j <NODES; j++) {
+		for (int j = 0; j < NODES ; j++) {
 			for (int k = 0; k < GROUPS; k++) {
 				if ( net->getCost(i,j) > 0 && j == groups[k]->getSource()) {
-					printf (" r8(%d,%d,%d) = -0\n",i+1,j+1,k+1);
+					printf (" r8(%d,%d,%d): + y(%d,%d,%d)= -0\n",i+1,j+1,k+1,i+1,j+1,k+1);
 				}
 			}
 		}
