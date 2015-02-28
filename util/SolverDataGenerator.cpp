@@ -309,19 +309,19 @@ void MultipleMulticastCommodityLP::constraint4 (rca::Network *net,
 		for (int i=0; i < (int)g_i.size (); i++) {
 			
 			for (int v = 0; v < NODES; v++) {
-				for (int w = 0; w < v; w++) {
+				for (int w = 0; w < NODES; w++) {
 					
-					if (net->getCost (w,v) >0) {
+					if (net->getCost (w,v) > 0) {
 					
 						printf (" r4(%d,%d,%d,%d):",k+1,g_i[i]+1, w+1,v+1);
 						printf (" - y(%d,%d,%d)",w+1,v+1,k+1);
 						printf (" + x(%d,%d,%d,%d)",w+1, v+1, k+1, g_i[i]+1);
 						printf (" <= -0 \n");
 						
-						printf (" r4(%d,%d,%d,%d):",k+1,g_i[i]+1, v+1,w+1);
-						printf (" - y(%d,%d,%d)",v+1,w+1,k+1);
-						printf (" + x(%d,%d,%d,%d)",v+1, w+1, k+1, g_i[i]+1);
-						printf (" <= -0 \n");
+						//printf (" r4(%d,%d,%d,%d):",k+1,g_i[i]+1, v+1,w+1);
+						//printf (" - y(%d,%d,%d)",v+1,w+1,k+1);
+						//printf (" + x(%d,%d,%d,%d)",v+1, w+1, k+1, g_i[i]+1);
+						//printf (" <= -0 \n");
 					}
 					
 				}
