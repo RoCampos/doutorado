@@ -17,6 +17,9 @@ add_library (myutil STATIC rcatime.cpp)
 add_executable (modelData DataGenerator.cpp SolverDataGenerator.h SolverDataGenerator.cpp ${INCLUDE})
 target_link_libraries (modelData graph sttree)
 
+add_executable (lpGenerator LpGenerator.cpp SolverDataGenerator.h SolverDataGenerator.cpp ${INCLUDE})
+target_link_libraries (lpGenerator graph sttree)
+
 add_executable (solutionTest SolverSolutionTest.cpp SolverSolutionTest.h ${INCLUDE})
 target_link_libraries (solutionTest graph sttree)
 
