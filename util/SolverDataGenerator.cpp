@@ -516,7 +516,7 @@ void MMSTPBudgetLP::constraint6 (rca::Network *net,
 	int NODES = net->getNumberNodes ();
 	int GROUPS = groups.size ();
 	
-	std::cout << " r6: ";
+	std::cout << " r6:";
 	for ( int i=0; i < NODES; i++) {
 	
 		for ( int j=i; j < NODES; j++) {
@@ -529,7 +529,7 @@ void MMSTPBudgetLP::constraint6 (rca::Network *net,
 			}
 		}
 	}
-	printf (" <= %d", m_budget);
+	printf (" <= %d\n", m_budget);
 	
 }
 
