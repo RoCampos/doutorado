@@ -107,27 +107,9 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 			}
 		}
 	}
-	int non_used_vertex = 0;
 	
 	//testing terminals number
-	int count = 0;
-	for (unsigned int j = 0; j < nodes.size (); j++) {
-		
-		//std::cout << j << "degree(" << nodes[j] <<")"<< std::endl;
-		if ( nodes [j] > 0) {
-			
-			if (group->isMember ( (int)j ) || 
-				group->getSource () == (int)j)
-			{
-				count++;
-			}			
-		} 
-		
-		if ( nodes [j] == 0) {
-			non_used_vertex++;
-		}
-	}
-	
+	int count = count_terminals (nodes, group);
 	assert (count == (group->getSize () + 1) );
 	if (m_verbose){
 	 std::cout << "\t - Terminals Test: " <<(count == (group->getSize() + 1))<< "\n";
@@ -152,6 +134,25 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 	}
 	
 	return true;
+}
+
+int MMMSTPGurobiResult::count_terminals (std::vector<int>&nodes, 
+										 rca::Group *group)
+{
+	int count = 0;
+	for (unsigned int j = 0; j < nodes.size (); j++) {
+		
+		//std::cout << j << "degree(" << nodes[j] <<")"<< std::endl;
+		if ( nodes [j] > 0) {
+			
+			if (group->isMember ( (int)j ) || 
+				group->getSource () == (int)j)
+			{
+				count++;
+			}
+		} 		
+	}
+	return count;
 }
 
 bool MMMSTPGurobiResult::non_terminal_leaf_test (std::vector<int> & nodes, 

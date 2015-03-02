@@ -47,7 +47,15 @@ private:
 	//disjoint set
 	bool connectivity (rca::Group *g, DisjointSet2& dset, int numberOfnodes);
 	
+	
+	/**
+	 * Este teste verifica se há algum nó folha não terminal que 
+	 * seja folha. Se for o teste considerado falho,  o resultado é inválido e
+	 * o programa encerra.
+	 */
 	bool non_terminal_leaf_test (std::vector<int>&, rca::Group *g);
+	
+	int count_terminals (std::vector<int>&, rca::Group *g);
 	
 private:
 	int m_verbose;
