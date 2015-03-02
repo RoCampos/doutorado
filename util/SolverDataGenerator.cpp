@@ -524,8 +524,8 @@ void MMSTPBudgetLP::constraint6 (rca::Network *net,
 			int cost = net->getCost (i,j);
 			if ( cost > 0 ) {
 				for (int k = 0; k < GROUPS; k++) {
-					printf (" + %d y(%d,%d,%d) ",cost,i+1,j+1,k+1);
-				}				
+					printf (" + %d y(%d,%d,%d)",cost,i+1,j+1,k+1);
+				}
 			}
 		}
 	}
@@ -543,10 +543,8 @@ void MMSTPBudgetLP::generate(rca::Network *network,
 	constraint3 (network, groups);
 	constraint4 (network, groups);
 	constraint5 (network, groups);
-	//void constraint6 ();
 	constraint7 (network, groups);
 	constraint8 (network, groups);
-	
 	constraint6 (network, groups);
 	
 	bounds (network, groups);

@@ -98,6 +98,10 @@ public:
 	virtual void generate (rca::Network *,
 				   std::vector<std::shared_ptr<rca::Group>>&);
 	
+	inline void setBudget (int value) {
+		m_budget = value;
+	}
+	
 private:
 	
 	void constraint6 (rca::Network *,

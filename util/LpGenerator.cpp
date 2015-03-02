@@ -88,7 +88,7 @@ int main (int argv, char**argc)
 	
 	std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
 	
-	DataGenerator<MultipleMulticastCommodityLP> dg;
+	DataGenerator<MMSTPBudgetLP> dg;
 	dg.run (net, g);
 
 	return 0;
