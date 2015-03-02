@@ -84,8 +84,8 @@ int main (int argv, char**argc)
 	g.push_back (make_shared<rca::Group>(g1) );
 	g.push_back (make_shared<rca::Group>(g2) );
 	//g.push_back (make_shared<rca::Group>(g3) );
-	
 	*/
+	
 	std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
 	
 	DataGenerator<MultipleMulticastCommodityLP> dg;

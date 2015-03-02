@@ -36,6 +36,9 @@ private:
 	bool steiner_tree_test (rca::Network *,rca::Group *g, std::string result);
 	
 	double cost (rca::Network *, std::string result);
+	
+private:
+	int m_verbose;
 
 };
 

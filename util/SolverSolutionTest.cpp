@@ -1,7 +1,9 @@
 #include "SolverSolutionTest.h"
 
-bool MMMSTPGurobiResult::do_test (std::string instance, std::string result, int objective)
+bool MMMSTPGurobiResult::do_test (std::string instance, std::string result, int verb)
 {
+	m_verbose = verb;
+	
 	//reading instance
 	Network * net = new Network;
 	Reader r(instance);
@@ -15,8 +17,11 @@ bool MMMSTPGurobiResult::do_test (std::string instance, std::string result, int 
 		teste = teste && steiner_tree_test (net, groups[i].get(), result);
 	}
 	
-	std::cout << "objective: "<< obj << " Teste:" << (teste ? "ok":"nok")<< " ";
-	std::cout << "cost: " << cost (net,result) << std::endl;
+	//std::cout << "objective: "<< obj << " Teste:" << (teste ? "ok":"nok")<< " ";
+	//std::cout << "cost: " << cost (net,result) << std::endl;
+	
+	std::cout << result << " ";
+	std::cout << obj << " " << cost(net, result) << std::endl;
 	
 	delete net;
 	
@@ -81,7 +86,8 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 	
 	int GROUP_ID = group->getId();
 	
-	std::cout << "Checking Steiner Tree (" << GROUP_ID << "):\n";
+	if (m_verbose)
+		std::cout << "Checking Steiner Tree (" << GROUP_ID << "):\n";
 	
 	DisjointSet2 dset (NODES);
 	
@@ -126,8 +132,10 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 	}
 	
 	assert (count == (group->getSize () + 1) );
-	std::cout << "\t - Terminals Test: " <<(count == (group->getSize() + 1))<< "\n";
-	//std::cout << "\t"<<count << " --- " << group->getSize() + 1 << std::endl;
+	if (m_verbose){
+	 std::cout << "\t - Terminals Test: " <<(count == (group->getSize() + 1))<< "\n";
+	 std::cout << "\t"<<count << " --- " << group->getSize() + 1 << std::endl;
+	}
 	
 	bool flag = false;
 	for (unsigned int j = 0; j < nodes.size (); j++) {
@@ -137,17 +145,24 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 			if ( !(group->isMember ( (int)j ) ||
 				 group->getSource () == (int)j) )
 			{
-				std::cout << j << "non-leaf with degree 1\n"; 
+				//std::cout << j << "non-leaf with degree 1\n"; 
 				flag = true;
 			}
 			
 		}		
 	}
 	assert ( flag == false);
-	std::cout << "\t - Non-leaf with degree test: " << (flag == false) << std::endl;
 	
-	//std::cout << dset.getSize () << std::endl;
+	if (m_verbose)
+		std::cout << "\t - Non-leaf with degree test: " << (flag == false) << std::endl;
+	
+	
 	assert ( (dset.getSize () - non_used_vertex) == 1);
+	
+	if (m_verbose) {
+		std::cout << "\tConnectivity test: ";
+		std::cout << ((dset.getSize () - non_used_vertex) == 1) << std::endl;
+	}
 	
 	return true;
 }
@@ -180,7 +195,9 @@ int main (int argv, char**argc)
 	std::string instance = argc[1];
 	std::string optimal = argc[2];
 	
-	result.test (instance, optimal, 0);
+	int m_verbose = atoi(argc[3]);
+	
+	result.test (instance, optimal, m_verbose);
 
 	return 0;
 }
