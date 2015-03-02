@@ -157,21 +157,32 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 		std::cout << "\t - Non-leaf with degree test: " << (flag == false) << std::endl;
 	
 	
-	assert ( (dset.getSize () - non_used_vertex) == 1);
+	int connec = connectivity(group, dset, NODES);
+	assert ( connec );
 	
 	if (m_verbose) {
 		std::cout << "\tConnectivity test: ";
-		std::cout << ((dset.getSize () - non_used_vertex) == 1) << std::endl;
+		//std::cout << ((dset.getSize () - non_used_vertex)) << std::endl;
+		std::cout << connec  << std::endl;
 	}
 	
 	return true;
 }
 
-bool connectivity (rca::Group *g, DisjointSet2& dset)
+bool MMMSTPGurobiResult::connectivity (rca::Group *g, 
+									   DisjointSet2& dset, 
+									   int numberNodes)
 {
-	
-
-	
+	std::vector<int> members = g->getMembers ();
+	std::sort (members.begin(), members.end());	
+	int root = dset.find2 (members[0])->item;
+	for (int i=1; i < (int)members.size (); i++){
+		if (root != dset.find2(members[i])->item ) {
+			return (0);
+		}
+	}
+		
+	return (1);
 }
 
 double MMMSTPGurobiResult::cost (rca::Network * net,std::string result)

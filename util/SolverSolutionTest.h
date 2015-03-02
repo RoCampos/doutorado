@@ -6,6 +6,7 @@
 #include <cassert>
 #include <memory>
 #include <sstream>
+#include <map>
 
 #include "network.h"
 #include "reader.h"
@@ -37,7 +38,7 @@ private:
 	
 	double cost (rca::Network *, std::string result);
 	
-	bool connectivity (rca::Group *g, DisjointSet2& dset);
+	bool connectivity (rca::Group *g, DisjointSet2& dset, int numberOfnodes);
 	
 private:
 	int m_verbose;
