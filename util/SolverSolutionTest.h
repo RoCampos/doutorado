@@ -38,9 +38,9 @@ private:
 	
 	//faz os teste necessários para garantir que há uma árvore
 	//de steiner para cada group
-	bool steiner_tree_test (rca::Network *,rca::Group *g, std::string result);
+	int steiner_tree_test (rca::Network *,rca::Group *g, std::string result);
 	
-	double cost (rca::Network *, std::string result);
+	int cost (rca::Network *, std::string result);
 	
 	//faz o teste de connectividade da árvore
 	//considerando que todos os terminais devem estar no mesmo
@@ -56,6 +56,9 @@ private:
 	bool non_terminal_leaf_test (std::vector<int>&, rca::Group *g);
 	
 	int count_terminals (std::vector<int>&, rca::Group *g);
+	
+	int tree_cost (rca::Network *, rca::Group *g, 
+					  DisjointSet2& dset, std::string);
 	
 private:
 	int m_verbose;

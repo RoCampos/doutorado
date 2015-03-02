@@ -12,13 +12,13 @@ bool MMMSTPGurobiResult::do_test (std::string instance, std::string result, int 
 
 	
 	int obj = objective_test (net, groups, result);
-	bool teste = true;
+	int cost2 = 0;
 	for (int i=0; i < (int)groups.size (); i++) {
-		teste = teste && steiner_tree_test (net, groups[i].get(), result);
+		cost2 += steiner_tree_test (net, groups[i].get(), result);
 	}
 	
 	std::cout << result << " ";
-	std::cout << obj << " " << cost(net, result) << std::endl;
+	std::cout << obj << " " << cost(net, result) << " "<< cost2 << std::endl;
 	
 	delete net;
 	
@@ -73,7 +73,7 @@ int MMMSTPGurobiResult::objective_test (rca::Network * net,
 	return min;
 }
 
-bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net, 
+int MMMSTPGurobiResult::steiner_tree_test (rca::Network * net, 
 										 rca::Group * group, 
 										 std::string result)
 {
@@ -133,7 +133,7 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 		std::cout << connec  << std::endl;
 	}
 	
-	return true;
+	return tree_cost (net, group, dset, result);
 }
 
 int MMMSTPGurobiResult::count_terminals (std::vector<int>&nodes, 
@@ -142,12 +142,14 @@ int MMMSTPGurobiResult::count_terminals (std::vector<int>&nodes,
 	int count = 0;
 	for (unsigned int j = 0; j < nodes.size (); j++) {
 		
-		//std::cout << j << "degree(" << nodes[j] <<")"<< std::endl;
+		//se o nó é utilizado,
 		if ( nodes [j] > 0) {
-			
+
+			//e for um terminal (receptor ou emissor)
 			if (group->isMember ( (int)j ) || 
 				group->getSource () == (int)j)
 			{
+				//contar
 				count++;
 			}
 		} 		
@@ -188,9 +190,42 @@ bool MMMSTPGurobiResult::connectivity (rca::Group *g,
 	return (1);
 }
 
-double MMMSTPGurobiResult::cost (rca::Network * net,std::string result)
+int MMMSTPGurobiResult::tree_cost (rca::Network *net, rca::Group *group, 
+				  DisjointSet2& dset, std::string result)
 {
-	double sol_cost = 0.0;
+	int tree_cost = 0.0;
+	
+	std::vector<int> members = group->getMembers ();
+	std::sort (members.begin (), members.end());
+	
+	int root = dset.find2 (members[0])->item;
+	int GROUP_ID = group->getId ();
+	
+	std::ifstream file (result);
+	std::string line;
+	while ( getline (file, line)) 
+	{
+		
+		int v = -1;
+		int w = -1;
+		int g = -1;
+		sscanf (line.c_str (), "%d - %d:%d;", &v, &w , &g);
+		if (GROUP_ID == (g-1)) {			
+			if (dset.find2 (v-1)->item == dset.find2(w-1)->item) {
+				if (dset.find2 (v-1)->item == root){
+					std::cout << v << " " << w<<std::endl;
+					tree_cost += net->getCost (v-1, w-1);
+				}
+			}
+		}
+	}
+	
+	return tree_cost;
+}
+
+int MMMSTPGurobiResult::cost (rca::Network * net,std::string result)
+{
+	int sol_cost = 0.0;
 	
 	std::ifstream file (result);
 	std::string line;
