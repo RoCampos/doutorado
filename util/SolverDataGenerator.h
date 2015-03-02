@@ -94,9 +94,19 @@ protected:
 class MMSTPBudgetLP : protected MultipleMulticastCommodityLP
 {
 
+	
+	
 public:
 	virtual void generate (rca::Network *,
 				   std::vector<std::shared_ptr<rca::Group>>&);
+	
+	void generate2 (rca::Network * network,
+				   std::vector<std::shared_ptr<rca::Group>>& groups, 
+				   int budget)
+	{
+		m_budget = budget;
+		generate (network, groups);
+	}
 	
 private:
 	
