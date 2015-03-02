@@ -17,9 +17,6 @@ bool MMMSTPGurobiResult::do_test (std::string instance, std::string result, int 
 		teste = teste && steiner_tree_test (net, groups[i].get(), result);
 	}
 	
-	//std::cout << "objective: "<< obj << " Teste:" << (teste ? "ok":"nok")<< " ";
-	//std::cout << "cost: " << cost (net,result) << std::endl;
-	
 	std::cout << result << " ";
 	std::cout << obj << " " << cost(net, result) << std::endl;
 	

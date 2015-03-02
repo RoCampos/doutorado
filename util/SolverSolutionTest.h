@@ -33,11 +33,18 @@ public:
 	bool do_test (std::string instance, std::string result, int);
 	
 private:
+	//computa o valor objetivo com base nas árvores geradas
 	int objective_test (rca::Network *,list_groups, std::string result);
+	
+	//faz os teste necessários para garantir que há uma árvore
+	//de steiner para cada group
 	bool steiner_tree_test (rca::Network *,rca::Group *g, std::string result);
 	
 	double cost (rca::Network *, std::string result);
 	
+	//faz o teste de connectividade da árvore
+	//considerando que todos os terminais devem estar no mesmo
+	//disjoint set
 	bool connectivity (rca::Group *g, DisjointSet2& dset, int numberOfnodes);
 	
 private:
