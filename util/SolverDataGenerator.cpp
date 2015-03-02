@@ -517,14 +517,13 @@ void MMSTPBudgetLP::constraint6 (rca::Network *net,
 	int GROUPS = groups.size ();
 	
 	std::cout << " r6:";
-	for ( int i=0; i < NODES; i++) {
-	
-		for ( int j=i; j < NODES; j++) {
-			
-			int cost = net->getCost (i,j);
-			if ( cost > 0 ) {
-				for (int k = 0; k < GROUPS; k++) {
+	for (int k = 0; k < GROUPS; k++) {
+		for ( int i=0; i < NODES; i++) {	
+			for ( int j=0; j < i; j++) {
+				int cost = net->getCost (i,j);
+				if ( cost > 0 ) {
 					printf (" + %d y(%d,%d,%d)",cost,i+1,j+1,k+1);
+					printf (" + %d y(%d,%d,%d)",cost,j+1,i+1,k+1);
 				}
 			}
 		}
