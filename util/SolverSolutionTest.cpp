@@ -167,6 +167,13 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 	return true;
 }
 
+bool connectivity (rca::Group *g, DisjointSet2& dset)
+{
+	
+
+	
+}
+
 double MMMSTPGurobiResult::cost (rca::Network * net,std::string result)
 {
 	double sol_cost = 0.0;
