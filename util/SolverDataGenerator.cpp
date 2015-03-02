@@ -515,11 +515,14 @@ void MMSTPBudgetLP::constraint6 (rca::Network *net,
 	
 	int NODES = net->getNumberNodes ();
 	int GROUPS = groups.size ();
-	
+
 	std::cout << " r6:";
 	for (int k = 0; k < GROUPS; k++) {
 		for ( int i=0; i < NODES; i++) {	
-			for ( int j=0; j < i; j++) {
+			//for ( int j=0; j < NODES; j++) { com ESTE FOR É POSSÍVEL TER
+			//O BUDGET POR ÁRVER.
+			//A IMPLMENTAÇÃO ATUAL CALCULA POR SOLUÇÃO
+			for ( int j=0; j < i; j++) { 
 				int cost = net->getCost (i,j);
 				if ( cost > 0 ) {
 					printf (" + %d y(%d,%d,%d)",cost,i+1,j+1,k+1);
