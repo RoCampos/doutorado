@@ -213,7 +213,6 @@ int MMMSTPGurobiResult::tree_cost (rca::Network *net, rca::Group *group,
 		if (GROUP_ID == (g-1)) {			
 			if (dset.find2 (v-1)->item == dset.find2(w-1)->item) {
 				if (dset.find2 (v-1)->item == root){
-					std::cout << v << " " << w<<std::endl;
 					tree_cost += net->getCost (v-1, w-1);
 				}
 			}
