@@ -134,24 +134,12 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 	 std::cout << "\t"<<count << " --- " << group->getSize() + 1 << std::endl;
 	}
 	
-	bool flag = false;
-	for (unsigned int j = 0; j < nodes.size (); j++) {
-	
-		if ( nodes [j] == 1) {
-			
-			if ( !(group->isMember ( (int)j ) ||
-				 group->getSource () == (int)j) )
-			{
-				//std::cout << j << "non-leaf with degree 1\n"; 
-				flag = true;
-			}
-			
-		}		
-	}
-	assert ( flag == false);
+	//making test of leaf no-terminal
+	bool flag = non_terminal_leaf_test(nodes, group);
+	assert ( flag == true );
 	
 	if (m_verbose)
-		std::cout << "\t - Non-leaf with degree test: " << (flag == false) << std::endl;
+		std::cout << "\t - Non-leaf with degree test: " << (flag) << std::endl;
 	
 	
 	int connec = connectivity(group, dset, NODES);
@@ -163,6 +151,23 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 		std::cout << connec  << std::endl;
 	}
 	
+	return true;
+}
+
+bool MMMSTPGurobiResult::non_terminal_leaf_test (std::vector<int> & nodes, 
+												 rca::Group *group)
+{	
+	for (unsigned int j = 0; j < nodes.size (); j++) {
+	
+		if ( nodes [j] == 1) {
+			
+			if ( !(group->isMember ( (int)j ) ||
+				 group->getSource () == (int)j) )
+			{ 
+				return false;
+			}
+		}		
+	}	
 	return true;
 }
 

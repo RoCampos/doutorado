@@ -47,6 +47,8 @@ private:
 	//disjoint set
 	bool connectivity (rca::Group *g, DisjointSet2& dset, int numberOfnodes);
 	
+	bool non_terminal_leaf_test (std::vector<int>&, rca::Group *g);
+	
 private:
 	int m_verbose;
 
