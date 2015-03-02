@@ -61,10 +61,10 @@ class MultipleMulticastCommodityLP
 {
 	
 public:
-	void generate (rca::Network *,
+	virtual void generate (rca::Network *,
 				   std::vector<std::shared_ptr<rca::Group>>&);
 	
-private:
+protected:
 	
 	void constraint1 (rca::Network *,
 				   std::vector<std::shared_ptr<rca::Group>>&);
@@ -88,6 +88,22 @@ private:
 	
 	void bounds (rca::Network *,
 				   std::vector<std::shared_ptr<rca::Group>>&);
+	
+};
+
+class MMSTPBudgetLP : protected MultipleMulticastCommodityLP
+{
+
+public:
+	virtual void generate (rca::Network *,
+				   std::vector<std::shared_ptr<rca::Group>>&);
+	
+private:
+	
+	void constraint6 (rca::Network *,
+				   std::vector<std::shared_ptr<rca::Group>>&);
+	
+	int m_budget;
 	
 };
 

@@ -508,3 +508,48 @@ void MultipleMulticastCommodityLP::constraint8 (rca::Network *net,
 	}
 	
 }
+
+void MMSTPBudgetLP::constraint6 (rca::Network *net,
+				   std::vector<std::shared_ptr<rca::Group>>&groups)
+{
+	
+	int NODES = net->getNumberNodes ();
+	int GROUPS = groups.size ();
+	
+	std::cout << " r6: ";
+	for ( int i=0; i < NODES; i++) {
+	
+		for ( int j=i; j < NODES; j++) {
+			
+			int cost = net->getCost (i,j);
+			if ( cost > 0 ) {
+				for (int k = 0; k < GROUPS; k++) {
+					printf (" + %d y(%d,%d,%d) ",cost,i+1,j+1,k+1);
+				}				
+			}
+		}
+	}
+	printf (" <= %d", m_budget);
+	
+}
+
+void MMSTPBudgetLP::generate(rca::Network *network,
+							 std::vector<std::shared_ptr<rca::Group>>&groups)
+{
+	std::cout << "Maximize\n objective: + Z\n\nSubject To\n";
+	
+	constraint1 (network, groups);
+	constraint2 (network, groups);
+	constraint3 (network, groups);
+	constraint4 (network, groups);
+	constraint5 (network, groups);
+	//void constraint6 ();
+	constraint7 (network, groups);
+	constraint8 (network, groups);
+	
+	constraint6 (network, groups);
+	
+	bounds (network, groups);
+	
+	
+}
