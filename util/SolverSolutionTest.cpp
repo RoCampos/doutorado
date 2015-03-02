@@ -12,16 +12,13 @@ bool MMMSTPGurobiResult::do_test (std::string instance, std::string result, int 
 
 	
 	int obj = objective_test (net, groups, result);
-	bool teste = true;
+	int cost2 = 0;
 	for (int i=0; i < (int)groups.size (); i++) {
-		teste = teste && steiner_tree_test (net, groups[i].get(), result);
+		cost2 += steiner_tree_test (net, groups[i].get(), result);
 	}
 	
-	//std::cout << "objective: "<< obj << " Teste:" << (teste ? "ok":"nok")<< " ";
-	//std::cout << "cost: " << cost (net,result) << std::endl;
-	
 	std::cout << result << " ";
-	std::cout << obj << " " << cost(net, result) << std::endl;
+	std::cout << obj << " " << cost(net, result) << " "<< cost2 << std::endl;
 	
 	delete net;
 	
@@ -76,7 +73,7 @@ int MMMSTPGurobiResult::objective_test (rca::Network * net,
 	return min;
 }
 
-bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net, 
+int MMMSTPGurobiResult::steiner_tree_test (rca::Network * net, 
 										 rca::Group * group, 
 										 std::string result)
 {
@@ -110,66 +107,124 @@ bool MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 			}
 		}
 	}
-	int non_used_vertex = 0;
 	
 	//testing terminals number
-	int count = 0;
-	for (unsigned int j = 0; j < nodes.size (); j++) {
-		
-		//std::cout << j << "degree(" << nodes[j] <<")"<< std::endl;
-		if ( nodes [j] > 0) {
-			
-			if (group->isMember ( (int)j ) || 
-				group->getSource () == (int)j)
-			{
-				count++;
-			}			
-		} 
-		
-		if ( nodes [j] == 0) {
-			non_used_vertex++;
-		}
-	}
-	
+	int count = count_terminals (nodes, group);
 	assert (count == (group->getSize () + 1) );
 	if (m_verbose){
 	 std::cout << "\t - Terminals Test: " <<(count == (group->getSize() + 1))<< "\n";
 	 std::cout << "\t"<<count << " --- " << group->getSize() + 1 << std::endl;
 	}
 	
-	bool flag = false;
+	//making test of leaf no-terminal
+	bool flag = non_terminal_leaf_test(nodes, group);
+	assert ( flag == true );
+	
+	if (m_verbose)
+		std::cout << "\t - Non-leaf with degree test: " << (flag) << std::endl;
+	
+	
+	int connec = connectivity(group, dset, NODES);
+	assert ( connec );
+	
+	if (m_verbose) {
+		std::cout << "\tConnectivity test: ";
+		//std::cout << ((dset.getSize () - non_used_vertex)) << std::endl;
+		std::cout << connec  << std::endl;
+	}
+	
+	return tree_cost (net, group, dset, result);
+}
+
+int MMMSTPGurobiResult::count_terminals (std::vector<int>&nodes, 
+										 rca::Group *group)
+{
+	int count = 0;
+	for (unsigned int j = 0; j < nodes.size (); j++) {
+		
+		//se o nó é utilizado,
+		if ( nodes [j] > 0) {
+
+			//e for um terminal (receptor ou emissor)
+			if (group->isMember ( (int)j ) || 
+				group->getSource () == (int)j)
+			{
+				//contar
+				count++;
+			}
+		} 		
+	}
+	return count;
+}
+
+bool MMMSTPGurobiResult::non_terminal_leaf_test (std::vector<int> & nodes, 
+												 rca::Group *group)
+{	
 	for (unsigned int j = 0; j < nodes.size (); j++) {
 	
 		if ( nodes [j] == 1) {
 			
 			if ( !(group->isMember ( (int)j ) ||
 				 group->getSource () == (int)j) )
-			{
-				//std::cout << j << "non-leaf with degree 1\n"; 
-				flag = true;
+			{ 
+				return false;
 			}
-			
 		}		
-	}
-	assert ( flag == false);
-	
-	if (m_verbose)
-		std::cout << "\t - Non-leaf with degree test: " << (flag == false) << std::endl;
-	
-	
-	assert ( (dset.getSize () - non_used_vertex) == 1);
-	
-	if (m_verbose) {
-		std::cout << "\tConnectivity test: ";
-		std::cout << ((dset.getSize () - non_used_vertex) == 1) << std::endl;
-	}
-	
+	}	
 	return true;
 }
 
-double MMMSTPGurobiResult::cost (rca::Network * net,std::string result)
+bool MMMSTPGurobiResult::connectivity (rca::Group *g, 
+									   DisjointSet2& dset, 
+									   int numberNodes)
 {
-	double sol_cost = 0.0;
+	std::vector<int> members = g->getMembers ();
+	std::sort (members.begin(), members.end());	
+	int root = dset.find2 (members[0])->item;
+	for (int i=1; i < (int)members.size (); i++){
+		if (root != dset.find2(members[i])->item ) {
+			return (0);
+		}
+	}
+		
+	return (1);
+}
+
+int MMMSTPGurobiResult::tree_cost (rca::Network *net, rca::Group *group, 
+				  DisjointSet2& dset, std::string result)
+{
+	int tree_cost = 0.0;
+	
+	std::vector<int> members = group->getMembers ();
+	std::sort (members.begin (), members.end());
+	
+	int root = dset.find2 (members[0])->item;
+	int GROUP_ID = group->getId ();
+	
+	std::ifstream file (result);
+	std::string line;
+	while ( getline (file, line)) 
+	{
+		
+		int v = -1;
+		int w = -1;
+		int g = -1;
+		sscanf (line.c_str (), "%d - %d:%d;", &v, &w , &g);
+		if (GROUP_ID == (g-1)) {			
+			if (dset.find2 (v-1)->item == dset.find2(w-1)->item) {
+				if (dset.find2 (v-1)->item == root){
+					tree_cost += net->getCost (v-1, w-1);
+				}
+			}
+		}
+	}
+	
+	return tree_cost;
+}
+
+int MMMSTPGurobiResult::cost (rca::Network * net,std::string result)
+{
+	int sol_cost = 0.0;
 	
 	std::ifstream file (result);
 	std::string line;
