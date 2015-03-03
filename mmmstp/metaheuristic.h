@@ -2,6 +2,7 @@
 #define _HEURISTIC_MMMSTP_
 
 #include <iostream>
+#include <string>
 
 template <typename ConcreteMetaHeuristic>
 class MetaHeuristic : ConcreteMetaHeuristic
@@ -12,17 +13,9 @@ class MetaHeuristic : ConcreteMetaHeuristic
 public:
 	
 	void run (std::string instance) {
-		run_metaheuristic (std::string instance);
+		run_metaheuristic (instance);
 	}
 	
 };
-
-class GeneticAlgorithm {
-
-protected:
-	void run_metaheuristic (std::string instance);
-	
-}
-
 
 #endif
