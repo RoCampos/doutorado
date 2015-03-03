@@ -11,8 +11,8 @@ class MetaHeuristic : ConcreteMetaHeuristic
 	
 public:
 	
-	void run () {
-		run_metaheuristic ();
+	void run (std::string instance) {
+		run_metaheuristic (std::string instance);
 	}
 	
 };
@@ -20,8 +20,7 @@ public:
 class GeneticAlgorithm {
 
 protected:
-	
-	void run_metaheuristic ();
+	void run_metaheuristic (std::string instance);
 	
 }
 
