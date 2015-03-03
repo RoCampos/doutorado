@@ -1,8 +1,60 @@
 #include <iostream>
+#include <vector>
+
+#include "network.h"
+#include "group.h"
+#include "path.h"
+#include "algorithm.h"
+#include "reader.h"
+
+class PathRepresentation;
 
 class GeneticAlgorithm {
 
 protected:
 	void run_metaheuristic (std::string instance);
+	
+private:
+	void init_problem_information (std::string instance);
+	inline void init_parameters (int pop = 50, double cross = 0.5, double mut = 0.2, 
+								int iter = 100)
+	{
+		m_pop = pop;
+		m_cross = cross;
+		m_mut = mut;
+		m_iter = iter;
+	}
+	
+	void init_population ();
+	void crossove ();
+	void mutation ();
+	
+	/* method to run the algorithm against the instance*/
+	void run ();
+	
+private:
+	
+	/*problem parameters*/
+	std::string m_instance;
+	rca::Network * m_network;
+	std::vector<rca::Group> m_groups;
+	
+	/* Algorithm parameters*/
+	int m_pop;
+	double m_cross;
+	double m_mut;
+	int m_iter;
+	
+	std::vector<PathRepresentation> m_population;
+};
+
+class PathRepresentation {
+
+public:
+	void init_rand_solution (rca::Network * net, 
+							std::vector<rca::Group> & group);
+	
+private:
+	std::vector<rca::Path> m_genotype;
 	
 };
