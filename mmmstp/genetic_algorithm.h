@@ -6,6 +6,7 @@
 #include "path.h"
 #include "algorithm.h"
 #include "reader.h"
+#include "steinertree.h"
 
 class PathRepresentation;
 
@@ -16,7 +17,7 @@ protected:
 	
 private:
 	void init_problem_information (std::string instance);
-	inline void init_parameters (int pop = 50, double cross = 0.5, double mut = 0.2, 
+	inline void init_parameters (int pop = 25, double cross = 0.5, double mut = 0.2, 
 								int iter = 100)
 	{
 		m_pop = pop;
@@ -54,7 +55,13 @@ public:
 	void init_rand_solution (rca::Network * net, 
 							std::vector<rca::Group> & group);
 	
+	inline int getCost () {return m_cost;}
+	
 private:
+	int m_cost;
+	int m_residual_capacity;
+	
 	std::vector<rca::Path> m_genotype;
+	bool m_feasable;
 	
 };
