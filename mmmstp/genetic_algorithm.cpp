@@ -33,7 +33,7 @@ void GeneticAlgorithm::init_population ()
 	
 	m_population = std::vector<PathRepresentation> (m_pop);
 	for (int i=0; i < m_pop; i++) {
-		m_population[i].init_rand_solution (m_network, m_groups);		
+		m_population[i].init_rand_solution (m_network, m_groups);
 	}
 	
 }
@@ -41,26 +41,80 @@ void GeneticAlgorithm::init_population ()
 void PathRepresentation::init_rand_solution (rca::Network * net, 
 									  std::vector<rca::Group>& groups)
 {
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << "genotype size = ";
 	int count = 0;
 #endif
 	
+	/*the overall cost of solution*/
+	m_cost = 0;
+	
 	int GROUPS = groups.size ();
 	for (int i=0; i < GROUPS; i++) {
 		int source = groups[i].getSource ();
-#ifdef DEBUG
+#ifdef DEBUG1
 	count += groups[i].getSize ();
 #endif
-		for (int d=0; d < groups[i].getSize (); d++) {
+		
+		SteinerTree st (net->getNumberNodes (), source, groups[i].getMembers());
+	
+		rca::Path path;
+		int w = groups[i].getMember (0);
+		path = shortest_path (source, w, net);
+		for (int d=0; d < groups[i].getSize (); ) {
 			
-			int w = groups[i].getMember (d);
-			rca::Path path = shortest_path (source, w, net);
+			d++;
+			
+			std::vector<rca::Link> links;
+			int rnd = rand () % 10 + 1;
+			if (rnd < 5) {
+
+
+				/* removing this path */
+				std::vector<int>::reverse_iterator it = path.rbegin ();
+				for (; it!= path.rend () -1; it++) {
+					rca::Link link( (*it), *(it + 1), 0);
+					net->removeEdge (link);
+					
+					links.push_back (link);
+				}
+#ifdef DEBUG
+				std::cout << "removing path" << std::endl;
+				std::cout << path << " size (";
+				std::cout << path.size () << ")\n";
+#endif
+			}
+			
 			m_genotype.push_back (path);
+			std::cout << path << std::endl;
+			std::vector<int>::reverse_iterator it = path.rbegin ();
+			for (; it!= path.rend () -1; it++) {
+				//rca::Link link( (*it), *(it + 1), 0);
+				int v = *it;
+				int w = *(it+1);
+				(v > w ? st.addEdge (v, w, (int)net->getCost (v,w)):
+						st.addEdge (w, v, (int)net->getCost (v,w)));
+			}
+		
+			if (d == groups[i].getSize ()) break;
+			
+			w = groups[i].getMember (d);
+			path = shortest_path (source, w, net);
+			
+			std::vector<rca::Link>::iterator itl = links.begin ();
+			for (; itl!= links.end (); itl++) {
+				net->undoRemoveEdge (*itl);
+			}		
 		}
+		st.prunning ();
+		m_cost += st.getCost ();
+		st.xdotFormat ();
+		
+		getchar ();
+		
 	}
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << (count) << std::endl;
 #endif
 	
@@ -68,7 +122,8 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 
 int main (int argc, char**argv) 
 {
-
+	srand (1);
+	
 	std::string instance = argv[1];
 	MetaHeuristic<GeneticAlgorithm> algorithm;
 	
