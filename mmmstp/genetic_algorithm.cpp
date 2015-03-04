@@ -34,6 +34,7 @@ void GeneticAlgorithm::init_population ()
 	m_population = std::vector<PathRepresentation> (m_pop);
 	for (int i=0; i < m_pop; i++) {
 		m_population[i].init_rand_solution (m_network, m_groups);
+		std::cout << m_population[i].getCost () << std::endl;
 	}
 	
 }
@@ -41,10 +42,6 @@ void GeneticAlgorithm::init_population ()
 void PathRepresentation::init_rand_solution (rca::Network * net, 
 									  std::vector<rca::Group>& groups)
 {
-#ifdef DEBUG1
-	std::cout << "genotype size = ";
-	int count = 0;
-#endif
 	
 	/*the overall cost of solution*/
 	m_cost = 0;
@@ -52,11 +49,7 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 	int GROUPS = groups.size ();
 	int NODES = net->getNumberNodes ();
 	for (int i=0; i < GROUPS; i++) {
-		int source = groups[i].getSource ();
-#ifdef DEBUG1
-	count += groups[i].getSize ();
-#endif
-	
+		int source = groups[i].getSource ();	
 		/*Steiner tree to compute correctly cost*/
 		SteinerTree st (net->getNumberNodes (), source, groups[i].getMembers());
 		
@@ -67,6 +60,11 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 		rca::Path path;
 		int w = groups[i].getMember (0);
 		path = shortest_path (source, w, net);
+#ifdef DEBUG
+		std::cout << "TREE :" << i << std::endl;
+		printf ("\tpath %d to %d ", source, w);
+		std::cout << path << std::endl;
+#endif		
 		for (int d=0; d < groups[i].getSize (); ) {
 			
 			d++;
@@ -85,26 +83,26 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 					links.push_back (link);
 				}
 #ifdef DEBUG
-				std::cout << "removing path" << std::endl;
+				std::cout << "\t\tremoving path ";
 				std::cout << path << " size (";
 				std::cout << path.size () << ")\n";
 #endif
 			}
 			
 			m_genotype.push_back (path);
-			std::cout << path << std::endl;
+			
 			std::vector<int>::reverse_iterator it = path.rbegin ();
 			for (; it!= path.rend () -1; it++) {
 				//rca::Link link( (*it), *(it + 1), 0);
 				int v = *it;
-				int w = *(it+1);
+				int x = *(it+1);
 				
-				if ( dset.find2 (v) != dset.find2 (w) ) {
+				if ( dset.find2 (v) != dset.find2 (x) ) {
 					
-					dset.simpleUnion (v, w);
+					dset.simpleUnion (v, x);
 					
-					(v > w ? st.addEdge (v, w, (int)net->getCost (v,w)):
-							st.addEdge (w, v, (int)net->getCost (v,w)));
+					(v > x ? st.addEdge (v, x, (int)net->getCost (v,x)):
+							st.addEdge (x, v, (int)net->getCost (v,x)));
 				
 				}
 			}
@@ -113,6 +111,10 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 			
 			w = groups[i].getMember (d);
 			path = shortest_path (source, w, net);
+#ifdef DEBUG
+		printf ("\tpath %d to %d ", source, w);
+		std::cout << path << std::endl;
+#endif
 			
 			std::vector<rca::Link>::iterator itl = links.begin ();
 			for (; itl!= links.end (); itl++) {
@@ -121,15 +123,14 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 		}
 		st.prunning ();
 		m_cost += st.getCost ();
+		
+#ifdef DEBUG
 		st.xdotFormat ();
-		
 		getchar ();
-		
-	}
-	
-#ifdef DEBUG1
-	std::cout << (count) << std::endl;
 #endif
+	
+		net->clearRemovedEdges ();
+	}
 	
 }
 
