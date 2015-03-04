@@ -9,9 +9,13 @@ CMakeCache*;
 
 FILE(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE(GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-
-FILE (GLOB INCLUDE "${PROJECT_SOURCE_DIR}/include/*.h")
+FILE(GLOB INCLUDE "${PROJECT_SOURCE_DIR}/include/*.h")
 
 INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION util)
 
+
+add_executable (genetic_mmmstp 	genetic_algorithm.cpp 
+								genetic_algorithm.h 
+								metaheuristic.h)
+target_link_libraries (genetic_mmmstp graph sttree)
 
