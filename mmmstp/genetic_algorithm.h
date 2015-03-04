@@ -56,6 +56,9 @@ public:
 							std::vector<rca::Group> & group);
 	
 	inline int getCost () {return m_cost;}
+	inline int getResidualCap () {return m_residual_capacity;}
+	
+	void print_solution (rca::Network *net,std::vector<rca::Group> &);
 	
 private:
 	int m_cost;

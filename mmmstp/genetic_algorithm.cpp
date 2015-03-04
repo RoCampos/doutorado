@@ -59,6 +59,8 @@ void GeneticAlgorithm::init_population ()
 	std::cout << m_population[best].getCost () << std::endl;
 	std::cout << m_population[best].getResidualCap () << std::endl;
 	
+	m_population[best].print_solution (m_network,m_groups);
+	
 }
 
 void PathRepresentation::init_rand_solution (rca::Network * net, 
@@ -182,6 +184,61 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 	
 	rca::Link link =  *(std::min(used_links.begin(), used_links.end()));
 	m_residual_capacity = link.getValue ();
+	
+}
+
+void PathRepresentation::print_solution (rca::Network *net, 
+										 std::vector<rca::Group> & g)
+{
+
+	int GROUPS = g.size ();
+	int begin = 0;
+	int end = 0;
+	for (int i=0; i < GROUPS; i++) {
+	
+		end += g[i].getSize ();
+		
+		SteinerTree st (net->getNumberNodes (), 
+						g[i].getSource(), 
+						g[i].getMembers());
+		
+		/*disjoint set to avoid circle*/
+		//TODO IMPLEMENTAR DENTRO DA ST_IMPLEMENTAÇÃO
+		DisjointSet2 dset (net->getNumberNodes());
+		
+		for (int l = begin; l < end; l++) {
+		
+			rca::Path path = m_genotype[l];
+			std::vector<int>::reverse_iterator it = path.rbegin ();
+			for (; it!= path.rend () -1; it++) {
+				//rca::Link link( (*it), *(it + 1), 0);
+				int v = *it;
+				int x = *(it+1);
+				
+				if ( dset.find2 (v) != dset.find2 (x) ) {
+					
+					dset.simpleUnion (v, x);
+					
+					(v > x ? st.addEdge (v, x, (int)net->getCost (v,x)):
+							st.addEdge (x, v, (int)net->getCost (v,x)));
+				
+				}
+			}
+		}
+		
+		begin = end;
+		
+		st.prunning();
+		/*computing the usage*/
+		Edge * e = st.listEdge.head;
+		while ( e != NULL) {
+		
+			printf ("%d - %d:%d;\n", e->i+1, e->j+1, i+1); 
+			
+			e = e->next;
+		}
+		
+	}
 	
 }
 
