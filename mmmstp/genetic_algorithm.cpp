@@ -31,11 +31,33 @@ void GeneticAlgorithm::init_population ()
 	std::cout << "Creating Population: size = " << m_pop << std::endl;	
 #endif
 	
+	int best = -1;
+	int max = 0;
+	int cost = 10000000;
 	m_population = std::vector<PathRepresentation> (m_pop);
 	for (int i=0; i < m_pop; i++) {
 		m_population[i].init_rand_solution (m_network, m_groups);
-		std::cout << m_population[i].getCost () << std::endl;
+		
+		if (m_population[i].getCost () < 18545) {
+		
+			if (max < m_population[i].getResidualCap ()) {
+			
+				best = i;
+				max =  m_population[i].getResidualCap ();
+			} else if (max == m_population[i].getResidualCap ()) {
+			
+				if (m_population[i].getCost () < cost) {
+					cost = m_population[i].getCost ();
+					best = i;
+				}
+			}
+			
+		}
+		
 	}
+	
+	std::cout << m_population[best].getCost () << std::endl;
+	std::cout << m_population[best].getResidualCap () << std::endl;
 	
 }
 
@@ -45,6 +67,8 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 	
 	/*the overall cost of solution*/
 	m_cost = 0;
+	
+	std::vector<rca::Link> used_links;
 	
 	int GROUPS = groups.size ();
 	int NODES = net->getNumberNodes ();
@@ -72,7 +96,6 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 			std::vector<rca::Link> links;
 			int rnd = rand () % 10 + 1;
 			if (rnd < 5) {
-
 
 				/* removing this path */
 				std::vector<int>::reverse_iterator it = path.rbegin ();
@@ -128,9 +151,37 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 		st.xdotFormat ();
 		getchar ();
 #endif
+		
+		/*computing the usage*/
+		Edge * e = st.listEdge.head;
+		while ( e != NULL) {
+			
+			int trequest = groups[i].getTrequest ();
+			rca::Link link (e->i, e->j, 0);
+			
+			std::vector<rca::Link>::iterator it;
+			it = std::find (used_links.begin (), used_links.end(),link);
+			if (it != used_links.end()) {
+				it->setValue ( it->getValue () - trequest);
+			} else {
+				int band = net->getBand (e->i, e->j);
+				link.setValue (band);
+				used_links.push_back (link);
+			}
+			
+			e = e->next;
+		}
 	
 		net->clearRemovedEdges ();
 	}
+	
+	
+	/*udpating residual capacity*/
+	//int max = std::numeric_limits<int>::max();
+	//std::sort (used_links.begin (), used_links.end());
+	
+	rca::Link link =  *(std::min(used_links.begin(), used_links.end()));
+	m_residual_capacity = link.getValue ();
 	
 }
 
