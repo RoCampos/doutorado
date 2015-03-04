@@ -50,13 +50,19 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 	m_cost = 0;
 	
 	int GROUPS = groups.size ();
+	int NODES = net->getNumberNodes ();
 	for (int i=0; i < GROUPS; i++) {
 		int source = groups[i].getSource ();
 #ifdef DEBUG1
 	count += groups[i].getSize ();
 #endif
-		
+	
+		/*Steiner tree to compute correctly cost*/
 		SteinerTree st (net->getNumberNodes (), source, groups[i].getMembers());
+		
+		/*disjoint set to avoid circle*/
+		//TODO IMPLEMENTAR DENTRO DA ST_IMPLEMENTAÇÃO
+		DisjointSet2 dset (NODES);
 	
 		rca::Path path;
 		int w = groups[i].getMember (0);
@@ -92,8 +98,15 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 				//rca::Link link( (*it), *(it + 1), 0);
 				int v = *it;
 				int w = *(it+1);
-				(v > w ? st.addEdge (v, w, (int)net->getCost (v,w)):
-						st.addEdge (w, v, (int)net->getCost (v,w)));
+				
+				if ( dset.find2 (v) != dset.find2 (w) ) {
+					
+					dset.simpleUnion (v, w);
+					
+					(v > w ? st.addEdge (v, w, (int)net->getCost (v,w)):
+							st.addEdge (w, v, (int)net->getCost (v,w)));
+				
+				}
 			}
 		
 			if (d == groups[i].getSize ()) break;
