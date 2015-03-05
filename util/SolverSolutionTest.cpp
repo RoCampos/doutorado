@@ -30,18 +30,7 @@ int MMMSTPGurobiResult::objective_test (rca::Network * net,
 										 std::string result)
 {
 
-	std::vector<std::vector<int>> matrix ( net->getNumberNodes () );
-	for (unsigned int i =0; i < matrix.size (); i++) {
-		matrix[i] = std::vector<int> ( net->getNumberNodes (), 100000);
-	}
-	
-	for (int i = 0; i < net->getNumberNodes(); i++) {
-		for (int j = 0; j < net->getNumberNodes(); j++) {
-			
-			matrix[i][j] = net->getBand (i,j);
-			
-		}
-	}
+	std::vector<rca::Link> used_links;
 	
 	std::ifstream file (result);
 	std::string line;
@@ -52,25 +41,23 @@ int MMMSTPGurobiResult::objective_test (rca::Network * net,
 		int g = -1;
 		sscanf (line.c_str (), "%d - %d:%d;", &v, &w , &g);
 		
-		//updating the consuption
-		matrix[ v-1 ][ w-1 ] -= groups[g-1]->getTrequest ();
+		int trequest = groups[g-1]->getTrequest ();
+		rca::Link link(v-1, w-1, 0);
+		auto it = std::find (used_links.begin(), used_links.end(), link);
+		if (it != used_links.end()) {
+			it->setValue (it->getValue() - trequest);
+		} else {
+			int band = net->getBand(link.getX(), link.getY());
+			link.setValue (band - trequest);
+			used_links.push_back (link);
+		}
 		
 	}
 	
-	int min = 100000;
+	//returing the value of a link (band)	
+	std::sort (used_links.begin (), used_links.end());
 	
-	for (int i = 0; i < net->getNumberNodes(); i++) {
-		for (int j = 0; j < net->getNumberNodes(); j++) {
-			
-			if (matrix[i][j] < min && matrix[i][j] != 0) {
-				min = matrix[i][j];
-			}
-		}
-	}
-	
-	//std::cout << min <<std::endl;	
-	
-	return min;
+	return used_links.begin ()->getValue();
 }
 
 int MMMSTPGurobiResult::steiner_tree_test (rca::Network * net, 
