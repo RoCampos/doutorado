@@ -32,7 +32,7 @@ void GeneticAlgorithm::init_population ()
 #endif
 	
 	int best = -1;
-	int max = 0;
+	int max = 1000000;
 	int cost = 10000000;
 	m_population = std::vector<PathRepresentation> (m_pop);
 	for (int i=0; i < m_pop; i++) {
@@ -40,7 +40,7 @@ void GeneticAlgorithm::init_population ()
 		
 		if (m_population[i].getCost () < 18545) {
 		
-			if (max < m_population[i].getResidualCap ()) {
+			if (m_population[i].getResidualCap () < max) {
 			
 				best = i;
 				max =  m_population[i].getResidualCap ();
@@ -166,8 +166,8 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 			if (it != used_links.end()) {
 				it->setValue ( it->getValue () - trequest);
 			} else {
-				int band = net->getBand (e->i, e->j);
-				link.setValue (band);
+				int band = net->getBand (link.getX(), link.getY());
+				link.setValue (band - trequest);
 				used_links.push_back (link);
 			}
 			
