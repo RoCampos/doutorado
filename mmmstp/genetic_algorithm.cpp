@@ -86,7 +86,7 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 		rca::Path path;
 		int w = groups[i].getMember (0);
 		path = shortest_path (source, w, net);
-#ifdef DEBUG
+#ifdef DEBUG1
 		std::cout << "TREE :" << i << std::endl;
 		printf ("\tpath %d to %d ", source, w);
 		std::cout << path << std::endl;
@@ -136,7 +136,7 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 			
 			w = groups[i].getMember (d);
 			path = shortest_path (source, w, net);
-#ifdef DEBUG
+#ifdef DEBUG1
 		printf ("\tpath %d to %d ", source, w);
 		std::cout << path << std::endl;
 #endif
@@ -149,7 +149,7 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 		st.prunning ();
 		m_cost += st.getCost ();
 		
-#ifdef DEBUG
+#ifdef DEBUG1
 		st.xdotFormat ();
 		getchar ();
 #endif
@@ -180,10 +180,8 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 	
 	/*udpating residual capacity*/
 	//int max = std::numeric_limits<int>::max();
-	//std::sort (used_links.begin (), used_links.end());
-	
-	rca::Link link =  *(std::min(used_links.begin(), used_links.end()));
-	m_residual_capacity = link.getValue ();
+	std::sort (used_links.begin (), used_links.end());
+	m_residual_capacity = used_links.begin()->getValue ();
 	
 }
 
@@ -229,7 +227,7 @@ void PathRepresentation::print_solution (rca::Network *net,
 		begin = end;
 		
 		st.prunning();
-		/*computing the usage*/
+		
 		Edge * e = st.listEdge.head;
 		while ( e != NULL) {
 		
