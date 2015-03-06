@@ -19,8 +19,22 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance)
 	/*init population*/
 	init_population ();
 	
+	while ( --m_iter > 0) {
 	
-	crossover (0,1);
+		int i = rand () % m_population.size ();
+		int j;
+		do {
+			j = rand () % m_population.size ();
+		} while (i == j);
+			
+		crossover(i,j);
+		
+	}
+	
+	for (int i=0; i < (int)m_population.size (); i++)
+	{
+		
+	}
 	
 	
 	//deallocatin of resources;
@@ -58,10 +72,11 @@ void GeneticAlgorithm::init_population ()
 		
 	}
 	
+	std::cout << "Best Initalization \n";
 	std::cout << m_population[best].getCost () << std::endl;
 	std::cout << m_population[best].getResidualCap () << std::endl;
 	
-	m_population[best].print_solution (m_network,m_groups);
+	//m_population[best].print_solution (m_network,m_groups);
 	
 }
 
@@ -100,7 +115,7 @@ void GeneticAlgorithm::crossover (int i, int j)
 		int g_size = m_groups[k].getSize ();
 		int gen = stop;
 		stop += g_size;
-		std::cout << gen <<" " << stop << std::endl;
+		//std::cout << gen <<" " << stop << std::endl;
 		for (; gen < stop; gen++) {
 		
 			rca::Path path = sol.m_genotype[gen];
@@ -116,7 +131,7 @@ void GeneticAlgorithm::crossover (int i, int j)
 					dset.simpleUnion (v, x);
 					
 					(v > x ? st.addEdge (v, x, (int)m_network->getCost (v,x)):
-							st.addEdge (x, v, (int)m_network->getCost (v,x)));
+							st.addEdge (x, v, (int)m_network->getCost (x,v)));
 				
 				}
 			}
@@ -125,15 +140,11 @@ void GeneticAlgorithm::crossover (int i, int j)
 		st.prunning ();
 		sol.m_cost += st.getCost ();
 		
-		st.xdotFormat ();
-		
-		getchar ();
-		
 		/*computing the usage*/
 		Edge * e = st.listEdge.head;
 		while ( e != NULL) {
 			
-			int trequest = m_groups[i].getTrequest ();
+			int trequest = m_groups[k].getTrequest ();
 			rca::Link link (e->i, e->j, 0);
 			
 			std::vector<rca::Link>::iterator it;
@@ -154,10 +165,28 @@ void GeneticAlgorithm::crossover (int i, int j)
 	std::sort (used_links.begin (), used_links.end());
 	sol.m_residual_capacity = used_links.begin()->getValue ();
 	
+	
 	std::cout << std::endl;
+	
 	std::cout << sol.m_cost << std::endl;
 	std::cout << sol.m_residual_capacity << std::endl;
-	sol.print_solution (m_network, m_groups);
+	//sol.print_solution (m_network, m_groups);
+	
+	int old = -1;
+	if (m_population[i].m_residual_capacity < m_population[j].m_residual_capacity)
+	{
+		old = i;
+	} 
+	else if (m_population[i].m_residual_capacity > m_population[j].m_residual_capacity)
+	{
+		old = j;
+	} 
+	
+	if (old != -1) {
+	
+		m_population[old] = sol;
+		
+	}
 	
 }
 
