@@ -27,7 +27,7 @@ private:
 	}
 	
 	void init_population ();
-	void crossove ();
+	void crossover (int i, int j);
 	void mutation ();
 	
 	/* method to run the algorithm against the instance*/
@@ -50,8 +50,12 @@ private:
 };
 
 class PathRepresentation {
-
+	friend class GeneticAlgorithm;
+	
+	
 public:
+	PathRepresentation (): m_cost(0), m_residual_capacity(0){}
+	
 	void init_rand_solution (rca::Network * net, 
 							std::vector<rca::Group> & group);
 	

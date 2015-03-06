@@ -20,6 +20,8 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance)
 	init_population ();
 	
 	
+	crossover (0,1);
+	
 	
 	//deallocatin of resources;
 	delete m_network;
@@ -60,6 +62,98 @@ void GeneticAlgorithm::init_population ()
 	std::cout << m_population[best].getResidualCap () << std::endl;
 	
 	m_population[best].print_solution (m_network,m_groups);
+	
+}
+
+void GeneticAlgorithm::crossover (int i, int j)
+{
+	
+	int rnd = rand () % 15 + 1;
+	
+	int size = m_population[i].m_genotype.size ();
+	int i_pos = rand () % size;
+		
+	PathRepresentation sol;
+	std::vector<rca::Link> used_links;
+	
+	for (int gen=0; gen < size; gen++) {
+		
+		if ( gen <= i_pos) {
+			sol.m_genotype.push_back ( m_population[i].m_genotype[gen]);
+		} else {
+			sol.m_genotype.push_back ( m_population[j].m_genotype[gen]);
+		}
+	}
+	
+	int GROUPS = m_groups.size ();
+	int NODES = m_network->getNumberNodes ();
+	int stop = 0;
+	for (int k = 0; k < GROUPS; k++) {
+			
+		int source = m_groups[k].getSource ();
+		SteinerTree st (m_network->getNumberNodes (), source, m_groups[k].getMembers());
+		
+		/*disjoint set to avoid circle*/
+		//TODO IMPLEMENTAR DENTRO DA ST_IMPLEMENTAÇÃO
+		DisjointSet2 dset (NODES);
+		
+		int g_size = m_groups.size ();
+		int gen = stop;
+		stop += g_size;
+		std::cout << gen <<" " << stop << std::endl;
+		for (gen = 0; gen < stop; gen++) {
+		
+			rca::Path path = sol.m_genotype[gen];
+			
+			std::vector<int>::reverse_iterator it = path.rbegin ();
+			for (; it!= path.rend () -1; it++) {
+				//rca::Link link( (*it), *(it + 1), 0);
+				int v = *it;
+				int x = *(it+1);
+				
+				if ( dset.find2 (v) != dset.find2 (x) ) {
+					
+					dset.simpleUnion (v, x);
+					
+					(v > x ? st.addEdge (v, x, (int)m_network->getCost (v,x)):
+							st.addEdge (x, v, (int)m_network->getCost (v,x)));
+				
+				}
+			}
+		}
+		
+		st.prunning ();
+		sol.m_cost += st.getCost ();
+		
+		/*computing the usage*/
+		Edge * e = st.listEdge.head;
+		while ( e != NULL) {
+			
+			int trequest = m_groups[i].getTrequest ();
+			rca::Link link (e->i, e->j, 0);
+			
+			std::vector<rca::Link>::iterator it;
+			it = std::find (used_links.begin (), used_links.end(),link);
+			if (it != used_links.end()) {
+				it->setValue ( it->getValue () - trequest);
+			} else {
+				int band = m_network->getBand (link.getX(), link.getY());
+				link.setValue (band - trequest);
+				used_links.push_back (link);
+			}
+			
+			e = e->next;
+		}
+		
+	}
+	
+	std::sort (used_links.begin (), used_links.end());
+	sol.m_residual_capacity = used_links.begin()->getValue ();
+	
+	std::cout << std::endl;
+	std::cout << sol.m_cost << std::endl;
+	std::cout << sol.m_residual_capacity << std::endl;
+	sol.print_solution (m_network, m_groups);
 	
 }
 
