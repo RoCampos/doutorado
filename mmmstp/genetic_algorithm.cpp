@@ -31,10 +31,20 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance)
 		
 	}
 	
-	for (int i=0; i < (int)m_population.size (); i++)
+	int max = m_population[0].m_residual_capacity;
+	int best = 0;
+	for (int i=1; i < (int)m_population.size (); i++)
 	{
-		
+		if (m_population[i].m_residual_capacity > max)
+		{
+			max = m_population[i].m_residual_capacity;
+			best = i;
+		}
 	}
+	
+	std::cout << "Best Solution\n";
+	std::cout << m_population[best].m_residual_capacity << std::endl;
+	std::cout << m_population[best].m_cost << std::endl;
 	
 	
 	//deallocatin of resources;
@@ -166,10 +176,10 @@ void GeneticAlgorithm::crossover (int i, int j)
 	sol.m_residual_capacity = used_links.begin()->getValue ();
 	
 	
-	std::cout << std::endl;
+	//std::cout << std::endl;
 	
-	std::cout << sol.m_cost << std::endl;
-	std::cout << sol.m_residual_capacity << std::endl;
+	//std::cout << sol.m_cost << std::endl;
+	//std::cout << sol.m_residual_capacity << std::endl;
 	//sol.print_solution (m_network, m_groups);
 	
 	int old = -1;
@@ -180,7 +190,9 @@ void GeneticAlgorithm::crossover (int i, int j)
 	else if (m_population[i].m_residual_capacity > m_population[j].m_residual_capacity)
 	{
 		old = j;
-	} 
+	} else {
+		
+	}
 	
 	if (old != -1) {
 	
@@ -254,7 +266,7 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 					dset.simpleUnion (v, x);
 					
 					(v > x ? st.addEdge (v, x, (int)net->getCost (v,x)):
-							st.addEdge (x, v, (int)net->getCost (v,x)));
+							st.addEdge (x, v, (int)net->getCost (x,v)));
 				
 				}
 			}
