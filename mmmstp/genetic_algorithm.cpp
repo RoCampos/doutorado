@@ -97,17 +97,17 @@ void GeneticAlgorithm::crossover (int i, int j)
 		//TODO IMPLEMENTAR DENTRO DA ST_IMPLEMENTAÇÃO
 		DisjointSet2 dset (NODES);
 		
-		int g_size = m_groups.size ();
+		int g_size = m_groups[k].getSize ();
 		int gen = stop;
 		stop += g_size;
 		std::cout << gen <<" " << stop << std::endl;
-		for (gen = 0; gen < stop; gen++) {
+		for (; gen < stop; gen++) {
 		
 			rca::Path path = sol.m_genotype[gen];
 			
 			std::vector<int>::reverse_iterator it = path.rbegin ();
 			for (; it!= path.rend () -1; it++) {
-				//rca::Link link( (*it), *(it + 1), 0);
+				
 				int v = *it;
 				int x = *(it+1);
 				
@@ -124,6 +124,10 @@ void GeneticAlgorithm::crossover (int i, int j)
 		
 		st.prunning ();
 		sol.m_cost += st.getCost ();
+		
+		st.xdotFormat ();
+		
+		getchar ();
 		
 		/*computing the usage*/
 		Edge * e = st.listEdge.head;
