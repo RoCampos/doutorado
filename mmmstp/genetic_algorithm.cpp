@@ -40,15 +40,18 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	{
 		if (m_population[i].m_residual_capacity > max)
 		{
-			max = m_population[i].m_residual_capacity;
-			best = i;
+			
+			if (m_population[i].m_cost < m_budget) {
+				max = m_population[i].m_residual_capacity;
+				best = i;
+			}
 		}
 	}
 	
 	//std::cout << "Best Solution\n";
 	std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
-	m_population[best].print_solution (m_network, m_groups);
+	//m_population[best].print_solution (m_network, m_groups);
 	
 	
 	//deallocatin of resources;
@@ -161,6 +164,10 @@ void GeneticAlgorithm::crossover (int i, int j)
 	std::sort (used_links.begin (), used_links.end());
 	sol.m_residual_capacity = used_links.begin()->getValue ();
 	
+	sol.m_used_links = used_links;
+	
+	if (sol.m_cost > m_budget) return;
+	
 	int old = -1;
 	if (m_population[i].m_residual_capacity < m_population[j].m_residual_capacity)
 	{
@@ -169,8 +176,6 @@ void GeneticAlgorithm::crossover (int i, int j)
 	else if (m_population[i].m_residual_capacity > m_population[j].m_residual_capacity)
 	{
 		old = j;
-	} else {
-		
 	}
 	
 	if (old != -1) {
@@ -348,6 +353,8 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 	std::sort (used_links.begin (), used_links.end());
 	m_residual_capacity = used_links.begin()->getValue ();
 	
+	
+	this->m_used_links = used_links;
 }
 
 void PathRepresentation::print_solution (rca::Network *net, 
@@ -407,7 +414,7 @@ void PathRepresentation::print_solution (rca::Network *net,
 
 int main (int argc, char**argv) 
 {
-	srand (time_t(NULL));
+	srand (time(NULL));
 	
 	std::string instance = argv[1];
 	MetaHeuristic<GeneticAlgorithm> algorithm;

@@ -74,6 +74,8 @@ private:
 	std::vector<rca::Path> m_genotype;
 	bool m_feasable;
 	
+	std::vector<rca::Link> m_used_links;
+	
 };
 
 
