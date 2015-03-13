@@ -45,9 +45,10 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 		}
 	}
 	
-	std::cout << "Best Solution\n";
+	//std::cout << "Best Solution\n";
+	std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
-	std::cout << m_population[best].m_cost << std::endl;
+	m_population[best].print_solution (m_network, m_groups);
 	
 	
 	//deallocatin of resources;
@@ -85,11 +86,11 @@ void GeneticAlgorithm::init_population ()
 		
 	}
 	
-	std::cout << "Best Initalization \n";
-	std::cout << m_population[best].getCost () << std::endl;
-	std::cout << m_population[best].getResidualCap () << std::endl;
+	//std::cout << "Best Initalization \n";
+	std::cout << m_population[best].getCost () << " ";
+	std::cout << m_population[best].getResidualCap () << " ";
 	
-	m_population[best].print_solution (m_network,m_groups);
+	//m_population[best].print_solution (m_network,m_groups);
 	
 }
 
@@ -278,9 +279,16 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 			
 			w = groups[i].getMember (d);
 			path = shortest_path (source, w, net);
+			
+			if (path.size () == 0) {
+				net->clearRemovedEdges ();
+				path = shortest_path (source, w, net);
+			}
+			
 #ifdef DEBUG
 		printf ("\tpath %d to %d ", source, w);
-		std::cout << path << std::endl;
+		std::cout << path;
+		std::cout << " size= " << path.size () <<std::endl;
 #endif
 			
 			std::vector<rca::Link>::iterator itl = links.begin ();
@@ -384,7 +392,7 @@ void PathRepresentation::print_solution (rca::Network *net,
 
 int main (int argc, char**argv) 
 {
-	srand (1);
+	srand (time_t(NULL));
 	
 	std::string instance = argv[1];
 	MetaHeuristic<GeneticAlgorithm> algorithm;
