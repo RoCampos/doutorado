@@ -12,8 +12,8 @@ class MetaHeuristic : ConcreteMetaHeuristic
 	
 public:
 	
-	void run (std::string instance) {
-		run_metaheuristic (instance);
+	void run (std::string instance, int budget) {
+		run_metaheuristic (instance, budget);
 	}
 	
 };

@@ -1,7 +1,7 @@
 #include "genetic_algorithm.h"
 #include "metaheuristic.h"
 
-void GeneticAlgorithm::run_metaheuristic (std::string instance)
+void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 {
 	/*configuring the problem*/
 	m_instance = instance;
@@ -12,6 +12,9 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance)
 	for (unsigned int i =0; i < g.size (); i++) {
 		m_groups.push_back (*g[i].get ());
 	}
+	
+	/*orçamento*/
+	m_budget = budget;
 	
 	/*configuring parameters - default*/
 	init_parameters ();
@@ -64,7 +67,7 @@ void GeneticAlgorithm::init_population ()
 	for (int i=0; i < m_pop; i++) {
 		m_population[i].init_rand_solution (m_network, m_groups);
 		
-		if (m_population[i].getCost () < 18545) {
+		if (m_population[i].getCost () < m_budget) {
 		
 			if (m_population[i].getResidualCap () < max) {
 			
@@ -86,7 +89,7 @@ void GeneticAlgorithm::init_population ()
 	std::cout << m_population[best].getCost () << std::endl;
 	std::cout << m_population[best].getResidualCap () << std::endl;
 	
-	//m_population[best].print_solution (m_network,m_groups);
+	m_population[best].print_solution (m_network,m_groups);
 	
 }
 
@@ -275,7 +278,7 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 			
 			w = groups[i].getMember (d);
 			path = shortest_path (source, w, net);
-#ifdef DEBUG1
+#ifdef DEBUG
 		printf ("\tpath %d to %d ", source, w);
 		std::cout << path << std::endl;
 #endif
@@ -387,6 +390,7 @@ int main (int argc, char**argv)
 	MetaHeuristic<GeneticAlgorithm> algorithm;
 	
 	
-	algorithm.run (instance);
+	int budget = atoi(argv[2]);
+	algorithm.run (instance, budget);
 	
 }

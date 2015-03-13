@@ -13,7 +13,7 @@ class PathRepresentation;
 class GeneticAlgorithm {
 
 protected:
-	void run_metaheuristic (std::string instance);
+	void run_metaheuristic (std::string instance, int budged);
 	
 private:
 	void init_problem_information (std::string instance);
@@ -39,6 +39,7 @@ private:
 	std::string m_instance;
 	rca::Network * m_network;
 	std::vector<rca::Group> m_groups;
+	int m_budget;
 	
 	/* Algorithm parameters*/
 	int m_pop;
