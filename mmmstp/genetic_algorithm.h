@@ -12,6 +12,7 @@
 class PathRepresentation;
 
 class GeneticAlgorithm {
+	friend class PathRepresentation;
 
 protected:
 	void run_metaheuristic (std::string instance, int budged);
@@ -74,3 +75,7 @@ private:
 	bool m_feasable;
 	
 };
+
+
+void compute_usage (int m_group, std::vector<rca::Link>&, 
+					SteinerTree&, rca::Network*, rca::Group&);

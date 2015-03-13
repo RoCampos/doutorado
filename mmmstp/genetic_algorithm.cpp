@@ -154,37 +154,12 @@ void GeneticAlgorithm::crossover (int i, int j)
 		st.prunning ();
 		sol.m_cost += st.getCost ();
 		
-		/*computing the usage*/
-		Edge * e = st.listEdge.head;
-		while ( e != NULL) {
-			
-			int trequest = m_groups[k].getTrequest ();
-			rca::Link link (e->i, e->j, 0);
-			
-			std::vector<rca::Link>::iterator it;
-			it = std::find (used_links.begin (), used_links.end(),link);
-			if (it != used_links.end()) {
-				it->setValue ( it->getValue () - trequest);
-			} else {
-				int band = m_network->getBand (link.getX(), link.getY());
-				link.setValue (band - trequest);
-				used_links.push_back (link);
-			}
-			
-			e = e->next;
-		}
+		compute_usage (k, used_links, st,m_network,m_groups[k]);
 		
 	}
 	
 	std::sort (used_links.begin (), used_links.end());
 	sol.m_residual_capacity = used_links.begin()->getValue ();
-	
-	
-	//std::cout << std::endl;
-	
-	//std::cout << sol.m_cost << std::endl;
-	//std::cout << sol.m_residual_capacity << std::endl;
-	//sol.print_solution (m_network, m_groups);
 	
 	int old = -1;
 	if (m_population[i].m_residual_capacity < m_population[j].m_residual_capacity)
@@ -204,6 +179,64 @@ void GeneticAlgorithm::crossover (int i, int j)
 		
 	}
 	
+}
+
+/*
+void GeneticAlgorithm::compute_usage (int multicast_group, 
+									  std::vector<rca::Link>& used_links,
+									  SteinerTree & st)
+{
+	
+	int k = multicast_group;
+
+	Edge * e = st.listEdge.head;
+	while ( e != NULL) {
+			
+		int trequest = m_groups[k].getTrequest ();
+		rca::Link link (e->i, e->j, 0);
+			
+		std::vector<rca::Link>::iterator it;
+		it = std::find (used_links.begin (), used_links.end(),link);
+		if (it != used_links.end()) {
+			it->setValue ( it->getValue () - trequest);
+		} else {
+			int band = m_network->getBand (link.getX(), link.getY());
+			link.setValue (band - trequest);
+			used_links.push_back (link);
+		}
+		
+		e = e->next;
+	}
+	
+}
+*/
+	
+	
+void compute_usage (int m_group, std::vector<rca::Link>& used_links, 
+					SteinerTree& st, rca::Network* m_network, 
+					rca::Group& group)
+{
+	//int k = m_group;
+	
+	/*computing the usage*/
+	Edge * e = st.listEdge.head;
+	while ( e != NULL) {
+			
+		int trequest = group.getTrequest ();
+		rca::Link link (e->i, e->j, 0);
+			
+		std::vector<rca::Link>::iterator it;
+		it = std::find (used_links.begin (), used_links.end(),link);
+		if (it != used_links.end()) {
+			it->setValue ( it->getValue () - trequest);
+		} else {
+			int band = m_network->getBand (link.getX(), link.getY());
+			link.setValue (band - trequest);
+			used_links.push_back (link);
+		}
+		
+		e = e->next;
+	}
 }
 
 void PathRepresentation::init_rand_solution (rca::Network * net, 
@@ -304,25 +337,7 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 		getchar ();
 #endif
 		
-		/*computing the usage*/
-		Edge * e = st.listEdge.head;
-		while ( e != NULL) {
-			
-			int trequest = groups[i].getTrequest ();
-			rca::Link link (e->i, e->j, 0);
-			
-			std::vector<rca::Link>::iterator it;
-			it = std::find (used_links.begin (), used_links.end(),link);
-			if (it != used_links.end()) {
-				it->setValue ( it->getValue () - trequest);
-			} else {
-				int band = net->getBand (link.getX(), link.getY());
-				link.setValue (band - trequest);
-				used_links.push_back (link);
-			}
-			
-			e = e->next;
-		}
+		compute_usage (i, used_links, st, net, groups[i]);
 	
 		net->clearRemovedEdges ();
 	}
