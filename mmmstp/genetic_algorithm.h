@@ -8,6 +8,7 @@
 #include "algorithm.h"
 #include "reader.h"
 #include "steinertree.h"
+#include "SteinerTreeObserver.h"
 
 class PathRepresentation;
 

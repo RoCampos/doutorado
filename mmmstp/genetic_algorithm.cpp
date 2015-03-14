@@ -54,7 +54,9 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 		
 	std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
-		
+	
+	m_population[best].print_solution (m_network, m_groups);
+	
 	//deallocatin of resources;
 	delete m_network;
 }
@@ -91,8 +93,8 @@ void GeneticAlgorithm::init_population ()
 	}
 	
 	//std::cout << "Best Initalization \n";
-	std::cout << m_population[best].getCost () << " ";
-	std::cout << m_population[best].getResidualCap () << " ";
+	//std::cout << m_population[best].getCost () << " ";
+	//std::cout << m_population[best].getResidualCap () << " ";
 	
 	//m_population[best].print_solution (m_network,m_groups);
 	
@@ -121,10 +123,15 @@ void GeneticAlgorithm::crossover (int i, int j)
 	int GROUPS = m_groups.size ();
 	int NODES = m_network->getNumberNodes ();
 	int stop = 0;
+	
+	CongestionHandle cg(m_network, m_groups);
+	SteinerTreeObserver stObserver(NULL, cg);
 	for (int k = 0; k < GROUPS; k++) {
 			
 		int source = m_groups[k].getSource ();
 		SteinerTree st (m_network->getNumberNodes (), source, m_groups[k].getMembers());
+		
+		stObserver.setTree(&st);
 		
 		/*disjoint set to avoid circle*/
 		//TODO IMPLEMENTAR DENTRO DA ST_IMPLEMENTAÇÃO
@@ -148,24 +155,20 @@ void GeneticAlgorithm::crossover (int i, int j)
 					
 					dset.simpleUnion (v, x);
 					
-					(v > x ? st.addEdge (v, x, (int)m_network->getCost (v,x)):
-							st.addEdge (x, v, (int)m_network->getCost (x,v)));
+					(v > x ? stObserver.addEdge (v, x, (int)m_network->getCost (v,x), k):
+							stObserver.addEdge (x, v, (int)m_network->getCost (x,v), k));
 				
 				}
 			}
 		}
 		
-		st.prunning ();
-		sol.m_cost += st.getCost ();
-		
-		compute_usage (k, used_links, st,m_network,m_groups[k]);
+		stObserver.prunning (k);
 		
 	}
 	
-	std::sort (used_links.begin (), used_links.end());
-	sol.m_residual_capacity = used_links.begin()->getValue ();
-	
-	sol.m_used_links = used_links;
+	//sol.m_used_links = used_links;
+	sol.m_cost = stObserver.getCost ();
+	sol.m_residual_capacity = cg.congestion ();
 	
 	if (sol.m_cost > m_budget) return;
 	
@@ -251,10 +254,15 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 	
 	int GROUPS = groups.size ();
 	int NODES = net->getNumberNodes ();
+	
+	CongestionHandle cg(net, groups);
+	SteinerTreeObserver stObserver(NULL, cg);
 	for (int i=0; i < GROUPS; i++) {
 		int source = groups[i].getSource ();	
+		
 		/*Steiner tree to compute correctly cost*/
-		SteinerTree st (net->getNumberNodes (), source, groups[i].getMembers());
+		SteinerTree st (net->getNumberNodes (), source, groups[i].getMembers());		
+		stObserver.setTree (&st);
 		
 		/*disjoint set to avoid circle*/
 		//TODO IMPLEMENTAR DENTRO DA ST_IMPLEMENTAÇÃO
@@ -303,8 +311,8 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 					
 					dset.simpleUnion (v, x);
 					
-					(v > x ? st.addEdge (v, x, (int)net->getCost (v,x)):
-							st.addEdge (x, v, (int)net->getCost (x,v)));
+					(v > x ? stObserver.addEdge (v, x, (int)net->getCost (v,x),i):
+							stObserver.addEdge (x, v, (int)net->getCost (x,v),i));
 				
 				}
 			}
@@ -330,27 +338,26 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 				net->undoRemoveEdge (*itl);
 			}		
 		}
-		st.prunning ();
-		m_cost += st.getCost ();
+		
+		//passing group i
+		stObserver.prunning ( i );
 		
 #ifdef DEBUG1
 		st.xdotFormat ();
 		getchar ();
 #endif
-		
-		compute_usage (i, used_links, st, net, groups[i]);
 	
 		net->clearRemovedEdges ();
 	}
 	
+	m_cost = stObserver.getCost ();
+	m_residual_capacity = cg.congestion ();
 	
 	/*udpating residual capacity*/
 	//int max = std::numeric_limits<int>::max();
-	std::sort (used_links.begin (), used_links.end());
-	m_residual_capacity = used_links.begin()->getValue ();
-	
-	
-	this->m_used_links = used_links;
+	//std::sort (used_links.begin (), used_links.end());
+	//m_residual_capacity = used_links.begin()->getValue ();	
+	//this->m_used_links = used_links;
 }
 
 void PathRepresentation::print_solution (rca::Network *net, 
@@ -410,7 +417,8 @@ void PathRepresentation::print_solution (rca::Network *net,
 
 int main (int argc, char**argv) 
 {
-	srand (time(NULL));
+	//srand (time(NULL));
+	srand (0);
 	
 	std::string instance = argv[1];
 	MetaHeuristic<GeneticAlgorithm> algorithm;
