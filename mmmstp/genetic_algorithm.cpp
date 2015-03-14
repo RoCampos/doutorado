@@ -51,11 +51,17 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 			}
 		}
 	}
-		
+	
+#ifdef DEBUG1
 	std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
-	
 	m_population[best].print_solution (m_network, m_groups);
+#endif
+	
+	for (const PathRepresentation & p : m_population) {
+		std::cout << p.m_cost << " ";
+		std::cout << p.m_residual_capacity << std:: endl;
+	}
 	
 	//deallocatin of resources;
 	delete m_network;
@@ -63,7 +69,7 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 
 void GeneticAlgorithm::init_population ()
 {
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << "Creating Population: size = " << m_pop << std::endl;	
 #endif
 	
@@ -92,11 +98,13 @@ void GeneticAlgorithm::init_population ()
 		
 	}
 	
-	//std::cout << "Best Initalization \n";
-	//std::cout << m_population[best].getCost () << " ";
-	//std::cout << m_population[best].getResidualCap () << " ";
+#ifdef DEBUG1
+	std::cout << "Best Initalization \n";
+	std::cout << m_population[best].getCost () << " ";
+	std::cout << m_population[best].getResidualCap () << " ";
 	
-	//m_population[best].print_solution (m_network,m_groups);
+	m_population[best].print_solution (m_network,m_groups);
+#endif
 	
 }
 
@@ -196,38 +204,16 @@ void GeneticAlgorithm::mutation (int i)
 	if ( sol.m_cost < m_budget ) {
 		
 		if (sol.m_residual_capacity < m_population[i].m_residual_capacity) {
+#ifdef DEBUG1
+	std::cout << "Some Improvement=";
+	std::cout << (sol.m_residual_capacity)<<":"<< m_population[i].m_residual_capacity;
+	std::cout << std::endl;
+#endif
 			m_population[i] = sol;
 		}
 		
 	}
 	
-}
-	
-void compute_usage (int m_group, std::vector<rca::Link>& used_links, 
-					SteinerTree& st, rca::Network* m_network, 
-					rca::Group& group)
-{
-	//int k = m_group;
-	
-	/*computing the usage*/
-	Edge * e = st.listEdge.head;
-	while ( e != NULL) {
-			
-		int trequest = group.getTrequest ();
-		rca::Link link (e->i, e->j, 0);
-			
-		std::vector<rca::Link>::iterator it;
-		it = std::find (used_links.begin (), used_links.end(),link);
-		if (it != used_links.end()) {
-			it->setValue ( it->getValue () - trequest);
-		} else {
-			int band = m_network->getBand (link.getX(), link.getY());
-			link.setValue (band - trequest);
-			used_links.push_back (link);
-		}
-		
-		e = e->next;
-	}
 }
 
 void PathRepresentation::init_rand_solution (rca::Network * net, 
@@ -240,7 +226,6 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 	std::vector<rca::Link> used_links;
 	
 	int GROUPS = groups.size ();
-	int NODES = net->getNumberNodes ();
 	
 	CongestionHandle cg(net, groups);
 	SteinerTreeObserver stObserver(NULL, &cg);
@@ -275,7 +260,7 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 					
 					links.push_back (link);
 				}
-#ifdef DEBUG
+#ifdef DEBUG1
 				std::cout << "\t\tremoving path ";
 				std::cout << path << " size (";
 				std::cout << path.size () << ")\n";
@@ -305,7 +290,7 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 				path = shortest_path (source, w, net);
 			}
 			
-#ifdef DEBUG
+#ifdef DEBUG1
 		printf ("\tpath %d to %d ", source, w);
 		std::cout << path;
 		std::cout << " size= " << path.size () <<std::endl;
@@ -330,12 +315,7 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 	
 	m_cost = stObserver.getCost ();
 	m_residual_capacity = cg.congestion ();
-	
-	/*udpating residual capacity*/
-	//int max = std::numeric_limits<int>::max();
-	//std::sort (used_links.begin (), used_links.end());
-	//m_residual_capacity = used_links.begin()->getValue ();	
-	//this->m_used_links = used_links;
+
 }
 
 void PathRepresentation::print_solution (rca::Network *net, 
