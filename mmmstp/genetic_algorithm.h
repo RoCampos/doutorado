@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
+#include <utility>
 
 #include "network.h"
 #include "group.h"
@@ -64,8 +65,14 @@ class PathRepresentation {
 public:
 	PathRepresentation (): m_cost(0), m_residual_capacity(0){}
 	
+	PathRepresentation (const PathRepresentation&);
+	PathRepresentation & operator= (const PathRepresentation&);
+	
 	void init_rand_solution (rca::Network * net, 
 							std::vector<rca::Group> & group);
+	
+	void operator1 (rca::Network *net, std::vector<rca::Group> & group);
+	
 	
 	inline int getCost () {return m_cost;}
 	inline int getResidualCap () {return m_residual_capacity;}

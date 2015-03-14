@@ -22,6 +22,10 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	/*init population*/
 	init_population ();
 	
+	
+	m_population[0].operator1 (m_network,m_groups);
+	getchar ();
+	
 	while ( --m_iter > 0) {
 	
 		int i = rand () % m_population.size ();
@@ -178,7 +182,9 @@ void GeneticAlgorithm::crossover (int i, int j)
 	}
 	
 	if (old != -1) {
-	
+#ifdef DEBUG
+	std::cout << "Crossver Improvement\n"; 	
+#endif
 		m_population[old] = sol;
 		
 	}
@@ -204,9 +210,10 @@ void GeneticAlgorithm::mutation (int i)
 	if ( sol.m_cost < m_budget ) {
 		
 		if (sol.m_residual_capacity < m_population[i].m_residual_capacity) {
-#ifdef DEBUG1
+#ifdef DEBUG
 	std::cout << "Some Improvement=";
 	std::cout << (sol.m_residual_capacity)<<":"<< m_population[i].m_residual_capacity;
+	std::cout << " " << sol.m_cost;
 	std::cout << std::endl;
 #endif
 			m_population[i] = sol;
@@ -215,6 +222,31 @@ void GeneticAlgorithm::mutation (int i)
 	}
 	
 }
+
+/*Copy constructor*/
+PathRepresentation::PathRepresentation (const PathRepresentation& ind)
+{
+	m_cost = ind.m_cost;
+	m_residual_capacity = ind.m_residual_capacity;	
+	m_feasable = ind.m_feasable;
+	
+	//using move from algorithm
+	m_genotype = std::move (ind.m_genotype);
+}
+
+/*Assignement operator*/
+PathRepresentation& PathRepresentation::operator= (const PathRepresentation& ind)
+{
+	m_cost = ind.m_cost;
+	m_residual_capacity = ind.m_residual_capacity;	
+	m_feasable = ind.m_feasable;
+	
+	//using move from algorithm
+	m_genotype = std::move (ind.m_genotype);
+
+	return *this;
+}
+
 
 void PathRepresentation::init_rand_solution (rca::Network * net, 
 									  std::vector<rca::Group>& groups)
@@ -370,6 +402,41 @@ void PathRepresentation::print_solution (rca::Network *net,
 		}
 		
 	}
+	
+}
+
+void PathRepresentation::operator1 (rca::Network *net, 
+									std::vector<rca::Group> & group)
+{
+
+	int GROUP_ID = -1;
+	int max = group[0].getTrequest ();
+	int begin = 0;
+	//getting the max trquest
+	for (int i =1; i < (int)group.size(); i++) {
+		if (max < group[i].getTrequest ()) {
+			max = group[i].getTrequest ();
+			GROUP_ID = i;
+		}
+	}
+	//getting the right position of the group in the m_genotype
+	for (int i=0; i < GROUP_ID; i++) {
+		begin += group[i].getSize ();
+	}
+	
+	std::cout << GROUP_ID << std::endl;
+	std::cout << begin << std::endl;
+	
+	/* remove the most usage links */
+	int end = (begin+group[GROUP_ID].getSize()); 
+	std::cout << end << std::endl;
+	for (int i=begin; i < end; i++ ) {
+		
+		rca::Path p = m_genotype[i];
+		std::cout << p << std::endl;
+		
+	}
+	
 	
 }
 
