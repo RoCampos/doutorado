@@ -93,14 +93,21 @@ public:
 	
 	void addEdge (int i,int j, int value, int group) {
 		
+		//verifica se está no mesmo conjunto
 		if ( dset->find2 (i) != dset->find2 (j) ) {
+			
+			//faz união
 			dset->simpleUnion (i, j);
 			int cost = (int)m_ch->m_network->getCost (i,j);
+			
+			//adiciona aresta a m_st
 			(i > j ? m_st->addEdge (i, j, cost):
 					 m_st->addEdge (j, i, cost));
 		
-			m_st->addEdge (i,j,value);
+			//calculate cost
 			m_cost += value;
+			
+			//compute usage
 			m_ch->add_edge (i,j,group);
 		}
 		

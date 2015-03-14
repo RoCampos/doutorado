@@ -103,8 +103,6 @@ void GeneticAlgorithm::init_population ()
 void GeneticAlgorithm::crossover (int i, int j)
 {
 	
-	int rnd = rand () % 15 + 1;
-	
 	int size = m_population[i].m_genotype.size ();
 	int i_pos = rand () % size;
 		
@@ -121,7 +119,6 @@ void GeneticAlgorithm::crossover (int i, int j)
 	}
 	
 	int GROUPS = m_groups.size ();
-	int NODES = m_network->getNumberNodes ();
 	int stop = 0;
 	
 	CongestionHandle cg(m_network, m_groups);
