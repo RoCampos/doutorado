@@ -79,6 +79,13 @@ public:
 	
 	void print_solution (rca::Network *net,std::vector<rca::Group> &);
 	
+	void setCongestionHandle (CongestionHandle &cg) {
+		m_cg = cg;
+	}
+	CongestionHandle & getCongestionHandle () {
+		return this->m_cg;
+	}
+	
 private:
 	int m_cost;
 	int m_residual_capacity;
@@ -86,7 +93,7 @@ private:
 	std::vector<rca::Path> m_genotype;
 	bool m_feasable;
 	
-	std::vector<rca::Link> m_used_links;
+	CongestionHandle m_cg;
 	
 };
 

@@ -54,8 +54,14 @@ public:
 	
 	int congestion () {
 		
+		std::sort (m_used_links.begin(), m_used_links.end());
+		
 		return ( std::min_element (m_used_links.begin(), 
 								 m_used_links.end())  )->getValue();
+	}
+	
+	const std::vector<rca::Link> & getUsedLinks () {
+		return m_used_links;
 	}
 	
 private:
