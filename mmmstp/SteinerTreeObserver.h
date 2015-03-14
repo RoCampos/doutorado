@@ -2,6 +2,7 @@
 #define _STTREE_OBSERVER_H_
 
 #include "steinertree.h"
+#include "disjointset2.h"
 
 
 class SteinerTreeObserver;
@@ -15,19 +16,6 @@ public:
 	CongestionHandle (rca::Network * net, std::vector<rca::Group> & g){
 		m_network = net;
 		m_groups = g;
-		/*
-		int NODES = m_network->getNumberNodes ();
-		m_congestion = std::vector<std::vector<int>> (NODES);
-		for (int i=0;i < NODES; i++) {
-			m_congestion[i] = std::vector<int> (NODES,0);
-		}
-		
-		for (int i=0; i < NODES; i++) {
-			for (int j=0; j < NODES;j++) {
-				if (m_network->getCost (i,j) > 0)
-					m_congestion[i][j] = m_network->getBand (i,j);
-			}
-		}*/
 	}
 	
 	void add_edge (int i,int j,int group) {
@@ -65,20 +53,6 @@ public:
 	}
 	
 	int congestion () {
-		/*
-		int max = 9999;
-		for (int i=0; i < (int)m_congestion.size (); i++) {
-			for (int j=0; j < (int) m_congestion[i].size(); j++ ) {
-				
-				if (m_network->getCost (i,j) > 0) {
-					
-					if (m_congestion[i][j] < max) {
-						max = m_congestion[i][j];
-					}
-				}
-				
-			}
-		}*/
 		
 		return ( std::min_element (m_used_links.begin(), 
 								 m_used_links.end())  )->getValue();
@@ -103,19 +77,32 @@ public:
 		m_ch = ch;
 		m_cost = 0;
 		
-		num_links = 0;
+		dset = NULL;
 	}
 	
 	void setTree (SteinerTree * st) {
+		
+		if (dset) {
+			delete dset;
+		}
+		
+		dset = new DisjointSet2 (m_ch->m_network->getNumberNodes ());
+		
 		m_st = st;
 	}
 	
 	void addEdge (int i,int j, int value, int group) {
 		
-		m_st->addEdge (i,j,value);
-		num_links++;
-		m_cost += value;
-		m_ch->add_edge (i,j,group);
+		if ( dset->find2 (i) != dset->find2 (j) ) {
+			dset->simpleUnion (i, j);
+			int cost = (int)m_ch->m_network->getCost (i,j);
+			(i > j ? m_st->addEdge (i, j, cost):
+					 m_st->addEdge (j, i, cost));
+		
+			m_st->addEdge (i,j,value);
+			m_cost += value;
+			m_ch->add_edge (i,j,group);
+		}
 		
 	}
 	
@@ -147,8 +134,6 @@ public:
 			if (edge) {
 				m_cost -= edge->cost;
 				m_ch->remove_edge (edge->i, edge->j, group);
-				
-				num_links--;
 			}
 			
 			//remover aresta
@@ -181,19 +166,16 @@ public:
 				}
 			}
 			
-			
-			
 		}
 		
 	}
-	
-public:
-	int num_links;
 	
 private:
 	SteinerTree * m_st;
 	CongestionHandle * m_ch;
 	int m_cost;
+	
+	DisjointSet2 * dset;
 	
 	
 };
