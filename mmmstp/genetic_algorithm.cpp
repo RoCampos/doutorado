@@ -125,17 +125,13 @@ void GeneticAlgorithm::crossover (int i, int j)
 	int stop = 0;
 	
 	CongestionHandle cg(m_network, m_groups);
-	SteinerTreeObserver stObserver(NULL, cg);
+	SteinerTreeObserver stObserver(NULL, &cg);
 	for (int k = 0; k < GROUPS; k++) {
 			
 		int source = m_groups[k].getSource ();
 		SteinerTree st (m_network->getNumberNodes (), source, m_groups[k].getMembers());
 		
 		stObserver.setTree(&st);
-		
-		/*disjoint set to avoid circle*/
-		//TODO IMPLEMENTAR DENTRO DA ST_IMPLEMENTAÇÃO
-		DisjointSet2 dset (NODES);
 		
 		int g_size = m_groups[k].getSize ();
 		int gen = stop;
@@ -151,14 +147,8 @@ void GeneticAlgorithm::crossover (int i, int j)
 				int v = *it;
 				int x = *(it+1);
 				
-				if ( dset.find2 (v) != dset.find2 (x) ) {
-					
-					dset.simpleUnion (v, x);
-					
-					(v > x ? stObserver.addEdge (v, x, (int)m_network->getCost (v,x), k):
-							stObserver.addEdge (x, v, (int)m_network->getCost (x,v), k));
-				
-				}
+				int cost = m_network->getCost (v,x);
+				stObserver.addEdge (v, x, cost, k);
 			}
 		}
 		
@@ -256,7 +246,7 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 	int NODES = net->getNumberNodes ();
 	
 	CongestionHandle cg(net, groups);
-	SteinerTreeObserver stObserver(NULL, cg);
+	SteinerTreeObserver stObserver(NULL, &cg);
 	for (int i=0; i < GROUPS; i++) {
 		int source = groups[i].getSource ();	
 		
@@ -264,10 +254,6 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 		SteinerTree st (net->getNumberNodes (), source, groups[i].getMembers());		
 		stObserver.setTree (&st);
 		
-		/*disjoint set to avoid circle*/
-		//TODO IMPLEMENTAR DENTRO DA ST_IMPLEMENTAÇÃO
-		DisjointSet2 dset (NODES);
-	
 		rca::Path path;
 		int w = groups[i].getMember (0);
 		path = shortest_path (source, w, net);
@@ -307,14 +293,9 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 				int v = *it;
 				int x = *(it+1);
 				
-				if ( dset.find2 (v) != dset.find2 (x) ) {
-					
-					dset.simpleUnion (v, x);
-					
-					(v > x ? stObserver.addEdge (v, x, (int)net->getCost (v,x),i):
-							stObserver.addEdge (x, v, (int)net->getCost (x,v),i));
+				int cost = net->getCost (v,x);
+				stObserver.addEdge (v, x, cost, i);
 				
-				}
 			}
 		
 			if (d == groups[i].getSize ()) break;
