@@ -29,8 +29,12 @@ private:
 	}
 	
 	void init_population ();
+	
+	//individual i and individual j
 	void crossover (int i, int j);
-	void mutation ();
+	
+	//individual i
+	void mutation (int i);
 	
 	/* method to run the algorithm against the instance*/
 	void run ();

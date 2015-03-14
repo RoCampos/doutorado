@@ -32,6 +32,10 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 			
 		crossover(i,j);
 		
+		i = rand () % m_population.size ();
+		
+		mutation (i);
+		
 	}
 	
 	int max = m_population[0].m_residual_capacity;
@@ -47,13 +51,10 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 			}
 		}
 	}
-	
-	//std::cout << "Best Solution\n";
+		
 	std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
-	//m_population[best].print_solution (m_network, m_groups);
-	
-	
+		
 	//deallocatin of resources;
 	delete m_network;
 }
@@ -186,36 +187,31 @@ void GeneticAlgorithm::crossover (int i, int j)
 	
 }
 
-/*
-void GeneticAlgorithm::compute_usage (int multicast_group, 
-									  std::vector<rca::Link>& used_links,
-									  SteinerTree & st)
+void GeneticAlgorithm::mutation (int i) 
 {
 	
-	int k = multicast_group;
-
-	Edge * e = st.listEdge.head;
-	while ( e != NULL) {
-			
-		int trequest = m_groups[k].getTrequest ();
-		rca::Link link (e->i, e->j, 0);
-			
-		std::vector<rca::Link>::iterator it;
-		it = std::find (used_links.begin (), used_links.end(),link);
-		if (it != used_links.end()) {
-			it->setValue ( it->getValue () - trequest);
-		} else {
-			int band = m_network->getBand (link.getX(), link.getY());
-			link.setValue (band - trequest);
-			used_links.push_back (link);
+	auto it = m_population[i].m_used_links.begin ();
+	
+	int j=0;
+	int max = m_population[i].m_used_links.size () * 0.10; 
+	for (; j++ < max; it++) {
+		
+		m_network->removeEdge (m_population[i].m_used_links[j]);
+		
+	}
+	
+	PathRepresentation sol;
+	sol.init_rand_solution (m_network, m_groups);
+	
+	if ( sol.m_cost < m_budget ) {
+		
+		if (sol.m_residual_capacity < m_population[i].m_residual_capacity) {
+			m_population[i] = sol;
 		}
 		
-		e = e->next;
 	}
 	
 }
-*/
-	
 	
 void compute_usage (int m_group, std::vector<rca::Link>& used_links, 
 					SteinerTree& st, rca::Network* m_network, 
