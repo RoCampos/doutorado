@@ -16,6 +16,19 @@ public:
 	CongestionHandle (rca::Network * net, std::vector<rca::Group> & g){
 		m_network = net;
 		m_groups = g;
+	}	
+	
+	CongestionHandle & operator=(const CongestionHandle & cong) {
+	
+		if (this != &cong) {
+		
+			m_network = cong.m_network;
+			m_groups = cong.m_groups;
+			m_used_links = cong.m_used_links;
+		
+		}
+		
+		return *this;
 	}
 	
 	void add_edge (int i,int j,int group) {
@@ -93,7 +106,7 @@ public:
 		}
 		
 		dset = new DisjointSet2 (m_ch->m_network->getNumberNodes ());
-		
+	
 		m_st = st;
 	}
 	
