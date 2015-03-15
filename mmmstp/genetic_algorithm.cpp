@@ -28,20 +28,35 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	int i_tabu = 0;
 	while ( --m_iter > 0) {
 	
-		int i = rand () % m_population.size ();
-		int j;
-		do {
-			j = rand () % m_population.size ();
-		} while (i == j);
+		
+		for (unsigned int pop = 0; pop < m_population.size (); pop++) {
 			
-		crossover(i,j);
+			int i = selection_operator ();
+			int j = selection_operator ();
+				
+			//one point crossover
+			double cross_rate = (double)(rand () % 10 + 1)/10.0;
+			if (cross_rate < m_cross) {
+				crossover(i,j);
+			}
+			
+			cross_rate = (double)(rand () % 10 + 1)/10.0;
+			//mutatioon
+			if (cross_rate < m_mut) {
+				i = rand () % m_population.size ();
+				mutation (i);
+			}
+			
+			//removing from network the congestioned links
+			//create a new paths and replace old paths that 
+			//uses congestioned links
+			cross_rate = (double)(rand () % 10 + 1)/10.0;
+			if (cross_rate < 0.3) {
+				i = rand () % m_population.size ();
+				m_population[i].operator1 (m_network, m_groups);
+			}
 		
-		i = rand () % m_population.size ();
-		
-		mutation (i);
-		
-		i = rand () % m_population.size ();
-		m_population[i].operator1 (m_network, m_groups);
+		}
 
 	}
 	
@@ -59,19 +74,28 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 		}
 	}
 	
-#ifdef DEBUG1
+//#ifdef DEBUG1
 	std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
-	m_population[best].print_solution (m_network, m_groups);
-#endif
-	
-	for (const PathRepresentation & p : m_population) {
-		std::cout << p.m_cost << " ";
-		std::cout << p.m_residual_capacity << std:: endl;
-	}
-	
+	//m_population[best].print_solution (m_network, m_groups);
+
 	//deallocatin of resources;
 	delete m_network;
+}
+
+int GeneticAlgorithm::selection_operator ()
+{
+
+	int i = rand () % m_population.size ();
+	int j = -1;
+	do {
+		j = rand () % m_population.size ();
+	} while (i == j);
+	
+	//retorna melhor individual com base na capacidade residual
+	return (m_population[i].m_residual_capacity > 
+			m_population[j].m_residual_capacity ?
+		   i : j);
 }
 
 void GeneticAlgorithm::init_population ()
@@ -529,11 +553,7 @@ void PathRepresentation::operator1 (rca::Network *net,
 		
 	}
 	
-	//std::cout << this->m_cost << " ";
-	//std::cout << this->m_residual_capacity << std::endl;
-	
-	//std::cout << stObserver.getCost () << " ";
-	//std::cout << cg.congestion () << std::endl;
+	net->clearRemovedEdges ();
 	
 	if (cg.congestion () > this->m_residual_capacity) {
 	
@@ -544,14 +564,14 @@ void PathRepresentation::operator1 (rca::Network *net,
 		
 	}
 	
-	net->clearRemovedEdges ();
+	
 	
 }
 
 int main (int argc, char**argv) 
 {
-	//srand (time(NULL));
-	srand (0);
+	srand (time(NULL));
+	//srand (0);
 	
 	std::string instance = argv[1];
 	MetaHeuristic<GeneticAlgorithm> algorithm;
