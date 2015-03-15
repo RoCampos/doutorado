@@ -22,9 +22,10 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	/*init population*/
 	init_population ();
 	
-	m_population[0].operator1 (m_network,m_groups);
-	getchar ();
+	//m_population[0].operator1 (m_network,m_groups);
+	//getchar ();
 	
+	int i_tabu = 0;
 	while ( --m_iter > 0) {
 	
 		int i = rand () % m_population.size ();
@@ -39,6 +40,9 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 		
 		mutation (i);
 		
+		i = rand () % m_population.size ();
+		m_population[i].operator1 (m_network, m_groups);
+
 	}
 	
 	int max = m_population[0].m_residual_capacity;
@@ -215,7 +219,7 @@ void GeneticAlgorithm::mutation (int i)
 	
 	if ( sol.m_cost < m_budget ) {
 		
-		if (sol.m_residual_capacity < m_population[i].m_residual_capacity) {
+		if (sol.m_residual_capacity > m_population[i].m_residual_capacity) {
 #ifdef DEBUG1
 	std::cout << "Some Improvement=";
 	std::cout << (sol.m_residual_capacity)<<":"<< m_population[i].m_residual_capacity;
@@ -295,12 +299,12 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 			
 			std::vector<rca::Link> links;
 			int rnd = rand () % 10 + 1;
-			if (rnd < 5) {
+			if (rnd < 8) { //garante a diversidade
 
 				/* removing this path */
-				std::vector<int>::reverse_iterator it = path.rbegin ();
-				for (; it!= path.rend () -1; it++) {
-					rca::Link link( (*it), *(it + 1), 0);
+				std::vector<int>::reverse_iterator its = path.rbegin ();
+				for (; its!= path.rend () -1; its++) {
+					rca::Link link( (*its), *(its + 1), 0);
 					net->removeEdge (link);
 					
 					links.push_back (link);
@@ -422,49 +426,125 @@ void PathRepresentation::operator1 (rca::Network *net,
 									std::vector<rca::Group> & group)
 {
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << __FUNCTION__ << std::endl;	
 #endif
-
-	int GROUP_ID = -1;
-	int max = group[0].getTrequest ();
-	int begin = 0;
-	//getting the max trquest
-	for (int i =1; i < (int)group.size(); i++) {
-		if (max < group[i].getTrequest ()) {
-			max = group[i].getTrequest ();
-			GROUP_ID = i;
+	
+	int list_size = m_cg.getUsedLinks ().size () * 0.10;
+	//std::cout << list_size << std::endl;
+	//std::vector<rca::Path> tree;
+	
+	//removing from network
+	//std::cout << "removed\n";
+	for (int l = 0; l < list_size; l++) {		
+		//std::cout << m_cg.getUsedLinks ()[l] << std::endl;
+		net->removeEdge ( m_cg.getUsedLinks ()[l] );
+	}
+	
+	CongestionHandle cg(net,group);
+	SteinerTreeObserver stObserver(NULL, &cg);
+	int end = group[0].getSize ();
+	SteinerTree st (net->getNumberNodes (), 
+					group[0].getSource(),
+					group[0].getMembers ());
+	stObserver.setTree (&st);
+	int k = 0;
+	
+	//std::cout << "Group " << k << std::endl;
+	//std::cout << end << std::endl;
+	std::vector<rca::Path> paths;
+	for (int i=0; i < (int)m_genotype.size (); i++ ) {
+		
+		//std::cout << m_genotype[i] << std::endl;
+		bool contains = 0;
+		for (int l = 0; l < list_size; l++) {
+			
+			rca::Link link = m_cg.getUsedLinks ()[l];
+			
+			auto path = m_genotype[i].rbegin ();
+			for ( ; path != m_genotype[i].rend() -1; path++) {
+				
+				int v = *path;
+				int w = *(path +1);
+				rca::Link link_t (v,w,0);
+				if (link_t == link) {
+					
+					contains = 1;
+					break;
+				}
+			}
+			
+			if (contains) {
+				break;
+			}			
 		}
-	}
-	//getting the right position of the group in the m_genotype
-	for (int i=0; i < GROUP_ID; i++) {
-		begin += group[i].getSize ();
-	}
-	
-	std::cout << GROUP_ID << std::endl;
-	std::cout << begin << std::endl;
-	
-	/* remove the most usage links */
-	int end = (begin+group[GROUP_ID].getSize()); 
-	std::cout << end << std::endl;
-	
-	std::cout << this->m_cg.getUsedLinks ().size () << std::endl;
-	
-	for (const rca::Link & l : m_cg.getUsedLinks()) {
-		std::cout << l << ":" << l.getValue () << std::endl;
-	}
-	
-	/*
-	for (int i=begin; i < end; i++ ) {
 		
-		rca::Path p = m_genotype[i];
-		std::cout << p << std::endl;
+		rca::Path path;
+		if (contains) {
+			path = shortest_path (*(m_genotype[i].rbegin()),
+											*(m_genotype[i].rend()-1),net);
+			//std::cout <<"*"<<path << std::endl;
+		} else {
+			//std::cout << m_genotype[i] << std::endl;
+			path = m_genotype[i];
+		}
 		
-		auto rit = p.rbegin ();
-		for (; it != )
+		if (path.size () == 0) {
+			path = m_genotype[i];
+		}
 		
-	}*/
+		paths.push_back (path);
+		
+		if (i < end) {
+			
+			//addin path to SteinerTree
+			auto it = path.rbegin ();
+			for ( ; it != path.rend ()-1; it++) {
+				int v = *it;
+				int w = *(it+1);
+				int cost = net->getCost (v,w);
+				stObserver.addEdge (v,w,cost,k);
+			}
+			
+			
+		} else {
+			
+			k++;
+			st = SteinerTree(net->getNumberNodes (), 
+					group[k].getSource(),
+					group[k].getMembers ());
+			stObserver.setTree (&st);
+			auto it = path.rbegin ();
+			for ( ; it != path.rend ()-1; it++) {
+				int v = *it;
+				int w = *(it+1);
+				int cost = net->getCost (v,w);
+				stObserver.addEdge (v,w,cost,k);
+			}
+			
+			end += group[k].getSize ();
+		
+		}
+		//adding path or constructor
+		
+	}
 	
+	//std::cout << this->m_cost << " ";
+	//std::cout << this->m_residual_capacity << std::endl;
+	
+	//std::cout << stObserver.getCost () << " ";
+	//std::cout << cg.congestion () << std::endl;
+	
+	if (cg.congestion () > this->m_residual_capacity) {
+	
+		this->m_genotype = paths;
+		this->m_cg = cg;
+		this->m_residual_capacity = cg.congestion ();
+		this->m_cost = stObserver.getCost ();
+		
+	}
+	
+	net->clearRemovedEdges ();
 	
 }
 
