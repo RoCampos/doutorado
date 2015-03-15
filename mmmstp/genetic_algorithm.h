@@ -35,6 +35,8 @@ private:
 	//individual i and individual j
 	void crossover (int i, int j);
 	
+	int selection_operator ();
+	
 	//individual i
 	void mutation (int i);
 	
