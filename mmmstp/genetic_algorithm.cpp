@@ -27,7 +27,6 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	
 	int i_tabu = 0;
 	while ( --m_iter > 0) {
-	
 		
 		for (unsigned int pop = 0; pop < m_population.size (); pop++) {
 			
@@ -44,7 +43,7 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 			//mutatioon
 			if (cross_rate < m_mut) {
 				i = rand () % m_population.size ();
-				mutation (i);
+				//mutation (i);
 			}
 			
 			//removing from network the congestioned links
@@ -109,6 +108,7 @@ void GeneticAlgorithm::init_population ()
 	int cost = 10000000;
 	m_population = std::vector<PathRepresentation> (m_pop);
 	for (int i=0; i < m_pop; i++) {
+
 		m_population[i].init_rand_solution (m_network, m_groups);
 		
 		if (m_population[i].getCost () < m_budget) {
@@ -303,7 +303,7 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 	SteinerTreeObserver stObserver(NULL, &getCongestionHandle ());
 	
 	for (int i=0; i < GROUPS; i++) {
-		int source = groups[i].getSource ();	
+		int source = groups[i].getSource ();
 		
 		/*Steiner tree to compute correctly cost*/
 		SteinerTree st (net->getNumberNodes (), source, groups[i].getMembers());		
@@ -323,25 +323,35 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 			
 			std::vector<rca::Link> links;
 			int rnd = rand () % 10 + 1;
-			if (rnd < 8) { //garante a diversidade
+			//if (rnd < 8) { //garante a diversidade
 
 				/* removing this path */
 				std::vector<int>::reverse_iterator its = path.rbegin ();
 				for (; its!= path.rend () -1; its++) {
 					rca::Link link( (*its), *(its + 1), 0);
-					net->removeEdge (link);
 					
-					links.push_back (link);
+					
+					if (rnd < 8) {
+						net->removeEdge (link);
+						links.push_back (link);
+					}
+					
+					rca::Link link2 = link;
+					int cost = net->getCost (link2.getX(),link2.getY());
+					link2.setValue (cost);
+					stObserver.addEdge (link2.getX(), link2.getY(), cost, i);					
+					
 				}
 #ifdef DEBUG1
 				std::cout << "\t\tremoving path ";
 				std::cout << path << " size (";
 				std::cout << path.size () << ")\n";
 #endif
-			}
+			//}
 			
 			m_genotype.push_back (path);
 			
+			/*
 			std::vector<int>::reverse_iterator it = path.rbegin ();
 			for (; it!= path.rend () -1; it++) {
 				//rca::Link link( (*it), *(it + 1), 0);
@@ -351,7 +361,7 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 				int cost = net->getCost (v,x);
 				stObserver.addEdge (v, x, cost, i);
 				
-			}
+			}*/
 		
 			if (d == groups[i].getSize ()) break;
 			
@@ -570,7 +580,10 @@ void PathRepresentation::operator1 (rca::Network *net,
 
 int main (int argc, char**argv) 
 {
-	srand (time(NULL));
+	int T = time (NULL);
+	//srand (1426441393); //for bug in mutation on instance b30_14
+	srand (T);
+	std::cout << T << std::endl;
 	//srand (0);
 	
 	std::string instance = argv[1];
