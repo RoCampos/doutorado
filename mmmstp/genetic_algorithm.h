@@ -60,6 +60,7 @@ private:
 	std::vector<PathRepresentation> m_population;
 };
 
+
 class PathRepresentation {
 	friend class GeneticAlgorithm;
 	
@@ -71,6 +72,9 @@ public:
 	PathRepresentation & operator= (const PathRepresentation&);
 	
 	void init_rand_solution (rca::Network * net, 
+							std::vector<rca::Group> & group);
+
+	void init_rand_solution2 (rca::Network * net, 
 							std::vector<rca::Group> & group);
 	
 	void operator1 (rca::Network *net, std::vector<rca::Group> & group);
