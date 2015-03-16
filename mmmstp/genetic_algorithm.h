@@ -22,7 +22,7 @@ protected:
 private:
 	void init_problem_information (std::string instance);
 	inline void init_parameters (int pop = 25, double cross = 0.5, double mut = 0.2, 
-								int iter = 100)
+								int iter = 50)
 	{
 		m_pop = pop;
 		m_cross = cross;
@@ -96,6 +96,8 @@ private:
 	bool m_feasable;
 	
 	CongestionHandle m_cg;
+	
+	double USED_LIST = 0.10;
 	
 };
 

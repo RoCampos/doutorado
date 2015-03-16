@@ -464,7 +464,7 @@ void PathRepresentation::operator1 (rca::Network *net,
 	std::cout << __FUNCTION__ << std::endl;	
 #endif
 	
-	int list_size = m_cg.getUsedLinks ().size () * 0.10;
+	int list_size = m_cg.getUsedLinks ().size () * USED_LIST;
 	//std::cout << list_size << std::endl;
 	//std::vector<rca::Path> tree;
 	
