@@ -203,3 +203,6 @@ std::vector<std::vector<rca::Path>> k_paths (rca::Network* net,
 
 	return paths;
 }
+
+extern std::vector<ListPath> g_paths;
+extern std::vector<Tuple> g_members_info;

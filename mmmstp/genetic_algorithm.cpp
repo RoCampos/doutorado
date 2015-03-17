@@ -1,6 +1,10 @@
 #include "genetic_algorithm.h"
 #include "metaheuristic.h"
 
+//global variables
+std::vector<ListPath> g_paths;
+std::vector<Tuple> g_members_info;
+
 void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 {
 	/*configuring the problem*/
@@ -12,6 +16,11 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	for (unsigned int i =0; i < g.size (); i++) {
 		m_groups.push_back (*g[i].get ());
 	}
+	
+	/*Lista de caminhos used in init_rand_solution3*/
+	g_paths = k_paths (m_network, m_groups, 5);	
+	/*lista de genes used in init_rand_solution3*/
+	g_members_info = create_members_info (m_groups);
 	
 	/*orçamento*/
 	m_budget = budget;
@@ -103,6 +112,8 @@ void GeneticAlgorithm::init_population ()
 			m_population[i].init_rand_solution (m_network, m_groups);
 		else if (m_init == 1)
 			m_population[i].init_rand_solution2 (m_network, m_groups);
+		else if (m_init == 2)
+			m_population[i].init_rand_solution3 (m_network, m_groups);
 			
 		
 #ifdef DEBUG1
@@ -421,7 +432,6 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 	}
 	
 	//auxiliar functins define in genetic_algorithm.h
-	std::vector<Tuple> members_info = create_members_info (groups);
 	std::vector<int> genes = create_gene_vector (gene_size);
 	
 	//shuffling the order of each genes
@@ -430,7 +440,7 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 	m_genotype = std::vector<rca::Path> (gene_size);
 	for (int i=0; i < (int)genes.size (); i++) {
 		
-		Tuple t = members_info[ genes[i] ];
+		Tuple t = g_members_info[ genes[i] ];
 
 #ifdef DEBUG1		
 		std::cout << "building path ... " << std::get<0>(t);
@@ -476,6 +486,79 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 void PathRepresentation::init_rand_solution3 (rca::Network * net,
 											  std::vector<rca::Group>&groups)
 {
+	//observers
+	std::vector<SteinerTreeObserver> treesObserver;
+	CongestionHandle cg(net, groups);
+	this->setCongestionHandle (cg);
+	
+	int gene_size = 0;
+	
+	//steiner trees
+	std::vector<SteinerTree*> sts;
+	
+	//creating the StObservers && getting the size of individual
+	for (Group & g : groups) {
+		gene_size += g.getSize ();
+		
+		//creating observers
+		SteinerTree *st = new SteinerTree(net->getNumberNodes (), 
+					  g.getSource(), g.getMembers());
+		SteinerTreeObserver ob(NULL,&this->getCongestionHandle());
+		ob.setTree (st);
+		treesObserver.push_back (ob);
+		sts.push_back (st);
+		st = NULL;
+		
+	}
+	
+	std::vector<int> genes = create_gene_vector (gene_size);
+	
+	//shuffling the order of each genes
+	std::random_shuffle (genes.begin (), genes.end());
+	
+	m_genotype = std::vector<rca::Path> (gene_size);
+	for (int i=0; i < (int)genes.size (); i++) {
+		
+		Tuple t = g_members_info[ genes[i] ];
+
+#ifdef DEBUG1		
+		std::cout << "building path ... " << std::get<0>(t);
+		printf (" from %d to %d in group %d\n", std::get<2>(t),
+											std::get<3>(t),
+											std::get<1>(t));
+#endif
+		
+		//getting a random path from k_paths
+		int gene_id = std::get<0>(t);
+		int r = rand () % g_paths[ gene_id ].size ();
+		
+		///getting the path based on random r
+		rca::Path p = g_paths [ std::get<0>(t) ][r];
+		
+		
+		m_genotype[gene_id] = p;
+		
+		//removing path from network
+		auto it = p.rbegin ();
+		int g = std::get<1>(t);
+		for (; it != p.rend()-1; it++) {
+			int x = *(it);
+			int w = *(it+1);
+			
+			int cost = net->getCost (x,w);
+			
+			net->removeEdge ( rca::Link (x,w,0));
+			
+			treesObserver[g].addEdge (x,w,cost,g);
+		}
+		
+	}
+	
+	m_residual_capacity = this->getCongestionHandle().congestion ();
+	m_cost = 0;
+	for (SteinerTreeObserver & st : treesObserver) {
+		m_cost += st.getCost ();
+	}
 	
 }
 
