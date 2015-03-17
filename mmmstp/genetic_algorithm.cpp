@@ -22,43 +22,29 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	/*init population*/
 	init_population ();
 	
-	//PathRepresentation p;
-	//p.init_rand_solution2 (m_network, m_groups);
-	//getchar ();
-	
-	//m_population[0].operator1 (m_network,m_groups);
-	//getchar ();
-	
 	int i_tabu = 0;
 	while ( --m_iter > 0) {
 		
-		for (unsigned int pop = 0; pop < m_population.size (); pop++) {
+		//crossover
+		for (unsigned int pop = 0; pop < m_population.size (); pop+=4) {
 			
-			int i = selection_operator ();
-			int j = selection_operator ();
+			int i = selection_operator (pop, pop+1);
+			int j = selection_operator (pop+2, pop+3);
 				
 			//one point crossover
 			double cross_rate = (double)(rand () % 10 + 1)/10.0;
 			if (cross_rate < m_cross) {
 				crossover(i,j);
 			}
+		}
 			
-			cross_rate = (double)(rand () % 10 + 1)/10.0;
-			//mutatioon
-			if (cross_rate < m_mut) {
-				i = rand () % m_population.size ();
-				//mutation (i);
-			}
+		//applying mutation as operator1
+		for (int i=0; i < (int)m_population.size ();i++) {			
 			
-			//removing from network the congestioned links
-			//create a new paths and replace old paths that 
-			//uses congestioned links
-			cross_rate = (double)(rand () % 10 + 1)/10.0;
-			if (cross_rate < 0.3) {
-				i = rand () % m_population.size ();
+			int cross_rate = (double)(rand () % 10 + 1)/10.0;
+			if (cross_rate < m_mut) {				
 				m_population[i].operator1 (m_network, m_groups);
 			}
-		
 		}
 
 	}
@@ -78,23 +64,26 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	}
 	
 //#ifdef DEBUG1
+	std::cout << "Best: ";
 	std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
 	//m_population[best].print_solution (m_network, m_groups);
 
 	//deallocatin of resources;
+#ifdef DEBUG
+	for (PathRepresentation & p : m_population) {
+		std::cout << p.m_cost << " ";
+		std::cout << p.m_residual_capacity << std::endl;
+	}
+#endif
+	
+	
 	delete m_network;
 }
 
-int GeneticAlgorithm::selection_operator ()
+int GeneticAlgorithm::selection_operator (int i, int j)
 {
 
-	int i = rand () % m_population.size ();
-	int j = -1;
-	do {
-		j = rand () % m_population.size ();
-	} while (i == j);
-	
 	//retorna melhor individual com base na capacidade residual
 	return (m_population[i].m_residual_capacity > 
 			m_population[j].m_residual_capacity ?
@@ -115,7 +104,7 @@ void GeneticAlgorithm::init_population ()
 
 		m_population[i].init_rand_solution (m_network, m_groups);
 		
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << m_population[i].m_cost << " ";
 	std::cout << m_population[i].m_residual_capacity << std::endl;
 #endif
@@ -596,14 +585,18 @@ void PathRepresentation::operator1 (rca::Network *net,
 		bool contains = 0;
 		for (int l = 0; l < list_size; l++) {
 			
+			//pegando links usados
 			rca::Link link = m_cg.getUsedLinks ()[l];
 			
+			//para todo individual 
 			auto path = m_genotype[i].rbegin ();
 			for ( ; path != m_genotype[i].rend() -1; path++) {
 				
 				int v = *path;
 				int w = *(path +1);
 				rca::Link link_t (v,w,0);
+				
+				//se link existe, entao
 				if (link_t == link) {
 					
 					contains = 1;
@@ -686,7 +679,7 @@ int main (int argc, char**argv)
 	int T = time (NULL);
 	//srand (1426441393); //for bug in mutation on instance b30_14
 	srand (T);
-	std::cout << T << std::endl;
+	//std::cout << T << std::endl;
 	//srand (0);
 	
 	std::string instance = argv[1];

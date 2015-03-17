@@ -21,8 +21,8 @@ protected:
 	
 private:
 	void init_problem_information (std::string instance);
-	inline void init_parameters (int pop = 25, double cross = 0.5, double mut = 0.2, 
-								int iter = 50)
+	inline void init_parameters (int pop = 24, double cross = 0.5, double mut = 0.2, 
+								int iter = 25)
 	{
 		m_pop = pop;
 		m_cross = cross;
@@ -35,7 +35,7 @@ private:
 	//individual i and individual j
 	void crossover (int i, int j);
 	
-	int selection_operator ();
+	int selection_operator (int i, int j);
 	
 	//individual i
 	void mutation (int i);
