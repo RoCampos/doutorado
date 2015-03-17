@@ -8,7 +8,6 @@
 #include "network.h"
 #include "group.h"
 
-template <int option = 0>
 rca::Path shortest_path (int v, int w, rca::Network * network);
 
 bool is_connected (rca::Network & network, rca::Group & group);

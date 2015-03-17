@@ -688,9 +688,9 @@ int main (int argc, char**argv)
 	
 	int T = time (NULL);
 	//srand (1426441393); //for bug in mutation on instance b30_14
-	srand (T);
+	//srand (T);
 	//std::cout << T << std::endl;
-	//srand (0);
+	srand (0);
 	
 	std::string instance = argv[1];
 	//MetaHeuristic<GeneticAlgorithm> algorithm;
