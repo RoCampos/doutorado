@@ -32,16 +32,16 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 			int j = selection_operator (pop+2, pop+3);
 				
 			//one point crossover
-			double cross_rate = (double)(rand () % 10 + 1)/10.0;
+			double cross_rate = (double)(rand () % 100 + 1)/100.0;
 			if (cross_rate < m_cross) {
 				crossover(i,j);
 			}
 		}
 			
 		//applying mutation as operator1
-		for (int i=0; i < (int)m_population.size ();i++) {			
+		for (int i=0; i < (int)m_population.size ();i++) {
 			
-			int cross_rate = (double)(rand () % 10 + 1)/10.0;
+			double cross_rate = (double)(rand () % 100 + 1)/100.0;
 			if (cross_rate < m_mut) {				
 				m_population[i].operator1 (m_network, m_groups);
 			}
@@ -64,13 +64,13 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	}
 	
 //#ifdef DEBUG1
-	std::cout << "Best: ";
-	std::cout << m_population[best].m_cost << " ";
+	//std::cout << "Best: ";
+	//std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
 	//m_population[best].print_solution (m_network, m_groups);
 
 	//deallocatin of resources;
-#ifdef DEBUG
+#ifdef DEBUG1
 	for (PathRepresentation & p : m_population) {
 		std::cout << p.m_cost << " ";
 		std::cout << p.m_residual_capacity << std::endl;
@@ -115,11 +115,14 @@ void GeneticAlgorithm::init_population ()
 			
 				best = i;
 				max =  m_population[i].getResidualCap ();
+				
+				m_budget = m_population[i].m_cost;
 			} else if (max == m_population[i].getResidualCap ()) {
 			
 				if (m_population[i].getCost () < cost) {
 					cost = m_population[i].getCost ();
 					best = i;
+					m_budget = m_population[i].m_cost;
 				}
 			}
 			
@@ -683,10 +686,19 @@ int main (int argc, char**argv)
 	//srand (0);
 	
 	std::string instance = argv[1];
-	MetaHeuristic<GeneticAlgorithm> algorithm;
+	//MetaHeuristic<GeneticAlgorithm> algorithm;
 	
+	GeneticAlgorithm algorithm;
 	
-	int budget = atoi(argv[2]);
-	algorithm.run (instance, budget);
+	//int budget = atoi(argv[2]);
+	
+	int pop = atoi (argv[3]);
+	int cross = atoi (argv[5]);
+	int mut = atoi (argv[7]);
+	int iter = atoi (argv[6]);
+	//int list = atoi (argv[7]);
+	
+	algorithm.init_parameters (pop, cross, mut,iter);
+	algorithm.run_metaheuristic (instance, 0.0);
 	
 }
