@@ -16,9 +16,6 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	/*orçamento*/
 	m_budget = budget;
 	
-	/*configuring parameters - default*/
-	//init_parameters ();
-	
 	/*init population*/
 	init_population ();
 	

@@ -161,3 +161,45 @@ std::vector<int> create_gene_vector (int gene_size) {
 	return genes;
 	
 }
+
+
+typedef std::vector<rca::Path> ListPath;
+
+/**
+ * Esta função retorna todos os SIZE caminhos de todos os nós fontes
+ * para todos os destinos para cada grupo multicast
+ * 
+ */
+std::vector<std::vector<rca::Path>> k_paths (rca::Network* net, 
+											 std::vector<rca::Group>& groups,
+											 int size)
+{
+	
+	std::vector<std::vector<rca::Path>> paths; //all paths
+	
+	for (Group & g : groups) {
+		
+		int source = g.getSource ();
+		
+		KShortestPath path_builder (net);
+		for (const int & m : g.getMembers ()) {
+			
+			path_builder.init (source, m);
+			std::vector<rca::Path> path_i; //paths group i
+			
+			int i = 0;
+			while (path_builder.hasNext () && i++ < size) {
+				
+				rca::Path path = path_builder.next ();
+				path_i.push_back (path);
+				
+			}
+			
+			paths.push_back (path_i);
+			
+		}
+		
+	}	
+
+	return paths;
+}
