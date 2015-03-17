@@ -679,6 +679,13 @@ void PathRepresentation::operator1 (rca::Network *net,
 
 int main (int argc, char**argv) 
 {
+	if (argc < 10) {
+		printf ("Correct input is..\n");
+		printf ("<instace> --pop <value> --cross <value> --mut <value>");
+		printf (" --iter <value> --list <value> --budget <value>\n");
+		exit (0);
+	}
+	
 	int T = time (NULL);
 	//srand (1426441393); //for bug in mutation on instance b30_14
 	srand (T);
@@ -691,12 +698,12 @@ int main (int argc, char**argv)
 	GeneticAlgorithm algorithm;
 	
 	//int budget = atoi(argv[2]);
-	
 	int pop = atoi (argv[3]);
 	int cross = atoi (argv[5]);
 	int mut = atoi (argv[7]);
-	int iter = atoi (argv[6]);
-	//int list = atoi (argv[7]);
+	int iter = atoi (argv[9]);
+	//int list = atoi (argv[11]);
+	//int budget = atoi (arv[13]);
 	
 	algorithm.init_parameters (pop, cross, mut,iter);
 	algorithm.run_metaheuristic (instance, 0.0);
