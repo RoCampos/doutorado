@@ -16,11 +16,7 @@ class PathRepresentation;
 class GeneticAlgorithm {
 	friend class PathRepresentation;
 
-protected:
-	void run_metaheuristic (std::string instance, int budged);
-	
-private:
-	void init_problem_information (std::string instance);
+public:
 	inline void init_parameters (int pop = 24, double cross = 0.5, double mut = 0.2, 
 								int iter = 25)
 	{
@@ -29,6 +25,12 @@ private:
 		m_mut = mut;
 		m_iter = iter;
 	}
+	
+	void run_metaheuristic (std::string instance, int budged);
+	
+private:
+	void init_problem_information (std::string instance);
+	
 	
 	void init_population ();
 	
