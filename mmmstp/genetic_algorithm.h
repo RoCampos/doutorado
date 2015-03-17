@@ -10,6 +10,7 @@
 #include "reader.h"
 #include "steinertree.h"
 #include "SteinerTreeObserver.h"
+#include "kspath.h"
 
 class PathRepresentation;
 
@@ -18,12 +19,13 @@ class GeneticAlgorithm {
 
 public:
 	inline void init_parameters (int pop = 24, double cross = 0.5, double mut = 0.2, 
-								int iter = 25)
+								int iter = 25, int init = 0)
 	{
 		m_pop = pop;
 		m_cross = cross;
 		m_mut = mut;
 		m_iter = iter;
+		m_init = init;
 	}
 	
 	void run_metaheuristic (std::string instance, int budged);
@@ -58,6 +60,7 @@ private:
 	double m_cross;
 	double m_mut;
 	int m_iter;
+	int m_init;
 	
 	std::vector<PathRepresentation> m_population;
 };
@@ -73,11 +76,18 @@ public:
 	PathRepresentation (const PathRepresentation&);
 	PathRepresentation & operator= (const PathRepresentation&);
 	
+	//build from gene 0 to gene n-1( sum D_k for all k)
 	void init_rand_solution (rca::Network * net, 
 							std::vector<rca::Group> & group);
 
+	//Aletaoriamente escolhe o gene(source,member of group i)
+	//compute shortest_path
 	void init_rand_solution2 (rca::Network * net, 
 							std::vector<rca::Group> & group);
+	
+	//using list of paths
+	void init_rand_solution3 (rca::Network *,
+							  std::vector<rca::Group>&);
 	
 	void operator1 (rca::Network *net, std::vector<rca::Group> & group);
 	
@@ -107,6 +117,47 @@ private:
 	
 };
 
+//tupla contendo informações sobre id(no gene do individuo), group_id, 
+//source, desination
+typedef std::tuple<int,int,int,int> Tuple;
 
-void compute_usage (int m_group, std::vector<rca::Link>&, 
-					SteinerTree&, rca::Network*, rca::Group&);
+/**
+ * Função que retorna um vector de tuplas que contém informapções sobre
+ * cada par source/member para cada grupo.
+ */
+std::vector<Tuple> create_members_info (std::vector<rca::Group>& groups) {
+
+	//contém informações sobre cada grupo
+	int cont = 0;
+	std::vector<Tuple> members_info;
+	for (Group & g : groups) {	
+		for (const int & i : g.getMembers ()) {
+			
+			//stores gene_id, group_id, source, member
+			Tuple info (cont++, g.getId(),g.getSource (), i);
+
+			members_info.push_back (info);
+		}
+	}
+	
+	return members_info;
+}
+
+/**
+ * Inicializa e retorna um vector de genes.
+ * 
+ * Este vector passará pelo shuffle para aleatorizar a construção
+ * de soluções usando o algoritmo init2.
+ */
+std::vector<int> create_gene_vector (int gene_size) {
+
+	//generating the genes
+	std::vector<int> genes = std::vector<int> (gene_size,0);
+	genes[0]=0;
+	for (int i=1; i < (int)genes.size (); i++) {
+		genes[i]= genes[i-1]+1;
+	}
+	
+	return genes;
+	
+}
