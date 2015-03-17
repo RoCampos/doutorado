@@ -1,6 +1,7 @@
 #include "algorithm.h"
 #include "heapfibonnaci.cpp"
 
+template<int option = 0>
 rca::Path shortest_path(int v, int w, rca::Network * network) {
 	typedef FibonacciHeapNode<int,double> Element; //todo VErificar se é double ou int 1
 
@@ -36,7 +37,13 @@ rca::Path shortest_path(int v, int w, rca::Network * network) {
 		//i is defined as register variable
 		for (i=0; i < NODES; ++i) {
 
-			cost = network->getCost (e, i);
+			if (option == 0) {
+				cost = network->getCost (e, i);
+			} else if (option == 1) {
+				cost = network->getBand (e, i);
+			}
+			
+			
 			if (cost > 0.0) {
 				
 				removed = network->isRemoved(rca::Link(e, i, cost));
@@ -133,3 +140,8 @@ typedef typename std::vector<int>::const_iterator c_iterator;
   //std::cout << count_terminals << std::endl;
   return (count_terminals == terminals.size () );
 }
+
+
+//explicity instantition of template function for shortest_path computation
+template rca::Path shortest_path<0> (int, int, rca::Network*);
+template rca::Path shortest_path<1> (int, int, rca::Network*);
