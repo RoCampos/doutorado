@@ -92,22 +92,28 @@ public:
 	
 	//receive a steiner tree and Observer
 	SteinerTreeObserver (SteinerTree* st, CongestionHandle * ch) {
-		m_st = st;
+		//m_st = st;
+		if (st) {
+			setTree (st);
+		}
+		
 		m_ch = ch;
 		m_cost = 0;
 		
-		dset = NULL;
 	}
 	
 	void setTree (SteinerTree * st) {
 		
+		m_st = st;
+		
+		dset = NULL;
 		if (dset) {
 			delete dset;
 		}
 		
 		dset = new DisjointSet2 (m_ch->m_network->getNumberNodes ());
 	
-		m_st = st;
+		
 	}
 	
 	void addEdge (int i,int j, int value, int group) {

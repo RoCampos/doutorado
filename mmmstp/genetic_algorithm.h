@@ -16,13 +16,9 @@ class PathRepresentation;
 class GeneticAlgorithm {
 	friend class PathRepresentation;
 
-protected:
-	void run_metaheuristic (std::string instance, int budged);
-	
-private:
-	void init_problem_information (std::string instance);
-	inline void init_parameters (int pop = 25, double cross = 0.5, double mut = 0.2, 
-								int iter = 50)
+public:
+	inline void init_parameters (int pop = 24, double cross = 0.5, double mut = 0.2, 
+								int iter = 25)
 	{
 		m_pop = pop;
 		m_cross = cross;
@@ -30,12 +26,18 @@ private:
 		m_iter = iter;
 	}
 	
+	void run_metaheuristic (std::string instance, int budged);
+	
+private:
+	void init_problem_information (std::string instance);
+	
+	
 	void init_population ();
 	
 	//individual i and individual j
 	void crossover (int i, int j);
 	
-	int selection_operator ();
+	int selection_operator (int i, int j);
 	
 	//individual i
 	void mutation (int i);
@@ -60,6 +62,7 @@ private:
 	std::vector<PathRepresentation> m_population;
 };
 
+
 class PathRepresentation {
 	friend class GeneticAlgorithm;
 	
@@ -71,6 +74,9 @@ public:
 	PathRepresentation & operator= (const PathRepresentation&);
 	
 	void init_rand_solution (rca::Network * net, 
+							std::vector<rca::Group> & group);
+
+	void init_rand_solution2 (rca::Network * net, 
 							std::vector<rca::Group> & group);
 	
 	void operator1 (rca::Network *net, std::vector<rca::Group> & group);

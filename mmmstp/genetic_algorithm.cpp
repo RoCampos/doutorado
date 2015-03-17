@@ -22,39 +22,29 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	/*init population*/
 	init_population ();
 	
-	//m_population[0].operator1 (m_network,m_groups);
-	//getchar ();
-	
 	int i_tabu = 0;
 	while ( --m_iter > 0) {
 		
-		for (unsigned int pop = 0; pop < m_population.size (); pop++) {
+		//crossover
+		for (unsigned int pop = 0; pop < m_population.size (); pop+=4) {
 			
-			int i = selection_operator ();
-			int j = selection_operator ();
+			int i = selection_operator (pop, pop+1);
+			int j = selection_operator (pop+2, pop+3);
 				
 			//one point crossover
-			double cross_rate = (double)(rand () % 10 + 1)/10.0;
+			double cross_rate = (double)(rand () % 100 + 1)/100.0;
 			if (cross_rate < m_cross) {
 				crossover(i,j);
 			}
+		}
 			
-			cross_rate = (double)(rand () % 10 + 1)/10.0;
-			//mutatioon
-			if (cross_rate < m_mut) {
-				i = rand () % m_population.size ();
-				//mutation (i);
-			}
+		//applying mutation as operator1
+		for (int i=0; i < (int)m_population.size ();i++) {
 			
-			//removing from network the congestioned links
-			//create a new paths and replace old paths that 
-			//uses congestioned links
-			cross_rate = (double)(rand () % 10 + 1)/10.0;
-			if (cross_rate < 0.3) {
-				i = rand () % m_population.size ();
+			double cross_rate = (double)(rand () % 100 + 1)/100.0;
+			if (cross_rate < m_mut) {				
 				m_population[i].operator1 (m_network, m_groups);
 			}
-		
 		}
 
 	}
@@ -74,23 +64,26 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	}
 	
 //#ifdef DEBUG1
-	std::cout << m_population[best].m_cost << " ";
+	//std::cout << "Best: ";
+	//std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
 	//m_population[best].print_solution (m_network, m_groups);
 
 	//deallocatin of resources;
+#ifdef DEBUG1
+	for (PathRepresentation & p : m_population) {
+		std::cout << p.m_cost << " ";
+		std::cout << p.m_residual_capacity << std::endl;
+	}
+#endif
+	
+	
 	delete m_network;
 }
 
-int GeneticAlgorithm::selection_operator ()
+int GeneticAlgorithm::selection_operator (int i, int j)
 {
 
-	int i = rand () % m_population.size ();
-	int j = -1;
-	do {
-		j = rand () % m_population.size ();
-	} while (i == j);
-	
 	//retorna melhor individual com base na capacidade residual
 	return (m_population[i].m_residual_capacity > 
 			m_population[j].m_residual_capacity ?
@@ -111,17 +104,25 @@ void GeneticAlgorithm::init_population ()
 
 		m_population[i].init_rand_solution (m_network, m_groups);
 		
+#ifdef DEBUG1
+	std::cout << m_population[i].m_cost << " ";
+	std::cout << m_population[i].m_residual_capacity << std::endl;
+#endif
+		
 		if (m_population[i].getCost () < m_budget) {
 		
 			if (m_population[i].getResidualCap () < max) {
 			
 				best = i;
 				max =  m_population[i].getResidualCap ();
+				
+				m_budget = m_population[i].m_cost;
 			} else if (max == m_population[i].getResidualCap ()) {
 			
 				if (m_population[i].getCost () < cost) {
 					cost = m_population[i].getCost ();
 					best = i;
+					m_budget = m_population[i].m_cost;
 				}
 			}
 			
@@ -350,18 +351,6 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 			//}
 			
 			m_genotype.push_back (path);
-			
-			/*
-			std::vector<int>::reverse_iterator it = path.rbegin ();
-			for (; it!= path.rend () -1; it++) {
-				//rca::Link link( (*it), *(it + 1), 0);
-				int v = *it;
-				int x = *(it+1);
-				
-				int cost = net->getCost (v,x);
-				stObserver.addEdge (v, x, cost, i);
-				
-			}*/
 		
 			if (d == groups[i].getSize ()) break;
 			
@@ -399,6 +388,112 @@ void PathRepresentation::init_rand_solution (rca::Network * net,
 	m_cost = stObserver.getCost ();
 	m_residual_capacity = m_cg.congestion ();
 
+}
+
+void PathRepresentation::init_rand_solution2 (rca::Network * net, 
+									  std::vector<rca::Group>& groups)
+{
+
+	//observers
+	std::vector<SteinerTreeObserver> treesObserver;
+	CongestionHandle cg(net, groups);
+	this->setCongestionHandle (cg);
+	
+	int gene_size = 0;
+	
+	//steiner trees
+	std::vector<SteinerTree*> sts;
+	
+	//creating the StObservers && getting the size of individual
+	for (Group & g : groups) {
+		gene_size += g.getSize ();
+		
+		//creating observers
+		SteinerTree *st = new SteinerTree(net->getNumberNodes (), 
+					  g.getSource(), g.getMembers());
+		SteinerTreeObserver ob(NULL,&this->getCongestionHandle());
+		ob.setTree (st);
+		treesObserver.push_back (ob);
+		sts.push_back (st);
+		st = NULL;
+		
+	}
+	
+	
+	//contém informações sobre cada grupo
+	int cont = 0;
+	std::vector<std::tuple<int,int,int,int>> members_info;
+	for (Group & g : groups) {	
+		for (const int & i : g.getMembers ()) {
+			
+			//stores gene_id, group_id, source, member
+			std::tuple<int,int,int,int> info (cont++, g.getId(), 
+											  g.getSource (), i);
+
+			members_info.push_back (info);
+		}
+	}
+	
+	//generating the genes
+	std::vector<int> genes = std::vector<int> (gene_size,0);
+	genes[0]=0;
+	for (int i=1; i < (int)genes.size (); i++) {
+		genes[i]= genes[i-1]+1;
+	}
+	
+	//shuffling the order of each genes
+	std::random_shuffle (genes.begin (), genes.end());
+	
+	m_genotype = std::vector<rca::Path> (gene_size);
+	for (int i=0; i < (int)genes.size (); i++) {
+		
+		std::tuple<int,int,int,int> t = members_info[ genes[i] ];
+
+#ifdef DEBUG1		
+		std::cout << "building path ... " << std::get<0>(t);
+		printf (" from %d to %d in group %d\n", std::get<2>(t),
+											std::get<3>(t),
+											std::get<1>(t));
+#endif
+		
+		rca::Path p = shortest_path ( std::get<2>(t), std::get<3>(t), net);
+		
+		if (p.size () == 0) {
+			net->clearRemovedEdges ();
+			p = shortest_path ( std::get<2>(t), std::get<3>(t), net);
+		}
+		
+		int gene = std::get<0>(t);
+		m_genotype[gene] = p;
+		
+		//removing path from network
+		auto it = p.rbegin ();
+		int g = std::get<1>(t);
+		for (; it != p.rend()-1; it++) {
+			int x = *(it);
+			int w = *(it+1);
+			
+			int cost = net->getCost (x,w);
+			
+			net->removeEdge ( rca::Link (x,w,0));
+			
+			treesObserver[g].addEdge (x,w,cost,g);
+		}
+		
+	}
+	
+	m_residual_capacity = this->getCongestionHandle().congestion ();
+	m_cost = 0;
+	for (SteinerTreeObserver & st : treesObserver) {
+		m_cost += st.getCost ();
+	}
+	
+	//std::cout << m_residual_capacity << " ";
+	//std::cout << m_cost << std::endl;
+	
+	//this->print_solution(net, groups);
+	
+	
 }
 
 void PathRepresentation::print_solution (rca::Network *net, 
@@ -493,14 +588,18 @@ void PathRepresentation::operator1 (rca::Network *net,
 		bool contains = 0;
 		for (int l = 0; l < list_size; l++) {
 			
+			//pegando links usados
 			rca::Link link = m_cg.getUsedLinks ()[l];
 			
+			//para todo individual 
 			auto path = m_genotype[i].rbegin ();
 			for ( ; path != m_genotype[i].rend() -1; path++) {
 				
 				int v = *path;
 				int w = *(path +1);
 				rca::Link link_t (v,w,0);
+				
+				//se link existe, entao
 				if (link_t == link) {
 					
 					contains = 1;
@@ -580,17 +679,33 @@ void PathRepresentation::operator1 (rca::Network *net,
 
 int main (int argc, char**argv) 
 {
+	if (argc < 10) {
+		printf ("Correct input is..\n");
+		printf ("<instace> --pop <value> --cross <value> --mut <value>");
+		printf (" --iter <value> --list <value> --budget <value>\n");
+		exit (0);
+	}
+	
 	int T = time (NULL);
 	//srand (1426441393); //for bug in mutation on instance b30_14
 	srand (T);
-	std::cout << T << std::endl;
+	//std::cout << T << std::endl;
 	//srand (0);
 	
 	std::string instance = argv[1];
-	MetaHeuristic<GeneticAlgorithm> algorithm;
+	//MetaHeuristic<GeneticAlgorithm> algorithm;
 	
+	GeneticAlgorithm algorithm;
 	
-	int budget = atoi(argv[2]);
-	algorithm.run (instance, budget);
+	//int budget = atoi(argv[2]);
+	int pop = atoi (argv[3]);
+	int cross = atoi (argv[5]);
+	int mut = atoi (argv[7]);
+	int iter = atoi (argv[9]);
+	//int list = atoi (argv[11]);
+	//int budget = atoi (arv[13]);
+	
+	algorithm.init_parameters (pop, cross, mut,iter);
+	algorithm.run_metaheuristic (instance, 0.0);
 	
 }
