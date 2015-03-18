@@ -105,6 +105,9 @@ public:
 		
 		std::sort (m_used_links.begin(), m_used_links.end());
 		
+		if (m_used_links.size () == 0)
+			return INT_MIN;
+		
 		return ( std::min_element (m_used_links.begin(), 
 								 m_used_links.end())  )->getValue();
 	}
@@ -250,7 +253,8 @@ private:
 
 rca::Path capacited_shortest_path (int v, int w, 
 								   rca::Network *network,
-								   CongestionHandle *cg)
+								   CongestionHandle *cg,
+								   rca::Group &g)
 {
 
 	typedef FibonacciHeapNode<int,double> Element; //todo VErificar se é double ou int 1
@@ -292,12 +296,26 @@ rca::Path capacited_shortest_path (int v, int w,
 			
 			if (cost > 0.0) {
 				
-				removed = network->isRemoved(rca::Link(e, i, cost));
+				rca::Link l (e,i,cost);
+				removed = network->isRemoved(l);
 			
+				//getting the current capacity
+				int cap = cg->getResidualCapacity (l);
+				int band = network->getBand (l.getX(), l.getY());
+				//updating the capacity if the link is used
+				if (cap == INT_MIN){		
+					if (band - g.getTrequest() > 0) {
+						cap = 0;
+					}
+				}else {
+					cap -= g.getTrequest();
+				}
+				
 				if (!closed[i] && cost > 0
 					&& (distance[i] > (distance[e] + cost))
 					&& !network->isVertexRemoved(i) 
-					&& !removed) 
+					&& !removed
+					&& cap >= 0) 
 				
 				{
 					distance[i] = distance[e] + cost;
