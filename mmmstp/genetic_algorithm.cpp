@@ -73,7 +73,7 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	//std::cout << "Best: ";
 	//std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
- 	m_population[best].print_solution (m_network, m_groups);
+ 	//m_population[best].print_solution (m_network, m_groups);
 
 // 	for (const rca::Link &l : m_population[best].getCongestionHandle().getUsedLinks()){
 // 		std::cout << l << " :" << l.getValue () << std::endl;
@@ -123,13 +123,13 @@ void GeneticAlgorithm::init_population ()
 			m_population[i].init_rand_solution3 (m_network, m_groups);
 			
 		
-#ifdef DEBUG1
+#ifdef DEBUG
 	std::cout << m_population[i].m_cost << " ";
 	std::cout << m_population[i].m_residual_capacity << std::endl;
 	//m_population[i].print_solution (m_network,m_groups);
 #endif
 		
-		if (m_population[i].getCost () < m_budget) {
+		//if (m_population[i].getCost () < m_budget) {
 		
 			if (m_population[i].getResidualCap () > max) {
 			
@@ -150,7 +150,7 @@ void GeneticAlgorithm::init_population ()
 				}
 			}
 			
-		}
+		//}
 		
 	}
 	
@@ -222,7 +222,7 @@ void GeneticAlgorithm::crossover (int i, int j)
 	sol.m_cost = stObserver.getCost ();
 	sol.m_residual_capacity = sol.getCongestionHandle() .congestion ();
 	
-	if (sol.m_cost > m_budget) return;
+	//if (sol.m_cost > m_budget) return;
 	
 	int old = -1;
 	if (m_population[i].m_residual_capacity < m_population[j].m_residual_capacity)
@@ -418,6 +418,10 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 									  std::vector<rca::Group>& groups)
 {
 
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
+
 	//observers
 	std::vector<SteinerTreeObserver> treesObserver;
 	CongestionHandle cg(net, groups);
@@ -454,9 +458,9 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 		
 		Tuple t = g_members_info[ genes[i] ];
 
-#ifdef DEBUG1		
+#ifdef DEBUG	
 		std::cout << "building path ... " << std::get<0>(t);
-		printf (" from %d to %d in group %d\n", std::get<2>(t),
+		printf (" from %d to %d in group %d =", std::get<2>(t),
 											std::get<3>(t),
 											std::get<1>(t));
 #endif
@@ -473,10 +477,12 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 											   &this->getCongestionHandle(),
 										       groups[ g ]);
 
+#ifdef DEBUG
+	std::cout << p << std::endl;
+#endif 
 		if (p.size () == 0) {
 			//net->clearRemovedEdges ();
 			p = shortest_path ( source, dest, net);
-			//std::cout << "i" << std::endl;
 		}
 		
 		m_genotype[gene] = p;
@@ -493,12 +499,22 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 		}
 		
 	}
-	
-	m_residual_capacity = this->getCongestionHandle().congestion ();
+	int i = 0;
 	m_cost = 0;
 	for (SteinerTreeObserver & st : treesObserver) {
+		st.prunning (i++);
 		m_cost += st.getCost ();
 	}
+	m_residual_capacity = this->getCongestionHandle().congestion ();
+	
+	
+// 	for (rca::Path &p : m_genotype) {
+// 		std::cout << p << std::endl;
+// 	}
+	
+// 	for (const rca::Link & l: this->getCongestionHandle().getUsedLinks()){
+// 		std::cout << l << " " << l.getValue()<<std::endl;
+// 	}
 	
 }
 
@@ -699,8 +715,9 @@ void PathRepresentation::operator1 (rca::Network *net,
 		
 		rca::Path path;
 		if (contains) {
-			path = shortest_path (*(m_genotype[i].rbegin()),
-											*(m_genotype[i].rend()-1),net);
+ 			path = shortest_path (*(m_genotype[i].rbegin()),
+ 											*(m_genotype[i].rend()-1),net);
+			
 			//std::cout <<"*"<<path << std::endl;
 		} else {
 			//std::cout << m_genotype[i] << std::endl;

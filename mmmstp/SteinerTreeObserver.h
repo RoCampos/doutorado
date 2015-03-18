@@ -183,7 +183,7 @@ public:
 	
 	
 	void prunning (int group) {
-	
+		
 		Node *n = m_st->leafs.first ();
 	
 		while (n != NULL) {
