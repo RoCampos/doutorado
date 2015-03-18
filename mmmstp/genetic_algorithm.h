@@ -2,6 +2,7 @@
 #include <vector>
 #include <cassert>
 #include <utility>
+#include <cstring>
 
 #include "network.h"
 #include "group.h"
@@ -104,6 +105,9 @@ public:
 		return this->m_cg;
 	}
 	
+public:
+	static double USED_LIST;
+	
 private:
 	int m_cost;
 	int m_residual_capacity;
@@ -113,7 +117,7 @@ private:
 	
 	CongestionHandle m_cg;
 	
-	double USED_LIST = 0.10;
+	
 	
 };
 
@@ -206,3 +210,33 @@ std::vector<std::vector<rca::Path>> k_paths (rca::Network* net,
 extern int path_size;
 extern std::vector<ListPath> g_paths;
 extern std::vector<Tuple> g_members_info;
+extern int used_list;
+
+double PathRepresentation::USED_LIST;
+
+
+/*HELP FUNCTION*/
+
+void help (std::string p = "--h") {
+	
+	if (strcmp (p.c_str(),"--h") != 0) {
+		printf ("Use: genetic_mmmstp --help\n");
+	}
+	
+	printf ("Correct input is..\n");
+	printf ("<instace> --pop <value> --cross <value> --mut <value>");
+	printf (" --iter <value> --init <value>");
+	printf (" --path <value> --list <value>\n");
+	
+	
+	printf ("\n--pop : defines the size of population\n");
+	printf ("--cross : crossover rate\n");
+	printf ("--mut : mutation rate\n");
+	printf ("--iter : maximum iterations\n");
+	printf ("--init : initialization algorithm:");
+	printf ("\n\t init_rand_solution<> 1, 2 or 3\n");
+	printf ("--path : if init is 3, --path must be defined. Representent");
+	printf (" the size of list of paths for each source/destination\n");
+	printf ("--list : used in operator1 to define the size of removed list\n");
+	
+}

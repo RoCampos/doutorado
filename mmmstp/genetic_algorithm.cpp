@@ -3,8 +3,9 @@
 
 //global variables
 int path_size;
-std::vector<ListPath> g_paths;
-std::vector<Tuple> g_members_info;
+std::vector<ListPath> g_paths;  //all paths
+std::vector<Tuple> g_members_info; //all members info
+int used_list; //size of list in operator1
 
 void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 {
@@ -29,7 +30,6 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	/*init population*/
 	init_population ();
 	
-	int i_tabu = 0;
 	while ( --m_iter > 0) {
 		
 		//crossover
@@ -55,9 +55,8 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 		}
 
 	}
-	
-	int max = m_population[0].m_residual_capacity;
 	int best = 0;
+	int max = m_population[0].m_residual_capacity;
 	for (int i=1; i < (int)m_population.size (); i++)
 	{
 		if (m_population[i].m_residual_capacity > max)
@@ -103,7 +102,10 @@ void GeneticAlgorithm::init_population ()
 	std::cout << "Creating Population: size = " << m_pop << std::endl;	
 #endif
 	
-	int best = -1;
+#ifdef DEBUG1
+	int best = -1;	
+#endif
+	
 	int max = 1000000;
 	int cost = 10000000;
 	m_population = std::vector<PathRepresentation> (m_pop);
@@ -126,7 +128,9 @@ void GeneticAlgorithm::init_population ()
 		
 			if (m_population[i].getResidualCap () < max) {
 			
+#ifdef DEBUG1
 				best = i;
+#endif 
 				max =  m_population[i].getResidualCap ();
 				
 				m_budget = m_population[i].m_cost;
@@ -134,7 +138,9 @@ void GeneticAlgorithm::init_population ()
 			
 				if (m_population[i].getCost () < cost) {
 					cost = m_population[i].getCost ();
+#ifdef DEBUG1
 					best = i;
+#endif
 					m_budget = m_population[i].m_cost;
 				}
 			}
@@ -534,14 +540,14 @@ void PathRepresentation::init_rand_solution3 (rca::Network * net,
 		int r = rand () % g_paths[ gene_id ].size ();
 		
 		///getting the path based on random r
-		rca::Path p = g_paths [ std::get<0>(t) ][r];
+		rca::Path p = g_paths [ gene_id ][r];
 		
 		
 		m_genotype[gene_id] = p;
 		
 		//removing path from network
 		auto it = p.rbegin ();
-		int g = std::get<1>(t);
+		int g = std::get<1>(t); //getting the id of the group
 		for (; it != p.rend()-1; it++) {
 			int x = *(it);
 			int w = *(it+1);
@@ -560,7 +566,7 @@ void PathRepresentation::init_rand_solution3 (rca::Network * net,
 	for (SteinerTreeObserver & st : treesObserver) {
 		m_cost += st.getCost ();
 	}
-	
+
 }
 
 void PathRepresentation::print_solution (rca::Network *net, 
@@ -626,7 +632,7 @@ void PathRepresentation::operator1 (rca::Network *net,
 	std::cout << __FUNCTION__ << std::endl;	
 #endif
 	
-	int list_size = m_cg.getUsedLinks ().size () * USED_LIST;
+	int list_size = m_cg.getUsedLinks ().size () * PathRepresentation::USED_LIST;
 	//std::cout << list_size << std::endl;
 	//std::vector<rca::Path> tree;
 	
@@ -746,18 +752,16 @@ void PathRepresentation::operator1 (rca::Network *net,
 
 int main (int argc, char**argv) 
 {
-	if (argc < 10) {
-		printf ("Correct input is..\n");
-		printf ("<instace> --pop <value> --cross <value> --mut <value>");
-		printf (" --iter <value> --list <value> --budget <value>\n");
+	if (argc < 10 || strcmp(argv[1],"--help") == 0) {
+		help ();
 		exit (0);
 	}
 	
 	int T = time (NULL);
 	//srand (1426441393); //for bug in mutation on instance b30_14
-	srand (T);
+	//srand (T);
 	//std::cout << T << std::endl;
-	//srand (0);
+	srand (T);
 	
 	std::string instance = argv[1];
 	//MetaHeuristic<GeneticAlgorithm> algorithm;
@@ -771,14 +775,25 @@ int main (int argc, char**argv)
 	int iter = atoi (argv[9]);
 	int init = atoi (argv[11]);
 	path_size = atoi (argv[13]);
-	//int list = atoi (argv[11]);
-	//int budget = atoi (arv[13]);
+	
+	if (init == 2) {
+		if (strcmp(argv[12],"--path")!=0) {
+			printf ("parameters are incorrect\n");
+			exit (1);
+		}
+	}
+	
+	if (strcmp(argv[12],"--list") == 0)
+		PathRepresentation::USED_LIST = atof (argv[13]);
+	else 
+		PathRepresentation::USED_LIST = atof (argv[15]);	
 	
 #ifdef DEBUG
-	printf ("--pop %d --cross %f --mut %f --iter %d\n",pop, cross, mut, iter);
+	printf ("--pop %d --cross %f --mut %f --iter %d --init %d --path %d --list %f\n",
+			pop, cross, mut, iter, init, path_size, PathRepresentation::USED_LIST);
 #endif
 	
-	algorithm.init_parameters (pop, cross, mut,iter, init);
+	algorithm.init_parameters (pop, cross, mut, iter, init);
 	algorithm.run_metaheuristic (instance, 0.0);
 	
 }
