@@ -2,6 +2,7 @@
 #include "metaheuristic.h"
 
 //global variables
+int path_size;
 std::vector<ListPath> g_paths;
 std::vector<Tuple> g_members_info;
 
@@ -18,7 +19,7 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	}
 	
 	/*Lista de caminhos used in init_rand_solution3*/
-	g_paths = k_paths (m_network, m_groups, 5);	
+	g_paths = k_paths (m_network, m_groups, path_size);	
 	/*lista de genes used in init_rand_solution3*/
 	g_members_info = create_members_info (m_groups);
 	
@@ -769,6 +770,7 @@ int main (int argc, char**argv)
 	double mut = atof (argv[7]);
 	int iter = atoi (argv[9]);
 	int init = atoi (argv[11]);
+	path_size = atoi (argv[13]);
 	//int list = atoi (argv[11]);
 	//int budget = atoi (arv[13]);
 	
