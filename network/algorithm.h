@@ -7,6 +7,8 @@
 #include "path.h"
 #include "network.h"
 #include "group.h"
+#include "heapfibonnaci.h"
+
 
 rca::Path shortest_path (int v, int w, rca::Network * network);
 
