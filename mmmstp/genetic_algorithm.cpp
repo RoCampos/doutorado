@@ -458,7 +458,7 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 		
 		Tuple t = g_members_info[ genes[i] ];
 
-#ifdef DEBUG	
+#ifdef DEBUG1
 		std::cout << "building path ... " << std::get<0>(t);
 		printf (" from %d to %d in group %d =", std::get<2>(t),
 											std::get<3>(t),
@@ -477,7 +477,7 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 											   &this->getCongestionHandle(),
 										       groups[ g ]);
 
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << p << std::endl;
 #endif 
 		if (p.size () == 0) {
@@ -779,8 +779,73 @@ void PathRepresentation::operator1 (rca::Network *net,
 	
 }
 
+void test (int argc, char**argv) {
+	
+	srand (time(NULL));
+	
+	rca::Network * m_network = new Network;
+	std::string instance = argv[1];
+	Reader r (instance);
+	r.configNetwork ( m_network );
+	std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
+	std::vector<rca::Group> m_groups;
+	for (unsigned int i =0; i < g.size (); i++) {
+		m_groups.push_back (*g[i].get ());
+	}
+	
+	/*Lista de caminhos used in init_rand_solution3*/
+	g_paths = k_paths (m_network, m_groups, path_size);	
+	/*lista de genes used in init_rand_solution3*/
+	g_members_info = create_members_info (m_groups);
+	
+	PathRepresentation p;
+	p.init_rand_solution2(m_network, m_groups);
+	
+	int cong = 15;
+	int max = p.getResidualCap ();
+	std::cout << max << std::endl;
+	do{
+		
+		int size = p.getCongestionHandle ().getUsedLinks ().size () * 0.30;
+		auto it = p.getCongestionHandle ().getUsedLinks ().begin();
+		p.getCongestionHandle ().congestion ();
+		for (; it != p.getCongestionHandle ().getUsedLinks ().end() && size-- >0;it++  ) {
+			m_network->removeEdge(*it);
+		}
+	
+		PathRepresentation x;
+		x.init_rand_solution2(m_network,m_groups);
+		
+		if (max < x.getResidualCap ()) {
+			max = x.getResidualCap();
+			p = x;
+		}
+		
+		m_network->clearRemovedEdges ();		
+		
+	} while (cong-- > 0);
+	std::cout << max << std::endl;
+
+	
+	/*
+	auto it = p.getCongestionHandle ().getUsedLinks ();
+	p.getCongestionHandle ().congestion ();
+	for (const rca::Link &l : it) {
+		std::cout << l << " :" << l.getValue () << std::endl;
+	}*/
+	
+	//std::cout << p.getResidualCap() << std::endl;
+	
+	exit (0);
+}
+
 int main (int argc, char**argv) 
 {
+	
+#ifdef DEBUG
+	test (argc, argv);
+#endif
+	
 	if (argc < 10 || strcmp(argv[1],"--help") == 0) {
 		help ();
 		exit (0);
