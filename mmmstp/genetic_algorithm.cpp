@@ -73,8 +73,12 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	//std::cout << "Best: ";
 	//std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
-	//m_population[best].print_solution (m_network, m_groups);
+ 	m_population[best].print_solution (m_network, m_groups);
 
+// 	for (const rca::Link &l : m_population[best].getCongestionHandle().getUsedLinks()){
+// 		std::cout << l << " :" << l.getValue () << std::endl;
+// 	}
+	
 	//deallocatin of resources;
 #ifdef DEBUG1
 	for (PathRepresentation & p : m_population) {
@@ -106,7 +110,7 @@ void GeneticAlgorithm::init_population ()
 	int best = -1;	
 #endif
 	
-	int max = 1000000;
+	int max = INT_MIN;
 	int cost = 10000000;
 	m_population = std::vector<PathRepresentation> (m_pop);
 	for (int i=0; i < m_pop; i++) {
@@ -122,11 +126,12 @@ void GeneticAlgorithm::init_population ()
 #ifdef DEBUG1
 	std::cout << m_population[i].m_cost << " ";
 	std::cout << m_population[i].m_residual_capacity << std::endl;
+	//m_population[i].print_solution (m_network,m_groups);
 #endif
 		
 		if (m_population[i].getCost () < m_budget) {
 		
-			if (m_population[i].getResidualCap () < max) {
+			if (m_population[i].getResidualCap () > max) {
 			
 #ifdef DEBUG1
 				best = i;
@@ -456,27 +461,34 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 											std::get<1>(t));
 #endif
 		
-		rca::Path p = shortest_path ( std::get<2>(t), std::get<3>(t), net);
+		int gene = std::get<0>(t);
+		int g = std::get<1>(t);
+		int source = std::get<2>(t);
+		int dest = std::get<3>(t);
 		
+		//parameters: v, w, network, groups
+		rca::Path p = capacited_shortest_path (source, 
+											   dest, 
+											   net,
+											   &this->getCongestionHandle(),
+										       groups[ g ]);
+
 		if (p.size () == 0) {
-			net->clearRemovedEdges ();
-			p = shortest_path ( std::get<2>(t), std::get<3>(t), net);
+			//net->clearRemovedEdges ();
+			p = shortest_path ( source, dest, net);
+			//std::cout << "i" << std::endl;
 		}
 		
-		int gene = std::get<0>(t);
 		m_genotype[gene] = p;
 		
 		//removing path from network
 		auto it = p.rbegin ();
-		int g = std::get<1>(t);
+		
 		for (; it != p.rend()-1; it++) {
 			int x = *(it);
 			int w = *(it+1);
 			
 			int cost = net->getCost (x,w);
-			
-			net->removeEdge ( rca::Link (x,w,0));
-			
 			treesObserver[g].addEdge (x,w,cost,g);
 		}
 		
@@ -761,7 +773,7 @@ int main (int argc, char**argv)
 	//srand (1426441393); //for bug in mutation on instance b30_14
 	//srand (T);
 	//std::cout << T << std::endl;
-	srand (T);
+	srand (0);
 	
 	std::string instance = argv[1];
 	//MetaHeuristic<GeneticAlgorithm> algorithm;
