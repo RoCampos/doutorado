@@ -193,10 +193,9 @@ std::vector<std::vector<rca::Path>> k_paths (rca::Network* net,
 				rca::Path path = path_builder.next ();
 				path_i.push_back (path);
 				
-			}
-			
+			}			
 			paths.push_back (path_i);
-			
+			path_builder.clear ();
 		}
 		
 	}	
