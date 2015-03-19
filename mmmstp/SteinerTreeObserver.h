@@ -84,7 +84,13 @@ public:
 		
 		if (it != m_used_links.end()) {
 			it->setValue ( it->getValue () + trequest);
+			
+			if (it->getValue () == 0) {
+				m_used_links.erase (it);
+			}
 		}
+		
+		
 		
 	}
 	
@@ -132,11 +138,12 @@ public:
 	//receive a steiner tree and Observer
 	SteinerTreeObserver (SteinerTree* st, CongestionHandle * ch) {
 		//m_st = st;
+		m_ch = ch;
+		
 		if (st) {
 			setTree (st);
 		}
 		
-		m_ch = ch;
 		m_cost = 0;
 		
 	}
@@ -155,7 +162,7 @@ public:
 		
 	}
 	
-	void addEdge (int i,int j, int value, int group) {
+	bool addEdge (int i,int j, int value, int group) {
 		
 		//verifica se está no mesmo conjunto
 		if ( dset->find2 (i) != dset->find2 (j) ) {
@@ -175,13 +182,18 @@ public:
 				m_ch->add_edge (i,j,group);
 			}
 			
-			
+			return true;
 		}
-		
+		return false;
 	}
 	
 	int getCost () {
 		return this->m_cost;
+	}
+	
+	const std::vector<rca::Link> & getTreeAsLinks (){
+		std::vector<rca::Link> tree_links;
+		return tree_links;
 	}
 	
 	
@@ -241,6 +253,7 @@ public:
 			}
 			
 		}
+		
 	}
 	
 private:
