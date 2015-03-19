@@ -162,17 +162,20 @@ public:
 			
 			//faz união
 			dset->simpleUnion (i, j);
-			int cost = (int)m_ch->m_network->getCost (i,j);
+			rca::Link l (i,j, value);
+			int cost = (int)m_ch->m_network->getCost (l.getX(),l.getY());
 			
-			//adiciona aresta a m_st
-			(i > j ? m_st->addEdge (i, j, cost):
-					 m_st->addEdge (j, i, cost));
+			bool ret = m_st->addEdge (l.getX(), l.getY(), cost);
 		
-			//calculate cost
-			m_cost += value;
+			assert (cost == value);
+			if (ret) {
+				//increase the cost
+				m_cost += cost;
+				//compute usage
+				m_ch->add_edge (i,j,group);
+			}
 			
-			//compute usage
-			m_ch->add_edge (i,j,group);
+			
 		}
 		
 	}
@@ -238,7 +241,6 @@ public:
 			}
 			
 		}
-		
 	}
 	
 private:
