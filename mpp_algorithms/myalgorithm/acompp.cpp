@@ -208,10 +208,10 @@ void AcoMPP::run (va_list & arglist) {
 #endif
 	
 	std::cout << m_bcongestion << "\t";
-	std::cout << m_bcost << "\t";
-	std::cout << m_best_iter << "\t";
-	std::cout << time_elapsed.get_elapsed () << "\t";
-	std::cout << m_seed << "\t";
+	//std::cout << m_bcost << "\t";
+	//std::cout << m_best_iter << "\t";
+	//std::cout << time_elapsed.get_elapsed () << "\t";
+	//std::cout << m_seed << "\t";
 	
 	auto it = bestNLinks.begin ();
 	for (; it != bestNLinks.end(); it++) {
@@ -221,7 +221,7 @@ void AcoMPP::run (va_list & arglist) {
 			i++;
 			e = e->next;
 		}
-		std::cout << i << "\t";
+		//std::cout << i << "\t";
 	}
 	std::cout << std::endl;
 	
@@ -518,7 +518,8 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 	
 	typedef typename std::vector<int>::const_iterator c_iterator;
 		
-	double r = (double)my_random.rand ()/10.0;
+	//double r = (double)my_random.rand ()/10.0;
+	double r = (double) (rand() % 100 +1)/100.0;
 	
 	double best = std::numeric_limits<double>::min ();
 	int returned = c_vertex;
