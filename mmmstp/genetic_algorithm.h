@@ -67,6 +67,8 @@ private:
 };
 
 
+typedef std::vector<std::vector<rca::Link>> TreeAsLinks;
+
 class PathRepresentation {
 	friend class GeneticAlgorithm;
 	
@@ -105,12 +107,22 @@ public:
 		return this->m_cg;
 	}
 	
+	void setTreeAsLinks (const TreeAsLinks & tree) {
+		this->m_tree_links = tree;
+	}
+	
+	const TreeAsLinks & getTreeAsLinks () {
+		return this->m_tree_links;
+	}
+	
 public:
 	static double USED_LIST;
 	
 private:
 	int m_cost;
 	int m_residual_capacity;
+	
+	TreeAsLinks m_tree_links;
 	
 	std::vector<rca::Path> m_genotype;
 	bool m_feasable;

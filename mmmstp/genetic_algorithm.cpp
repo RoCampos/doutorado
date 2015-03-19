@@ -501,20 +501,15 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 	}
 	int i = 0;
 	m_cost = 0;
+	
+	
 	for (SteinerTreeObserver & st : treesObserver) {
 		st.prunning (i++);
 		m_cost += st.getCost ();
+		
+		this->m_tree_links.push_back (st.getTreeAsLinks ());
 	}
 	m_residual_capacity = this->getCongestionHandle().congestion ();
-	
-	
-// 	for (rca::Path &p : m_genotype) {
-// 		std::cout << p << std::endl;
-// 	}
-	
-// 	for (const rca::Link & l: this->getCongestionHandle().getUsedLinks()){
-// 		std::cout << l << " " << l.getValue()<<std::endl;
-// 	}
 	
 }
 
@@ -601,54 +596,64 @@ void PathRepresentation::print_solution (rca::Network *net,
 										 std::vector<rca::Group> & g)
 {
 
-	int GROUPS = g.size ();
-	int begin = 0;
-	int end = 0;
-	for (int i=0; i < GROUPS; i++) {
-	
-		end += g[i].getSize ();
+	int group = 1;
+	for (std::vector<rca::Link> & links: m_tree_links) {
 		
-		SteinerTree st (net->getNumberNodes (), 
-						g[i].getSource(), 
-						g[i].getMembers());
-		
-		/*disjoint set to avoid circle*/
-		//TODO IMPLEMENTAR DENTRO DA ST_IMPLEMENTAÇÃO
-		DisjointSet2 dset (net->getNumberNodes());
-		
-		for (int l = begin; l < end; l++) {
-		
-			rca::Path path = m_genotype[l];
-			std::vector<int>::reverse_iterator it = path.rbegin ();
-			for (; it!= path.rend () -1; it++) {
-				//rca::Link link( (*it), *(it + 1), 0);
-				int v = *it;
-				int x = *(it+1);
-				
-				if ( dset.find2 (v) != dset.find2 (x) ) {
-					
-					dset.simpleUnion (v, x);
-					
-					(v > x ? st.addEdge (v, x, (int)net->getCost (v,x)):
-							st.addEdge (x, v, (int)net->getCost (v,x)));
-				
-				}
-			}
+		for (rca::Link &l: links) {
+			std::cout << l.getX()+1 << " - " << l.getY()+1	 << ":";
+			std::cout << group << ";"<< std::endl;
 		}
-		
-		begin = end;
-		
-		st.prunning();
-		
-		Edge * e = st.listEdge.head;
-		while ( e != NULL) {
-		
-			printf ("%d - %d:%d;\n", e->i+1, e->j+1, i+1); 
-			
-			e = e->next;
-		}
-		
+		group++;
 	}
+	
+// 	int GROUPS = g.size ();
+// 	int begin = 0;
+// 	int end = 0;
+// 	for (int i=0; i < GROUPS; i++) {
+// 	
+// 		end += g[i].getSize ();
+// 		
+// 		SteinerTree st (net->getNumberNodes (), 
+// 						g[i].getSource(), 
+// 						g[i].getMembers());
+// 		
+// 		/*disjoint set to avoid circle*/
+// 		//TODO IMPLEMENTAR DENTRO DA ST_IMPLEMENTAÇÃO
+// 		DisjointSet2 dset (net->getNumberNodes());
+// 		
+// 		for (int l = begin; l < end; l++) {
+// 		
+// 			rca::Path path = m_genotype[l];
+// 			std::vector<int>::reverse_iterator it = path.rbegin ();
+// 			for (; it!= path.rend () -1; it++) {
+// 				//rca::Link link( (*it), *(it + 1), 0);
+// 				int v = *it;
+// 				int x = *(it+1);
+// 				
+// 				if ( dset.find2 (v) != dset.find2 (x) ) {
+// 					
+// 					dset.simpleUnion (v, x);
+// 					
+// 					(v > x ? st.addEdge (v, x, (int)net->getCost (v,x)):
+// 							st.addEdge (x, v, (int)net->getCost (v,x)));
+// 				
+// 				}
+// 			}
+// 		}
+// 		
+// 		begin = end;
+// 		
+// 		st.prunning();
+// 		
+// 		Edge * e = st.listEdge.head;
+// 		while ( e != NULL) {
+// 		
+// 			printf ("%d - %d:%d;\n", e->i+1, e->j+1, i+1); 
+// 			
+// 			e = e->next;
+// 		}
+// 		
+// 	}
 	
 }
 
@@ -781,7 +786,7 @@ void PathRepresentation::operator1 (rca::Network *net,
 
 void test (int argc, char**argv) {
 	
-	srand (time(NULL));
+	srand (0);
 	
 	rca::Network * m_network = new Network;
 	std::string instance = argv[1];
@@ -800,49 +805,15 @@ void test (int argc, char**argv) {
 	
 	PathRepresentation p;
 	p.init_rand_solution2(m_network, m_groups);
-	
-	int cong = 15;
-	int max = p.getResidualCap ();
-	std::cout << max << std::endl;
-	do{
-		
-		int size = p.getCongestionHandle ().getUsedLinks ().size () * 0.30;
-		auto it = p.getCongestionHandle ().getUsedLinks ().begin();
-		p.getCongestionHandle ().congestion ();
-		for (; it != p.getCongestionHandle ().getUsedLinks ().end() && size-- >0;it++  ) {
-			m_network->removeEdge(*it);
-		}
-	
-		PathRepresentation x;
-		x.init_rand_solution2(m_network,m_groups);
-		
-		if (max < x.getResidualCap ()) {
-			max = x.getResidualCap();
-			p = x;
-		}
-		
-		m_network->clearRemovedEdges ();		
-		
-	} while (cong-- > 0);
-	std::cout << max << std::endl;
+	p.print_solution (m_network, m_groups);
 
-	
-	/*
-	auto it = p.getCongestionHandle ().getUsedLinks ();
-	p.getCongestionHandle ().congestion ();
-	for (const rca::Link &l : it) {
-		std::cout << l << " :" << l.getValue () << std::endl;
-	}*/
-	
-	//std::cout << p.getResidualCap() << std::endl;
-	
 	exit (0);
 }
 
 int main (int argc, char**argv) 
 {
 	
-#ifdef DEBUG1
+#ifdef DEBUG
 	test (argc, argv);
 #endif
 	
