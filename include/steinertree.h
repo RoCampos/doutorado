@@ -35,7 +35,7 @@ public:
 	SteinerTree(int nnodes, int source, const std::vector<int> & terminals);
 	
 	//adiciona uma aresta da árvore
-	void addEdge(int i, int j, double value);
+	bool addEdge(int i, int j, double value);
 	
 	//define estruturas, speed up the algorithm
 	//void setTempStructures (std::vector<double>& objs, 

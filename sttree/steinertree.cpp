@@ -41,16 +41,16 @@ SteinerTree::SteinerTree (int nnodes,
 }
 
 //this procedure takes O(n) since we must avoid duplicated edges.
-void SteinerTree::addEdge (int i, int j, double value)
+bool SteinerTree::addEdge (int i, int j, double value)
 {
 	if (vertexList[i].getFirstAdjc () == j ||
 		vertexList[j].getFirstAdjc () == i)
 	{
-		return;
+		return false;
 	}
 	
 	if (listEdge.exist (i,j)) {
-	  return;
+	  return false;
 	}
 	
 #ifdef DEGUB
@@ -87,6 +87,8 @@ void SteinerTree::addEdge (int i, int j, double value)
 	}	
 	
 	edge = NULL;
+	
+	return true;
 }
 
 /**
