@@ -191,8 +191,24 @@ public:
 		return this->m_cost;
 	}
 	
-	const std::vector<rca::Link> & getTreeAsLinks (){
+	/**
+	 * Este método retorna a árvore de Steiner como uma lista de
+	 * arestas. Útil para realização de impressão.
+	 * 
+	 * 
+	 */
+	const std::vector<rca::Link> getTreeAsLinks (){
 		std::vector<rca::Link> tree_links;
+		
+		//passing the thre to list;
+		Edge * e = this->m_st->listEdge.head;
+		while ( e != NULL) {
+			rca::Link l(e->i, e->j, 0);			
+			tree_links.push_back (l);
+			e = e->next;
+		}
+		
+		//return the values
 		return tree_links;
 	}
 	
