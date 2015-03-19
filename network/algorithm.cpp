@@ -1,5 +1,4 @@
 #include "algorithm.h"
-#include "heapfibonnaci.cpp"
 
 rca::Path shortest_path(int v, int w, rca::Network * network) {
 	typedef FibonacciHeapNode<int,double> Element; //todo VErificar se é double ou int 1
