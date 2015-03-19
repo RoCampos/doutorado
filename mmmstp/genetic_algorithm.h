@@ -78,7 +78,7 @@ public:
 	PathRepresentation & operator= (const PathRepresentation&);
 	
 	//build from gene 0 to gene n-1( sum D_k for all k)
-	void init_rand_solution (rca::Network * net, 
+	void init_rand_solution1 (rca::Network * net, 
 							std::vector<rca::Group> & group);
 
 	//Aletaoriamente escolhe o gene(source,member of group i)

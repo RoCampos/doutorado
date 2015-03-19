@@ -115,11 +115,11 @@ void GeneticAlgorithm::init_population ()
 	m_population = std::vector<PathRepresentation> (m_pop);
 	for (int i=0; i < m_pop; i++) {
 
-		if (m_init == 0)
-			m_population[i].init_rand_solution (m_network, m_groups);
-		else if (m_init == 1)
-			m_population[i].init_rand_solution2 (m_network, m_groups);
+		if (m_init == 1)
+			m_population[i].init_rand_solution1 (m_network, m_groups);
 		else if (m_init == 2)
+			m_population[i].init_rand_solution2 (m_network, m_groups);
+		else if (m_init == 3)
 			m_population[i].init_rand_solution3 (m_network, m_groups);
 			
 		
@@ -264,7 +264,7 @@ void GeneticAlgorithm::mutation (int i)
 	}
 	
 	PathRepresentation sol;
-	sol.init_rand_solution (m_network, m_groups);
+	sol.init_rand_solution1 (m_network, m_groups);
 	
 	if ( sol.m_cost < m_budget ) {
 		
@@ -307,7 +307,7 @@ PathRepresentation& PathRepresentation::operator= (const PathRepresentation& ind
 }
 
 
-void PathRepresentation::init_rand_solution (rca::Network * net, 
+void PathRepresentation::init_rand_solution1 (rca::Network * net, 
 									  std::vector<rca::Group>& groups)
 {
 	
@@ -842,7 +842,7 @@ void test (int argc, char**argv) {
 int main (int argc, char**argv) 
 {
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	test (argc, argv);
 #endif
 	
