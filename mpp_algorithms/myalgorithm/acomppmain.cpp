@@ -11,7 +11,7 @@ void helpFunction ();
 
 int main (int argv, char **argc) {
     
-	if (argv < 12) {
+	if (argv < 14) {
 		helpFunction ();
 		exit (1);
 	}
@@ -24,9 +24,10 @@ int main (int argv, char **argc) {
 	double betha = atof(argc[7]);
 	double phe_rate = atof(argc[9]);
 	double prob_heur = atof(argc[11]);
+	double local_upd = atof(argc[13]);
 	
 	
-	aco.run (6, str, iterations, alpha, betha, phe_rate, prob_heur);
+	aco.run (7, str, iterations, alpha, betha, phe_rate, prob_heur, local_upd);
 	
 	return 0;
 }

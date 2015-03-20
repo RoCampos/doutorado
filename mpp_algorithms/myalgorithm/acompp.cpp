@@ -123,6 +123,7 @@ void AcoMPP::run (va_list & arglist) {
 	m_betha = va_arg (arglist, double);
 	m_phe_rate = va_arg (arglist, double);
 	m_heuristic_prob = va_arg (arglist, double);
+	m_local_upd = va_arg(arglist,double);
 
 	std::vector<SteinerTree> bestNLinks;
 	
@@ -497,7 +498,7 @@ void AcoMPP::local_update (SteinerTree * st)
 	
 		rca::Link link (e->i, e->j, 0.0);
 		double value = m_pmatrix[link.getX()][link.getY()];
-		m_pmatrix[link.getX()][link.getY()] += value * 0.1;
+		m_pmatrix[link.getX()][link.getY()] += value * m_local_upd;
 		
 		e = e->next;
 	}

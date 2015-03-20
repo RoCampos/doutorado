@@ -271,6 +271,8 @@ private:
 	
 	double m_heuristic_prob;
 	
+	double m_local_upd;
+	
 	/*solution results*/
 	std::vector<double> m_best_trees;
 	
