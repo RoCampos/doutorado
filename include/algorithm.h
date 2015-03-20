@@ -12,4 +12,7 @@ rca::Path shortest_path (int v, int w, rca::Network * network);
 
 bool is_connected (rca::Network & network, rca::Group & group);
 
+//explit instantiation
+//template rca::Path shortest_path<0> (int v, int w, rca::Network * network);
+
 #endif

@@ -1,5 +1,4 @@
 #include "algorithm.h"
-#include "heapfibonnaci.cpp"
 
 rca::Path shortest_path(int v, int w, rca::Network * network) {
 	typedef FibonacciHeapNode<int,double> Element; //todo VErificar se é double ou int 1
@@ -36,7 +35,9 @@ rca::Path shortest_path(int v, int w, rca::Network * network) {
 		//i is defined as register variable
 		for (i=0; i < NODES; ++i) {
 
+			
 			cost = network->getCost (e, i);
+			
 			if (cost > 0.0) {
 				
 				removed = network->isRemoved(rca::Link(e, i, cost));
@@ -72,7 +73,10 @@ rca::Path shortest_path(int v, int w, rca::Network * network) {
 			rca::Path path2;
 			return path2; //se não há caminho
 		}
+		
+		
 		pathcost += network->getCost (path[pos],s);
+		
 		pos++;
 
 	}
