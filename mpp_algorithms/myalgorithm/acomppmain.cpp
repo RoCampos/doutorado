@@ -38,13 +38,14 @@ void helpFunction () {
 	
 	printf ("acompp <instance> --iter <value>");
 	printf (" --alpha <value> --betha <value>");
-	printf (" --phe <value> --pheur <value>\n");
+	printf (" --phe <value> --pheur <value> --local_upd <value>\n");
 	
 	std::string str = "--ter: define o número máximo de iterações\n";
 	str += "--alpha: parâmetro alpha do colônia de formigas(0.01,1.00)\n";
 	str += "--betha: parâmetro betha do colônia de formigas(0.01,1.00)\n";
 	str += "--phe: parâmetro de evaporação do colônia de formigas(0.01,1.00)\n";
 	str += "--pher: valor para escolha da heurística ou informação de feromônio\n";
+	str += "--local_upd: valor para atualizar feromônio com base em árvores de Steiner\n";
 	
 	printf ("%s", str.c_str () );
 }
