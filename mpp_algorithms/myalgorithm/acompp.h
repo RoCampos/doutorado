@@ -198,7 +198,10 @@ private:
 	 * 
 	 */
 	void update_congestion (std::shared_ptr<SteinerTree>&,
-							rca::EdgeContainer &ec, double&, double&);
+							rca::EdgeContainer &ec, 
+							double&, 
+							double&,
+							int trequest);
 	
 	/**
 	 * 

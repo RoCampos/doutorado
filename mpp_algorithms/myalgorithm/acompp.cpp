@@ -136,10 +136,23 @@ void AcoMPP::run (va_list & arglist) {
 	
 		std::vector<SteinerTree> solutions;
 		double cost = 0.0;
+		
+#ifdef RES_CAP
+		double congestion = INT_MAX;
+#endif
+		
+#ifdef CONG
 		double congestion = 0.0;
+#endif	
 	
 		//creating a solution
-		for (unsigned i = 0; i < m_groups.size (); i++) {
+		std::vector<int> ggg = std::vector<int>(m_groups.size ());
+		for (int i=1; i <(int)ggg.size (); i++) {
+			ggg[i] = ggg[i-1] + 1;
+		}
+		std::random_shuffle (ggg.begin (), ggg.end());
+		//for (unsigned i = 0; i < m_groups.size (); i++) {
+		for (int i : ggg) {
 			
 			//initialization of steiner tree
 			ptr_SteinerTree 
@@ -150,12 +163,13 @@ void AcoMPP::run (va_list & arglist) {
 		
 			//verify the graph for connectivity
 			ec.connected_level ( *m_groups[i].get() , *m_network);
+			//ec.connected_level_by_group ( *m_groups[i].get() , *m_network);
 			
 			//building the tree
 			build_tree (i, st, ec);
 			
 			//if the i-th tree is the best found util now
-			//update the eges by 0.1 porcent
+			//update the edges locally
 			if (m_best_trees[i] > st->getCost ()) {
 				m_best_trees[i] = st->getCost ();
 				
@@ -165,7 +179,10 @@ void AcoMPP::run (va_list & arglist) {
 			solutions.push_back (*st.get());
 			
 			//updating congestion heap
-			update_congestion (st, ec, cost, congestion);
+			//update_congestion (st, ec, cost, congestion);
+			
+			int trequest = m_groups[i]->getTrequest ();
+			update_congestion (st, ec, cost, congestion, trequest);
 		
 //showing the tree in debug mode
 #ifdef DEBUG1
@@ -182,8 +199,8 @@ void AcoMPP::run (va_list & arglist) {
 	
 		}//end for in solutioon construction
 	
-		//if the current solution is the best so far
-		//update its edges
+		/*used for congestion*/
+#ifdef CONG
 		if ((cost < m_bcost && congestion <= m_bcongestion) ||
 			(cost <= m_bcost && congestion < m_bcongestion)) 
 		{
@@ -196,7 +213,24 @@ void AcoMPP::run (va_list & arglist) {
 			
 			bestNLinks = solutions;
 		}
+#endif
 		
+#ifdef RES_CAP
+		/*used for residual capacity*/
+		if (congestion > m_bcongestion || 
+			(congestion == m_bcongestion && cost < m_bcost))
+		{
+			m_bcost = cost;
+			m_bcongestion = congestion;
+			//updating the pheromene
+			update_pheromone_matrix (ec);
+			
+			m_best_iter = iter;
+			
+			bestNLinks = solutions;
+			
+		}
+#endif
 		//clean the network
 		m_network->clearRemovedEdges ();
 	
@@ -204,7 +238,7 @@ void AcoMPP::run (va_list & arglist) {
 	
 	time_elapsed.finished ();
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
@@ -214,14 +248,17 @@ void AcoMPP::run (va_list & arglist) {
 	//std::cout << time_elapsed.get_elapsed () << "\t";
 	//std::cout << m_seed << "\t";
 	
+	int g=0;
 	auto it = bestNLinks.begin ();
 	for (; it != bestNLinks.end(); it++) {
 		Edge * e = (*it).listEdge.first();
 		int i=0;
 		while (e != NULL) {
 			i++;
+			//printf ("%d - %d:%d;\n", e->i+1,e->j+1,g+1);
 			e = e->next;
 		}
+		g++;
 		//std::cout << i << "\t";
 	}
 	std::cout << std::endl;
@@ -261,20 +298,31 @@ void AcoMPP::configurate (std::string m_instance)
 	
 	//initialization of random number genarator
 	m_seed = rca::myseed::seed();
-	my_random = Random(m_seed,1, 10);
+	my_random = Random(m_seed,1, 10);	
 	
 	//used to register the best values of each tree
 	double max = std::numeric_limits<double>::max();
+	
+#ifdef RES_CAP
+	double min = std::numeric_limits<int>::min();
+#endif
 	
 	//store the best steiner tree found during the search
 	m_best_trees = std::vector<double> (m_groups.size(),max) ;
 	
 	//initilize the congestion and the cost with max double values
 	m_bcost = max;
-	m_bcongestion = max;
 	
+#ifdef RES_CAP	
+	m_bcongestion = min;
+#endif
+
+#ifdef CONG
+	m_bcongestion = max;
+#endif	
+
 	//store the best iteratios, where the best solution was found
-	m_best_iter = 0;;
+	m_best_iter = 0;
 	
 #ifdef DEBUG
 	std::cout << "------------------------------" << std::endl;
@@ -420,7 +468,8 @@ void AcoMPP::join_ants (std::vector<Ant>& pool,
 void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 							rca::EdgeContainer & ec, 
 							double&m_cost,
-							double& m_congestion)
+							double& m_congestion,
+							int trequest)
 {
 #ifdef DEBUG
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
@@ -441,16 +490,40 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 		if (ec.m_ehandle_matrix[x][y].first == true) {
 			
 			int valor = (*((ec.m_ehandle_matrix[x][y]).second)).getValue();
+#ifdef CONG
 			(*((ec.m_ehandle_matrix[x][y]).second)).setValue (valor+1);
-			ec.m_heap.update ((ec.m_ehandle_matrix[x][y]).second);
+#endif
 			
-			if (valor+1 > m_congestion) {
-				m_congestion = (valor + 1);
-			}
+#ifdef RES_CAP
+			(*((ec.m_ehandle_matrix[x][y]).second)).setValue (valor-trequest);
+#endif
+			
+			ec.m_heap.update ((ec.m_ehandle_matrix[x][y]).second);
+
+#ifdef CONG			
+ 			if (valor+1 > m_congestion) {
+ 				m_congestion = (valor + 1);
+ 			}
+#endif 
+		
+#ifdef RES_CAP
+			if ( (valor-trequest) < m_congestion) {
+ 				m_congestion = (valor - trequest);
+ 			}
+#endif
 			
 		} else {
 			ec.m_ehandle_matrix[x][y].first = true;
+			
+#ifdef CONG
 			link.setValue (1);
+#endif
+			
+#ifdef RES_CAP
+			int band = m_network->getBand (x,y);
+			link.setValue ( band - trequest);
+#endif
+			
 			ec.m_ehandle_matrix[x][y].second = ec.m_heap.push (link);
 			
 			m_cost += m_network->getCost (link.getX(), link.getY());
