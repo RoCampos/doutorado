@@ -19,6 +19,13 @@ set (TESTALGO OFF)
 set (BMEAN OFF)
 set (ACOMPP_CAP ON)
 
+#define globally for all modules. See the Project Root directory;
+IF (REAL)
+	add_definitions ( -DMODEL_REAL)
+ELSE ()
+	add_definitions ( -MODEL_UNIT)
+ENDIF()
+
 #COMPILATION DEFINITION FO BSTREE
 IF (BST) 
 add_definitions ( -DBSTTREE )
