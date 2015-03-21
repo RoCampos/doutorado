@@ -12,6 +12,22 @@ void budget_multicast (std::string file);
 
 void budget_by_sttree (std::string file, std::string dir_output);
 
+/**
+ * Gera o binário dataModel
+ * 
+ * Este binário permite usar as implementações de @SolverDataGenerator que 
+ * geram arquivos no formato *.dat
+ * 
+ * Pode-se gerar o dat para uma árvore de steiner.
+ * 
+ * Pode-se gerar o dat para uma instância do MulticastPackingProblem usando
+ * o modelo @see @MultipleMulticastCommodityFormulation.
+ * 
+ * Pode-se gerar um dat para cada grupo de uma instância do MulticastPackingProblem
+ * de modo que elas possam ser otimizados individualmente como problema da árvore
+ * de Steiner.
+ * 
+ */
 int main (int argc, char**argv)
 {
 	
@@ -81,6 +97,8 @@ void budget_multicast (std::string file)
 	r.configNetwork ( net );
 	
 	std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
+	
+	r.setBand (net, g.size ());
 	
 	DataGenerator<MultipleMulticastCommodityFormulation> dg;
 	dg.run (net, g);

@@ -9,6 +9,42 @@
 #include "network.h"
 #include "group.h"
 
+
+/**
+ * Gerador de dados que recebe como parâmetro de 
+ * template o modelo a ser utilizado.
+ * 
+ * É possível trocar de modelo através da parametrização
+ * da classe DataGenerator.
+ * 
+ * Exemplos de modelos são:
+ * 	- @MultiCommidityFormulation usado para gerar dados no formato
+ * dat para o problema da árvore de Steiner. Recebe um @Group e um objeto
+ * representando a rede(@Network). Os arquivos dat pode ser utilizados em conjunto
+ * com o modelo stp_multi.mod.
+ * 
+ *  - @MultipleMulticastCommodityFormulation usado para gerar dados no formado
+ * dat para o problema Multiple Multicas Packing que maximiza capacidade residual.
+ * Esta versão não possui orçamento. Os arquivos dat deve ser utilizados em
+ * conjunto com o modelo mmmstp.mod.
+ * 
+ *  - @MultipleMulticastCommodityLP é usado para gerar arquivos no formato
+ * LP. Esta versão é a implementação do modelo mmmstp.mod. Os arquivos LP são 
+ * gerados diretamente por código c++, ou seja, não é necessário utilizar arquivos
+ * dat e o solver.
+ * 
+ *  - @MMSTPBudgetLP é usado para gerar arquivos no formato LP. Esta é a implementação
+ * do modelo mmmstp2.mod. Os arquivos LP são gerados diretamente por código c++, 
+ * ou seja, não é necessário utilizar arquivos dat e o solver. Adiciona restrição
+ * de orçamento.
+ * 
+ * 
+ * Todos as classes consideram a capacidade real(definida nas instâncias). Além diss
+ * a TRequest de @Group é também utilizado como definida nas instâncias.
+ * 
+ * @author Romerito Campos de Andrade
+ * @date 03/19/2015
+ */
 template <typename Model>
 class DataGenerator : private Model
 {
@@ -28,7 +64,12 @@ public:
 	
 };
 
-
+/** 
+ * @MultiCommidityFormulation usado para gerar dados no formato
+ * dat para o problema da árvore de Steiner. Recebe um @Group e um objeto
+ * representando a rede(@Network). Os arquivos dat pode ser utilizados em conjunto
+ * com o modelo stp_multi.mod.
+ */
 class MultiCommidityFormulation 
 {
 	
@@ -38,6 +79,12 @@ public:
 	
 };
 
+/** 
+ * @MultipleMulticastCommodityFormulation usado para gerar dados no formado
+ * dat para o problema Multiple Multicas Packing que maximiza capacidade residual.
+ * Esta versão não possui orçamento. Os arquivos dat deve ser utilizados em
+ * conjunto com o modelo mmmstp.mod.
+ */
 class MultipleMulticastCommodityFormulation
 {
 
@@ -49,13 +96,10 @@ public:
 
 
 /**
- * Esta classe é utilizada para criar instâncias para serem utilizas
- * no gurobi.
- * 
- * O modelo matemático utilizado é o mmstp.
- * 
- * O arquivo gerado é o farmato LP.
- * 
+ * @MultipleMulticastCommodityLP é usado para gerar arquivos no formato
+ * LP. Esta versão é a implementação do modelo mmmstp.mod. Os arquivos LP são 
+ * gerados diretamente por código c++, ou seja, não é necessário utilizar arquivos
+ * dat e o solver.
  */
 class MultipleMulticastCommodityLP 
 {
@@ -91,6 +135,16 @@ protected:
 	
 };
 
+/**
+ * Esta classe é utilizada para gerar instâncias do MMSTP-Budget.
+ * Ele gerá instâncias no formato LP (Linear Program).
+ * 
+ * A classe herda de @MultipleMulticastCommodityLP e adiciona
+ * a restrição 6 que considera um orçamento sobre a otimização.
+ * 
+ * Este orçamento define o valor máximo de custo da solução ao
+ * otimizar a capacidade residual da rede.
+ */
 class MMSTPBudgetLP : protected MultipleMulticastCommodityLP
 {
 
@@ -110,9 +164,15 @@ public:
 	
 private:
 	
+	/**
+	 * Implementação da restrição 6 que visa a garantir que o custo
+	 * da solução não ultrapasse um orçamento inicial.
+	 * 
+	 */
 	void constraint6 (rca::Network *,
 				   std::vector<std::shared_ptr<rca::Group>>&);
 	
+	/*variável que armazena o orçamento*/
 	int m_budget;
 	
 };
