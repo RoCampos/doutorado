@@ -57,8 +57,14 @@ add_executable (bsmean
 target_link_libraries (bsmean graph sttree myutil)
 ENDIF()
 
+#IF ACOMPP_CAP = ON  então compila para capacidade residual
 IF (ACOMPP_CAP)
+MESSAGE ("-- ACOMPP: RES_CAP=ON - COMPILATION FOR RESDIUAL CAPACITY")
 add_definitions (-DRES_CAP)
+ELSE()
+MESSAGE ("-- ACOMPP: RES_CAP=OFF - COMPILATION FOR CONGESTION")
+add_definitions (-DCONG)
+ENDIF ()
 add_executable (acompp acomppmain.cpp 
 		aco.h aco.cpp 
 		acompp.h acompp.cpp
@@ -66,7 +72,6 @@ add_executable (acompp acomppmain.cpp
 		edgecontainer.h edgecontainer.cpp
 		${includes})
 target_link_libraries (acompp graph sttree myutil ${Boost_LIBRARIES})
-ENDIF ()
 
 IF (TESTALGO)
 add_executable (test_properties teste_properties.cpp 
