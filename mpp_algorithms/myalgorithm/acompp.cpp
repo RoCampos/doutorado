@@ -273,16 +273,26 @@ void AcoMPP::configurate (std::string m_instance)
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
 	
-	Reader r(m_instance);
+	MultipleMulticastReader r(m_instance);
 	
 	//creating the network object
 	m_network = new rca::Network;
 	
 	//configuring the network object
-	r.configNetwork (m_network);
-	
+	//r.configNetwork (m_network);
 	//creating the groups
-	m_groups = r.readerGroup ();
+	//m_groups = r.readerGroup ();
+	
+#ifdef MODEL_REAL	
+	r.configure_real_values (m_network, m_groups);	
+#endif
+	
+	/*Atribui valor 1 para traffic request (tk) e 
+	 a capacidade das arestas é igual ao tamanho do grupo.*/
+#ifdef MODEL_UNIT
+	r.configure_unit_values (m_network,m_groups;
+#endif
+	
 	
 	//matrix of Pheromene
 	int NODES = m_network->getNumberNodes();
