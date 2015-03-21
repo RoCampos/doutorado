@@ -17,7 +17,7 @@ set (BST OFF)
 set (BSTCOST OFF)
 set (TESTALGO OFF)
 set (BMEAN OFF)
-set (ACOMPP ON)
+set (ACOMPP_CAP ON)
 
 #COMPILATION DEFINITION FO BSTREE
 IF (BST) 
@@ -57,7 +57,8 @@ add_executable (bsmean
 target_link_libraries (bsmean graph sttree myutil)
 ENDIF()
 
-IF (ACOMPP)
+IF (ACOMPP_CAP)
+add_definitions (-DRES_CAP)
 add_executable (acompp acomppmain.cpp 
 		aco.h aco.cpp 
 		acompp.h acompp.cpp
