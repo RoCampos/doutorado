@@ -23,7 +23,7 @@ set (ACOMPP_CAP ON)
 IF (REAL)
 	add_definitions ( -DMODEL_REAL)
 ELSE ()
-	add_definitions ( -MODEL_UNIT)
+	add_definitions ( -DMODEL_UNIT)
 ENDIF()
 
 #COMPILATION DEFINITION FO BSTREE

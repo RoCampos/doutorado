@@ -74,7 +74,7 @@ set (LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
 
 
 #GLOBAL SETTING OF HOW TO READ THE NETWORK
-set (REAL ON)
+set (REAL OFF)
 message ("\nINFO: REAL=ON means Reader uses real values of instance")
 
 include_directories (${PROJECT_SOURCE_DIR})

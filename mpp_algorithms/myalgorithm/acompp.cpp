@@ -290,7 +290,7 @@ void AcoMPP::configurate (std::string m_instance)
 	/*Atribui valor 1 para traffic request (tk) e 
 	 a capacidade das arestas é igual ao tamanho do grupo.*/
 #ifdef MODEL_UNIT
-	r.configure_unit_values (m_network,m_groups;
+	r.configure_unit_values (m_network,m_groups);
 #endif
 	
 	
