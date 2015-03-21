@@ -50,9 +50,14 @@ private:
 	std::string m_file;
 };
 
-class MultipleMulticastReader : protected Reader {
+class MultipleMulticastReader : public Reader {
 
 public:
+	
+	MultipleMulticastReader (std::string file) : Reader(file)
+	{
+		
+	}
 	
 	/**
 	 * Este método configura os grupos e a rede de
