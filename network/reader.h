@@ -45,8 +45,8 @@ public:
 	void configNetwork (Network *);
 	
 	std::vector<std::shared_ptr<Group>> readerGroup ();
-
-
+	
+	
 private:
 	std::string m_file;
 };
