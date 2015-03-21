@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 
 #include "SolverDataGenerator.h"
 #include "group.h"
@@ -11,6 +12,12 @@ void steiner_tree (std::string file);
 void budget_multicast (std::string file);
 
 void budget_by_sttree (std::string file, std::string dir_output);
+
+/*
+ * Gera dados considerando que cada grupo consome 1 unidade de tráfego.
+ * A capacidade das arestas é igual ao tamanho do grupo.
+ */
+void budget_multicast_tk (std::string file);
 
 /**
  * Gera o binário dataModel
@@ -31,9 +38,12 @@ void budget_by_sttree (std::string file, std::string dir_output);
 int main (int argc, char**argv)
 {
 	
-	if (argc <= 1) {
-		std::cout << "Enter 1 for Steiner Tree\n";
-		std::cout << "Enter 2 for Budget Multicast\n";
+	std::string msg = "Enter 1 for Steiner Tree\n";
+	msg += "Enter 2 for Budget Multicast\n";
+	msg += "Enter 3 for Budget Multicast by tree\n";
+	msg += "Enter 4 for Budget with TK=1 and EdgeCap=sizeGroup\n";
+	if (argc <= 1 || strcmp (argv[1],"--help") == 0) {
+		std::cout << msg;
 		exit(1);
 	}
 	
@@ -51,9 +61,11 @@ int main (int argc, char**argv)
 		case 3 : {
 			budget_by_sttree (file, argv[3]);
 		}break;
+		case 4 : {
+			budget_multicast_tk (file);
+		}
 		default : {
-			std::cout << "Enter 1 for Steiner Tree\n";
-			std::cout << "Enter 2 for Budget Multicast\n";
+			std::cout << msg;
 		}break;
 	}
 
@@ -98,7 +110,20 @@ void budget_multicast (std::string file)
 	
 	std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
 	
-	r.setBand (net, g.size ());
+	DataGenerator<MultipleMulticastCommodityFormulation> dg;
+	dg.run (net, g);
+}
+
+
+void budget_multicast_tk (std::string file)
+{
+	Network * net = new Network;	
+	Reader r (file);
+	r.configNetwork ( net );
+	
+	std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
+	
+	r.setBand (net, g.size () );
 	
 	DataGenerator<MultipleMulticastCommodityFormulation> dg;
 	dg.run (net, g);
