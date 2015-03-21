@@ -9,15 +9,16 @@
 
 void steiner_tree (std::string file);
 
+/*
+ * Gera dados considerando que cada grupo consome 1 unidade de tráfego.
+ * A capacidade das arestas é igual ao tamanho do grupo.
+ * 
+ * 
+ */
 void budget_multicast (std::string file);
 
 void budget_by_sttree (std::string file, std::string dir_output);
 
-/*
- * Gera dados considerando que cada grupo consome 1 unidade de tráfego.
- * A capacidade das arestas é igual ao tamanho do grupo.
- */
-void budget_multicast_tk (std::string file);
 
 /**
  * Gera o binário dataModel
@@ -41,7 +42,7 @@ int main (int argc, char**argv)
 	std::string msg = "Enter 1 for Steiner Tree\n";
 	msg += "Enter 2 for Budget Multicast\n";
 	msg += "Enter 3 for Budget Multicast by tree\n";
-	msg += "Enter 4 for Budget with TK=1 and EdgeCap=sizeGroup\n";
+	//msg += "Enter 4 for Budget with TK=1 and EdgeCap=sizeGroup\n";
 	if (argc <= 1 || strcmp (argv[1],"--help") == 0) {
 		std::cout << msg;
 		exit(1);
@@ -60,10 +61,7 @@ int main (int argc, char**argv)
 		}break;
 		case 3 : {
 			budget_by_sttree (file, argv[3]);
-		}break;
-		case 4 : {
-			budget_multicast_tk (file);
-		}
+		}break;		
 		default : {
 			std::cout << msg;
 		}break;
@@ -104,26 +102,20 @@ void steiner_tree (std::string file)
 void budget_multicast (std::string file)
 {
 	
-	Network * net = new Network;	
-	Reader r (file);
-	r.configNetwork ( net );
+	Network * net = new Network;
+	MultipleMulticastReader r (file);
+	std::vector<shared_ptr<rca::Group>> g;
 	
-	std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
+	/*Lê os valores confome definidos nas instâncias.*/
+#ifdef MODEL_REAL	
+	r.configure_real_values (net, g);	
+#endif
 	
-	DataGenerator<MultipleMulticastCommodityFormulation> dg;
-	dg.run (net, g);
-}
-
-
-void budget_multicast_tk (std::string file)
-{
-	Network * net = new Network;	
-	Reader r (file);
-	r.configNetwork ( net );
-	
-	std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
-	
-	r.setBand (net, g.size () );
+	/*Atribui valor 1 para traffic request (tk) e 
+	 a capacidade das arestas é igual ao tamanho do grupo.*/
+#ifdef MODEL_UNIT
+	r.configure_unit_values (net,g);
+#endif
 	
 	DataGenerator<MultipleMulticastCommodityFormulation> dg;
 	dg.run (net, g);
