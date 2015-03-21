@@ -65,6 +65,9 @@ public:
 	//verify by connectivty between terminals
 	int connected_level (rca::Group & group, rca::Network & Network);
 	
+	
+	int connected_level_by_group (rca::Group & group, rca::Network &);
+	
 private:
 	//this matrix holds the congestion
 	VMatrix m_matrix;
