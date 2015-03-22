@@ -11,6 +11,15 @@ FILE(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE(GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 FILE(GLOB INCLUDE "${PROJECT_SOURCE_DIR}/include/*.h")
 
+IF (REAL)
+	add_definitions (-DMODEL_REAL)	
+ELSE()
+	add_definitions (-DMODEL_UNIT)
+ENDIF()
+
+MESSAGE ("INFO: On ${CMAKE_CURRENT_SOURCE_DIR} compile info")
+MESSAGE ("\tINFO: Compiling genetic_mmmstp using network configurated for REAL=${REAL}")
+
 INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION util)
 
 
