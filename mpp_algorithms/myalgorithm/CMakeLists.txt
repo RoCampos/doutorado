@@ -19,6 +19,8 @@ set (TESTALGO OFF)
 set (BMEAN OFF)
 set (ACOMPP_CAP ON)
 
+MESSAGE ("\nINFO: On ${CMAKE_CURRENT_SOURCE_DIR} compile info")
+
 #define globally for all modules. See the Project Root directory;
 IF (REAL)
 	add_definitions ( -DMODEL_REAL)
@@ -66,10 +68,10 @@ ENDIF()
 
 #IF ACOMPP_CAP = ON  então compila para capacidade residual
 IF (ACOMPP_CAP)
-MESSAGE ("-- ACOMPP: RES_CAP=ON - COMPILATION FOR RESDIUAL CAPACITY")
+MESSAGE ("\tINFO:ACOMPP-- RES_CAP=ON  COMPILATION FOR RESDIUAL CAPACITY")
 add_definitions (-DRES_CAP)
 ELSE()
-MESSAGE ("-- ACOMPP: RES_CAP=OFF - COMPILATION FOR CONGESTION")
+MESSAGE ("\tINFO:ACOMPP-- RES_CAP=OFF - COMPILATION FOR CONGESTION")
 add_definitions (-DCONG)
 ENDIF ()
 add_executable (acompp acomppmain.cpp 
