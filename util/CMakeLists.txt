@@ -34,10 +34,11 @@ ELSE()
 ENDIF()
 
 
-
+MESSAGE ("\tINFO:lpGenerator-- REAL(${REAL})")
 add_executable (lpGenerator LpGenerator.cpp SolverDataGenerator.h SolverDataGenerator.cpp ${INCLUDE})
 target_link_libraries (lpGenerator graph sttree)
 
+MESSAGE ("\tINFO:solutionTest-- REAL(${REAL})")
 add_executable (solutionTest SolverSolutionTest.cpp SolverSolutionTest.h ${INCLUDE})
 target_link_libraries (solutionTest graph sttree)
 
