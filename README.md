@@ -1,4 +1,4 @@
-03/22/2015 
+New Version - Impromevents and Bug Fixed 03/22/2015 
 ============================================================
 Esta versão contém as seguintes adições
 =GeneticAlgorithm
