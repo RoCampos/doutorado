@@ -43,6 +43,10 @@ struct myrandom {
 		distribution = Dist (a, b);
 	}
 	
+	void reset_interval (TypeValue a, TypeValue b) {
+		distribution = Dist (a,b);
+	}
+	
 	TypeValue rand () {
 		TypeValue w = distribution(engine);
 		return w;
