@@ -27,6 +27,32 @@ public:
 };
 
 typedef std::vector<std::shared_ptr<rca::Group> >  list_groups;
+/**
+ * Classe implementa os testes necessários que devem ser aplicados ao resultado
+ * do obtido pelo Otimizador gurobi. 
+ *
+ * Os testes realizados são:
+ *  - valor de função objetivo
+ *  - verificar se há uma árvore de steiner para cada grupo
+ *  - valor de custo de uma solução  
+ *  - conectividade de cada árvore
+ *  - verifica se a nó folha não-terminal
+ *  
+ * Os arquivos de entrada devem possui o seguinte formato:
+ * 
+ * no1 - no2:arvore1;
+ * no1 - no2:arvore2;
+ * no1 - no2:arvoren;
+ * 
+ * no1 representa o primeiro nó de uma aresta, no2 representa o segundo nó de 
+ * uma aresta. Arvore1 indica que a arestas (no1,no2) está nesta árvore. O valor
+ * que indica a árovre varia de 1 até n(tamanho do grupo).
+ * 
+ * Todos as arestas da primeira árvore são listados, em seguida todas as aretas
+ * da segunda árovore e assim por diante. A pontução e os espaços devem ser
+ * respeitados. - sepera nós, : separa aresta do id da árver e ; encerra a linha.
+ * 
+ */
 class MMMSTPGurobiResult {
 
 public:

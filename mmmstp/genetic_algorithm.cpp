@@ -12,12 +12,25 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	/*configuring the problem*/
 	m_instance = instance;
 	m_network = new Network;
-	Reader r (m_instance);
-	r.configNetwork ( m_network );
-	std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
+	
+	
+// 	Reader r (m_instance);
+// 	r.configNetwork ( m_network );
+ 	std::vector<shared_ptr<rca::Group>> g;
+ 	
+	
+	MultipleMulticastReader r(m_instance);
+#ifdef MODEL_REAL
+	r.configure_real_values (m_network, g);
+#endif
+	
+#ifdef MODEL_UNIT
+	r.configure_unit_values (m_network, g);
+#endif
+	
 	for (unsigned int i =0; i < g.size (); i++) {
-		m_groups.push_back (*g[i].get ());
-	}
+ 		m_groups.push_back (*g[i].get ());
+ 	}
 	
 	/*Lista de caminhos used in init_rand_solution3*/
 	g_paths = k_paths (m_network, m_groups, path_size);	
@@ -813,7 +826,7 @@ void test (int argc, char**argv) {
 int main (int argc, char**argv) 
 {
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	test (argc, argv);
 #endif
 	
@@ -839,11 +852,20 @@ int main (int argc, char**argv)
 	double mut = atof (argv[7]);
 	int iter = atoi (argv[9]);
 	int init = atoi (argv[11]);
-	path_size = atoi (argv[13]);
+	
+	if (init == 3) {
+		if (strcmp(argv[12],"--path")==0) {
+			path_size = atoi (argv[13]);
+			printf ("parameters are incorrect\n");
+			help();
+			exit (1);
+		}
+	}
 	
 	if (init == 2) {
-		if (strcmp(argv[12],"--path")!=0) {
+		if (strcmp(argv[12],"--list")!=0) {
 			printf ("parameters are incorrect\n");
+			help ();
 			exit (1);
 		}
 	}
