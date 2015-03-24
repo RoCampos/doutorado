@@ -61,21 +61,21 @@ int EdgeContainer::connected_level_by_group (rca::Group & group,
 #ifdef DEBUG
 std::cout << __FUNCTION__ << ": ";
 #endif
-	int level = group.getTrequest ();
+	int level = group.getSize ();
 	while ( !is_connected (network, group) ) {
      
 		//iterator removendo de um level
-		auto begin = m_heap.begin ();
-		auto end = m_heap.end ();
+		auto begin = m_heap.ordered_begin ();
+		auto end = m_heap.ordered_end ();
 		for ( ; begin != end; begin++) {
-			if ( network.isRemoved (*begin) && (begin->getValue() - level >= 0) ) {
+			if ( network.isRemoved (*begin) && (begin->getValue() - level >= 0 ) ) {
 				//cout << " is removed\n";
 				network.undoRemoveEdge (*begin);
 			}	
 			
 		}	
 		//network.clearRemovedEdges ();
-		//level++;
+		level--;
 	}	
 #ifdef DEBUG
 	if (level > 1) {
