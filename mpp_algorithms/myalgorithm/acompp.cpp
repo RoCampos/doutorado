@@ -162,8 +162,13 @@ void AcoMPP::run (va_list & arglist) {
 													);
 		
 			//verify the graph for connectivity
+#ifdef CONG
 			ec.connected_level ( *m_groups[i].get() , *m_network);
-			//ec.connected_level_by_group ( *m_groups[i].get() , *m_network);
+#endif
+			
+#ifdef RES_CAP
+			ec.connected_level_by_group ( *m_groups[i].get() , *m_network);
+#endif
 			
 			//building the tree
 			build_tree (i, st, ec);
@@ -216,6 +221,11 @@ void AcoMPP::run (va_list & arglist) {
 #endif
 		
 #ifdef RES_CAP
+
+// 		printf ("Current iter(%d)\n", iter);
+// 		printf ("\tcurrent cost (%lf) Cap(%lf)\n", cost, congestion);
+// 		printf ("\tcurrent Best_cost (%lf) BestCap(%lf)\n", m_bcost, m_bcongestion);
+		
 		/*used for residual capacity*/
 		if (congestion > m_bcongestion || 
 			(congestion == m_bcongestion && cost < m_bcost))
@@ -228,6 +238,8 @@ void AcoMPP::run (va_list & arglist) {
 			m_best_iter = iter;
 			
 			bestNLinks = solutions;
+			
+// 			printf ("\tUPDATE - Best (%lf), Cost (%lf)\n",m_bcongestion,m_bcost);
 			
 		}
 #endif
@@ -243,9 +255,9 @@ void AcoMPP::run (va_list & arglist) {
 #endif
 	
 	std::cout << m_bcongestion << "\t";
-	//std::cout << m_bcost << "\t";
+// 	std::cout << m_bcost << "\t";
 	//std::cout << m_best_iter << "\t";
-	//std::cout << time_elapsed.get_elapsed () << "\t";
+// 	std::cout << time_elapsed.get_elapsed () << "\t";
 	//std::cout << m_seed << "\t";
 	
 	int g=0;
