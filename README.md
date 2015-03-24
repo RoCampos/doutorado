@@ -1,3 +1,45 @@
+03/22/2015 
+============================================================
+Esta versão contém as seguintes adições
+=GeneticAlgorithm
+	-Parâmetro local_upd é considerando na otimização(deve ser afinado)
+	-Suporta compilação condicional para tratar rede com tk=1 ou tk=(variado)
+	
+=Acompp
+	-Suporta compilação condicional para tratar rede com tk=1 ou tk=(variado)
+	-Pode otimização para o modelo de congestão ou capacidade residual(objetivos)
+
+=EdgeContainer
+	- novo método para restaurar arestas removidas da rede. Considera o problema
+	que envolve capacidade residual. Portanto, considera que uma quantidade da
+	capacidade vai ser consumido por cada grupo (tk=1 ou tk=(variado)). O modelo
+	que será usado (tk=1 ou tk(variado)) é transparente para este objeto.
+
+=MultipleMulticastReader
+	- Esta abstração é utilizada para ler informações do problema considerando que
+	podem ser utilizados valores reais (conforme estão definidos na instância tk=vaiado)
+	ou pode definir que tk=1 e todas as arestas terma capacidade igual ao tamanho 
+	do grupo.
+
+
+=DataGenerator
+	- Suporta compilação condicional para gerar arquivos dat levando em consideração
+	que se pode utilizar valores reais(conforme estão definidos na instância tk=vaiado)
+	ou valores com tk=1 para cada grupo e todas as arestas terma capacidade igual ao tamanho 
+        do grupo.
+
+=SolverSolutionTest
+	- Suporta compilação condicional para gerar arquivos dat levando em consideração
+        que se pode utilizar valores reais(conforme estão definidos na instância tk=vaiado)
+        ou valores com tk=1 para cada grupo e todas as arestas terma capacidade igual ao tamanho
+        do grupo.
+
+=MyRandom
+	- New Method to reset the min, max interval for random number generation.
+	This method holds the same semantic as before. But they increase the ACOMPP
+	speed up.
+
+
 Romerito PHD-1.
 =======
 
@@ -25,5 +67,3 @@ Algorithms:
 
 Beside the algorithm, some improvement has been done in the source
 code used as infraestructure of the reaserch. 
-
-
