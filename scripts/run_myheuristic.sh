@@ -9,6 +9,6 @@ do
 	#pre=$1preprocessing/n30/${file}
 
 
-	./build/acompp ${instance}/${i} --iter 100 --alpha 1.24 --beta 8.52 --phe 0.89 --pheur 0.92
+	./build/acompp ${instance}/${i} --iter 500 --alpha 3.37 --beta 0.36 --evo  0.03 --pheur 0.52 --local_upd 0.29
 done
 

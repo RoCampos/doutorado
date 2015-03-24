@@ -16,9 +16,18 @@ int main (int argv, char**argc)
 	std::string file = argc[1];
 	
 	Network * net = new Network;
-	Reader r (file);
-	r.configNetwork ( net );
+	std::vector<shared_ptr<rca::Group>> g;
+	//Reader r (file);
+	MultipleMulticastReader r (file);
+	//r.configNetwork ( net );
 	
+#ifdef MODEL_REAL
+	r.configure_real_values (net,g);
+#endif
+	
+#ifdef MODEL_UNIT
+	r.configure_unit_values (net,g);
+#endif
 	/*
 	Network * net = new Network(6,10);
 	net->setCost (0,1,1);
@@ -86,7 +95,7 @@ int main (int argv, char**argc)
 	//g.push_back (make_shared<rca::Group>(g3) );
 	*/
 	
-	std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
+	//std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
 	
 	MMSTPBudgetLP dg;	
 	int budget = atoi (argc[2]); //limite de orçamento

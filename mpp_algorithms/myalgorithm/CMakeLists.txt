@@ -17,7 +17,16 @@ set (BST OFF)
 set (BSTCOST OFF)
 set (TESTALGO OFF)
 set (BMEAN OFF)
-set (ACOMPP ON)
+set (ACOMPP_CAP ON)
+
+MESSAGE ("\nINFO: On ${CMAKE_CURRENT_SOURCE_DIR} compile info")
+
+#define globally for all modules. See the Project Root directory;
+IF (REAL)
+	add_definitions ( -DMODEL_REAL)
+ELSE ()
+	add_definitions ( -DMODEL_UNIT)
+ENDIF()
 
 #COMPILATION DEFINITION FO BSTREE
 IF (BST) 
@@ -57,7 +66,14 @@ add_executable (bsmean
 target_link_libraries (bsmean graph sttree myutil)
 ENDIF()
 
-IF (ACOMPP)
+#IF ACOMPP_CAP = ON  então compila para capacidade residual
+IF (ACOMPP_CAP)
+MESSAGE ("\tINFO:ACOMPP-- RES_CAP=ON  COMPILATION FOR RESDIUAL CAPACITY")
+add_definitions (-DRES_CAP)
+ELSE()
+MESSAGE ("\tINFO:ACOMPP-- RES_CAP=OFF - COMPILATION FOR CONGESTION")
+add_definitions (-DCONG)
+ENDIF ()
 add_executable (acompp acomppmain.cpp 
 		aco.h aco.cpp 
 		acompp.h acompp.cpp
@@ -65,7 +81,6 @@ add_executable (acompp acomppmain.cpp
 		edgecontainer.h edgecontainer.cpp
 		${includes})
 target_link_libraries (acompp graph sttree myutil ${Boost_LIBRARIES})
-ENDIF ()
 
 IF (TESTALGO)
 add_executable (test_properties teste_properties.cpp 

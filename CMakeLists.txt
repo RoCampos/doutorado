@@ -72,6 +72,15 @@ endif()
 set (EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/build")
 set (LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
 
+
+#GLOBAL SETTING OF HOW TO READ THE NETWORK
+set (REAL OFF)
+IF (REAL)
+	message ("\nINFO: REAL=${REAL} means Reader uses real values of instance")
+ELSE()
+	message ("\nINFO: REAL=${REAL} means Reader uses real values of instance")
+ENDIF()
+
 include_directories (${PROJECT_SOURCE_DIR})
 include_directories (include lib)
 

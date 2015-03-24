@@ -6,11 +6,21 @@ bool MMMSTPGurobiResult::do_test (std::string instance, std::string result, int 
 	
 	//reading instance
 	Network * net = new Network;
-	Reader r(instance);
-	r.configNetwork (net);	
-	std::vector<std::shared_ptr<rca::Group> > groups = r.readerGroup ();
-
+	std::vector<std::shared_ptr<rca::Group> > groups;
 	
+	MultipleMulticastReader r(instance);
+	
+#ifdef MODEL_REAL
+	r.configure_real_values (net,groups);
+#endif
+	
+#ifdef MODEL_UNIT
+	r.configure_unit_values (net,groups);
+#endif
+// 	Reader r(instance);
+// 	r.configNetwork (net);	
+// 	std::vector<std::shared_ptr<rca::Group> > groups = r.readerGroup ();
+
 	int obj = objective_test (net, groups, result);
 	int cost2 = 0;
 	for (int i=0; i < (int)groups.size (); i++) {

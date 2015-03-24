@@ -198,7 +198,10 @@ private:
 	 * 
 	 */
 	void update_congestion (std::shared_ptr<SteinerTree>&,
-							rca::EdgeContainer &ec, double&, double&);
+							rca::EdgeContainer &ec, 
+							double&, 
+							double&,
+							int trequest);
 	
 	/**
 	 * 
@@ -270,6 +273,8 @@ private:
 	double m_betha; //parameter betha
 	
 	double m_heuristic_prob;
+	
+	double m_local_upd;
 	
 	/*solution results*/
 	std::vector<double> m_best_trees;
