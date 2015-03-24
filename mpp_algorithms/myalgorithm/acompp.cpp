@@ -24,6 +24,7 @@ void AcoMPP::build_tree (int id,
 	
 	std::vector<rca::Link> toRemove(m_network->getRemovedEdges());
 	
+	AntRandom a( my_random.get_engine() , 0, (int)pool.size()-1 );
 	//while the number of ants is greater than 1(number of partitions)	
 	while (ants > 1) {
 	
@@ -31,7 +32,7 @@ void AcoMPP::build_tree (int id,
 		int join = -1;
 		int in = -1;
 		
-		AntRandom a( my_random.get_engine() , 0, (int)pool.size()-1 );
+		a.reset_interval (0, (int)pool.size()-1);		
 		int ant = a.rand ();
 		
 		//current vertex
@@ -238,8 +239,9 @@ void AcoMPP::run (va_list & arglist) {
 			m_best_iter = iter;
 			
 			bestNLinks = solutions;
-			
-// 			printf ("\tUPDATE - Best (%lf), Cost (%lf)\n",m_bcongestion,m_bcost);
+
+		//	printf ("ITER (%d)",iter);
+ 		//	printf ("\tUPDATE - Best (%lf), Cost (%lf)\n",m_bcongestion,m_bcost);
 			
 		}
 #endif
@@ -497,6 +499,9 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
 	
+	/*variável que verifica se a nova árvore
+	 foi construída sem utilizar links já congestionados*/
+	bool disjoint_tree = true;
 	
 	Edge * e = st->listEdge.head;
 	while (e != NULL) {
@@ -534,6 +539,8 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
  			}
 #endif
 			
+			disjoint_tree = false;
+			
 		} else {
 			ec.m_ehandle_matrix[x][y].first = true;
 			
@@ -555,6 +562,14 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 		e = e->next;
 	}	
 	e = NULL;
+	
+	//TODO ISTO É APENAS PARA CASO DA CAPACIDADE RESIDUAL COM TK=1f
+	if (disjoint_tree) {
+		int v =  st->listEdge.head->i;
+		int w =  st->listEdge.head->j;
+		rca::Link l (v,w, m_network->getBand (v,w)-1);
+		m_congestion = l.getValue();
+	}
 	
 #ifdef DEBUG
 	std::cout << "------------------------------" << std::endl;
