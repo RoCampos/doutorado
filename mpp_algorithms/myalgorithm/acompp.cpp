@@ -68,6 +68,13 @@ void AcoMPP::build_tree (int id,
 				//breaking the for.
 				//break;
 				
+#ifdef VIEWER
+				/* just for test */
+				rca::Link l (c_vertex, next,0);
+				viewer.addLink (l);
+				viewer.draw ("../teste");
+#endif
+				
 				//added to avoid cicle
 			} else if (visited[c_vertex] != visited[next]){
 					
@@ -83,6 +90,14 @@ void AcoMPP::build_tree (int id,
 					
 				st->addEdge (link.getX(), link.getY(), 
 					m_network->getCost(link.getX(), link.getY()) );
+				
+#ifdef VIEWER
+				/* just for test */
+				rca::Link l (c_vertex, next,0);
+				viewer.addLink (l);
+				viewer.draw ("../teste");
+#endif
+				
 			} else {
 					
 				rca::Link l(c_vertex, next, 0.0);
@@ -106,6 +121,13 @@ void AcoMPP::build_tree (int id,
 	}//endof while
 	
 	st->prunning ();
+
+#ifdef VIEWER
+	viewer.draw ("../teste");	
+	std::cout << "drawing tree\n";
+	getchar ();
+	viewer.clear ();
+#endif
 	
 #ifdef DEBUG
 	std::cout << "------------------------------" << std::endl;
@@ -204,6 +226,7 @@ void AcoMPP::run (va_list & arglist) {
 #endif
 	
 		}//end for in solutioon construction
+	
 	
 		/*used for congestion*/
 #ifdef CONG
@@ -352,6 +375,10 @@ void AcoMPP::configurate (std::string m_instance)
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
+	
+	/* just for test*/ 
+	viewer = TreeBuildViewer (m_network);
+	//viewer.draw ("");
 }
 
 void AcoMPP::create_ants_by_group (int g_id, 
