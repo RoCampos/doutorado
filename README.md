@@ -1,3 +1,23 @@
+New Version - Improvements and Bug Fixed (DATE - CURRENT)
+===========================================================
+=Acompp
+	- bug removido do método update_congestion () nos casos
+	onde se controi uma solução sem usar arestas que foram utilizadas
+	anteriomente.
+
+	- Support a SolutionViewer: visualizar a construção das ároves durante
+	a busca. Este recurso é ativido através de compilação condicional.
+
+	
+
+=SolutionViewer
+	- Classe que representa um visualizador de solução utilizado no acompp.
+	Este classe mantém um ponteiro para a rede e uma lista de arestas atualemente
+	na solução. Estas arestas são atualizadas conforme inseridas ou removidas.
+	Utiliza o formado do graphviz
+
+
+
 New Version - Impromevents and Bug Fixed 03/22/2015 
 ============================================================
 Esta versão contém as seguintes adições
