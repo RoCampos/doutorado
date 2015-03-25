@@ -68,6 +68,13 @@ void AcoMPP::build_tree (int id,
 				//breaking the for.
 				//break;
 				
+#ifdef VIEWER
+				/* just for test */
+				rca::Link l (c_vertex, next,0);
+				viewer.addLink (l);
+				viewer.draw ("../teste");
+#endif
+				
 				//added to avoid cicle
 			} else if (visited[c_vertex] != visited[next]){
 					
@@ -83,6 +90,14 @@ void AcoMPP::build_tree (int id,
 					
 				st->addEdge (link.getX(), link.getY(), 
 					m_network->getCost(link.getX(), link.getY()) );
+				
+#ifdef VIEWER
+				/* just for test */
+				rca::Link l (c_vertex, next,0);
+				viewer.addLink (l);
+				viewer.draw ("../teste");
+#endif
+				
 			} else {
 					
 				rca::Link l(c_vertex, next, 0.0);
@@ -106,6 +121,13 @@ void AcoMPP::build_tree (int id,
 	}//endof while
 	
 	st->prunning ();
+
+#ifdef VIEWER
+	viewer.draw ("../teste");	
+	std::cout << "drawing tree\n";
+	getchar ();
+	viewer.clear ();
+#endif
 	
 #ifdef DEBUG
 	std::cout << "------------------------------" << std::endl;
@@ -205,6 +227,7 @@ void AcoMPP::run (va_list & arglist) {
 	
 		}//end for in solutioon construction
 	
+	
 		/*used for congestion*/
 #ifdef CONG
 		if ((cost < m_bcost && congestion <= m_bcongestion) ||
@@ -257,10 +280,10 @@ void AcoMPP::run (va_list & arglist) {
 #endif
 	
 	std::cout << m_bcongestion << "\t";
-// 	std::cout << m_bcost << "\t";
-	//std::cout << m_best_iter << "\t";
-// 	std::cout << time_elapsed.get_elapsed () << "\t";
-	//std::cout << m_seed << "\t";
+	std::cout << m_bcost << "\t";
+	std::cout << m_best_iter << "\t";
+	std::cout << time_elapsed.get_elapsed () << "\t";
+	std::cout << m_seed << "\t";
 	
 	int g=0;
 	auto it = bestNLinks.begin ();
@@ -352,6 +375,10 @@ void AcoMPP::configurate (std::string m_instance)
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
+	
+	/* just for test*/ 
+	viewer = TreeBuildViewer (m_network);
+	//viewer.draw ("");
 }
 
 void AcoMPP::create_ants_by_group (int g_id, 
@@ -499,10 +526,6 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
 	
-	/*variável que verifica se a nova árvore
-	 foi construída sem utilizar links já congestionados*/
-	bool disjoint_tree = true;
-	
 	Edge * e = st->listEdge.head;
 	while (e != NULL) {
 	
@@ -539,8 +562,6 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
  			}
 #endif
 			
-			disjoint_tree = false;
-			
 		} else {
 			ec.m_ehandle_matrix[x][y].first = true;
 			
@@ -564,11 +585,8 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 	e = NULL;
 	
 	//TODO ISTO É APENAS PARA CASO DA CAPACIDADE RESIDUAL COM TK=1f
-	if (disjoint_tree) {
-		int v =  st->listEdge.head->i;
-		int w =  st->listEdge.head->j;
-		rca::Link l (v,w, m_network->getBand (v,w)-1);
-		m_congestion = l.getValue();
+ 	if (m_congestion == INT_MAX) {
+		m_congestion = ec.m_heap.ordered_begin ()->getValue ();
 	}
 	
 #ifdef DEBUG

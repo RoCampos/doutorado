@@ -2,13 +2,23 @@
 
 #path of instances and preprocessed files
 instance=$1
-for i in `ls -vB ${instance}`
+
+#directory where the result files will be stored
+output_dir=$2
+
+for inst in `ls -vB ${instance}`
 do
 	#file=`echo $i | sed -e 's:.brite:.pre:'`
 	#inst=$1n30/$i
 	#pre=$1preprocessing/n30/${file}
 
 
-	./build/acompp ${instance}/${i} --iter 500 --alpha 3.37 --beta 0.36 --evo  0.03 --pheur 0.52 --local_upd 0.29
-done
+	#getting the basename of a file. Name with no extension
+	file=$(basename ${inst} .brite)
 
+	echo -e "CAP_R\tCUSTO\tITER\tTIME\tSEED"
+	for i in  $(seq 1 50)
+	do
+		./build/acompp ${instance}/${inst} --iter 400 --alpha 2.34 --beta 1.31 --evo  0.34 --pheur 0.28 --local_upd 0.07 >> ${output_dir}${file}.result
+	done
+done
