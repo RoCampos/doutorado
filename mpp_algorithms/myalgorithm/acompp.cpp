@@ -526,10 +526,6 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
 	
-	/*variável que verifica se a nova árvore
-	 foi construída sem utilizar links já congestionados*/
-	bool disjoint_tree = true;
-	
 	Edge * e = st->listEdge.head;
 	while (e != NULL) {
 	
@@ -566,8 +562,6 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
  			}
 #endif
 			
-			disjoint_tree = false;
-			
 		} else {
 			ec.m_ehandle_matrix[x][y].first = true;
 			
@@ -591,11 +585,8 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 	e = NULL;
 	
 	//TODO ISTO É APENAS PARA CASO DA CAPACIDADE RESIDUAL COM TK=1f
-	if (disjoint_tree) {
-		int v =  st->listEdge.head->i;
-		int w =  st->listEdge.head->j;
-		rca::Link l (v,w, m_network->getBand (v,w)-1);
-		m_congestion = l.getValue();
+ 	if (m_congestion == INT_MAX) {
+		m_congestion = ec.m_heap.ordered_begin ()->getValue ();
 	}
 	
 #ifdef DEBUG
