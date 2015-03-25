@@ -30,6 +30,8 @@
 #include "ant.h"
 #include "steinertree.h"
 
+#include "SolutionView.h"
+
 typedef typename std::vector<std::shared_ptr<rca::Group>> MGroups;
 
 typedef typename std::vector<std::vector<double>> PheromenMatrix;
@@ -284,6 +286,9 @@ private:
 	double m_best_iter; //the best iteration
 	
 	rca::time::elapsed_time time_elapsed;
+	
+	/* just for test */
+	rca::TreeBuildViewer viewer;
 	
 };
 
