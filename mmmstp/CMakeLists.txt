@@ -18,7 +18,7 @@ ELSE()
 ENDIF()
 
 MESSAGE ("\nINFO: On ${CMAKE_CURRENT_SOURCE_DIR} compile info")
-INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION util)
+INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION mmmstp)
 
 MESSAGE ("\tINFO: Compiling genetic_mmmstp using network configurated for REAL=${REAL}")
 add_executable (genetic_mmmstp 	genetic_algorithm.cpp 
