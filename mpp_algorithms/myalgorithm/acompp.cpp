@@ -280,10 +280,10 @@ void AcoMPP::run (va_list & arglist) {
 #endif
 	
 	std::cout << m_bcongestion << "\t";
-// 	std::cout << m_bcost << "\t";
-	//std::cout << m_best_iter << "\t";
-// 	std::cout << time_elapsed.get_elapsed () << "\t";
-	//std::cout << m_seed << "\t";
+	std::cout << m_bcost << "\t";
+	std::cout << m_best_iter << "\t";
+	std::cout << time_elapsed.get_elapsed () << "\t";
+	std::cout << m_seed << "\t";
 	
 	int g=0;
 	auto it = bestNLinks.begin ();
