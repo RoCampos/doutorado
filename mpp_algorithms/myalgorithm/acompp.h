@@ -96,7 +96,7 @@ public:
 	 */
 	void build_tree (int id, 
 					 std::shared_ptr<SteinerTree> & st, 
-					 EdgeContainer & ec);
+					 EdgeContainer<Comparator,HCell> & ec);
 	
 	/**
 	 * This method is used to configurate
@@ -200,7 +200,7 @@ private:
 	 * 
 	 */
 	void update_congestion (std::shared_ptr<SteinerTree>&,
-							rca::EdgeContainer &ec, 
+							EdgeContainer<Comparator,HCell> &ec, 
 							double&, 
 							double&,
 							int trequest);
@@ -214,7 +214,7 @@ private:
 	 * This refence contains all the edges used to build a solution.
 	 * 
 	 */
-	void update_pheromone_matrix (rca::EdgeContainer & ec);
+	void update_pheromone_matrix (EdgeContainer<Comparator,HCell> & ec);
 	
 	/**
 	 * This method is used to find a next component based
