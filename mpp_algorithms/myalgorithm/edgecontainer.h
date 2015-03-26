@@ -23,19 +23,33 @@ struct not_equal{
 	  return (l1 > l2);
   }
 };
+
+template<class T>
+struct not_equal_rev{
+  bool operator() (const T& l1, const T& l2) const
+  {
+	  //return ((p < link.p) && (link != *this)) || (link != *this);
+	  return (l1 < l2);
+  }
+};
 	
 //Matriz de inteiros
 typedef typename std::vector<std::vector<int>> VMatrix;
 
 //types used to control the heap_fibonnacti during algorithm execution
 typedef typename boost::heap::compare<not_equal<rca::Link>> Comparator;
-typedef typename boost::heap::fibonacci_heap<rca::Link, Comparator>::handle_type edge_handle;
+typedef typename boost::heap::compare<not_equal_rev<rca::Link>> ComparatorReverse;
 
-typedef typename boost::heap::fibonacci_heap<rca::Link, Comparator> FibonnacciHeap;
+typedef typename boost::heap::fibonacci_heap<rca::Link, Comparator>::handle_type edge_handle;
+typedef typename boost::heap::fibonacci_heap<rca::Link, ComparatorReverse>::handle_type edge_handle_rev;
+
+//typedef typename boost::heap::fibonacci_heap<rca::Link, Comparator> FibonnacciHeap;
+
 
 //define um pair bool e um manipulador de aresta
 //este manipulador indica se uma aresta está ou no heap
 typedef typename std::pair<bool, edge_handle> HCell;
+typedef typename std::pair<bool, edge_handle_rev> HCellRev;
 
 //vetor de manipuladores de arestas
 typedef typename std::vector<std::vector< HCell >> EHandleMatrix;
@@ -53,6 +67,7 @@ typedef typename std::vector<std::vector< HCell >> EHandleMatrix;
  * 
  * @author Romerito Campos.
  */
+template <class Comp = Comparator, class Handle = HCell>
 class EdgeContainer {
 	friend class AcoMPP;
 	
@@ -73,10 +88,12 @@ private:
 	VMatrix m_matrix;
 	
 	//this matrix holds the handles to heap elements
-	EHandleMatrix m_ehandle_matrix;
+	//EHandleMatrix m_ehandle_matrix;
+	std::vector<std::vector< Handle >> m_ehandle_matrix;
 	
 	//this heap holds the edges form minimun congestion to max.
-	FibonnacciHeap m_heap;
+	//FibonnacciHeap m_heap;
+	boost::heap::fibonacci_heap<rca::Link, Comp> m_heap;
 
 };
 

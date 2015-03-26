@@ -2,7 +2,8 @@
 
 using namespace rca;
 
-void EdgeContainer::init_congestion_matrix (int nodes)
+template <class Comp, class Handle>
+void EdgeContainer<Comp,Handle>::init_congestion_matrix (int nodes)
 {
 	
 	m_matrix = VMatrix(nodes);
@@ -11,16 +12,18 @@ void EdgeContainer::init_congestion_matrix (int nodes)
 	}
 }
 	
-void EdgeContainer::init_handle_matrix (int nodes)
+template <class Comp, class Handle>
+void EdgeContainer<Comp,Handle>::init_handle_matrix (int nodes)
 {
-	m_ehandle_matrix = EHandleMatrix(nodes);
+	m_ehandle_matrix = std::vector<std::vector< Handle >>(nodes);
 	for (int i=0; i < nodes; i++) {
-		m_ehandle_matrix[i] = std::vector<HCell>(nodes);
+		m_ehandle_matrix[i] = std::vector<Handle>(nodes);
 	}
 
 }
 
-int EdgeContainer::connected_level (rca::Group & group, rca::Network & network) {
+template <class Comp, class Handle>
+int EdgeContainer<Comp,Handle>::connected_level (rca::Group & group, rca::Network & network) {
 	
 #ifdef DEBUG
 	std::cout << __FUNCTION__ << ": ";
@@ -55,13 +58,14 @@ int EdgeContainer::connected_level (rca::Group & group, rca::Network & network) 
 		
 }
 
-int EdgeContainer::connected_level_by_group (rca::Group & group, 
+template <class Comp, class Handle>
+int EdgeContainer<Comp,Handle>::connected_level_by_group (rca::Group & group, 
 											 rca::Network &network)
 {
 #ifdef DEBUG
 std::cout << __FUNCTION__ << ": ";
 #endif
-	int level = group.getSize ();
+	int level = 1;//group.getSize ();
 	while ( !is_connected (network, group) ) {
      
 		//iterator removendo de um level
@@ -89,3 +93,6 @@ std::cout << __FUNCTION__ << ": ";
 	
 	return level; 
 }
+
+template class EdgeContainer<Comparator, HCell>;
+template class EdgeContainer<ComparatorReverse, HCellRev>;
