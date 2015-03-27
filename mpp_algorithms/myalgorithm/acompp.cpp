@@ -4,7 +4,7 @@ using namespace rca;
 
 void AcoMPP::build_tree (int id, 
 						 std::shared_ptr<SteinerTree> & st, 
-						 EdgeContainer & ec) 
+						 EdgeContainer<Comparator,HCell> & ec) 
 {
 #ifdef DEBUG
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
@@ -153,7 +153,7 @@ void AcoMPP::run (va_list & arglist) {
 	time_elapsed.started ();
 	for (int iter =0; iter < iterations; iter++) {
 		//initialization of the strutctures that suppor congestion evaluation
-		EdgeContainer ec;
+		EdgeContainer<Comparator,HCell> ec;
 		ec.init_congestion_matrix (m_network->getNumberNodes ());
 		ec.init_handle_matrix (m_network->getNumberNodes ());
 	
@@ -167,8 +167,8 @@ void AcoMPP::run (va_list & arglist) {
 #ifdef CONG
 		double congestion = 0.0;
 #endif	
-	
-		//creating a solution
+		
+		//TODO COLOCAR CRIAÇÃO FORA E FAZER SHUFFLE AQUI
 		std::vector<int> ggg = std::vector<int>(m_groups.size ());
 		for (int i=1; i <(int)ggg.size (); i++) {
 			ggg[i] = ggg[i-1] + 1;
@@ -176,6 +176,8 @@ void AcoMPP::run (va_list & arglist) {
 		std::random_shuffle (ggg.begin (), ggg.end());
 		//for (unsigned i = 0; i < m_groups.size (); i++) {
 		for (int i : ggg) {
+			
+			
 			
 			//initialization of steiner tree
 			ptr_SteinerTree 
@@ -517,7 +519,7 @@ void AcoMPP::join_ants (std::vector<Ant>& pool,
 }
 
 void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
-							rca::EdgeContainer & ec, 
+							EdgeContainer<Comparator, HCell> & ec, 
 							double&m_cost,
 							double& m_congestion,
 							int trequest)
@@ -562,6 +564,7 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
  			}
 #endif
 			
+			
 		} else {
 			ec.m_ehandle_matrix[x][y].first = true;
 			
@@ -596,7 +599,7 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 }
 
 
-void AcoMPP::update_pheromone_matrix (rca::EdgeContainer & ec)
+void AcoMPP::update_pheromone_matrix (EdgeContainer<Comparator,HCell> & ec)
 {
 	
 #ifdef DEBUG
@@ -726,7 +729,6 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 #endif
 	
 }
-
 
 void AcoMPP::print_results () {
 
