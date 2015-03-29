@@ -20,6 +20,8 @@ class SteinerTree {
 	
 public:
 	
+	SteinerTree () {}
+	
 	SteinerTree(int nobj, int nnodes);
 	
 	//construtor usado para árvore de Steiner com 1 objetivo
