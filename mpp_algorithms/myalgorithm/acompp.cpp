@@ -157,7 +157,8 @@ void AcoMPP::run (va_list & arglist) {
 		ec.init_congestion_matrix (m_network->getNumberNodes ());
 		ec.init_handle_matrix (m_network->getNumberNodes ());
 	
-		std::vector<SteinerTree> solutions;
+		std::vector<SteinerTree> solutions = 
+								std::vector<SteinerTree>( m_groups.size () );
 		double cost = 0.0;
 		
 #ifdef RES_CAP
@@ -206,7 +207,7 @@ void AcoMPP::run (va_list & arglist) {
 				local_update (st.get());
 			}
 			
-			solutions.push_back (*st.get());
+			solutions[i] =  (*st.get());
 			
 			//updating congestion heap
 			//update_congestion (st, ec, cost, congestion);
@@ -295,7 +296,11 @@ void AcoMPP::run (va_list & arglist) {
 			m_best_iter = iter;
 			
 			bestNLinks = solutions;
-						
+			
+			for (SteinerTree &st : solutions) {
+				st.xdotFormat ();
+			}
+			getchar ();
 			update_pheromone_matrix (ec);
 		}
 #endif
@@ -314,9 +319,12 @@ void AcoMPP::run (va_list & arglist) {
 	std::cout << m_bcost << "\t";
 	std::cout << m_best_iter << "\t";
 	std::cout << time_elapsed.get_elapsed () << "\t";
-	std::cout << m_seed << "\t";
+	std::cout << m_seed << "\n";
+	
+	std::ofstream out("../cost.txt");
 	
 	int g=0;
+	out << setfill(' ') << "Edge" << setw(6) << "Cost" << endl; 
 	auto it = bestNLinks.begin ();
 	for (; it != bestNLinks.end(); it++) {
 		Edge * e = (*it).listEdge.first();
@@ -324,11 +332,14 @@ void AcoMPP::run (va_list & arglist) {
 		while (e != NULL) {
 			i++;
 			printf ("%d - %d:%d;\n", e->i+1,e->j+1,g+1);
+			out << e->i+1 << "-" << e->j+1 << ":" <<g+1 <<"; ";
+			out << (int)m_network->getCost (e->i,e->j) << std::endl;
 			e = e->next;
 		}
 		g++;
 		//std::cout << i << "\t";
 	}
+	out.close ();
 	std::cout << std::endl;
 	
 	
@@ -569,6 +580,10 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 		rca::Link link (e->i, e->j, 0);
 		int x = link.getX ();
 		int y = link.getY ();
+		
+		//computing the edge usage(cost)
+		m_cost += m_network->getCost (link.getX(), link.getY());
+		
 		if (ec.m_ehandle_matrix[x][y].first == true) {
 			
 			int valor = (*((ec.m_ehandle_matrix[x][y]).second)).getValue();
@@ -608,8 +623,6 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 #endif
 			
 			ec.m_ehandle_matrix[x][y].second = ec.m_heap.push (link);
-			
-			m_cost += m_network->getCost (link.getX(), link.getY());
 			
 		}
 		
