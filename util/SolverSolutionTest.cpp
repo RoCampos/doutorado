@@ -210,7 +210,7 @@ int MMMSTPGurobiResult::tree_cost (rca::Network *net, rca::Group *group,
 		if (GROUP_ID == (g-1)) {			
 			if (dset.find2 (v-1)->item == dset.find2(w-1)->item) {
 				if (dset.find2 (v-1)->item == root){
-					tree_cost += net->getCost (v-1, w-1);
+					tree_cost += (int)net->getCost (v-1, w-1);
 				}
 			}
 		}
@@ -233,7 +233,7 @@ int MMMSTPGurobiResult::cost (rca::Network * net,std::string result)
 		int g = -1;
 		sscanf (line.c_str (), "%d - %d:%d;", &v, &w, &g);
 		
-		sol_cost += net->getCost (v-1,w-1);
+		sol_cost += (int)net->getCost (v-1,w-1);
 		
 	}
 	return sol_cost;
