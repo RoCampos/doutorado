@@ -79,7 +79,7 @@ add_executable (acompp acomppmain.cpp
 		acompp.h acompp.cpp
 		ant.h ant.cpp
 		${includes})
-target_link_libraries (acompp graph sttree myutil ${Boost_LIBRARIES})
+target_link_libraries (acompp graph sttree sttalgo myutil ${Boost_LIBRARIES})
 
 IF (TESTALGO)
 add_executable (test_properties teste_properties.cpp 
@@ -87,5 +87,5 @@ add_executable (test_properties teste_properties.cpp
 		acompp.h acompp.cpp
 		ant.h ant.cpp
 		${includes})
-target_link_libraries (test_properties graph sttree ${Boost_LIBRARIES})
+target_link_libraries (test_properties graph sttalgo sttree ${Boost_LIBRARIES})
 ENDIF ()
