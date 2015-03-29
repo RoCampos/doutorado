@@ -32,6 +32,8 @@
 
 #include "SolutionView.h"
 
+#include "mpp_visitor.h"
+
 typedef typename std::vector<std::shared_ptr<rca::Group>> MGroups;
 
 typedef typename std::vector<std::vector<double>> PheromenMatrix;
@@ -246,6 +248,11 @@ private:
 	 * @param SteinerTree
 	 */
 	void local_update (SteinerTree * st);
+	
+	
+	void accept (MppVisitor * visitor) {
+		visitor->visit ();
+	}
 	
 private:
 	
