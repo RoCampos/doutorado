@@ -80,6 +80,48 @@ public:
 	
 	int connected_level_by_group (rca::Group & group, rca::Network &);
 	
+	/*acessor methods*/
+	bool is_used (rca::Link &l) {
+		return m_ehandle_matrix[ l.getX()][ l.getY() ].first;
+	}
+	
+	//verifica se está sendo utilizado
+	bool is_used (int x, int y) {
+		return m_ehandle_matrix[x][y].first;
+	}
+	
+	//retorna o min ou max do heap (Comparator ou ComparatorReverse)
+	int top () {
+		return m_heap.ordered_begin ()->getValue ();
+	}
+	
+	int value (rca::Link &l) {
+		return (*(m_ehandle_matrix[ l.getX() ][ l.getY() ]).second).getValue ();
+	}
+	
+	void update (rca::Link & l) {
+		
+		//redefinindo valor do link
+		(*(m_ehandle_matrix[l.getX()][l.getY()]).second).setValue(l.getValue ());
+		
+		//atualizando no heap
+		m_heap.update ( m_ehandle_matrix[l.getX()][l.getY()].second );
+	}
+	
+	void push (rca::Link & l ) {
+		
+		//testa se já foi utilizado
+		if ( !is_used (l) ) {			
+			//senão insere-o
+			m_ehandle_matrix[l.getX()][l.getY()].second = m_heap.push (l);	
+		} else {
+			//caso já exista atualize
+			this->update (l);
+		}
+	}
+	
+	
+	
 public:
 	//this matrix holds the congestion
 	VMatrix m_matrix;

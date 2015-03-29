@@ -25,7 +25,7 @@ void EdgeContainer<Comp,Handle>::init_handle_matrix (int nodes)
 template <class Comp, class Handle>
 int EdgeContainer<Comp,Handle>::connected_level (rca::Group & group, rca::Network & network) {
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << __FUNCTION__ << ": ";
 #endif
 	
@@ -46,7 +46,7 @@ int EdgeContainer<Comp,Handle>::connected_level (rca::Group & group, rca::Networ
 		
 		level++;			
 	}	
-#ifdef DEBUG
+#ifdef DEBUG1
 	if (level > 1) {
 		std::cout << "Executed\n";
 	}else {
@@ -62,7 +62,7 @@ template <class Comp, class Handle>
 int EdgeContainer<Comp,Handle>::connected_level_by_group (rca::Group & group, 
 											 rca::Network &network)
 {
-#ifdef DEBUG
+#ifdef DEBUG1
 std::cout << __FUNCTION__ << ": ";
 #endif
 	int level = 1;//group.getSize ();
@@ -81,7 +81,7 @@ std::cout << __FUNCTION__ << ": ";
 		//network.clearRemovedEdges ();
 		level--;
 	}	
-#ifdef DEBUG
+#ifdef DEBUG1
 	if (level > 1) {
 		std::cout << "Executed\n";
 	}else {
