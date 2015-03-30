@@ -83,13 +83,13 @@ public:
 	
 private:
 	/*faz um corte no grafo divindo a árvore em duas*/
-	std::vector<int> make_cut (int tree_id, rca::Link&);	
+	std::vector<int> make_cut (int tree_id, const rca::Link&);	
 	void replace (TupleEdgeRemove &);
 	
 
 	/*Auxiliar methods*/
 	void getAvailableEdges (std::vector<int> &cut, 
-							rca::Link&, 
+							const rca::Link&, 
 							std::vector<rca::Link>&);
 	
 	/*cria novas árvores de steiner
