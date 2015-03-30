@@ -89,7 +89,7 @@ void AcoMPP::build_tree (int id,
 				//m_network->removeEdge(link);
 					
 				st->addEdge (link.getX(), link.getY(), 
-					m_network->getCost(link.getX(), link.getY()) );
+					(int)m_network->getCost(link.getX(), link.getY()) );
 				
 #ifdef VIEWER
 				/* just for test */
@@ -557,16 +557,16 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 		
 		if (ec.m_ehandle_matrix[x][y].first == true) {
 			
-			int valor = (*((ec.m_ehandle_matrix[x][y]).second)).getValue();
+			int valor = ec.value (link);
 #ifdef CONG
 			(*((ec.m_ehandle_matrix[x][y]).second)).setValue (valor+1);
 #endif
 			
 #ifdef RES_CAP
-			(*((ec.m_ehandle_matrix[x][y]).second)).setValue (valor-trequest);
+			link.setValue ( valor - 1 );
 #endif
 			
-			ec.m_heap.update ((ec.m_ehandle_matrix[x][y]).second);
+			ec.update (link);
 
 #ifdef CONG			
  			if (valor+1 > m_congestion) {
@@ -575,14 +575,11 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 #endif 
 		
 #ifdef RES_CAP
-			if ( (valor-trequest) < m_congestion) {
- 				m_congestion = (valor - trequest);
- 			}
+			m_congestion = ec.top ();
 #endif
 			
 			
 		} else {
-			ec.m_ehandle_matrix[x][y].first = true;
 			
 #ifdef CONG
 			link.setValue (1);
@@ -593,7 +590,7 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 			link.setValue ( band - trequest);
 #endif
 			
-			ec.m_ehandle_matrix[x][y].second = ec.m_heap.push (link);
+			ec.push (link);
 			
 		}
 		
@@ -603,7 +600,7 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 	
 	//TODO ISTO É APENAS PARA CASO DA CAPACIDADE RESIDUAL COM TK=1f
  	if (m_congestion == INT_MAX) {
-		m_congestion = ec.m_heap.ordered_begin ()->getValue ();
+		m_congestion = ec.top ();//ec.m_heap.ordered_begin ()->getValue ();
 	}
 	
 #ifdef DEBUG1
