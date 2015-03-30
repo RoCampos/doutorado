@@ -4,7 +4,7 @@
 void ChenReplaceVisitor::visit ()
 {
 #ifdef DEBUG1
-	std::cout << __FUNCTION__ << std::endl;
+	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
 #endif
 	
 	//passar árvores de steiner de SteinerTree para
@@ -33,8 +33,7 @@ void ChenReplaceVisitor::visit ()
 			
 				//pegar a capacidade residual do link ll				
  				int residual_cap_of_ll = m_ec->value (ll);
-// 				std::cout << residual_cap_of_ll << " " << m_ec->top () << std::endl;
-// 				std::cout << ll << std::endl;
+ 				
 				
 				//se for igual ao mínimo
 				if (residual_cap_of_ll == min_res) {
@@ -67,13 +66,8 @@ void ChenReplaceVisitor::visit ()
 						replace (toRemove);
 						
 						if (m_ec->value (ll) == (int)m_groups.size ()) {
-// 							std::cout << "REMOVIDO: " << ll << std::endl;
 							m_ec->erase (ll);
 						}
-						
-// 						std::cout << "Replace " << ll << " by "<< links[_new_link];
-// 						std::cout << "\n----------------" <<std::endl;
-						//if (min_res == m_ec->top ())
 						
 						replace(toRemove);
 						goto RUN;
@@ -117,9 +111,6 @@ std::vector<int> ChenReplaceVisitor::make_cut (int tree_id, rca::Link & link)
 	nodes_mark[x] = x;
 	nodes_mark[y] = y;
 	
-	//getting the edges from the solution
-	//Edge * it = m_trees[ tree_id ].listEdge.first ();
-	
 	while (!nodes_x.empty () || !nodes_y.empty() ) {
 		
 		if (!nodes_x.empty())
@@ -156,7 +147,6 @@ std::vector<int> ChenReplaceVisitor::make_cut (int tree_id, rca::Link & link)
 						nodes_y.push (it.getX());
 					}
 			 }
-			 //getchar ();
 		
 		}/*END OF WHILE*/
 		
@@ -185,10 +175,6 @@ void ChenReplaceVisitor::replace (TupleEdgeRemove & tuples)
 		//updating the tree
 		m_temp_trees[st][pos] = _new;
 		
-// 		printf ("\n");
-// 		std::cout << m_ec->value (_old) << std::endl;
-// 		std::cout << (m_ec->is_used(_old) ? "true" : "false" ) << std::endl;
-// 		
 		_old.setValue ( m_ec->value (_old) + 1);
 		
 		if (m_ec->is_used (_new)) {
@@ -198,16 +184,10 @@ void ChenReplaceVisitor::replace (TupleEdgeRemove & tuples)
 			_new.setValue ( m_network->getBand(_new.getX(), _new.getY()) -1 );
 			m_ec->push (_new);
 		}
-		
-		
-// 		std::cout << _old << ":"<<_old.getValue()<< std::endl;
-// 		std::cout << (m_ec->is_used(_old) ? "true" : "false" ) << std::endl;
-		
-		
+				
 		//updating usage
 		m_ec->update (_old);
-// 		std::cout << m_ec->value (_old) << std::endl;		
-// 		printf ("Updated\n");
+		
 	}
 	
 }
@@ -249,7 +229,7 @@ void ChenReplaceVisitor::getAvailableEdges(std::vector<int> &cut_xy,
 				
 					int usage = m_ec->value (l);
 					
-					if (usage >  (residual_cap+1) ) {						
+					if (usage >  (residual_cap+2) ) {						
 						if (l != _old) {
 							//l.setValue (usage);
 							newedges.push_back ( l );
