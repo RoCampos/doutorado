@@ -231,23 +231,23 @@ void AcoMPP::run (va_list & arglist) {
 
 /*--------------------------- teste -------------------------------------*/
 	
-	std::vector<SteinerTree> vector_st = solutions;
-	ChenReplaceVisitor *c = new ChenReplaceVisitor (&solutions);
-	c->setNetwork (m_network);
-	std::vector<rca::Group> gg;
-	for (std::shared_ptr<rca::Group> g : m_groups) {
-		gg.push_back (*g);
-	}
-	c->setMulticastGroups (gg);
-	c->setEdgeContainer (ec);
-			
-	this->accept (c);
-			
-	cost = 0;
-	for (auto st : solutions) {
-		cost += (int)st.getCost ();
-	}			
-	congestion = ec.top ();
+// 	std::vector<SteinerTree> vector_st = solutions;
+// 	ChenReplaceVisitor *c = new ChenReplaceVisitor (&solutions);
+// 	c->setNetwork (m_network);
+// 	std::vector<rca::Group> gg;
+// 	for (std::shared_ptr<rca::Group> g : m_groups) {
+// 		gg.push_back (*g);
+// 	}
+// 	c->setMulticastGroups (gg);
+// 	c->setEdgeContainer (ec);
+// 			
+// 	this->accept (c);
+// 			
+// 	cost = 0;
+// 	for (auto st : solutions) {
+// 		cost += (int)st.getCost ();
+// 	}			
+// 	congestion = ec.top ();
 	
 /*---------------------------- teste -------------------------------------*/
 	
@@ -305,7 +305,8 @@ void AcoMPP::run (va_list & arglist) {
 		Edge * e = (*it).listEdge.first();
 		
 		while (e != NULL) {	
-			//printf ("%d - %d:%d;\n", e->i+1,e->j+1,g+1);		
+			//printf ("%d - %d:%d;\n", e->i+1,e->j+1,g+1);
+			std::cerr << e->i+1 << " - " << e->j+1 << ":" << g+1 << std::endl;
 			e = e->next;
 		}
 		g++;		
@@ -552,7 +553,7 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 		int y = link.getY ();
 		
 		//computing the edge usage(cost)
-		m_cost += m_network->getCost (link.getX(), link.getY());
+		m_cost += (int)m_network->getCost (link.getX(), link.getY());
 		
 		if (ec.m_ehandle_matrix[x][y].first == true) {
 			
