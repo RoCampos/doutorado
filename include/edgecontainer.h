@@ -101,11 +101,28 @@ public:
 	
 	void update (rca::Link & l) {
 		
-		//redefinindo valor do link
-		(*(m_ehandle_matrix[l.getX()][l.getY()]).second).setValue(l.getValue ());
+// 		//redefinindo valor do link
+// 		(*(m_ehandle_matrix[l.getX()][l.getY()]).second).setValue(l.getValue ());		
+// 			//atualizando no heap
+// 		m_heap.update ( m_ehandle_matrix[l.getX()][l.getY()].second );
+// 			
+// 		//updating info about usage
+// 		m_ehandle_matrix[l.getX()][l.getY()].first = true;
 		
-		//atualizando no heap
-		m_heap.update ( m_ehandle_matrix[l.getX()][l.getY()].second );
+		int value = this->value (l);
+		if (value < l.getValue ()) {
+			m_heap.increase ( m_ehandle_matrix[l.getX()][l.getY()].second, l );
+		} else if (value > l.getValue ()) {
+			m_heap.decrease ( m_ehandle_matrix[l.getX()][l.getY()].second, l );
+		}
+		
+	}
+	
+	void erase (rca::Link & l) {
+	
+		m_heap.erase (m_ehandle_matrix[l.getX()][l.getY()].second);
+		//updating info about usage
+		m_ehandle_matrix[l.getX()][l.getY()].first = false;
 	}
 	
 	void push (rca::Link & l ) {
@@ -113,7 +130,10 @@ public:
 		//testa se já foi utilizado
 		if ( !is_used (l) ) {			
 			//senão insere-o
-			m_ehandle_matrix[l.getX()][l.getY()].second = m_heap.push (l);	
+			m_ehandle_matrix[l.getX()][l.getY()].second = m_heap.push (l);
+			
+			//informando about usage
+			m_ehandle_matrix[l.getX()][l.getY()].first = true;
 		} else {
 			//caso já exista atualize
 			this->update (l);
