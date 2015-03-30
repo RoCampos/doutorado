@@ -209,9 +209,6 @@ void AcoMPP::run (va_list & arglist) {
 			
 			solutions[i] =  (*st.get());
 			
-			//updating congestion heap
-			//update_congestion (st, ec, cost, congestion);
-			
 			int trequest = m_groups[i]->getTrequest ();
 			update_congestion (st, ec, cost, congestion, trequest);
 			
@@ -232,35 +229,27 @@ void AcoMPP::run (va_list & arglist) {
 		}//end for in solutioon construction
 	
 
-/*--------------------------- teste --------------------------*/
-// 			std::cout << ec.top() << std::endl;
-// 			ChenReplaceVisitor *c = new ChenReplaceVisitor (solutions);
-// 			c->setNetwork (m_network);
-// 			std::vector<rca::Group> gg;
-// 			for (std::shared_ptr<rca::Group> g : m_groups) {
-// 				gg.push_back (*g);
-// 			}
-// 			c->setMulticastGroups (gg);
-// 			c->setEdgeContainer (ec);
-// 			
-// 			this->accept (c);
-// 			
-// 			double m_cost = 0.0;
-// 			for (auto st : solutions) {
-// 				m_cost += st.getCost ();				
-// 			}
-// 			
-// 			congestion = ec.top ();
+/*--------------------------- teste -------------------------------------*/
+	
+	std::vector<SteinerTree> vector_st = solutions;
+	ChenReplaceVisitor *c = new ChenReplaceVisitor (&solutions);
+	c->setNetwork (m_network);
+	std::vector<rca::Group> gg;
+	for (std::shared_ptr<rca::Group> g : m_groups) {
+		gg.push_back (*g);
+	}
+	c->setMulticastGroups (gg);
+	c->setEdgeContainer (ec);
 			
-// 			if (m_bcongestion < ec.top ()) {
-// 				m_bcongestion = ec.top ();
-// 				m_bcost = m_cost;				
-// 				std::cout << "improve!" <<std::endl;
-// 			}
-// 			std::cout << ec.top() <<" " <<m_cost <<" "<< cost <<std::endl;
-	//*/		
+	this->accept (c);
+			
+	cost = 0;
+	for (auto st : solutions) {
+		cost += (int)st.getCost ();
+	}			
+	congestion = ec.top ();
 	
-	
+/*---------------------------- teste -------------------------------------*/
 	
 		/*used for congestion*/
 #ifdef CONG
@@ -281,10 +270,6 @@ void AcoMPP::run (va_list & arglist) {
 		
 #ifdef RES_CAP
 
-// 		printf ("Current iter(%d)\n", iter);
-// 		printf ("\tcurrent cost (%lf) Cap(%lf)\n", cost, congestion);
-// 		printf ("\tcurrent Best_cost (%lf) BestCap(%lf)\n", m_bcost, m_bcongestion);
-		
 		/*used for residual capacity*/
 		if (congestion > m_bcongestion || 
 			(congestion == m_bcongestion && cost < m_bcost))
@@ -292,21 +277,14 @@ void AcoMPP::run (va_list & arglist) {
 			m_bcost = cost;
 			m_bcongestion = congestion;
 			//updating the pheromene
-			
 			m_best_iter = iter;
-			
 			bestNLinks = solutions;
-			
-			for (SteinerTree &st : solutions) {
-				st.xdotFormat ();
-			}
-			getchar ();
 			update_pheromone_matrix (ec);
 		}
 #endif
 		//clean the network
 		m_network->clearRemovedEdges ();
-	
+
 	}
 	
 	time_elapsed.finished ();
@@ -321,27 +299,18 @@ void AcoMPP::run (va_list & arglist) {
 	std::cout << time_elapsed.get_elapsed () << "\t";
 	std::cout << m_seed << "\n";
 	
-	std::ofstream out("../cost.txt");
-	
-	int g=0;
-	out << setfill(' ') << "Edge" << setw(6) << "Cost" << endl; 
+	int g=0;	
 	auto it = bestNLinks.begin ();
 	for (; it != bestNLinks.end(); it++) {
 		Edge * e = (*it).listEdge.first();
-		int i=0;
-		while (e != NULL) {
-			i++;
-			printf ("%d - %d:%d;\n", e->i+1,e->j+1,g+1);
-			out << e->i+1 << "-" << e->j+1 << ":" <<g+1 <<"; ";
-			out << (int)m_network->getCost (e->i,e->j) << std::endl;
+		
+		while (e != NULL) {	
+			//printf ("%d - %d:%d;\n", e->i+1,e->j+1,g+1);		
 			e = e->next;
 		}
-		g++;
-		//std::cout << i << "\t";
+		g++;		
 	}
-	out.close ();
-	std::cout << std::endl;
-	
+
 	
 }
 
@@ -387,6 +356,7 @@ void AcoMPP::configurate (std::string m_instance)
 	
 	//initialization of random number genarator
 	m_seed = rca::myseed::seed();
+	//my_random = Random(0,1, 10);	
 	my_random = Random(m_seed,1, 10);	
 	
 	//used to register the best values of each tree
