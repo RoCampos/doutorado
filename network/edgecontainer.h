@@ -99,21 +99,15 @@ public:
 		return (*(m_ehandle_matrix[ l.getX() ][ l.getY() ]).second).getValue ();
 	}
 	
-	void update (rca::Link & l) {
+	void update (const rca::Link & l) {
 		
-		int value = this->value (l);
-		if (value < l.getValue ()) {
-			m_heap.increase ( m_ehandle_matrix[l.getX()][l.getY()].second, l );
-		} else if (value > l.getValue ()) {
-			m_heap.decrease ( m_ehandle_matrix[l.getX()][l.getY()].second, l );
-		}
+		m_heap.update (m_ehandle_matrix[l.getX()][l.getY()].second, l);
 		
 	}
 	
 	void erase (rca::Link & l) {
 	
 		m_heap.erase (m_ehandle_matrix[l.getX()][l.getY()].second);
-		//updating info about usage
 		m_ehandle_matrix[l.getX()][l.getY()].first = false;
 	}
 	
