@@ -11,76 +11,122 @@ void ChenReplaceVisitor::visit ()
 	//lista de arestas
 	prepare_trees ();
 		
-	int group_id=0;
+	//int group_id=0;
 	
 	//para cada árvore de steiner (representada como lista de arestas)
-	for (std::vector<rca::Link> & st : m_temp_trees) {
+// 	for (std::vector<rca::Link> & st : m_temp_trees) {
+// 		
+// 		TupleEdgeRemove toRemove;
+// 		
+// 		int min_res = m_ec->top ();
+// 		
+// 		//parca cada link na árvore ST		
+// 		for (size_t link_pos = 0; link_pos < st.size (); link_pos++) {
+// 			
+// 			//getting the link
+// 			rca::Link ll(st[link_pos]);
+// 			
+// 			//if the link ll is used
+// 			if ( m_ec->is_used (ll) ) {
+// 			
+// 				//pegar a capacidade residual do link ll				
+//  				int residual_cap_of_ll = m_ec->value (ll);
+//  				
+// 				
+// 				//se for igual ao mínimo
+// 				if (residual_cap_of_ll == min_res) {
+// 					
+// 					//obter corte em ll(x, y)
+// 					std::vector<int> cut = this->make_cut( group_id, ll);
+// 					
+// 					//pegar os links disponíveis no corte de ll (x,y);
+// 					std::vector<rca::Link> links;
+// 					this->getAvailableEdges (cut ,ll, links);
+// 					
+// 					//se houver links
+// 					if (!links.empty ())  {
+// 						
+// 						//escolher um 
+// 						int _new_link = rand() % links.size ();
+// 					
+// 						/* Criar link contendo árvore (group_id)
+// 						 * a posição do link na árvore (link_pos)
+// 						 * o link em questão (ll)
+// 						 * o link candidato (links[_new_link])
+// 						 */
+// 						std::tuple<int,int,rca::Link,rca::Link> 	
+// 								tuple (group_id, link_pos, ll, links[_new_link]);
+// 								
+// 						
+// 						//guardar para remoção
+// 						toRemove.push_back (tuple);
+// 						
+// 						replace (toRemove);
+// 						
+// 						if (m_ec->value (ll) == (int)m_groups.size ()) {
+// 							m_ec->erase (ll);
+// 						}
+// 						
+// 						replace(toRemove);
+// 						goto RUN;
+// 						
+// 					}
+// 				}
+// 			}			
+// 		}
+// 		
+// 		group_id++; //incremente the id of the tree
+// 		
+// 	}
+	
+	//RUN:
+	int min_res = m_ec->top ();
+	
+	RUN:
+	auto it = m_ec->m_heap.ordered_begin ();
+	auto end= m_ec->m_heap.ordered_end ();
+	
+	for ( ; it != end && it->getValue () == min_res; it++) {
 		
-		TupleEdgeRemove toRemove;
+		int group_id = 0;
+		for (std::vector<rca::Link> st : m_temp_trees) {
 		
-		RUN:
-		int min_res = m_ec->top ();
-		
-		//std::copy (st.begin (), st.end(), std::ostream_iterator<rca::Link>(std::cout, " "));
-		//parca cada link na árvore ST		
-		for (size_t link_pos = 0; link_pos < st.size (); link_pos++) {
+			auto link_it = std::find (st.begin (), st.end(), *it);
 			
-			//getting the link
-			rca::Link ll(st[link_pos]);
-			
-			//if the link ll is used
-			if ( m_ec->is_used (ll) ) {
-			
-				//pegar a capacidade residual do link ll				
- 				int residual_cap_of_ll = m_ec->value (ll);
- 				
+			//prepare to remove
+			if (link_it != st.end ()) {
 				
-				//se for igual ao mínimo
-				if (residual_cap_of_ll == min_res) {
+				int link_pos = (link_it - st.begin ()); 
+				
+				//obter corte em ll(x, y)
+ 				std::vector<int> cut = this->make_cut( group_id, *it);
+ 				//pegar os links disponíveis no corte de ll (x,y);
+ 				std::vector<rca::Link> links;
+ 				this->getAvailableEdges (cut ,*it, links);
+				
+				if ( !links.empty() ) {
 					
-					//obter corte em ll(x, y)
-					std::vector<int> cut = this->make_cut( group_id, ll);
+					int _new_link = rand() % links.size ();
+					/* Criar link contendo árvore (group_id)
+					 * a posição do link na árvore (link_pos)
+					 * o link em questão (ll)
+					 * o link candidato (links[_new_link])
+					 */
+					std::tuple<int,int,rca::Link,rca::Link> 	
+							tuple (group_id, link_pos, *it, links[_new_link]);
 					
-					//pegar os links disponíveis no corte de ll (x,y);
-					std::vector<rca::Link> links;
-					this->getAvailableEdges (cut ,ll, links);
+					//guardar para remoção
+					TupleEdgeRemove toRemove;
+					toRemove.push_back (tuple);
 					
-					//se houver links
-					if (!links.empty ())  {
-						
-						//escolher um 
-						int _new_link = rand() % links.size ();
-					
-						/* Criar link contendo árvore (group_id)
-						 * a posição do link na árvore (link_pos)
-						 * o link em questão (ll)
-						 * o link candidato (links[_new_link])
-						 */
-						std::tuple<int,int,rca::Link,rca::Link> 	
-								tuple (group_id, link_pos, ll, links[_new_link]);
-								
-						
-						//guardar para remoção
-						toRemove.push_back (tuple);
-						
-						replace (toRemove);
-						
-						if (m_ec->value (ll) == (int)m_groups.size ()) {
-							m_ec->erase (ll);
-						}
-						
-						replace(toRemove);
-						goto RUN;
-						
-					}
+					replace (toRemove);
+					goto RUN;
 				}
-			}			
+				
+			}
+			
+			group_id++;
 		}
-		
-		//remover
-		//replace (toRemove);
-		
-		group_id++; //incremente the id of the tree
 		
 	}
 	
@@ -89,7 +135,7 @@ void ChenReplaceVisitor::visit ()
 	
 }
 
-std::vector<int> ChenReplaceVisitor::make_cut (int tree_id, rca::Link & link)
+std::vector<int> ChenReplaceVisitor::make_cut (int tree_id, const rca::Link & link)
 {
 	
 	std::vector<int> _int;
@@ -193,7 +239,7 @@ void ChenReplaceVisitor::replace (TupleEdgeRemove & tuples)
 }
 
 void ChenReplaceVisitor::getAvailableEdges(std::vector<int> &cut_xy, 
-											rca::Link & _old,
+											const rca::Link & _old,
 										   std::vector<rca::Link> & newedges)
 {
 	
