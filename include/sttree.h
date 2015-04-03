@@ -8,23 +8,30 @@ typedef struct edge_t {
 
 	int x;
 	int y;
+	double value;
 	bool in;
 	
 	edge_t *prev;
 	edge_t *next;
 	
-	edge_t  (int _x, int _y) : x(_x), y(_y){
+	edge_t () : x(-1), y(-1) {
+		prev = NULL;
+		next = NULL;
+		
+	}
+	
+	edge_t  (int _x, int _y, double _value) : x(_x), y(_y), value(_value){
 		prev = NULL;
 		next = NULL;
 		in = false;
 	}
 	
-	~edge_t () {
-		prev = NULL;
-		next = NULL;
-		x = -1;
-		y = -1;
-	}
+// 	~edge_t () {
+// 		prev = NULL;
+// 		next = NULL;
+// 		x = -1;
+// 		y = -1;
+// 	}
 	
 } edge_t;
 
@@ -33,6 +40,15 @@ typedef struct list_of_edge {
 	edge_t * begin;
 	
 	list_of_edge () { begin = NULL; }
+	
+	~list_of_edge () {
+		edge_t * aux = begin;
+		while (aux != NULL) {
+			edge_t * tmp = aux;
+			aux = aux->next;
+			delete tmp;
+		}
+	}
 
 	void add_edge (edge_t *edge) {
 		
@@ -88,6 +104,11 @@ typedef struct leaf {
 		prev = NULL;
 	}
 	
+	~leaf () {
+		next = NULL;
+		prev = NULL;
+	}
+	
 	leaf * next;
 	leaf * prev;
 	
@@ -97,8 +118,21 @@ typedef struct list_of_leafs {
 	
 	leaf * begin;
 	
+	list_of_leafs () {
+		begin = NULL;
+	}
+	
 	leaf * first () {
 		return begin;
+	}
+	
+	~list_of_leafs () {
+		leaf *aux = begin;
+		while (aux != NULL) {
+			leaf * tmp = aux;
+			aux = aux->next;
+			delete tmp;
+		}
 	}
 	
 	void add (leaf_t * l) {
@@ -117,14 +151,16 @@ typedef struct list_of_leafs {
 		if (l == begin) {
 			
 			begin = l->next;
-			free(l);
+// 			free(l);
+			delete l;
 			l = NULL;
 			
 		} else if (l->next == NULL) {
 			
 			l->prev->next = l->next;
 			l->prev = NULL;
-			free(l);
+// 			free(l);
+			delete l;
 			l = NULL;
 		} else {
 			
@@ -132,7 +168,8 @@ typedef struct list_of_leafs {
 			l->prev->next = l->next;
 			l->prev = NULL;
 			l->next = NULL;
-			free(l);
+// 			free(l);
+			delete l;
 			l = NULL;
 		}
 		
@@ -154,6 +191,13 @@ typedef struct node_t{
 		degree = _degree;
 		terminal = _terminal;
 		leaf = NULL;
+	}
+	
+	~node_t () {
+		leaf = NULL;
+		for (edge_t * t: edges) {
+			t = NULL;
+		}
 	}
 	
 	void add_adjacent_vertex (edge_t * edge) {
@@ -202,9 +246,33 @@ public:
 	STTree () {}
 	STTree (int nnodes);
 	STTree (int nnodes, const std::vector<int> & terminals);
+	STTree (int nnodes, int source ,const std::vector<int> & terminals) {
+		_init_nodes (nnodes);
+		_init_terminals(terminals);
+		m_nodes[source].terminal = true;
+	}
+	
+	STTree (const STTree & ref) {
+		m_nodes = ref.m_nodes;
+		m_cost = ref.m_cost;
+		m_leafs = ref.m_leafs;
+		m_edges = ref.m_edges;
+	}
+	
+	~STTree () {
+		
+	}
 	
 	void add_edge (int x, int y, double value);
 	void remove_edge (int x, int y);
+	
+	inline double getCost () {
+		return m_cost;
+	}
+	
+	edge_t * get_edge () const{
+		return m_edges.begin;
+	}
 	
 	void prunning ();
 	
@@ -220,7 +288,7 @@ private:
 	void _init_terminals (const std::vector<int> & terminals) {
 		for (const int & member : terminals) {
 			m_nodes[member].terminal = true;
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << member << std::endl;
 #endif			
 		}

@@ -13,7 +13,9 @@ void STTree::add_edge (int x, int y, double value) {
 	x = (x>y? x : y);
 	y = (y<x? y : w);
 	
-	edge_t * edge = new edge_t(x, y);
+	edge_t * edge = new edge_t(x, y, value);
+	
+	m_cost += value;
 	
 	m_nodes[x].add_adjacent_vertex (edge);
 	m_nodes[y].add_adjacent_vertex (edge);
@@ -28,6 +30,7 @@ void STTree::add_edge (int x, int y, double value) {
 	_leaf_traits (x);
 	_leaf_traits (y);
 	
+	edge = NULL;
 }
 
 void STTree::_leaf_traits (int node) {
@@ -73,6 +76,8 @@ void STTree::prunning () {
 	// o problema encontra-se no armazenamento no vector
 	while ( aux != NULL) {
 		
+		leaf_t * tmp = aux->next;
+		
 		int id = aux->id;
 		m_nodes[id].decrease_degree ();
 		
@@ -89,6 +94,7 @@ void STTree::prunning () {
 			//remove aresta
 			if (edge != NULL) {
 				edge->in = false;
+				m_cost -= edge->value;
 			}
 			
 			edge = NULL;
@@ -109,8 +115,11 @@ void STTree::prunning () {
 			
 		}
 		
-		aux = aux->next;
+		aux = tmp;
+		tmp = NULL;
 	}
+	
+	aux = NULL;
 		
 }
 
