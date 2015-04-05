@@ -7,6 +7,44 @@ STTree::STTree (int nnodes, const std::vector<int> & terminals) {
 	
 }
 
+/*copyt constructor*/
+STTree::STTree (const STTree & ref) {
+
+	m_cost = ref.m_cost;
+	_init_nodes (ref.m_nodes.size ());
+	for (const node_t & t: ref.m_nodes) {
+		m_nodes [t.id].terminal = t.terminal;
+	}
+	
+	edge_t * e = ref.m_edges.begin;
+	while (e != NULL) {
+		this->add_edge (e->x, e->y, e->value);
+		e = e->next;
+	}
+}
+
+STTree & STTree::operator= (const STTree & ref) {
+	
+	if (&ref != this) {
+		return *this;
+	}
+	
+	m_cost = ref.m_cost;
+	_init_nodes (ref.m_nodes.size ());
+	for (const node_t & t: ref.m_nodes) {
+		m_nodes [t.id].terminal = t.terminal;
+	}
+	
+	edge_t * e = ref.m_edges.begin;
+	while (e != NULL) {
+		this->add_edge (e->x, e->y, e->value);
+		e = e->next;
+	}
+	
+	return *this;
+}
+
+
 void STTree::add_edge (int x, int y, double value) {
 	
 	int w = x;

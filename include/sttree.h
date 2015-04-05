@@ -26,12 +26,12 @@ typedef struct edge_t {
 		in = false;
 	}
 	
-// 	~edge_t () {
-// 		prev = NULL;
-// 		next = NULL;
-// 		x = -1;
-// 		y = -1;
-// 	}
+	~edge_t () {
+		prev = NULL;
+		next = NULL;
+		x = -1;
+		y = -1;
+	}
 	
 } edge_t;
 
@@ -211,7 +211,7 @@ typedef struct node_t{
 		
 		for (size_t i=0; i < edges.size(); i++) {
 			if (edges[i] != NULL) {
-				if ( (edges[i]->x = _x) && (edges[i]->y == _y) ) {				
+				if ( (edges[i]->x = _x) && (edges[i]->y == _y) ) {
 					return i;
 				}
 			}
@@ -252,12 +252,10 @@ public:
 		m_nodes[source].terminal = true;
 	}
 	
-	STTree (const STTree & ref) {
-		m_nodes = ref.m_nodes;
-		m_cost = ref.m_cost;
-		m_leafs = ref.m_leafs;
-		m_edges = ref.m_edges;
-	}
+	/*Copy Constructor*/
+	STTree (const STTree & ref);
+	/*assingment operator*/
+	STTree & operator= (const STTree & ref);
 	
 	~STTree () {
 		
