@@ -21,6 +21,8 @@ STTree::STTree (const STTree & ref) {
 		this->add_edge (e->x, e->y, e->value);
 		e = e->next;
 	}
+	
+	this->prunning ();
 }
 
 STTree & STTree::operator= (const STTree & ref) {
@@ -30,8 +32,9 @@ STTree & STTree::operator= (const STTree & ref) {
 	}
 	
 	m_cost = ref.m_cost;
-	_init_nodes (ref.m_nodes.size ());
+	//_init_nodes (ref.m_nodes.size ());
 	for (const node_t & t: ref.m_nodes) {
+		m_nodes [t.id].id = t.id;
 		m_nodes [t.id].terminal = t.terminal;
 	}
 	
@@ -40,6 +43,8 @@ STTree & STTree::operator= (const STTree & ref) {
 		this->add_edge (e->x, e->y, e->value);
 		e = e->next;
 	}
+	
+	this->prunning ();
 	
 	return *this;
 }
@@ -94,7 +99,7 @@ void STTree::_leaf_traits (int node) {
 
 void STTree::prunning () {
 
-#ifdef DEBUG
+#ifdef DEBUG1
 	printf ("------------%s-------------\n", __FUNCTION__);
 #endif
 	

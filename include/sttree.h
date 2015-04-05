@@ -42,6 +42,9 @@ typedef struct list_of_edge {
 	list_of_edge () { begin = NULL; }
 	
 	~list_of_edge () {
+#ifdef DEBUG1
+		printf ("list_of_edge destroyed(%x)\n", this);
+#endif
 		edge_t * aux = begin;
 		while (aux != NULL) {
 			edge_t * tmp = aux;
@@ -258,7 +261,9 @@ public:
 	STTree & operator= (const STTree & ref);
 	
 	~STTree () {
-		
+#ifdef DEBUG1
+		printf ("STTree destroyed(%x)\n", this);
+#endif
 	}
 	
 	void add_edge (int x, int y, double value);
