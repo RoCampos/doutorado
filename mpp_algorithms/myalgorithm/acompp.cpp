@@ -157,8 +157,6 @@ void AcoMPP::run (va_list & arglist) {
 		ec.init_congestion_matrix (m_network->getNumberNodes ());
 		ec.init_handle_matrix (m_network->getNumberNodes ());
 	
-// 		std::vector<STTree> solutions = 
-// 								std::vector<STTree>( m_groups.size () );
 		std::vector<STTree> solutions;
 		solutions.resize (m_groups.size (), STTree());
 		
@@ -284,6 +282,7 @@ void AcoMPP::run (va_list & arglist) {
 			m_bcongestion = congestion;
 			//updating the pheromene
 			m_best_iter = iter;
+			bestNLinks.clear ();
 			bestNLinks = solutions;
 			update_pheromone_matrix (ec);
 			
@@ -353,7 +352,8 @@ void AcoMPP::run (va_list & arglist) {
 		
 		while (e != NULL) {
 			//printf ("%d - %d:%d;\n", e->i+1,e->j+1,g+1);
-			std::cerr << e->x+1 << " - " << e->y+1 << ":" << g+1 << std::endl;
+			if (e->in)
+				std::cerr << e->x+1 << " - " << e->y+1 << ":" << g+1 << std::endl;
 			e = e->next;
 		}
 		g++;
@@ -404,8 +404,8 @@ void AcoMPP::configurate (std::string m_instance)
 	
 	//initialization of random number genarator
 	m_seed = rca::myseed::seed();
-	my_random = Random(1427757477228715913,1, 10);	
-	//my_random = Random(m_seed,1, 10);	
+	//my_random = Random(1427757477228715913,1, 10);	
+	my_random = Random(m_seed,1, 10);	
 	
 	//used to register the best values of each tree
 	double max = std::numeric_limits<double>::max();
@@ -591,6 +591,12 @@ void AcoMPP::update_congestion (STTree& st,
 	edge_t *e =st.get_edge ();
 	while (e != NULL) {
 	
+		//aresta removida(prunning)
+		if (!e->in) {
+			e = e->next;
+			continue;
+		}
+		
 		//removing the edges from network
 		m_network->removeEdge (rca::Link(e->x,e->y, 0.0));
 	
