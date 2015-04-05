@@ -10,7 +10,7 @@ STTree::STTree (int nnodes, const std::vector<int> & terminals) {
 /*copyt constructor*/
 STTree::STTree (const STTree & ref) {
 
-	m_cost = ref.m_cost;
+	m_cost = 0.0;
 	_init_nodes (ref.m_nodes.size ());
 	for (const node_t & t: ref.m_nodes) {
 		m_nodes [t.id].terminal = t.terminal;
@@ -27,14 +27,14 @@ STTree::STTree (const STTree & ref) {
 
 STTree & STTree::operator= (const STTree & ref) {
 	
-	if (&ref != this) {
+	if (&ref == this) {
 		return *this;
 	}
 	
-	m_cost = ref.m_cost;
-	//_init_nodes (ref.m_nodes.size ());
+	m_cost = 0.0;
+	_init_nodes (ref.m_nodes.size ());
 	for (const node_t & t: ref.m_nodes) {
-		m_nodes [t.id].id = t.id;
+		//m_nodes [t.id].id = t.id;
 		m_nodes [t.id].terminal = t.terminal;
 	}
 	
@@ -104,19 +104,7 @@ void STTree::prunning () {
 #endif
 	
 	leaf_t * aux = m_leafs.first ();
-			
-// 	for (node_t n : m_nodes) {
-// 		std::cout << n.id << std::endl;
-// 		std::vector<edge_t*> edges = n.edges;
-// 		for (edge_t * e : edges) {
-// 			std::cout<<"\t" << e->x << "--" << e->y << " : "<< e << std::endl;
-// 		}
-// 		
-// 	}
-// 	
-// 	getchar ();
-	//TODO vector is storing diferntes references to the edges?????
-	// o problema encontra-se no armazenamento no vector
+
 	while ( aux != NULL) {
 		
 		leaf_t * tmp = aux->next;
