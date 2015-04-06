@@ -6,12 +6,12 @@
 
 #include "network.h"
 #include "group.h"
-#include "steinertree.h"
+#include "sttree.h"
 #include "link.h"
 #include "edgecontainer.h"
 //#include "edgecontainer.cpp"
 
-typedef std::vector<SteinerTree> MPPSolution;
+typedef std::vector<STTree> MPPSolution;
 typedef std::vector<rca::Group> MulticastGroup;
 typedef std::vector<std::tuple<int,int,rca::Link,rca::Link>> TupleEdgeRemove;
 
@@ -40,12 +40,12 @@ protected:
 		int i=0;
 		auto st = m_trees->begin ();
 		//for (SteinerTree * st : m_trees) {
-		for (; st != m_trees->end(); st++) {			
+		for (; st != m_trees->end(); st++) {
 			
-			Edge * perc = st->listEdge.first ();
+			edge_t * perc = st->get_edge ();
 			std::vector<rca::Link> links;
 			while (perc !=NULL) {
-				rca::Link link (perc->i, perc->j, 0);
+				rca::Link link (perc->x, perc->y, 0);
 				links.push_back (link);
 				perc = perc->next;
 			}

@@ -10,76 +10,7 @@ void ChenReplaceVisitor::visit ()
 	//passar árvores de steiner de SteinerTree para
 	//lista de arestas
 	prepare_trees ();
-		
-	//int group_id=0;
-	
-	//para cada árvore de steiner (representada como lista de arestas)
-// 	for (std::vector<rca::Link> & st : m_temp_trees) {
-// 		
-// 		TupleEdgeRemove toRemove;
-// 		
-// 		int min_res = m_ec->top ();
-// 		
-// 		//parca cada link na árvore ST		
-// 		for (size_t link_pos = 0; link_pos < st.size (); link_pos++) {
-// 			
-// 			//getting the link
-// 			rca::Link ll(st[link_pos]);
-// 			
-// 			//if the link ll is used
-// 			if ( m_ec->is_used (ll) ) {
-// 			
-// 				//pegar a capacidade residual do link ll				
-//  				int residual_cap_of_ll = m_ec->value (ll);
-//  				
-// 				
-// 				//se for igual ao mínimo
-// 				if (residual_cap_of_ll == min_res) {
-// 					
-// 					//obter corte em ll(x, y)
-// 					std::vector<int> cut = this->make_cut( group_id, ll);
-// 					
-// 					//pegar os links disponíveis no corte de ll (x,y);
-// 					std::vector<rca::Link> links;
-// 					this->getAvailableEdges (cut ,ll, links);
-// 					
-// 					//se houver links
-// 					if (!links.empty ())  {
-// 						
-// 						//escolher um 
-// 						int _new_link = rand() % links.size ();
-// 					
-// 						/* Criar link contendo árvore (group_id)
-// 						 * a posição do link na árvore (link_pos)
-// 						 * o link em questão (ll)
-// 						 * o link candidato (links[_new_link])
-// 						 */
-// 						std::tuple<int,int,rca::Link,rca::Link> 	
-// 								tuple (group_id, link_pos, ll, links[_new_link]);
-// 								
-// 						
-// 						//guardar para remoção
-// 						toRemove.push_back (tuple);
-// 						
-// 						replace (toRemove);
-// 						
-// 						if (m_ec->value (ll) == (int)m_groups.size ()) {
-// 							m_ec->erase (ll);
-// 						}
-// 						
-// 						replace(toRemove);
-// 						goto RUN;
-// 						
-// 					}
-// 				}
-// 			}			
-// 		}
-// 		
-// 		group_id++; //incremente the id of the tree
-// 		
-// 	}
-	
-	//RUN:
+
 	int min_res = m_ec->top ();
 	
 	RUN:
@@ -129,8 +60,7 @@ void ChenReplaceVisitor::visit ()
 		}
 		
 	}
-	
-	
+
 	update_trees ();
 	
 }
@@ -275,7 +205,7 @@ void ChenReplaceVisitor::getAvailableEdges(std::vector<int> &cut_xy,
 				
 					int usage = m_ec->value (l);
 					
-					if (usage >  (residual_cap+2) ) {						
+					if (usage >  (residual_cap+2) ) {
 						if (l != _old) {
 							//l.setValue (usage);
 							newedges.push_back ( l );
@@ -299,7 +229,7 @@ void ChenReplaceVisitor::update_trees ()
 	m_trees->clear ();
 	for (auto st : m_temp_trees) {
 	
-		SteinerTree _st (m_network->getNumberNodes (), 
+		STTree _st (m_network->getNumberNodes (), 
 						m_groups[g].getSource(), 
 						m_groups[g].getMembers ());
 		
@@ -308,7 +238,7 @@ void ChenReplaceVisitor::update_trees ()
 			
 			int x = link.getX();
 			int y = link.getY();
-			_st.addEdge (x, y, (int)m_network->getCost (x,y));
+			_st.add_edge (x, y, (int)m_network->getCost (x,y));
 			
 		}
 		
