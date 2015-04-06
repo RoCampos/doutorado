@@ -59,7 +59,7 @@ void AcoMPP::build_tree (int id,
 				
 				//adding the edges to st structure
 				st.add_edge (link.getX(), link.getY(), 
-				m_network->getCost(link.getX(), link.getY()) );
+				(int)m_network->getCost(link.getX(), link.getY()) );
 				//selecionando o id da formiga que 
 				//chegou ao nó next
 				join = select_ant_id (pool, visited[next]);
@@ -233,27 +233,43 @@ void AcoMPP::run (va_list & arglist) {
 		}//end for in solutioon construction
 	
 
-/*--------------------------- teste -------------------------------------*/
+/*-------------------------------------------------------*/			
+bool improve = true;
+int tmp_cong = ec.top();
+while (improve) {
 	
-	//EdgeContainer<Comparator,HCell> cc = ec;
-// 	ChenReplaceVisitor *c = new ChenReplaceVisitor (&solutions);
-// 	c->setNetwork (m_network);
-// 	std::vector<rca::Group> gg;
-// 	for (std::shared_ptr<rca::Group> g : m_groups) {
-// 		gg.push_back (*g);
-// 	}
-// 	c->setMulticastGroups (gg);
-// 	c->setEdgeContainer (ec);
-// 			
-// 	this->accept (c);
-// 			
-// 	cost = 0;
-// 	for (auto st : solutions) {
-// 		cost += (int)st.getCost ();
-// 	}
-// 	congestion = ec.top ();
+	std::vector<STTree> stts = solutions;
+	ChenReplaceVisitor *c = new ChenReplaceVisitor (&stts);
+	c->setNetwork (m_network);
+	std::vector<rca::Group> gg;
+	for (std::shared_ptr<rca::Group> g : m_groups) {
+		gg.push_back (*g);
+	}
+	c->setMulticastGroups (gg);
+	c->setEdgeContainer (ec);
+			
+	this->accept (c);
+			
+	int temp_cost = 0;
+	for (auto st : stts) {
+		temp_cost += (int)st.getCost ();
+	}
 	
-/*---------------------------- teste -------------------------------------*/
+	if (ec.top () > tmp_cong) {
+		congestion = ec.top ();
+		
+		tmp_cong = congestion;		
+		cost = temp_cost;
+		
+		solutions.clear ();
+		solutions = stts;
+	} else {
+		improve = false;
+	}
+	
+	delete c;
+}
+/*-------------------------------------------------------*/
 	
 		/*used for congestion*/
 #ifdef CONG
