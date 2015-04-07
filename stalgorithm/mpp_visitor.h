@@ -21,7 +21,7 @@ class MppVisitor {
 	
 public:
 	MppVisitor (MPPSolution * tree){
-		m_trees = tree;		
+		m_trees = tree;
 	}
 	
 	virtual void visit () = 0;
