@@ -17,6 +17,9 @@ void ChenReplaceVisitor::visit ()
 	auto it = m_ec->m_heap.ordered_begin ();
 	auto end= m_ec->m_heap.ordered_end ();
 	
+	if (it->getValue () > min_res)
+		goto UPDT;
+	
 	for ( ; it != end; it++) {
 		
 		if (it->getValue () != min_res) continue;
@@ -48,11 +51,7 @@ void ChenReplaceVisitor::visit ()
 					std::tuple<int,int,rca::Link,rca::Link> 	
 							tuple (group_id, link_pos, *it, links[_new_link]);
 					
-					//guardar para remoção
-					TupleEdgeRemove toRemove;
-					toRemove.push_back (tuple);
-					
-					replace (toRemove);
+					replace (tuple);
 					goto RUN;
 				}
 				
@@ -63,6 +62,7 @@ void ChenReplaceVisitor::visit ()
 		
 	}
 
+	UPDT:
 	update_trees ();
 	
 }
@@ -140,33 +140,29 @@ std::vector<int> ChenReplaceVisitor::make_cut (int tree_id, const rca::Link & li
 	return nodes_mark;
 }
 
-void ChenReplaceVisitor::replace (TupleEdgeRemove & tuples)
+void ChenReplaceVisitor::replace (TupleEdgeRemove & tuple)
 {
 	
-	for (auto it : tuples) {
-		
-		int st = std::get<0>(it); //getting st tree
-		int pos = std::get<1>(it);
-		rca::Link _old = std::get<2>(it);
-		rca::Link _new = std::get<3>(it);
-		
-		//updating the tree
-		m_temp_trees[st][pos] = _new;
-		
-		_old.setValue ( m_ec->value (_old) + 1);
-		
-		if (m_ec->is_used (_new)) {
-			_new.setValue ( m_ec->value (_new) - 1);
-			m_ec->update (_new);
-		} else {
-			_new.setValue ( m_network->getBand(_new.getX(), _new.getY()) -1 );
-			m_ec->push (_new);
-		}
-				
-		//updating usage
-		m_ec->update (_old);
-		
+	int st = std::get<0>(tuple); //getting st tree
+	int pos = std::get<1>(tuple);
+	rca::Link _old = std::get<2>(tuple);
+	rca::Link _new = std::get<3>(tuple);
+	
+	//updating the tree
+	m_temp_trees[st][pos] = _new;
+	
+	_old.setValue ( m_ec->value (_old) + 1);
+	
+	if (m_ec->is_used (_new)) {
+		_new.setValue ( m_ec->value (_new) - 1);
+		m_ec->update (_new);
+	} else {
+		_new.setValue ( m_network->getBand(_new.getX(), _new.getY()) -1 );
+		m_ec->push (_new);
 	}
+			
+	//updating usage
+	m_ec->update (_old);
 	
 }
 

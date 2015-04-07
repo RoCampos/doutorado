@@ -13,7 +13,7 @@
 
 typedef std::vector<STTree> MPPSolution;
 typedef std::vector<rca::Group> MulticastGroup;
-typedef std::vector<std::tuple<int,int,rca::Link,rca::Link>> TupleEdgeRemove;
+typedef std::tuple<int,int,rca::Link,rca::Link> TupleEdgeRemove;
 
 using namespace rca;
 
