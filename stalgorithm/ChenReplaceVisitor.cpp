@@ -17,7 +17,9 @@ void ChenReplaceVisitor::visit ()
 	auto it = m_ec->m_heap.ordered_begin ();
 	auto end= m_ec->m_heap.ordered_end ();
 	
-	for ( ; it != end && it->getValue () == min_res; it++) {
+	for ( ; it != end; it++) {
+		
+		if (it->getValue () != min_res) continue;
 		
 		int group_id = 0;
 		for (std::vector<rca::Link> st : m_temp_trees) {
