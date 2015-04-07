@@ -41,8 +41,11 @@ public:
 	}
 	
 protected:
+	
 	void prepare_trees () {
 	
+		m_temp_trees.clear ();
+		
 		int i=0;
 		auto st = m_trees->begin ();
 		//for (SteinerTree * st : m_trees) {

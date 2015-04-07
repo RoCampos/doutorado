@@ -21,7 +21,7 @@ class MppVisitor {
 	
 public:
 	MppVisitor (MPPSolution * tree){
-		m_trees = tree;		
+		m_trees = tree;
 	}
 	
 	virtual void visit () = 0;
@@ -41,8 +41,11 @@ public:
 	}
 	
 protected:
+	
 	void prepare_trees () {
 	
+		m_temp_trees.clear ();
+		
 		int i=0;
 		auto st = m_trees->begin ();
 		//for (SteinerTree * st : m_trees) {
