@@ -34,6 +34,12 @@ public:
 		m_groups = groups;
 	}
 	
+	void setMulticastGroups (std::vector<std::shared_ptr<rca::Group>> & groups) {
+		for (std::shared_ptr<rca::Group> g : groups) {
+			m_groups.push_back (*g);
+		}
+	}
+	
 protected:
 	void prepare_trees () {
 	
