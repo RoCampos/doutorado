@@ -105,6 +105,16 @@ public:
 		
 	}
 	
+	void increase (rca::Link &l, int value) {
+		l.setValue (this->value(l) + value);
+		m_heap.increase (m_ehandle_matrix[l.getX()][l.getY()].second, l);
+	}
+	
+	void decrease (rca::Link &l, int value) {
+		l.setValue (this->value (l) - value);
+		m_heap.decrease (m_ehandle_matrix[l.getX()][l.getY()].second, l);
+	}
+	
 	void erase (rca::Link & l) {
 	
 		m_heap.erase (m_ehandle_matrix[l.getX()][l.getY()].second);
