@@ -154,7 +154,6 @@ typedef struct list_of_leafs {
 		if (l == begin) {
 			
 			begin = l->next;
-// 			free(l);
 			delete l;
 			l = NULL;
 			
@@ -162,7 +161,6 @@ typedef struct list_of_leafs {
 			
 			l->prev->next = l->next;
 			l->prev = NULL;
-// 			free(l);
 			delete l;
 			l = NULL;
 		} else {
@@ -171,7 +169,6 @@ typedef struct list_of_leafs {
 			l->prev->next = l->next;
 			l->prev = NULL;
 			l->next = NULL;
-// 			free(l);
 			delete l;
 			l = NULL;
 		}
@@ -269,12 +266,28 @@ public:
 	void add_edge (int x, int y, double value);
 	void remove_edge (int x, int y);
 	
+	node_t & get_node (int pos) {
+		return m_nodes[pos];
+	}
+	
 	inline double getCost () {
 		return m_cost;
 	}
 	
+	inline void setCost (double cost) {
+		m_cost = cost;
+	}
+	
 	edge_t * get_edge () const{
 		return m_edges.begin;
+	}
+	
+	list_edge & get_edges () {
+		return m_edges;
+	}
+	
+	list_leafs_t & get_leafs () {
+		return m_leafs;
 	}
 	
 	void prunning ();

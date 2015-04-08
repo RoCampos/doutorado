@@ -175,6 +175,6 @@ void STTree::xdotFormat () {
 		aux = aux->next;
 	}
 	
-	std::cout << "}";
+	std::cout << "}\n";
 	
 }
