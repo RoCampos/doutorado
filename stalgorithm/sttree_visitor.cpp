@@ -1,7 +1,7 @@
 #include "sttree_visitor.h"
 
 template<class Container>
-void prunning (STTree & st, Container & cont, int trequest)
+void prunning (STTree & st, Container & cont, int trequest, int band)
 {
 	list_leafs_t& list = st.get_leafs (); 
 	leaf_t * aux = list.begin;
@@ -29,10 +29,17 @@ void prunning (STTree & st, Container & cont, int trequest)
 				double m_cost = st.getCost () - edge->value;
 				st.setCost (m_cost);
 				
-				rca::Link l (edge->x, edge->y, 0);
+				rca::Link l (edge->x, edge->y, -1);
 				if (cont.is_used (l)){
-					l.setValue ( cont.value (l) + trequest );
-					cont.update (l);
+					l.setValue ( cont.value (l) + trequest );					
+				} else {
+					std::cout << l << " not removed\n";
+				}
+				
+				if (l.getValue () == band) {
+					cont.erase (l);
+				} else if (l.getValue() > -1){
+					cont.push (l);
 				}
 			}
 			
@@ -62,4 +69,7 @@ void prunning (STTree & st, Container & cont, int trequest)
 }
 
 template void prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>>
-	(STTree& st, rca::EdgeContainer<rca::Comparator, rca::HCell>& cont, int treq);
+		(STTree& st, 
+		rca::EdgeContainer<rca::Comparator, rca::HCell>& cont, 
+		int treq, 
+		int band);
