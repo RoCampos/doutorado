@@ -108,6 +108,7 @@ public:
 	void erase (rca::Link & l) {
 	
 		m_heap.erase (m_ehandle_matrix[l.getX()][l.getY()].second);
+		m_ehandle_matrix[l.getX()][l.getY()].second = m_ehandle_matrix[0][0].second;
 		m_ehandle_matrix[l.getX()][l.getY()].first = false;
 	}
 	
