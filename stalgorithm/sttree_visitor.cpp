@@ -31,15 +31,17 @@ void prunning (STTree & st, Container & cont, int trequest, int band)
 				
 				rca::Link l (edge->x, edge->y, -1);
 				if (cont.is_used (l)){
-					l.setValue ( cont.value (l) + trequest );					
+					l.setValue ( cont.value (l));
 				} else {
-					std::cout << l << " not removed\n";
+					std::cout << l <<":"<<l.getValue() << " not removed\n";
 				}
 				
-				if (l.getValue () == band) {
+				if (l.getValue () + 1 == band) {
 					cont.erase (l);
 				} else if (l.getValue() > -1){
-					cont.push (l);
+					cont.erase (l);
+					l.setValue ( l.getValue () + 1 );
+					cont.push  (l);
 				}
 			}
 			
