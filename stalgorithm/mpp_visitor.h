@@ -55,7 +55,14 @@ protected:
 			std::vector<rca::Link> links;
 			while (perc !=NULL) {
 				rca::Link link (perc->x, perc->y, 0);
-				links.push_back (link);
+				/**
+				 * Se na iteração passada do visitor a aresta foi removida
+				 * então, não a adiciona na solução que será processada
+				 * após o prepare_trees()
+				 */
+				if (perc->in) { 
+					links.push_back (link);
+				}
 				perc = perc->next;
 			}
 			m_temp_trees.push_back ( links );
