@@ -16,9 +16,9 @@ do
 	#getting the basename of a file. Name with no extension
 	file=$(basename ${inst} .brite)
 
-	echo -e "CAP_R\tCUSTO\tITER\tTIME\tSEED"
+	echo -e "CAP_R\tCUSTO\tITER\tTIME\tSEED" > ${output_dir}/${file}.result
 	for i in  $(seq 1 50)
 	do
-		./build/acompp ${instance}/${inst} --iter 400 --alpha 2.34 --beta 1.31 --evo  0.34 --pheur 0.28 --local_upd 0.07 >> ${output_dir}${file}.result
+		./build/acompp ${instance}/${inst} --iter 400 --alpha 2.34 --beta 1.31 --evo  0.34 --pheur 0.28 --local_upd 0.07 >> ${output_dir}/${file}.result
 	done
 done
