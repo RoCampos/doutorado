@@ -9,7 +9,7 @@
 #include "sttree.h"
 #include "link.h"
 #include "edgecontainer.h"
-//#include "edgecontainer.cpp"
+#include "sttree_visitor.h"
 
 typedef std::vector<STTree> MPPSolution;
 typedef std::vector<rca::Group> MulticastGroup;
