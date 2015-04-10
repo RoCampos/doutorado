@@ -1,4 +1,35 @@
-New Version - Improvements and Bug Fixed (DATE - CURRENT)
+New Version - Improvements and Bug Fixed (04/10/2014)
+==========================================================
+=EdgeContainer
+        - É agora uma classe template, pode implementar um heap min ou max.
+
+        - está no diretório network. Incorporado na libgraph
+
+=Acompp
+        -Utiliza a classe template EdgeContainer em substituição a classe EdgeContainer
+        anterior
+
+        -Árvores criadas aleatoriamente, não mais na sequência 0,1,2,...,n-1.
+
+        - Utiliza nova class STTree para manter uma árvore de Steiner.
+
+        - Aceita o ChenReplaceVisitor para substituir arestas
+
+=ChenReplaceVisitor
+        - Este visitor é utilizado para melhorar uma solução do MPP.
+
+       -  Ele consiste em substituir arestas congestionadas por outras menos
+        congestionadas.
+
+=STTree
+        - nova estrutura de dados que armazena uma árvore de Steiner. Bug free!
+
+=Sttree_visitor
+        - método prunnig implementado como um visitor. Útil para utilizar um
+        EdgeContainer e atulizar o uso das arestas de forma eficiente.
+
+
+New Version - Improvements and Bug Fixed (03/25/2014)
 ===========================================================
 =Acompp
 	- bug removido do método update_congestion () nos casos
