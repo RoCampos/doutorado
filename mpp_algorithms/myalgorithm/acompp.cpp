@@ -3,10 +3,10 @@
 using namespace rca;
 
 void AcoMPP::build_tree (int id, 
-						 std::shared_ptr<SteinerTree> & st, 
-						 EdgeContainer & ec) 
+						 STTree & st, 
+						 EdgeContainer<Comparator,HCell> & ec) 
 {
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
 
@@ -58,8 +58,8 @@ void AcoMPP::build_tree (int id,
 				toRemove.push_back (link);
 				
 				//adding the edges to st structure
-				st->addEdge (link.getX(), link.getY(), 
-				m_network->getCost(link.getX(), link.getY()) );
+				st.add_edge (link.getX(), link.getY(), 
+				(int)m_network->getCost(link.getX(), link.getY()) );
 				//selecionando o id da formiga que 
 				//chegou ao nó next
 				join = select_ant_id (pool, visited[next]);
@@ -88,8 +88,8 @@ void AcoMPP::build_tree (int id,
 				toRemove.push_back (link);
 				//m_network->removeEdge(link);
 					
-				st->addEdge (link.getX(), link.getY(), 
-					m_network->getCost(link.getX(), link.getY()) );
+				st.add_edge (link.getX(), link.getY(), 
+					(int)m_network->getCost(link.getX(), link.getY()) );
 				
 #ifdef VIEWER
 				/* just for test */
@@ -120,7 +120,7 @@ void AcoMPP::build_tree (int id,
 		
 	}//endof while
 	
-	st->prunning ();
+	st.prunning ();
 
 #ifdef VIEWER
 	viewer.draw ("../teste");	
@@ -129,7 +129,7 @@ void AcoMPP::build_tree (int id,
 	viewer.clear ();
 #endif
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
@@ -137,7 +137,7 @@ void AcoMPP::build_tree (int id,
 
 void AcoMPP::run (va_list & arglist) {
 
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif
 	
@@ -148,16 +148,18 @@ void AcoMPP::run (va_list & arglist) {
 	m_heuristic_prob = va_arg (arglist, double);
 	m_local_upd = va_arg(arglist,double);
 
-	std::vector<SteinerTree> bestNLinks;
+	std::vector<STTree> bestNLinks;
 	
 	time_elapsed.started ();
 	for (int iter =0; iter < iterations; iter++) {
 		//initialization of the strutctures that suppor congestion evaluation
-		EdgeContainer ec;
+		EdgeContainer<Comparator,HCell> ec;
 		ec.init_congestion_matrix (m_network->getNumberNodes ());
 		ec.init_handle_matrix (m_network->getNumberNodes ());
 	
-		std::vector<SteinerTree> solutions;
+		std::vector<STTree> solutions;
+		solutions.resize (m_groups.size (), STTree());
+		
 		double cost = 0.0;
 		
 #ifdef RES_CAP
@@ -167,8 +169,8 @@ void AcoMPP::run (va_list & arglist) {
 #ifdef CONG
 		double congestion = 0.0;
 #endif	
-	
-		//creating a solution
+		
+		//TODO COLOCAR CRIAÇÃO FORA E FAZER SHUFFLE AQUI
 		std::vector<int> ggg = std::vector<int>(m_groups.size ());
 		for (int i=1; i <(int)ggg.size (); i++) {
 			ggg[i] = ggg[i-1] + 1;
@@ -177,12 +179,17 @@ void AcoMPP::run (va_list & arglist) {
 		//for (unsigned i = 0; i < m_groups.size (); i++) {
 		for (int i : ggg) {
 			
+			
+			
 			//initialization of steiner tree
-			ptr_SteinerTree 
-				st = std::make_shared<SteinerTree> (m_network->getNumberNodes (), 
-													m_groups[i]->getSource(), 
-													m_groups[i]->getMembers ()
-													);
+// 			ptr_STTree 
+// 				st = std::make_shared<STTree> (m_network->getNumberNodes (), 
+// 													m_groups[i]->getSource(), 
+// 													m_groups[i]->getMembers ()
+// 													);
+			STTree st(m_network->getNumberNodes (),
+					  m_groups[i]->getSource(),
+					  m_groups[i]->getMembers());
 		
 			//verify the graph for connectivity
 #ifdef CONG
@@ -198,27 +205,25 @@ void AcoMPP::run (va_list & arglist) {
 			
 			//if the i-th tree is the best found util now
 			//update the edges locally
-			if (m_best_trees[i] > st->getCost ()) {
-				m_best_trees[i] = st->getCost ();
+			if (m_best_trees[i] > st.getCost ()) {
+				m_best_trees[i] = st.getCost ();
 				
-				local_update (st.get());
+				local_update (st);
 			}
 			
-			solutions.push_back (*st.get());
-			
-			//updating congestion heap
-			//update_congestion (st, ec, cost, congestion);
+			solutions[i] = st;
 			
 			int trequest = m_groups[i]->getTrequest ();
 			update_congestion (st, ec, cost, congestion, trequest);
+			
 		
 //showing the tree in debug mode
 #ifdef DEBUG1
-	std::cout << st->getCost () << std::endl;
+	std::cout << st.getCost () << std::endl;
     std::string file ="/home/romeritocampos/workspace/Doutorado/inst_test/aco-test";
     file = file+"/saida.xdot";
     std::cout << file << std::endl;
-    st->xdotToFile (file);
+    st.xdotToFile (file);
     std::string cmd ("xdot");
     cmd += " " + file;
 	system (cmd.c_str ());
@@ -227,6 +232,39 @@ void AcoMPP::run (va_list & arglist) {
 	
 		}//end for in solutioon construction
 	
+
+/*-------------------------------------------------------*/			
+	bool improve = true;
+	int tmp_cong = ec.top();
+	
+	std::vector<STTree> stts = solutions;
+	ChenReplaceVisitor c(&stts);
+	c.setNetwork (m_network);
+	c.setMulticastGroups (m_groups);
+	c.setEdgeContainer (ec);
+	
+	while (improve) {
+				
+		this->accept (&c);
+				
+		int temp_cost = 0;
+		for (auto st : stts) {
+			temp_cost += (int)st.getCost ();
+		}
+		
+		if (ec.top () > tmp_cong) {
+			congestion = ec.top ();
+			tmp_cong = congestion;
+			cost = temp_cost;
+			
+			solutions.clear ();
+			solutions = stts;
+		} else {
+			improve = false;
+		}
+		
+	}
+/*-------------------------------------------------------*/
 	
 		/*used for congestion*/
 #ifdef CONG
@@ -241,15 +279,12 @@ void AcoMPP::run (va_list & arglist) {
 			m_best_iter = iter;
 			
 			bestNLinks = solutions;
+			
 		}
 #endif
 		
 #ifdef RES_CAP
 
-// 		printf ("Current iter(%d)\n", iter);
-// 		printf ("\tcurrent cost (%lf) Cap(%lf)\n", cost, congestion);
-// 		printf ("\tcurrent Best_cost (%lf) BestCap(%lf)\n", m_bcost, m_bcongestion);
-		
 		/*used for residual capacity*/
 		if (congestion > m_bcongestion || 
 			(congestion == m_bcongestion && cost < m_bcost))
@@ -257,21 +292,17 @@ void AcoMPP::run (va_list & arglist) {
 			m_bcost = cost;
 			m_bcongestion = congestion;
 			//updating the pheromene
-			update_pheromone_matrix (ec);
-			
 			m_best_iter = iter;
-			
+			bestNLinks.clear ();
 			bestNLinks = solutions;
-
-		//	printf ("ITER (%d)",iter);
- 		//	printf ("\tUPDATE - Best (%lf), Cost (%lf)\n",m_bcongestion,m_bcost);
-			
+			update_pheromone_matrix (ec);
 		}
 #endif
 		//clean the network
 		m_network->clearRemovedEdges ();
-	
+
 	}
+	
 	
 	time_elapsed.finished ();
 	
@@ -283,30 +314,30 @@ void AcoMPP::run (va_list & arglist) {
 	std::cout << m_bcost << "\t";
 	std::cout << m_best_iter << "\t";
 	std::cout << time_elapsed.get_elapsed () << "\t";
-	std::cout << m_seed << "\t";
+	std::cout << m_seed << "\n";
 	
-	int g=0;
+	int g=0;	
 	auto it = bestNLinks.begin ();
 	for (; it != bestNLinks.end(); it++) {
-		Edge * e = (*it).listEdge.first();
-		int i=0;
+// 		Edge * e = (*it).listEdge.first();
+		edge_t * e = (*it).get_edge ();
+		
 		while (e != NULL) {
-			i++;
 			//printf ("%d - %d:%d;\n", e->i+1,e->j+1,g+1);
+			if (e->in)
+				std::cerr << e->x+1 << " - " << e->y+1 << ":" << g+1 << std::endl;
 			e = e->next;
 		}
 		g++;
-		//std::cout << i << "\t";
 	}
-	std::cout << std::endl;
-	
+
 	
 }
 
 void AcoMPP::configurate (std::string m_instance) 
 {
 
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
 	
@@ -345,6 +376,7 @@ void AcoMPP::configurate (std::string m_instance)
 	
 	//initialization of random number genarator
 	m_seed = rca::myseed::seed();
+	//my_random = Random(1428412957609586079,1, 10);	
 	my_random = Random(m_seed,1, 10);	
 	
 	//used to register the best values of each tree
@@ -371,7 +403,7 @@ void AcoMPP::configurate (std::string m_instance)
 	//store the best iteratios, where the best solution was found
 	m_best_iter = 0;
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
@@ -379,6 +411,7 @@ void AcoMPP::configurate (std::string m_instance)
 	/* just for test*/ 
 	viewer = TreeBuildViewer (m_network);
 	//viewer.draw ("");
+	 
 }
 
 void AcoMPP::create_ants_by_group (int g_id, 
@@ -386,7 +419,7 @@ void AcoMPP::create_ants_by_group (int g_id,
 								   std::vector<int> & visited)
 {
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
 	
@@ -413,7 +446,7 @@ void AcoMPP::create_ants_by_group (int g_id,
 void AcoMPP::configurate2 (std::string file)
 {
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
 	
@@ -457,7 +490,7 @@ void AcoMPP::configurate2 (std::string file)
 	m_bcost = max;
 	m_bcongestion = max;
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
@@ -470,7 +503,7 @@ void AcoMPP::configurate2 (std::string file)
 int AcoMPP::select_ant_id (const std::vector<Ant>& pool, const int & next_id)
 {
 
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
 	
@@ -484,7 +517,7 @@ int AcoMPP::select_ant_id (const std::vector<Ant>& pool, const int & next_id)
 	}
 	
 	
-	#ifdef DEBUG
+	#ifdef DEBUG1
 		std::cout << "------------------------------" << std::endl;
 	#endif
 	return -1;
@@ -496,7 +529,7 @@ void AcoMPP::join_ants (std::vector<Ant>& pool,
 						const int& join, 
 						std::vector<int>& visited)
 {
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
 	
@@ -510,45 +543,56 @@ void AcoMPP::join_ants (std::vector<Ant>& pool,
 	}
 	pool.erase (pool.begin () + join);
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
 }
 
-void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
-							rca::EdgeContainer & ec, 
+void AcoMPP::update_congestion (STTree& st,
+							EdgeContainer<Comparator, HCell> & ec, 
 							double&m_cost,
 							double& m_congestion,
 							int trequest)
 {
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
 	
-	Edge * e = st->listEdge.head;
+// 	Edge * e = st.listEdge.head;
+	edge_t *e =st.get_edge ();
 	while (e != NULL) {
 	
+		//aresta removida(prunning)
+		if (!e->in) {
+			e = e->next;
+			continue;
+		}
+		
 		//removing the edges from network
-		m_network->removeEdge (rca::Link(e->i,e->j, 0.0));
+		m_network->removeEdge (rca::Link(e->x,e->y, 0.0));
 	
 		//NÃO ESTÁ FUNCIONANDO!!!
 		//TENHO QUE PROVER OUTRO MEIO PARA MANTER AS ARESTAS EM NÍVEIS
-		rca::Link link (e->i, e->j, 0);
+		rca::Link link (e->x, e->y, 0);
 		int x = link.getX ();
 		int y = link.getY ();
+		
+		//computing the edge usage(cost)
+		m_cost += (int)m_network->getCost (link.getX(), link.getY());
+		
 		if (ec.m_ehandle_matrix[x][y].first == true) {
 			
-			int valor = (*((ec.m_ehandle_matrix[x][y]).second)).getValue();
+			int valor = ec.value (link);
 #ifdef CONG
 			(*((ec.m_ehandle_matrix[x][y]).second)).setValue (valor+1);
 #endif
 			
 #ifdef RES_CAP
-			(*((ec.m_ehandle_matrix[x][y]).second)).setValue (valor-trequest);
+			link.setValue ( valor - 1 );
 #endif
 			
-			ec.m_heap.update ((ec.m_ehandle_matrix[x][y]).second);
+			ec.update (link);
 
 #ifdef CONG			
  			if (valor+1 > m_congestion) {
@@ -557,13 +601,11 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 #endif 
 		
 #ifdef RES_CAP
-			if ( (valor-trequest) < m_congestion) {
- 				m_congestion = (valor - trequest);
- 			}
+			m_congestion = ec.top ();
 #endif
 			
+			
 		} else {
-			ec.m_ehandle_matrix[x][y].first = true;
 			
 #ifdef CONG
 			link.setValue (1);
@@ -574,9 +616,7 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 			link.setValue ( band - trequest);
 #endif
 			
-			ec.m_ehandle_matrix[x][y].second = ec.m_heap.push (link);
-			
-			m_cost += m_network->getCost (link.getX(), link.getY());
+			ec.push (link);
 			
 		}
 		
@@ -586,20 +626,20 @@ void AcoMPP::update_congestion (std::shared_ptr<SteinerTree>& st,
 	
 	//TODO ISTO É APENAS PARA CASO DA CAPACIDADE RESIDUAL COM TK=1f
  	if (m_congestion == INT_MAX) {
-		m_congestion = ec.m_heap.ordered_begin ()->getValue ();
+		m_congestion = ec.top ();//ec.m_heap.ordered_begin ()->getValue ();
 	}
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
 }
 
 
-void AcoMPP::update_pheromone_matrix (rca::EdgeContainer & ec)
+void AcoMPP::update_pheromone_matrix (EdgeContainer<Comparator,HCell> & ec)
 {
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif 
 	
@@ -615,16 +655,17 @@ void AcoMPP::update_pheromone_matrix (rca::EdgeContainer & ec)
 	
 }
 
-void AcoMPP::local_update (SteinerTree * st) 
+void AcoMPP::local_update (STTree & st) 
 {
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
 #endif
 
-	Edge * e = st->listEdge.head;
+// 	Edge * e = st.listEdge.head;
+	edge_t *e = st.get_edge ();
 	while (e != NULL) {
 	
-		rca::Link link (e->i, e->j, 0.0);
+		rca::Link link (e->x, e->y, 0.0);
 		double value = m_pmatrix[link.getX()][link.getY()];
 		m_pmatrix[link.getX()][link.getY()] += value * m_local_upd;
 		
@@ -632,7 +673,7 @@ void AcoMPP::local_update (SteinerTree * st)
 	}
 	
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
@@ -641,7 +682,7 @@ void AcoMPP::local_update (SteinerTree * st)
 int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 {
 
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << __FUNCTION__ << ":" << __LINE__;
 #endif 
 	
@@ -709,24 +750,23 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 			begin++;
 		}
 		
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << " Using Heuristic Informations\n";
 #endif
 		
 		return returned;
 	} else {
-		#ifdef DEBUG
+		#ifdef DEBUG1
 			std::cout << " Using greedy procedure\n";
 		#endif
 		return m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
 	}
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
 }
-
 
 void AcoMPP::print_results () {
 

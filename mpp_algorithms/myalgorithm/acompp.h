@@ -28,16 +28,17 @@
 #include "steinerReader.h"
 
 #include "ant.h"
-#include "steinertree.h"
+//#include "steinertree.h"
+
+#include "sttree.h"
 
 #include "SolutionView.h"
+
+#include "mpp_visitor.h"
 
 typedef typename std::vector<std::shared_ptr<rca::Group>> MGroups;
 
 typedef typename std::vector<std::vector<double>> PheromenMatrix;
-
-typedef typename std::shared_ptr<SteinerTree> ptr_SteinerTree;
-
 
 typedef typename 
 	rca::myrandom<std::mt19937, std::uniform_int_distribution<int>, int> Random;
@@ -87,16 +88,16 @@ public:
 	 * moviment.
 	 * 
 	 * The central idea is join all ants forming a tree. After this
-	 * the prunning method from SteinerTree class is perfomed to
+	 * the prunning method from STTree class is perfomed to
 	 * remove unnecessary edges.
 	 * 
 	 * @param int id of the group
-	 * @param SteinerTree a reference to steinertree
+	 * @param STTree a reference to steinertree
 	 * @param EdgeContainer the container of used edges
 	 */
 	void build_tree (int id, 
-					 std::shared_ptr<SteinerTree> & st, 
-					 EdgeContainer & ec);
+					 STTree & st, 
+					 EdgeContainer<Comparator,HCell> & ec);
 	
 	/**
 	 * This method is used to configurate
@@ -199,8 +200,8 @@ private:
 	 * The four value is, in the same way of the cost, passed as reference.
 	 * 
 	 */
-	void update_congestion (std::shared_ptr<SteinerTree>&,
-							rca::EdgeContainer &ec, 
+	void update_congestion (STTree &,
+							EdgeContainer<Comparator,HCell> &ec, 
 							double&, 
 							double&,
 							int trequest);
@@ -214,7 +215,7 @@ private:
 	 * This refence contains all the edges used to build a solution.
 	 * 
 	 */
-	void update_pheromone_matrix (rca::EdgeContainer & ec);
+	void update_pheromone_matrix (EdgeContainer<Comparator,HCell> & ec);
 	
 	/**
 	 * This method is used to find a next component based
@@ -243,9 +244,14 @@ private:
 	 * So if the tree is the best one found os far, than the local
 	 * update of the PheromenMatrix is release.
 	 * 
-	 * @param SteinerTree
+	 * @param STTree
 	 */
-	void local_update (SteinerTree * st);
+	void local_update (STTree & st);
+	
+	
+	void accept (MppVisitor * visitor) {
+		visitor->visit ();
+	}
 	
 private:
 	
@@ -264,7 +270,7 @@ private:
 	//pheromene matrix
 	PheromenMatrix m_pmatrix;
 	
-	std::vector<SteinerTree> m_best_solution;
+	std::vector<STTree> m_best_solution;
 	
 	/*---------------------------------*/
 	//AcoMPP parameters	

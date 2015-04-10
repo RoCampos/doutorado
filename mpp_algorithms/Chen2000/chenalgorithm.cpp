@@ -366,7 +366,7 @@ cout << "Click enter to continue and test BREAK_TEST...\n";
 #ifdef DEBUG
 	for (unsigned int i=0; i < m_trees.size (); i++) {
 		m_trees[i].print ();
-		cout << endl;
+		//cout << endl;
 	}
 #endif
 

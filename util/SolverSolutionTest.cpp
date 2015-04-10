@@ -109,7 +109,8 @@ int MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 	int count = count_terminals (nodes, group);
 	assert (count == (group->getSize () + 1) );
 	if (m_verbose){
-	 std::cout << "\t - Terminals Test: " <<(count == (group->getSize() + 1))<< "\n";
+	 bool res = (count == (group->getSize() + 1));
+	 std::cout << "\t - Terminals Test: " <<(res?"Ok" : "Not Ok")<< "\n";
 	 std::cout << "\t"<<count << " --- " << group->getSize() + 1 << std::endl;
 	}
 	
@@ -118,7 +119,7 @@ int MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 	assert ( flag == true );
 	
 	if (m_verbose)
-		std::cout << "\t - Non-leaf with degree test: " << (flag) << std::endl;
+		std::cout << "\t - Non-leaf with degree test: " << (flag ? "Ok" : "Not Ok") << std::endl;
 	
 	
 	int connec = connectivity(group, dset, NODES);
@@ -127,7 +128,7 @@ int MMMSTPGurobiResult::steiner_tree_test (rca::Network * net,
 	if (m_verbose) {
 		std::cout << "\tConnectivity test: ";
 		//std::cout << ((dset.getSize () - non_used_vertex)) << std::endl;
-		std::cout << connec  << std::endl;
+		std::cout << (connec ? "Ok" : "Not Ok")  << std::endl;
 	}
 	
 	return tree_cost (net, group, dset, result);
@@ -210,7 +211,7 @@ int MMMSTPGurobiResult::tree_cost (rca::Network *net, rca::Group *group,
 		if (GROUP_ID == (g-1)) {			
 			if (dset.find2 (v-1)->item == dset.find2(w-1)->item) {
 				if (dset.find2 (v-1)->item == root){
-					tree_cost += net->getCost (v-1, w-1);
+					tree_cost += (int)net->getCost (v-1, w-1);
 				}
 			}
 		}
@@ -233,7 +234,7 @@ int MMMSTPGurobiResult::cost (rca::Network * net,std::string result)
 		int g = -1;
 		sscanf (line.c_str (), "%d - %d:%d;", &v, &w, &g);
 		
-		sol_cost += net->getCost (v-1,w-1);
+		sol_cost += (int)net->getCost (v-1,w-1);
 		
 	}
 	return sol_cost;
