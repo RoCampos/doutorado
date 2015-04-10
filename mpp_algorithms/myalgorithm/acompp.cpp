@@ -234,41 +234,36 @@ void AcoMPP::run (va_list & arglist) {
 	
 
 /*-------------------------------------------------------*/			
-bool improve = true;
-int tmp_cong = ec.top();
-while (improve) {
+	bool improve = true;
+	int tmp_cong = ec.top();
 	
 	std::vector<STTree> stts = solutions;
-	ChenReplaceVisitor *c = new ChenReplaceVisitor (&stts);
-	c->setNetwork (m_network);
-	std::vector<rca::Group> gg;
-	for (std::shared_ptr<rca::Group> g : m_groups) {
-		gg.push_back (*g);
-	}
-	c->setMulticastGroups (gg);
-	c->setEdgeContainer (ec);
-			
-	this->accept (c);
-			
-	int temp_cost = 0;
-	for (auto st : stts) {
-		temp_cost += (int)st.getCost ();
-	}
+	ChenReplaceVisitor c(&stts);
+	c.setNetwork (m_network);
+	c.setMulticastGroups (m_groups);
+	c.setEdgeContainer (ec);
 	
-	if (ec.top () > tmp_cong) {
-		congestion = ec.top ();
+	while (improve) {
+				
+		this->accept (&c);
+				
+		int temp_cost = 0;
+		for (auto st : stts) {
+			temp_cost += (int)st.getCost ();
+		}
 		
-		tmp_cong = congestion;		
-		cost = temp_cost;
+		if (ec.top () > tmp_cong) {
+			congestion = ec.top ();
+			tmp_cong = congestion;
+			cost = temp_cost;
+			
+			solutions.clear ();
+			solutions = stts;
+		} else {
+			improve = false;
+		}
 		
-		solutions.clear ();
-		solutions = stts;
-	} else {
-		improve = false;
 	}
-	
-	delete c;
-}
 /*-------------------------------------------------------*/
 	
 		/*used for congestion*/
@@ -301,45 +296,6 @@ while (improve) {
 			bestNLinks.clear ();
 			bestNLinks = solutions;
 			update_pheromone_matrix (ec);
-			
-/*-------------------------------------------------------*/			
-// bool improve = true;
-// int tmp = ec.top ();;
-// while (improve) {
-// 	
-// 	
-// 	ChenReplaceVisitor *c = new ChenReplaceVisitor (&bestNLinks);
-// 	c->setNetwork (m_network);
-// 	std::vector<rca::Group> gg;
-// 	for (std::shared_ptr<rca::Group> g : m_groups) {
-// 		gg.push_back (*g);
-// 	}
-// 	c->setMulticastGroups (gg);
-// 	c->setEdgeContainer (ec);
-// 			
-// 	this->accept (c);
-// 			
-// 	cost = 0;
-// 	for (auto st : bestNLinks) {
-// 		cost += (int)st.getCost ();
-// 	}
-// 	
-// 	if (ec.top () > tmp) {
-// 		congestion = ec.top ();
-// 		tmp = congestion;
-// 		
-// 		if (m_bcongestion < ec.top()) {
-// 			m_bcongestion = ec.top();
-// 			m_bcost = cost;
-// 		}
-// 	} else {
-// 		improve = false;
-// 	}
-// 	
-// 	delete c;
-// }
-/*-------------------------------------------------------*/
-			
 		}
 #endif
 		//clean the network
@@ -420,7 +376,7 @@ void AcoMPP::configurate (std::string m_instance)
 	
 	//initialization of random number genarator
 	m_seed = rca::myseed::seed();
-	//my_random = Random(1427757477228715913,1, 10);	
+	//my_random = Random(1428412957609586079,1, 10);	
 	my_random = Random(m_seed,1, 10);	
 	
 	//used to register the best values of each tree
