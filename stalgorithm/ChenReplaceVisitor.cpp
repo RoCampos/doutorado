@@ -17,8 +17,8 @@ void ChenReplaceVisitor::visit ()
 	auto it = m_ec->m_heap.ordered_begin ();
 	auto end= m_ec->m_heap.ordered_end ();
 	
-	if (it->getValue () > min_res)
-		goto UPDT;
+ 	if (it->getValue () > min_res)
+ 		goto UPDT;
 	
 	for ( ; it != end; it++) {
 		
@@ -151,18 +151,26 @@ void ChenReplaceVisitor::replace (TupleEdgeRemove & tuple)
 	//updating the tree
 	m_temp_trees[st][pos] = _new;
 	
-	_old.setValue ( m_ec->value (_old) + 1);
+	//m_ec->increase (_old,1);
+	int value = m_ec->value (_old) + 1;
 	
 	if (m_ec->is_used (_new)) {
-		_new.setValue ( m_ec->value (_new) - 1);
-		m_ec->update (_new);
+		int v = m_ec->value (_new);
+		m_ec->erase (_new);
+		_new.setValue (v - 1);
+		m_ec->push (_new);
 	} else {
 		_new.setValue ( m_network->getBand(_new.getX(), _new.getY()) -1 );
 		m_ec->push (_new);
 	}
-			
-	//updating usage
-	m_ec->update (_old);
+	
+	if (value == m_groups.size ()) {
+		m_ec->erase (_old);
+	} else {
+		m_ec->erase (_old);
+		_old.setValue (value);
+		m_ec->push (_old);
+	}
 	
 }
 
@@ -222,7 +230,7 @@ void ChenReplaceVisitor::getAvailableEdges(std::vector<int> &cut_xy,
 
 void ChenReplaceVisitor::update_trees () 
 {
-	
+	int BAND = m_groups.size ();
 	int g = 0;
 	m_trees->clear ();
 	for (auto st : m_temp_trees) {
@@ -240,7 +248,8 @@ void ChenReplaceVisitor::update_trees ()
 			
 		}
 		
-		_st.prunning ();
+		//_st.prunning ();
+		prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>>(_st, *m_ec, 1, BAND);
 		
 		m_trees->push_back (_st);
 		g++;
