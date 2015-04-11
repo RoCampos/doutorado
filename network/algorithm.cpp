@@ -113,7 +113,11 @@ rca::Path shortest_path (int source, int w, rca::Network & network) {
 		for (auto u=neighbors.first; u!= neighbors.second; u++) {
 			
 			double cost = network.getCost(v.id, *u);
-			if (distance[*u] > ((v.weight*-1 + cost)) ) {
+			
+			bool removed = network.isRemoved(rca::Link(v.id, *u, cost));
+			
+			if (distance[*u] > ((v.weight*-1 + cost)) 
+				&& !removed) {
 				double old_u_cost = distance[*u];
 				distance[*u] = (v.weight*-1 + cost);
 				previous[*u] = v.id;
@@ -132,8 +136,13 @@ rca::Path shortest_path (int source, int w, rca::Network & network) {
 	
 	rca::Path p;
 	int u = w;
-	for (; u != -1; u = previous[u]) {
+	for (; u != -1; u = previous[u]) {		
 		p.push (u);
+	}
+	
+	int size = p.size ();
+	if (p[size-1] != source) {
+		return rca::Path();
 	}	
 	
 	return p;

@@ -30,25 +30,12 @@ typedef struct vertex_t {
 	
 }vertex_t;
 
-// typedef struct greater {
-// 
-// 	bool operator () (const vertex_t& v1, const vertex_t& v2) const
-// 	{
-// 		return v1.weight < v2.weight;
-// 	}
-// 	
-// }g;
-
-typedef typename boost::heap::fibonacci_heap<vertex_t>::handle_type handle_t;
-//typedef typename boost::heap::binomial_heap<vertex_t>::handle_type handle_t;
+typedef typename boost::heap::fibonacci_heap<vertex_t,boost::heap::compare<std::less<vertex_t>>>::handle_type handle_t;
 
 rca::Path shortest_path (int v, int w, rca::Network * network);
 
 rca::Path shortest_path (int v, int w, rca::Network & network);
 
 bool is_connected (rca::Network & network, rca::Group & group);
-
-//explit instantiation
-//template rca::Path shortest_path<0> (int v, int w, rca::Network * network);
 
 #endif
