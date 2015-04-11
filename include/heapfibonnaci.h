@@ -1,3 +1,6 @@
+#ifndef _TEMP_FIBONACCI_HEAP_
+#define _TEMP_FIBONACCI_HEAP_
+
 /**
  * template Fibonacci Heap 
  *
@@ -349,6 +352,7 @@ public:
 
 };  // FibonacciHeap
 
+#endif
 
 /*
 int main() {
