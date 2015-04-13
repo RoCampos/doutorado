@@ -20,7 +20,8 @@ SteinerTreeObserver<ContainerType>::SteinerTreeObserver(ContainerType & ec,
 template<typename ContainerType>
 void SteinerTreeObserver<ContainerType>::set_steiner_tree (STTree & st, int nodes)
 {
-	m_st = st;
+	m_st = NULL;
+	m_st = &st;
 	
 	if (dset != NULL)
 		delete dset;
@@ -31,7 +32,7 @@ void SteinerTreeObserver<ContainerType>::set_steiner_tree (STTree & st, int node
 template<typename ContainerType>
 STTree & SteinerTreeObserver<ContainerType>::get_steiner_tree ()
 {
-	return m_st;
+	return *m_st;
 }
 
 template<typename ContainerType>
@@ -61,13 +62,14 @@ bool SteinerTreeObserver<ContainerType>::add_edge (int x,
 		//modificar add_edge in STTree
 		//para verificar se a arestas já foi adicionada
 		//verificar com debug se o dset já evita isto
-		m_st.add_edge ( l.getX(), l.getY(), cost );
+		m_st->add_edge ( l.getX(), l.getY(), cost );
 		
 
 		//TODO UPDATE USAGE, IT IS USING THE COST		
 		if (m_ec->is_used (l)) {
 			int value = m_ec->value (l);
 			l.setValue (value - 1);
+			m_ec->update (l);
 		} else {
 			l.setValue (band_usage - 1);
 			m_ec->push ( l );
@@ -84,13 +86,12 @@ std::vector<rca::Link> SteinerTreeObserver<ContainerType>::getTreeAsLinks () con
 {
 	std::vector<rca::Link> links;
 	
-	edge_t * perc = m_st.get_edge ();
+	edge_t * perc = m_st->get_edge ();
 	while (perc != NULL) {
 		
 		rca::Link l(perc->x, perc->y, perc->value);		
-		if (perc->in)			
+		if (perc->in)
 			links.push_back ( l );
-		
 		perc = perc->next;
 		
 	}	
@@ -101,7 +102,7 @@ std::vector<rca::Link> SteinerTreeObserver<ContainerType>::getTreeAsLinks () con
 template<typename ContainerType>
 void SteinerTreeObserver<ContainerType>::prune (int rest, int band)
 {
-	prunning<ContainerType>(m_st, *m_ec, rest, band); 
+	prunning<ContainerType>(*m_st, *m_ec, rest, band); 
 }
 
 template class SteinerTreeObserver<EdgeContainer<Comparator, HCell>>;

@@ -31,7 +31,7 @@ public:
 
 private:
 	ContainerType * m_ec;
-	STTree m_st;	
+	STTree * m_st;	
 	DisjointSet2 * dset;
 	
 };
