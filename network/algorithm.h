@@ -10,6 +10,7 @@
 #include "heapfibonnaci.h"
 #include <boost/heap/fibonacci_heap.hpp>
 #include <boost/heap/binomial_heap.hpp>
+#include "edgecontainer.h"
 
 
 typedef struct vertex_t {
@@ -31,10 +32,17 @@ typedef struct vertex_t {
 }vertex_t;
 
 typedef typename boost::heap::fibonacci_heap<vertex_t,boost::heap::compare<std::less<vertex_t>>>::handle_type handle_t;
+typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
+
 
 rca::Path shortest_path (int v, int w, rca::Network * network);
 
 rca::Path shortest_path (int v, int w, rca::Network & network);
+
+rca::Path capacited_shortest_path (int v, int w, 
+								   rca::Network *network,
+								   CongestionHandle *cg,
+								   rca::Group &g);
 
 bool is_connected (rca::Network & network, rca::Group & group);
 
