@@ -52,6 +52,16 @@ typedef struct list_of_edge {
 			delete tmp;
 		}
 	}
+	
+	void clear () {
+		edge_t * aux = begin;
+		while (aux != NULL) {
+			edge_t * tmp = aux;
+			aux = aux->next;
+			delete tmp;
+		}
+		begin = NULL;
+	}
 
 	void add_edge (edge_t *edge) {
 		
