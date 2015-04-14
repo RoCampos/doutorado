@@ -1,4 +1,22 @@
-New Version - Improvements and Bug Fixed (04/10/2014)
+New Version - Improvements and Bug Fixed (04/14/2015)
+=========================================================
+=ShortestPath
+	- a efficient shortest path algorithm was implemented
+	this algorithm improve the runtime of routines like GA
+
+=SteinerTreeObserver
+	- this idea was implemented on genetic_algorithm directory
+	- It was removed to stalgorithm directory and now is distributed
+	in sttalgo lib
+	- Uses the container EdgeContainer from graph lib as default
+	- support others containers for edge
+
+=GeneticAlgorithm
+	- the genetic algorithm now uses STTree to represent a steiner tree
+	- The Steiner Tree observer was refactored and now is more efficient
+
+
+New Version - Improvements and Bug Fixed (04/10/2015)
 ==========================================================
 =EdgeContainer
         - É agora uma classe template, pode implementar um heap min ou max.
