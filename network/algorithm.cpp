@@ -107,6 +107,7 @@ rca::Path shortest_path (int source, int w, rca::Network & network) {
 	
 		vertex_t v = queue.top ();
 		queue.pop ();
+		if (v.id == w) break;
 		
 		std::pair<c_iterator, c_iterator> neighbors;
 		network.get_iterator_adjacent (v.id, neighbors);
