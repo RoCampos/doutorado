@@ -260,6 +260,8 @@ public:
 		_init_nodes (nnodes);
 		_init_terminals(terminals);
 		m_nodes[source].terminal = true;
+		
+		m_cost = 0.0;
 	}
 	
 	/*Copy Constructor*/

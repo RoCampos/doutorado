@@ -5,6 +5,7 @@ STTree::STTree (int nnodes, const std::vector<int> & terminals) {
 	_init_nodes (nnodes);
 	_init_terminals (terminals);
 	
+	m_cost = 0.0;
 }
 
 /*copyt constructor*/
