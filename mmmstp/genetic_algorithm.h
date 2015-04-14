@@ -10,8 +10,10 @@
 #include "algorithm.h"
 #include "reader.h"
 #include "steinertree.h"
-#include "SteinerTreeObserver.h"
+#include "steiner_tree_observer.h"
 #include "kspath.h"
+
+typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 
 class PathRepresentation;
 
@@ -74,7 +76,10 @@ class PathRepresentation {
 	
 	
 public:
-	PathRepresentation (): m_cost(0), m_residual_capacity(0){}
+	PathRepresentation (): m_cost(0), m_residual_capacity(0)
+	{
+		m_cg=CongestionHandle();
+	}
 	
 	PathRepresentation (const PathRepresentation&);
 	PathRepresentation & operator= (const PathRepresentation&);

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+#path of instances and preprocessed files
+instance=$1
+
+#directory where the result files will be stored
+output_dir=$2
+
+for inst in `ls -vB ${instance}`
+do
+	#file=`echo $i | sed -e 's:.brite:.pre:'`
+	#inst=$1n30/$i
+	#pre=$1preprocessing/n30/${file}
+
+
+	#getting the basename of a file. Name with no extension
+	file=$(basename ${inst} .brite)
+
+	echo "acompp result" > ${output_dir}/${file}.result
+
+	./build/acompp ${instance}/${inst} --iter 400 --alpha 2.34 --beta 1.31 --evo  0.34 --pheur 0.28 --local_upd 0.07 2>> ${output_dir}/${file}.teste 1>> ${output_dir}/${file}.result
+
+	./build/solutionTest ${instance}/${inst} ${output_dir}/${file}.teste 0 >> ${output_dir}/${file}.result
+
+	echo "visitor result" >> ${output_dir}/${file}.result
+	./build/visitor_test ${instance}/${inst} < ${output_dir}/${file}.teste 2> ${output_dir}/${file}.vis 1>> ${output_dir}/${file}.result
+
+	./build/solutionTest ${instance}/${inst} ${output_dir}/${file}.vis 0 >> ${output_dir}/${file}.result
+
+done
