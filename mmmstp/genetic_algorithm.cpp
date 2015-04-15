@@ -40,7 +40,14 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	/*init population*/
 	init_population ();
 	
+	local_search (0);
+	getchar ();
+	
 	while ( --m_iter > 0) {
+		
+#ifdef DEBUG 
+	printf ("Interation (%d)\n", m_iter);
+#endif
 		
 		//crossover
 		for (unsigned int pop = 0; pop < m_population.size (); pop+=4) {
@@ -87,10 +94,11 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	std::cout << std::endl;
 	std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
-  	m_population[best].print_solution (m_network, m_groups);
+  	//m_population[best].print_solution (m_network, m_groups);
 	
 	//deallocatin of resources;
 #ifdef DEBUG1
+	std::cout << "\n";
 	for (PathRepresentation & p : m_population) {
 		std::cout << p.m_cost << " ";
 		std::cout << p.m_residual_capacity << std::endl;
@@ -248,18 +256,36 @@ void GeneticAlgorithm::crossover (int i, int j)
 	//sol.print_solution (m_network, m_groups);
 	
 	int old = -1;
+	int impro = -1;
 	if (m_population[i].m_residual_capacity < m_population[j].m_residual_capacity)
 	{
 		old = i;
+		impro = 1;
 	} 
 	else if (m_population[i].m_residual_capacity > m_population[j].m_residual_capacity)
 	{
 		old = j;
+		impro = 1;
+	} else {
+		//verifica se melhorou o custo		
+		int aux = -1;
+		if (m_population[i].m_cost < m_population[j].m_cost) {
+			aux = j;
+		} else if (m_population[i].m_cost > m_population[j].m_cost) {
+			aux = i;
+		}
+		
+		if (aux != -1) {
+			old = aux;
+			impro = 2;
+		}
 	}
 	
 	if (old != -1) {
 #ifdef DEBUG
-	std::cout << "Crossver Improvement\n"; 	
+	//std::cout << "Crossver Improvement :\n";
+	printf ("Crossover Improvement: (%s)\n", 
+			(impro == 1 ? "Cost" : "Residual Capacity"));
 #endif
 		m_population[old] = sol;
 		
@@ -267,43 +293,75 @@ void GeneticAlgorithm::crossover (int i, int j)
 	
 }
 
-// void GeneticAlgorithm::mutation (int i) 
-// {
-// 	
-// 	auto it = m_population[i].getCongestionHandle 
-// 						().getUsedLinks ().begin ();
-// 	
-// 	int j=0;
-// 	int max =  m_population[i].getCongestionHandle 
-// 						().getUsedLinks ().size () * 0.10; 
-// 						
-// 	for (; j++ < max; it++) {
-// 		
-// 		rca::Link l =  m_population[i].getCongestionHandle 
-// 										().getUsedLinks ()[j];
-// 		
-// 		m_network->removeEdge (l);
-// 		
-// 	}
-// 	
-// 	PathRepresentation sol;
-// 	sol.init_rand_solution1 (m_network, m_groups);
-// 	
-// 	if ( sol.m_cost < m_budget ) {
-// 		
-// 		if (sol.m_residual_capacity > m_population[i].m_residual_capacity) {
-// #ifdef DEBUG1
-// 	std::cout << "Some Improvement=";
-// 	std::cout << (sol.m_residual_capacity)<<":"<< m_population[i].m_residual_capacity;
-// 	std::cout << " " << sol.m_cost;
-// 	std::cout << std::endl;
-// #endif
-// 			m_population[i] = sol;
-// 		}
-// 		
-// 	}
-// 	
-// }
+/**
+ * Local Searc method using visitor replacement
+ * 
+ * 
+ */
+void GeneticAlgorithm::local_search (int i)
+{
+	std::vector<STTree> trees;
+	int NODES = m_network->getNumberNodes ();	
+	
+	//getting the trees of individual is
+	TreeAsLinks & tree_as_links = m_population[i].m_tree_links;	
+	int g = 0;
+	//loop over all trees
+	for (auto & tree : tree_as_links) {
+		
+		//creating tree structure: STTREE
+		trees.push_back( STTree(NODES, 
+						 m_groups[g].getSource (), 
+					     m_groups[g].getMembers()));
+		
+		//loop over all links of individual tree
+		for (rca::Link & link : tree) {
+			//std::cout << link << std::endl;
+			trees[g].add_edge (link.getX(), 
+							   link.getY(), 
+							   m_network->getCost (link.getX(), link.getY()) );
+			
+		}		
+		g++;
+	}
+	
+	CongestionHandle & ec = m_population[i].m_cg;
+	
+	//starting local search
+	bool improve = true;
+	int tmp_cong = ec.top();
+	
+	ChenReplaceVisitor c(&trees);
+	c.setNetwork (m_network);
+	c.setMulticastGroups (m_groups);
+	c.setEdgeContainer (ec);
+	
+	double cost = m_population[i].m_cost;
+	double congestion = 0;
+	
+	std::cout << "Starting local search\n";
+	while (improve) {				
+		this->accept (&c);
+				
+		int temp_cost = 0;
+		for (auto st : trees) {
+			temp_cost += (int)st.getCost ();
+		}
+		
+		if (ec.top () > tmp_cong) {
+			congestion = ec.top ();
+			tmp_cong = congestion;
+			cost = temp_cost;
+		} else {
+			improve = false;
+		}
+	}
+	
+	std::cout << ec.top () << std::endl;
+	std::cout << cost << std::endl;
+	
+}
+
 
 /*Copy constructor*/
 PathRepresentation::PathRepresentation (const PathRepresentation& ind)
@@ -314,6 +372,9 @@ PathRepresentation::PathRepresentation (const PathRepresentation& ind)
 	
 	//using move from algorithm
 	m_genotype = std::move (ind.m_genotype);
+	
+	//coping the trees
+	m_tree_links = ind.m_tree_links;
 	
 	//coping the congestionHandle
 	m_cg = ind.m_cg;
@@ -329,6 +390,9 @@ PathRepresentation& PathRepresentation::operator= (const PathRepresentation& ind
 	//using move from algorithm
 	m_genotype = std::move (ind.m_genotype);
 
+	//coping the trees
+	m_tree_links = ind.m_tree_links;
+	
 	m_cg = ind.m_cg;
 	
 	return *this;
@@ -374,7 +438,7 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 		
 		rca::Path path;
 		int w = groups[i].getMember (0);
-		path = shortest_path (source, w, net);
+		path = shortest_path (source, w, *net);
 #ifdef DEBUG1
 		std::cout << "TREE :" << i << std::endl;
 		printf ("\tpath %d to %d ", source, w);
@@ -422,11 +486,11 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 			if (d == groups[i].getSize ()) break;
 			
 			w = groups[i].getMember (d);
-			path = shortest_path (source, w, net);
+			path = shortest_path (source, w, *net);
 			
 			if (path.size () == 0) {
 				net->clearRemovedEdges ();
-				path = shortest_path (source, w, net);
+				path = shortest_path (source, w, *net);
 			}
 			
 #ifdef DEBUG1
@@ -537,7 +601,7 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 #endif 
 		if (p.size () == 0) {
 			//net->clearRemovedEdges ();
-			p = shortest_path ( source, dest, net);
+			p = shortest_path ( source, dest, *net);
 		}
 		
 		m_genotype[gene] = p;
@@ -674,6 +738,10 @@ void PathRepresentation::operator1 (rca::Network *net,
  	//int list_size = m_cg.getUsedLinks ().size () * PathRepresentation::USED_LIST;
 	auto & heap = m_cg.get_heap ();
 	int list_size = heap.size () * PathRepresentation::USED_LIST;
+
+#ifdef DEBUG1
+	printf ("List Size (%d): \n", list_size);
+#endif
 	
 	auto begin = heap.ordered_begin ();
 	auto end_it = heap.ordered_end ();
@@ -716,7 +784,7 @@ void PathRepresentation::operator1 (rca::Network *net,
 		begin = heap.ordered_begin ();
 		end_it = heap.ordered_end ();
 		size = 0;
-		for (; begin != end_it || size++ < list_size; begin++) {
+		for (; begin != end_it && size < list_size; begin++) {
 			
 			//pegando links usados
 			//rca::Link link = m_cg.getUsedLinks ()[l];
@@ -740,13 +808,15 @@ void PathRepresentation::operator1 (rca::Network *net,
 			
 			if (contains) {
 				break;
-			}			
+			}	
+			
+			size++; //control the number of removed edges
 		}
 		
 		rca::Path path;
 		if (contains) {
  			path = shortest_path (*(m_genotype[i].rbegin()),
- 											*(m_genotype[i].rend()-1),net);
+ 											*(m_genotype[i].rend()-1),*net);
 			
 			//std::cout <<"*"<<path << std::endl;
 		} else {
@@ -816,15 +886,26 @@ void PathRepresentation::operator1 (rca::Network *net,
 	
 	net->clearRemovedEdges ();
 	
-	//this->print_solution(net,group);
-	
 	if (cg.top () > this->m_residual_capacity) {
-	
 		this->m_genotype = paths;
 		this->m_cg = cg;
 		this->m_residual_capacity = cg.top ();
 		this->m_cost = cost;
 		this->setTreeAsLinks (tree_as_links);
+#ifdef DEBUG
+	printf ("Opeartor1 Improvement: Residual Capacity\n");
+#endif
+		
+	} else if (cg.top () == this->m_residual_capacity && cost < this->m_cost) {
+		this->m_genotype = paths;
+		this->m_cg = cg;
+		this->m_residual_capacity = cg.top ();
+		this->m_cost = cost;
+		this->setTreeAsLinks (tree_as_links);
+#ifdef DEBUG
+	printf ("Operator1 Improvement: Cost\n");
+#endif
+		
 	}
 }
 

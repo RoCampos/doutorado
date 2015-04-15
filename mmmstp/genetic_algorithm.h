@@ -11,6 +11,7 @@
 #include "reader.h"
 #include "steinertree.h"
 #include "steiner_tree_observer.h"
+#include "mpp_visitor.h"
 #include "kspath.h"
 
 typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
@@ -46,6 +47,13 @@ private:
 	
 	//individual i
 	void mutation (int i);
+	
+	//local_search method applied to solution i
+	void local_search (int i);
+	
+	void accept (MppVisitor * visitor) {
+		visitor->visit ();
+	}
 	
 	/* method to run the algorithm against the instance*/
 	void run ();

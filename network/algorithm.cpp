@@ -88,6 +88,10 @@ rca::Path shortest_path(int v, int w, rca::Network * network) {
 
 rca::Path shortest_path (int source, int w, rca::Network & network) {
 
+#ifdef DEBUG1
+	printf ("Call: %s\n", __FUNCTION__);
+#endif
+	
 	typedef typename std::vector<int>::const_iterator c_iterator;
 	
 	int NODES = network.getNumberNodes ();
