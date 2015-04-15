@@ -42,6 +42,10 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	
 	while ( --m_iter > 0) {
 		
+#ifdef DEBUG 
+	printf ("Interation (%d)\n", m_iter);
+#endif
+		
 		//crossover
 		for (unsigned int pop = 0; pop < m_population.size (); pop+=4) {
 			
@@ -285,44 +289,6 @@ void GeneticAlgorithm::crossover (int i, int j)
 	}
 	
 }
-
-// void GeneticAlgorithm::mutation (int i) 
-// {
-// 	
-// 	auto it = m_population[i].getCongestionHandle 
-// 						().getUsedLinks ().begin ();
-// 	
-// 	int j=0;
-// 	int max =  m_population[i].getCongestionHandle 
-// 						().getUsedLinks ().size () * 0.10; 
-// 						
-// 	for (; j++ < max; it++) {
-// 		
-// 		rca::Link l =  m_population[i].getCongestionHandle 
-// 										().getUsedLinks ()[j];
-// 		
-// 		m_network->removeEdge (l);
-// 		
-// 	}
-// 	
-// 	PathRepresentation sol;
-// 	sol.init_rand_solution1 (m_network, m_groups);
-// 	
-// 	if ( sol.m_cost < m_budget ) {
-// 		
-// 		if (sol.m_residual_capacity > m_population[i].m_residual_capacity) {
-// #ifdef DEBUG1
-// 	std::cout << "Some Improvement=";
-// 	std::cout << (sol.m_residual_capacity)<<":"<< m_population[i].m_residual_capacity;
-// 	std::cout << " " << sol.m_cost;
-// 	std::cout << std::endl;
-// #endif
-// 			m_population[i] = sol;
-// 		}
-// 		
-// 	}
-// 	
-// }
 
 /*Copy constructor*/
 PathRepresentation::PathRepresentation (const PathRepresentation& ind)
