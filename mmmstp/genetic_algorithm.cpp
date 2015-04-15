@@ -40,6 +40,9 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	/*init population*/
 	init_population ();
 	
+	local_search (0);
+	getchar ();
+	
 	while ( --m_iter > 0) {
 		
 #ifdef DEBUG 
@@ -289,6 +292,76 @@ void GeneticAlgorithm::crossover (int i, int j)
 	}
 	
 }
+
+/**
+ * Local Searc method using visitor replacement
+ * 
+ * 
+ */
+void GeneticAlgorithm::local_search (int i)
+{
+	std::vector<STTree> trees;
+	int NODES = m_network->getNumberNodes ();	
+	
+	//getting the trees of individual is
+	TreeAsLinks & tree_as_links = m_population[i].m_tree_links;	
+	int g = 0;
+	//loop over all trees
+	for (auto & tree : tree_as_links) {
+		
+		//creating tree structure: STTREE
+		trees.push_back( STTree(NODES, 
+						 m_groups[g].getSource (), 
+					     m_groups[g].getMembers()));
+		
+		//loop over all links of individual tree
+		for (rca::Link & link : tree) {
+			//std::cout << link << std::endl;
+			trees[g].add_edge (link.getX(), 
+							   link.getY(), 
+							   m_network->getCost (link.getX(), link.getY()) );
+			
+		}		
+		g++;
+	}
+	
+	CongestionHandle & ec = m_population[i].m_cg;
+	
+	//starting local search
+	bool improve = true;
+	int tmp_cong = ec.top();
+	
+	ChenReplaceVisitor c(&trees);
+	c.setNetwork (m_network);
+	c.setMulticastGroups (m_groups);
+	c.setEdgeContainer (ec);
+	
+	double cost = m_population[i].m_cost;
+	double congestion = 0;
+	
+	std::cout << "Starting local search\n";
+	while (improve) {				
+		this->accept (&c);
+				
+		int temp_cost = 0;
+		for (auto st : trees) {
+			temp_cost += (int)st.getCost ();
+		}
+		
+		if (ec.top () > tmp_cong) {
+			congestion = ec.top ();
+			tmp_cong = congestion;
+			cost = temp_cost;
+		} else {
+			improve = false;
+		}
+	}
+	
+	std::cout << ec.top () << std::endl;
+	std::cout << cost << std::endl;
+	
+}
+
 
 /*Copy constructor*/
 PathRepresentation::PathRepresentation (const PathRepresentation& ind)
