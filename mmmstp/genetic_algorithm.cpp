@@ -374,7 +374,7 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 		
 		rca::Path path;
 		int w = groups[i].getMember (0);
-		path = shortest_path (source, w, net);
+		path = shortest_path (source, w, *net);
 #ifdef DEBUG1
 		std::cout << "TREE :" << i << std::endl;
 		printf ("\tpath %d to %d ", source, w);
@@ -422,11 +422,11 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 			if (d == groups[i].getSize ()) break;
 			
 			w = groups[i].getMember (d);
-			path = shortest_path (source, w, net);
+			path = shortest_path (source, w, *net);
 			
 			if (path.size () == 0) {
 				net->clearRemovedEdges ();
-				path = shortest_path (source, w, net);
+				path = shortest_path (source, w, *net);
 			}
 			
 #ifdef DEBUG1
@@ -537,7 +537,7 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 #endif 
 		if (p.size () == 0) {
 			//net->clearRemovedEdges ();
-			p = shortest_path ( source, dest, net);
+			p = shortest_path ( source, dest, *net);
 		}
 		
 		m_genotype[gene] = p;
@@ -746,8 +746,8 @@ void PathRepresentation::operator1 (rca::Network *net,
 		rca::Path path;
 		if (contains) {
  			path = shortest_path (*(m_genotype[i].rbegin()),
- 											*(m_genotype[i].rend()-1),net);
-			
+ 											*(m_genotype[i].rend()-1),*net);
+				
 			//std::cout <<"*"<<path << std::endl;
 		} else {
 			//std::cout << m_genotype[i] << std::endl;
