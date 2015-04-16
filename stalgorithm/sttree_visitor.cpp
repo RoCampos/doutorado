@@ -70,52 +70,10 @@ void prunning (STTree & st, Container & cont, int trequest, int band)
 	aux = NULL;
 }
 
-// std::vector<rca::Path> sttree_to_path (std::vector<STTree> & trees, 
-// 									   std::vector<rca::Group> & groups)
-// {
-// 	std::vector<rca::Path> paths;
-// 	
-// 	int g = 0;
-// 	for (auto tree : trees) {
-// 	
-// 		//getting the source
-// 		int source = groups[g].getSource ();		
-// 		//getting members
-// 		std::vector<int> members = groups[g].getMembers ();
-// 		
-// 		
-// 		g++;
-// 	}
-// 	
-// 	
-// 	return paths;	
-// }
-
-rca::Path stree_to_path (STTree & st, int source, int term)
+std::vector<rca::Path> stree_to_path (STTree & st, int source)
 {
-// 	std::cout << term << std::endl;
-// 	edge_t * e = st.get_edges ().begin;
-// 	rca::Path p;
-// 	p.push (term);
-// 	std::vector<int> visited = std::vector<int>(30,0);
-// 	visited[term] = 1;
-// 		
-// 	while (e != NULL) {
-// 		if (e->x == term) {
-// 			visited[e->y] = 1;
-// 			p = stree_to_path (st,source, e->y, visited, p);
-// 			
-// 		} else if (e->y == term) {
-// 			visited[e->x] = 1;
-// 			p = stree_to_path (st,source, e->x, visited, p);
-// 			
-// 		}
-// 		
-// 		e = e->next;
-// 	}
-// 	
-// 	std::cout << p << std::endl;
-// 	return p;
+// 	st.xdotFormat ();
+	std::vector<rca::Path> paths;
 	
 	std::vector<int> stack;
 	std::vector<int> visited = std::vector<int>(30,0);
@@ -145,16 +103,14 @@ rca::Path stree_to_path (STTree & st, int source, int term)
 				if (st.get_node (next).terminal) {
 					
 					//printing the path
-					for (auto i : stack) {
-						std::cout << i << " ";
+					rca::Path path;
+					auto rit = stack.crbegin ();
+					for (; rit != stack.crend(); rit++) {
+						path.push (*rit);
 					}
-					std::cout << std::endl;
-// 					visited[next] = 1;
-					//stack.pop_back ();
-					//next = stack[ stack.size () - 1];
-					
-					//terminal = true;
-					//break;
+					paths.push_back (path);
+					//std::cout << path << std::endl;
+
 				} 
 				visited[next] = 1;
 				
@@ -170,43 +126,10 @@ rca::Path stree_to_path (STTree & st, int source, int term)
 		curr_node = stack[ stack.size () - 1];
 		
 	}
-	rca::Path p;
-	return p;
+	
+	return paths;
 }
 
-rca::Path stree_to_path (STTree & st, int source, int out, 
-						 std::vector<int> & visited,
-						 rca::Path & p)
-{
-	int in = out;
-	std::cout << in << std::endl;
-	
-	if (out == source) {
-		p.push (out);
-		return p;
-	} else {
-		rca::Path pp;
-		edge_t * e = st.get_edges ().begin;
-		
-		p.push (in);
-		
-		while (e != NULL) {
-			if (e->x == in && visited[e->y] == 0) {
-				visited[e->y] = 1;
-				p = stree_to_path (st, source, e->y, visited, p);
-				return p;
-			} else if(e->y == in && visited[e->x] == 0){
-				visited[e->x] = 1;
-				p = stree_to_path (st, source, e->x, visited,p);
-				return p;
-			}			
-			e = e->next;
-		}
-		
-		return p;
-		
-	}	
-}
 
 template void prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>>
 		(STTree& st, 

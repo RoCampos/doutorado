@@ -1,9 +1,10 @@
 #ifndef _STTREE_VISITOR_H_
 #define _STTREE_VISITOR_H_
 
+#include <vector>
+
 #include "sttree.h"
 #include "edgecontainer.h"
-#include <list>
 
 /**
  * Este método é um template, ele é usado
@@ -33,14 +34,6 @@ void prunning (STTree & st, Container & cont, int, int);
  * @param STTRe
  * @return std::vector<rca::Path>
  */ 
-// std::vector<rca::Path> sttrees_to_path (std::vector<STTree> &);
-
-
-rca::Path stree_to_path (STTree & st, int source, int term);
-rca::Path stree_to_path (STTree & st, 
-						 int source, 
-						 int out, 
-						 std::vector<int> &, 
-						 rca::Path &);
+std::vector<rca::Path> stree_to_path (STTree & st, int source);
 
 #endif
