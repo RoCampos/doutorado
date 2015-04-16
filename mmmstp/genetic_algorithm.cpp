@@ -67,7 +67,14 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 			
 			double cross_rate = (double)(rand () % 100 + 1)/100.0;
 			if (cross_rate < m_mut) {				
-				//m_population[i].operator1 (m_network, m_groups);
+				m_population[i].operator1 (m_network, m_groups);
+				
+			}
+		}
+		
+		for (int i=0; i < (int)m_population.size ();i++) {
+			double cross_rate = (double)(rand () % 100 + 1)/100.0;
+			if (cross_rate < m_local_search) {
 				local_search (i);
 			}
 		}
@@ -93,9 +100,9 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 //#ifdef DEBUG1
 	//std::cout << "Best: ";
 	//std::cout << std::endl;
-	std::cout << m_population[best].m_cost << " ";
+	//std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
-  	m_population[best].print_solution (m_network, m_groups);
+  	//m_population[best].print_solution (m_network, m_groups);
 	
 	//deallocatin of resources;
 #ifdef DEBUG1
@@ -268,16 +275,23 @@ void GeneticAlgorithm::crossover (int i, int j)
 	//sol.print_solution (m_network, m_groups);
 	
 	int old = -1;
+#ifdef DEBUG
 	int impro = -1;
+#endif
 	if (m_population[i].m_residual_capacity < m_population[j].m_residual_capacity)
 	{
 		old = i;
+#ifdef DEBUG
 		impro = 1;
+#endif
+		
 	} 
 	else if (m_population[i].m_residual_capacity > m_population[j].m_residual_capacity)
 	{
 		old = j;
+#ifdef DEBUG
 		impro = 1;
+#endif
 	} else {
 		//verifica se melhorou o custo		
 		int aux = -1;
@@ -289,7 +303,9 @@ void GeneticAlgorithm::crossover (int i, int j)
 		
 		if (aux != -1) {
 			old = aux;
+#ifdef DEBUG
 			impro = 2;
+#endif
 		}
 	}
 	
@@ -482,7 +498,7 @@ void PathRepresentation::setPath (int init_pos,
 
 	std::vector<rca::Path> paths;
 	paths = stree_to_path (st, g.getSource (), nodes);
-	int id = g.getId();
+	//int id = g.getId();
 	
 // 	std::cout << init_pos << " " << init_pos + g.getSize () << std::endl;
 // 	for (auto a : g.getMembers ()) {
@@ -501,7 +517,7 @@ void PathRepresentation::setPath (int init_pos,
 		
 		int path_pos = -1;
 		
-		for (int j =0; j < paths.size (); j++) {
+		for (size_t j =0; j < paths.size (); j++) {
 			if (paths[j][0] == member) {
 				//std::cout << paths[j][0] << "--" << member << std::endl;
 				path_pos = j;
@@ -1154,6 +1170,7 @@ int main (int argc, char**argv)
 	double mut = atof (argv[7]);
 	int iter = atoi (argv[9]);
 	int init = atoi (argv[11]);
+	double local_search;
 	
 	if (init == 3) {
 		if (strcmp(argv[12],"--path")==0) {
@@ -1172,17 +1189,21 @@ int main (int argc, char**argv)
 		}
 	}
 	
-	if (strcmp(argv[12],"--list") == 0)
+	if (strcmp(argv[12],"--list") == 0) {
 		PathRepresentation::USED_LIST = atof (argv[13]);
-	else 
+		local_search = atof (argv[15]);
+	} else {
 		PathRepresentation::USED_LIST = atof (argv[15]);	
+		local_search = atof (argv[17]);
+	}
 	
 #ifdef DEBUG
 	printf ("--pop %d --cross %f --mut %f --iter %d --init %d --path %d --list %f\n",
-			pop, cross, mut, iter, init, path_size, PathRepresentation::USED_LIST);
+			pop, cross, mut, iter, init, path_size, 
+		 PathRepresentation::USED_LIST, local_search);
 #endif
 	
-	algorithm.init_parameters (pop, cross, mut, iter, init);
+	algorithm.init_parameters (pop, cross, mut, iter, init, local_search);
 	algorithm.run_metaheuristic (instance, INT_MAX);
 	
 }

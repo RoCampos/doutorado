@@ -23,13 +23,14 @@ class GeneticAlgorithm {
 
 public:
 	inline void init_parameters (int pop = 24, double cross = 0.5, double mut = 0.2, 
-								int iter = 25, int init = 0)
+								int iter = 25, int init = 0, double l_search = 0.1)
 	{
 		m_pop = pop;
 		m_cross = cross;
 		m_mut = mut;
 		m_iter = iter;
 		m_init = init;
+		m_local_search = l_search;
 	}
 	
 	void run_metaheuristic (std::string instance, int budged);
@@ -72,6 +73,7 @@ private:
 	double m_mut;
 	int m_iter;
 	int m_init;
+	double m_local_search;
 	
 	std::vector<PathRepresentation> m_population;
 };
@@ -269,5 +271,6 @@ void help (std::string p = "--h") {
 	printf ("--path : if init is 3, --path must be defined. Representent");
 	printf (" the size of list of paths for each source/destination\n");
 	printf ("--list : used in operator1 to define the size of removed list\n");
+	printf ("--local : probability o use local search\n");
 	
 }
