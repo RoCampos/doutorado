@@ -93,9 +93,9 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 //#ifdef DEBUG1
 	//std::cout << "Best: ";
 	//std::cout << std::endl;
-// 	std::cout << m_population[best].m_cost << " ";
+	std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << std::endl;
-//   	m_population[best].print_solution (m_network, m_groups);
+  	m_population[best].print_solution (m_network, m_groups);
 	
 	//deallocatin of resources;
 #ifdef DEBUG1
@@ -262,6 +262,9 @@ void GeneticAlgorithm::crossover (int i, int j)
 	//updating congestion
 	sol.m_residual_capacity = cg.top ();
 	sol.setTreeAsLinks (tree_as_links);
+	
+	sol.m_cg = cg;
+	
 	//sol.print_solution (m_network, m_groups);
 	
 	int old = -1;
@@ -320,6 +323,12 @@ void GeneticAlgorithm::local_search (int i)
 // 	printf ("Digite um Valor entre %d e %d: ", 0, m_pop-1);
 // 	scanf("%d", &i);
 	
+	CongestionHandle ec;
+	ec.init_congestion_matrix (NODES);
+	ec.init_handle_matrix (NODES);
+	SteinerTreeObserver<CongestionHandle> stOb;
+	stOb.set_container (ec);
+	
 	//getting the trees of individual is
 	TreeAsLinks & tree_as_links = m_population[i].m_tree_links;
 	int g = 0;
@@ -331,19 +340,29 @@ void GeneticAlgorithm::local_search (int i)
 						 m_groups[g].getSource (), 
 					     m_groups[g].getMembers()));
 		
+		stOb.set_steiner_tree (trees[g], NODES);
+		
 		//loop over all links of individual tree
 		for (rca::Link & link : tree) {
 			//std::cout << link << std::endl;
-			trees[g].add_edge (link.getX(), 
-							   link.getY(), 
-							   m_network->getCost (link.getX(), link.getY()) );
+// 			trees[g].add_edge (link.getX(), 
+// 							   link.getY(), 
+// 							   m_network->getCost (link.getX(), link.getY()) );
+			stOb.add_edge (link.getX(),
+						   link.getY(),
+						   (int)m_network->getCost (link.getX(), link.getY()),
+						   (int)m_network->getBand (link.getX(), link.getY()));
 			
 		}	
-		prunning<CongestionHandle>(trees[g], m_population[i].m_cg, 1, BAND);
+		
+		//prunning<CongestionHandle>(trees[g], cg, 1, BAND);
+		//prunning<CongestionHandle>(stOb.get_steiner_tree(), ec, 1, BAND);
+		stOb.prune (1, BAND);
+		
 		g++;
 	}
 	
-	CongestionHandle & ec = m_population[i].m_cg;
+// 	CongestionHandle & ec = m_population[i].m_cg;
 	
 	//starting local search
 	bool improve = true;
@@ -358,7 +377,7 @@ void GeneticAlgorithm::local_search (int i)
 	double congestion = 0;
 	
 	
-	while (improve) {				
+	while (improve) {
 		this->accept (&c);
 				
 		int temp_cost = 0;
@@ -371,7 +390,7 @@ void GeneticAlgorithm::local_search (int i)
 			
 			tmp_cong = congestion;
 			cost = temp_cost;
-#ifdef DEBUG
+#ifdef DEBUG1
 	printf ("Improvoment Local Search\n");
 #endif
 			
@@ -381,12 +400,12 @@ void GeneticAlgorithm::local_search (int i)
 		}
 	}
 
-#ifdef DEBUG
+#ifdef DEBUG1
  	std::cout << congestion << std::endl;
  	std::cout << cost << std::endl;
 #endif
 	
-	SteinerTreeObserver<CongestionHandle> stOb;
+	SteinerTreeObserver<CongestionHandle> _stOb;
 	tree_as_links.clear ();
 	
 	//varible passed to setPath delimitador de árvore no genótipo
@@ -395,10 +414,10 @@ void GeneticAlgorithm::local_search (int i)
 	g = 0; //control the access to a group
 	for (auto st: trees) {
 		//configuring stObserver
-		stOb.set_steiner_tree (st, NODES);
+		_stOb.set_steiner_tree (st, NODES);
 		
 		//getting the links as tree
-		tree_as_links.push_back ( stOb.getTreeAsLinks() );
+		tree_as_links.push_back ( _stOb.getTreeAsLinks() );
 		
 		//setting the paths
 		m_population[i].setPath (pos_path,st, m_groups[g], NODES);
@@ -412,7 +431,7 @@ void GeneticAlgorithm::local_search (int i)
 	m_population[i].m_cg = ec;
 	
 	//m_population[i].print_solution (m_network, m_groups);
-	getchar ();
+	//getchar ();
 }
 
 
@@ -1120,9 +1139,9 @@ int main (int argc, char**argv)
 	
 	int T = time (NULL);
 	//srand (1426441393); //for bug in mutation on instance b30_14
-	//srand (T);
+	srand (T);
 	//std::cout << T << std::endl;
-	srand (0);
+	//srand (0);
 	
 	std::string instance = argv[1];
 	//MetaHeuristic<GeneticAlgorithm> algorithm;
