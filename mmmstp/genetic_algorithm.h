@@ -128,8 +128,11 @@ public:
 		return this->m_tree_links;
 	}
 	
-	//redefine the path of representation
-	void setPath (int pos, STTree & st, rca::Group & group);
+	/**
+	 * @param pos posição inicial do grupo no genotipo
+	 * @param node representa o número de vértices
+	 */
+	void setPath (int pos, STTree & st, rca::Group & group, int);
 	
 public:
 	static double USED_LIST;
