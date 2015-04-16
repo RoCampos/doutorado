@@ -70,13 +70,13 @@ void prunning (STTree & st, Container & cont, int trequest, int band)
 	aux = NULL;
 }
 
-std::vector<rca::Path> stree_to_path (STTree & st, int source)
+std::vector<rca::Path> stree_to_path (STTree & st, int source, int nodes)
 {
 // 	st.xdotFormat ();
 	std::vector<rca::Path> paths;
 	
 	std::vector<int> stack;
-	std::vector<int> visited = std::vector<int>(30,0);
+	std::vector<int> visited = std::vector<int>(nodes,0);
 	visited[source] = 1;
 	
 	stack.push_back (source);

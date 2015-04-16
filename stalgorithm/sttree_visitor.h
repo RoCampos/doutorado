@@ -34,6 +34,6 @@ void prunning (STTree & st, Container & cont, int, int);
  * @param STTRe
  * @return std::vector<rca::Path>
  */ 
-std::vector<rca::Path> stree_to_path (STTree & st, int source);
+std::vector<rca::Path> stree_to_path (STTree & st, int source, int nodes);
 
 #endif
