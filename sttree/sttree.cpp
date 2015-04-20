@@ -21,7 +21,8 @@ STTree::STTree (const STTree & ref) {
 	
 	edge_t * e = ref.m_edges.begin;
 	while (e != NULL) {
-		this->add_edge (e->x, e->y, e->value);
+		if (e->in)
+			this->add_edge (e->x, e->y, e->value);
 		e = e->next;
 	}
 	
@@ -44,7 +45,8 @@ STTree & STTree::operator= (const STTree & ref) {
 	
 	edge_t * e = ref.m_edges.begin;
 	while (e != NULL) {
-		this->add_edge (e->x, e->y, e->value);
+		if (e->in)
+			this->add_edge (e->x, e->y, e->value);
 		e = e->next;
 	}
 	

@@ -262,6 +262,8 @@ public:
 		m_nodes[source].terminal = true;
 		
 		m_cost = 0.0;
+		
+		m_edges.clear ();
 	}
 	
 	/*Copy Constructor*/

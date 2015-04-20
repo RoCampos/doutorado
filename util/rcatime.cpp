@@ -1,7 +1,7 @@
 #include "rcatime.h"
 
 
-using namespace rca::time;
+using namespace rca;
 
 
 void elapsed_time::started () {
