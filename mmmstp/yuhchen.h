@@ -62,7 +62,7 @@ public:
 	 * a set of destinations.
 	 * 
 	 */
-	void set_stream(int id, std::vector<source_t> S, rca::Group D);
+	void add_stream(int id, std::vector<source_t> S, rca::Group D);
 	
 	/**
 	 * 

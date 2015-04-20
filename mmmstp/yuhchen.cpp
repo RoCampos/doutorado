@@ -17,7 +17,7 @@ std::ostream & operator<< (std::ostream & out, stream_t const & t) {
 		return out;
 }
 
-void YuhChen::set_stream(int id, std::vector<source_t> S, rca::Group D)
+void YuhChen::add_stream(int id, std::vector<source_t> S, rca::Group D)
 {
 	stream_t w;
 	
@@ -64,7 +64,7 @@ int main (int argc, char**argv)
 	for (Group & g : m_groups) {		
 		std::vector<source_t> sources;
 		sources.push_back (g.getSource ());
-		yuhchen.set_stream (g.getId(), sources, g);
+		yuhchen.add_stream (g.getId(), sources, g);
 		
 	}
 	
