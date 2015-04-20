@@ -5,7 +5,6 @@
 
 namespace rca {
 
-namespace time {
 struct elapsed_time {
 
 	std::chrono::high_resolution_clock::time_point m_start;
@@ -18,7 +17,6 @@ struct elapsed_time {
 		
 };
 
-}
 };
 
 #endif 
