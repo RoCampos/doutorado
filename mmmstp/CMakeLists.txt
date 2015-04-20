@@ -24,5 +24,5 @@ MESSAGE ("\tINFO: Compiling genetic_mmmstp using network configurated for REAL=$
 add_executable (genetic_mmmstp 	genetic_algorithm.cpp 
 								genetic_algorithm.h 
 								metaheuristic.h)
-target_link_libraries (genetic_mmmstp graph sttree sttalgo)
+target_link_libraries (genetic_mmmstp graph sttree sttalgo myutil)
 

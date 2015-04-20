@@ -37,6 +37,8 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	/*orçamento*/
 	m_budget = budget;
 	
+	rca::elapsed_time time_elapsed;	
+	time_elapsed.started ();
 	/*init population*/
 	init_population ();
 	
@@ -96,12 +98,14 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 				best = i;
 		}
 	}
+	time_elapsed.finished ();
 	
 //#ifdef DEBUG1
 	//std::cout << "Best: ";
 	//std::cout << std::endl;
-	//std::cout << m_population[best].m_cost << " ";
-	std::cout << m_population[best].m_residual_capacity << std::endl;
+	std::cout << m_population[best].m_cost << " ";
+	std::cout << m_population[best].m_residual_capacity << " ";
+	std::cout << time_elapsed.get_elapsed () << std::endl;
   	//m_population[best].print_solution (m_network, m_groups);
 	
 	//deallocatin of resources;
@@ -1198,7 +1202,7 @@ int main (int argc, char**argv)
 	}
 	
 #ifdef DEBUG
-	printf ("--pop %d --cross %f --mut %f --iter %d --init %d --path %d --list %f\n",
+	printf ("--pop %d --cross %f --mut %f --iter %d --init %d --path %d --list %f\n --lsearc",
 			pop, cross, mut, iter, init, path_size, 
 		 PathRepresentation::USED_LIST, local_search);
 #endif

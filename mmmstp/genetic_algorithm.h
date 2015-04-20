@@ -13,6 +13,7 @@
 #include "steiner_tree_observer.h"
 #include "mpp_visitor.h"
 #include "kspath.h"
+#include "rcatime.h"
 
 typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 
@@ -34,6 +35,8 @@ public:
 	}
 	
 	void run_metaheuristic (std::string instance, int budged);
+	
+	void set_seed (size_t t){ m_seed = t;}
 	
 private:
 	void init_problem_information (std::string instance);
@@ -74,6 +77,9 @@ private:
 	int m_iter;
 	int m_init;
 	double m_local_search;
+	
+		
+	int m_seed;
 	
 	std::vector<PathRepresentation> m_population;
 };
@@ -148,8 +154,7 @@ private:
 	std::vector<rca::Path> m_genotype;
 	bool m_feasable;
 	
-	CongestionHandle m_cg;
-	
+	CongestionHandle m_cg;	
 	
 	
 };
