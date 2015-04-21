@@ -10,23 +10,65 @@ YuhChen::YuhChen (rca::Network * net)
 	m_network = net;
 }
 
+YuhChen::YuhChen (std::string file) 
+{
+
+	m_network = new rca::Network;
+	
+	YuhChenReader ycr(file);
+	stream_list sb;
+	
+	//configuring the Network
+	ycr.configure_network (*m_network, sb);
+	
+	configure_streams (sb);
+	
+}
+
 std::ostream & operator<< (std::ostream & out, stream_t const & t) {
 		out << "id (" << t.m_id << ")\n";
+		out << "Request (" << t.m_trequest << ")\n";
 		out << "source = [";
 		for (source_t s : t.m_sources) {
 			out << " " << s;
 		}
 		out << "]\n";
-		out << t.m_group;
+		out << "Members = [";
+		for (auto const & m : t.m_group.getMembers ()) {
+			out << m << " ";
+		}
+		out << "]\n";
 		
 		return out;
 }
 
-void YuhChen::add_stream(int id, std::vector<source_t> S, rca::Group D)
+void YuhChen::configure_streams (stream_list & sb)
+{
+	//reading the streams
+	int id = 0;
+	for (auto & it : sb) {
+		
+		//configuring the group of stream with id
+		rca::Group g(id, -1, it.trequest);		
+		for (auto & m : it.get_members()) {
+			g.addMember (m); //adding the members of group
+		}		
+		
+		//creating stream w_id
+		stream_t stream (id, it.trequest, it.get_sources(), g);			
+		
+		m_streams.push_back (stream);
+		
+		id++;
+	}
+}
+
+void YuhChen::add_stream(int id, int req,  std::vector<source_t> S, rca::Group D)
 {
 	stream_t w;
 	
 	w.m_id = id;
+	w.m_trequest = req;
 	
 	for (source_t s : S) {
 	
@@ -116,8 +158,6 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 	forest.m_cost = cost;
 	forest.Z = cg.top ();
 	
-	//std::cout << "Z =" << cg.top () << std::endl;
-	
 	return forest;
 	
 }
@@ -126,79 +166,10 @@ int main (int argc, char**argv)
 {
 
 	std::string m_instance(argv[1]);
-	MultipleMulticastReader r(m_instance);
-	rca::Network m_network;
-	std::vector<std::shared_ptr<rca::Group>> g;
-	std::vector<rca::Group> m_groups;
-	
-#ifdef MODEL_UNIT
-	r.configure_unit_values (&m_network, g);
-#endif
-	
-	for (unsigned int i =0; i < g.size (); i++) {
- 		m_groups.push_back (*g[i].get ());
- 	}
  	
- 	YuhChen yuhchen(&m_network);
+ 	YuhChen yuhchen(m_instance);
 	
-	for (Group & g : m_groups) {
-		std::vector<source_t> sources;
-		sources.push_back (g.getSource ());
-		yuhchen.add_stream (g.getId(), sources, g);
-	}
-	
-	stream_t t = yuhchen.get_stream (0);
-	//std::cout << t << std::endl;
-	
-	forest_t F;
-	
-	double gcost = 0;	
-	for (int i=0; i < m_groups.size (); i++) {
-		forest_t forest = yuhchen.widest_path_tree (i);
-		gcost += forest.m_cost;
-		std::cout << forest.m_cost << std::endl;
-		std::cout << forest.Z << std::endl;
-		
-		
-		F.m_trees.push_back (forest.m_trees[0]);
-	}
-	
-	std::cout << "Cost(" << gcost << ")" << std::endl;
-	
-	
-	int NODES = m_network.getNumberNodes ();
-	int BAND = m_groups.size ();
-	CongestionHandle cg;
-	cg.init_congestion_matrix (NODES);
-	cg.init_handle_matrix (NODES);
-	for (tree_t t : F.m_trees) {
-	
-		for (rca::Path & p : t.m_paths) {
-			//std::cout<< p << std::endl;			
-			auto it = p.begin();
-			for ( ; it != p.end()-1; it++) {
-				int x = *it;
-				int y = *(it+1);
-				rca::Link l (x,y,0);
-				
-				if (cg.is_used (l)) {
-					int value = cg.value (l);
-					l.setValue (value+1);
-					cg.update (l);
-				} else {
-					l.setValue (1);
-					cg.push(l);
-				}				
-			}			
-		}		
-	}
-	
-	
-	int size = cg.get_heap ().size ();
-	auto it = cg.get_heap ().begin ();
-	
-	std::advance (it, size-1);
-	std::cout << *it << " " << it->getValue () << std::endl;
+
 	
 	
 	return 0;

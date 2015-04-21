@@ -40,8 +40,19 @@ typedef struct tree_t {
  */
 typedef struct stream_t {
 	
+	stream_t(){}
+	
+	stream_t (int id, int req, std::vector<source_t> source, rca::Group & g)
+	: m_id (id), m_trequest (req)
+	{
+		m_sources = source;
+		m_group = g;
+	}
+	
 	//stream id
 	int m_id;
+	
+	int m_trequest;
 	
 	//list of source of the stream
 	std::vector<source_t> m_sources;
@@ -89,12 +100,16 @@ public:
 	
 	YuhChen (rca::Network *);
 	
+	YuhChen (std::string file);
+	
+	void configure_streams (stream_list & s);
+	
 	/*
 	 * This method set the stream w: a list of sources and
 	 * a set of destinations.
 	 * 
 	 */
-	void add_stream(int id, std::vector<source_t> S, rca::Group D);
+	void add_stream(int id,int req, std::vector<source_t> S, rca::Group D);
 	
 	/**
 	 * 
@@ -131,5 +146,6 @@ private:
 	rca::Network * m_network;
 	std::vector<stream_t> m_streams;
 };
+
 
 #endif
