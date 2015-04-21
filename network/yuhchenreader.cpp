@@ -70,9 +70,3 @@ void YuhChenReader::configure_network (rca::Network & network, stream_list & lis
 	} while ( getline (file, line) );
 }
 
-void YuhChenReader::configure_streams (stream_list & list)
-{
-	
-	
-	
-}

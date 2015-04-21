@@ -137,7 +137,11 @@ typedef std::pair<std::vector<int>,std::vector<int>> stream;
 
 typedef struct stream_bind {
 	int trequest;
-	stream s;	
+	stream s;
+	
+	std::vector<int> & get_sources () {return s.first;}
+	std::vector<int> & get_members () {return s.second;}
+	
 } stream_bind;
 
 typedef std::vector<stream_bind> stream_list;
