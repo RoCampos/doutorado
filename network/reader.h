@@ -6,6 +6,9 @@
 #include <string>
 #include <fstream>
 #include <cmath>
+#include <cstring>
+#include <boost/tokenizer.hpp>
+
 #include "network.h"
 #include "link.h"
 #include "group.h"
@@ -45,6 +48,8 @@ public:
 	void configNetwork (Network *);
 	
 	std::vector<std::shared_ptr<Group>> readerGroup ();
+	
+	std::string getFileName () const {return m_file;}
 
 private:
 	std::string m_file;
@@ -125,6 +130,46 @@ private:
 		}
 		
 	}
+	
+};
+
+typedef std::pair<std::vector<int>,std::vector<int>> stream;
+
+typedef struct stream_bind {
+	int trequest;
+	stream s;	
+} stream_bind;
+
+typedef std::vector<stream_bind> stream_list;
+
+class YuhChenReader : public Reader
+{
+
+public:
+	/**
+	 * Default constructor. Receives a instance name.
+	 * Initializate the Reader constructor.
+	 * 
+	 * @param std::string file name
+	 */
+	YuhChenReader (std::string instance) : Reader(instance) {}
+	
+	/**
+	 * Method used to configure network information.
+	 * 
+	 * @param rca::Network
+	 */
+	void configure_network (rca::Network &, stream_list &);
+		
+	int get_number_nodes () {return m_nodes;}
+	int get_number_edges () {return m_edges;}
+	int get_number_streams () {return m_streams;}
+	
+private:
+	
+	int m_nodes;
+	int m_edges;
+	int m_streams;
 	
 };
 
