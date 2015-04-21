@@ -9,6 +9,9 @@
 #include "network.h"
 #include "group.h"
 #include "reader.h"
+#include "steiner_tree_observer.h"
+#include "edgecontainer.h"
+#include "sttree_visitor.h"
 
 typedef int source_t;
 
@@ -24,7 +27,7 @@ typedef struct tree_t {
 	
 } tree_t;
 
-typedef std::vector<tree_t> forest_t;
+//typedef std::vector<tree_t> forest_t;
 
 /**
  * This struct represents a stream w_k.
@@ -37,13 +40,41 @@ typedef std::vector<tree_t> forest_t;
  */
 typedef struct stream_t {
 	
+	//stream id
 	int m_id;
+	
+	//list of source of the stream
 	std::vector<source_t> m_sources;
+	
+	//destination of the stream
 	rca::Group m_group;
 	
 	friend std::ostream & operator<< (std::ostream & out, stream_t const & t);
 	
 }stream_t;
+
+
+typedef struct forest_t {
+	
+	forest_t () : m_cost (0), Z(0){}
+	
+	//trees for the stream (group)
+	std::vector<tree_t> m_trees;
+	
+	//identify the stream (group)
+	int m_id;
+	
+	int m_cost;
+	
+	int Z;
+	
+} forest_t;
+
+
+typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestinoHandle;
+typedef rca::SteinerTreeObserver<rca::EdgeContainer<rca::Comparator, rca::HCell>> STObserver;
+
+
 /**
  * This class contais the variables and 
  * algorithms used in Yuh-Chen paper.
@@ -56,6 +87,7 @@ class YuhChen {
 public:
 	YuhChen ();
 	
+	YuhChen (rca::Network *);
 	
 	/*
 	 * This method set the stream w: a list of sources and
@@ -69,7 +101,7 @@ public:
 	 * 
 	 */
 	stream_t & get_stream (int id) {
-		if (id < m_streams.size ()) {
+		if (id < (int)m_streams.size ()) {
 			return m_streams[id];
 		}
 	}
@@ -77,9 +109,12 @@ public:
 	
 	/**
 	 * This method build a tree using dijkstra's algorithm
-	 * adapted to find the maximum bottleneck path
+	 * adapted to find the maximum bottleneck path.
+	 * 
+	 * This method is diffent of the definition in the paper.
+	 * Here we get all paths possible in the stream_id at once.
 	 */
-	tree_t widest_path_tree (source_t & source);
+	forest_t widest_path_tree (int stream_id);
 	
 	/**
 	 * This method returns a forest associated to the stream
