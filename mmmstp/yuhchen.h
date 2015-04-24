@@ -25,6 +25,15 @@ typedef struct tree_t {
 	std::vector<rca::Path> m_paths;
 	int m_source;
 	
+	rca::Path find_path (int destination) {
+		auto it = m_paths.begin ();
+		for ( ; it != m_paths.end(); it++) {
+			
+			if ( (*it)[0] == destination )
+				return *it;
+		}
+	}
+	
 } tree_t;
 
 //typedef std::vector<tree_t> forest_t;
@@ -102,6 +111,11 @@ public:
 	
 	YuhChen (std::string file);
 	
+	/**
+	 * Este método é utilizado para configurar os streams(grupos).
+	 * Ele é utilizdo no construtor que recebe o nome do arquivo.
+	 * @stream_list é defindo em reader.h 
+	 */
 	void configure_streams (stream_list & s);
 	
 	/*
@@ -140,6 +154,24 @@ public:
 	 */
 	forest_t wp_forest (stream_t & stream);
 	
+	void run ();
+	
+private:
+	/**
+	 * This method gets the link with minimum bandwidth in a path
+	 * @return rca::Link
+	 */
+	rca::Link get_bottleneck_link (rca::Path &);
+	
+	/**
+	 * This method gets the next node in a path after current_node
+	 */
+	int next_node (rca::Path & path, int current_node);
+	
+	/**
+	 * This method gets a forest from a set of paths
+	 */
+	forest_t & to_forest (int stream_id, std::vector<rca::Path>);
 	
 private:
 	

@@ -23,6 +23,17 @@ YuhChen::YuhChen (std::string file)
 	
 	configure_streams (sb);
 	
+	//definindo capacidade igual a quantidade de streams
+	for (int i=0; i < m_network->getNumberNodes (); i++) {
+		for (int j=0; j < m_network->getNumberNodes (); j++) {
+		
+			if (m_network->getBand (i,j) > 0) {
+				m_network->setBand (i,j, sb.size () );
+			}			
+		}
+	}
+	
+	
 }
 
 std::ostream & operator<< (std::ostream & out, stream_t const & t) {
@@ -102,7 +113,7 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 	forest_t forest;
 	forest.m_id = w.m_id;
 	
-	int BAND = w.m_group.getSize () + 1;
+	int BAND = w.m_group.getSize ();
 	
 	int cost = 0;
 	
@@ -129,9 +140,9 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 				int band = m_network->getBand (x,y);
 				rca::Link l(x, y, cost);
 				
-				//m_network->setBand (l.getX(), l.getY(), band-1);
+				m_network->setBand (l.getX(), l.getY(), band-1);
 				
-				stob.add_edge (l.getX(), l.getY(), cost, band);
+				stob.add_edge (l.getX(), l.getY(), cost, BAND);
 				
 			} 
 			
@@ -162,6 +173,117 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 	
 }
 
+forest_t YuhChen::wp_forest (stream_t & stream)
+{
+	//This call is the same as the loop (line 2-4) 
+	//in the paper	
+	forest_t f = this->widest_path_tree ( stream.m_id );
+	
+	std::vector<int> members = stream.m_group.getMembers ();
+	std::vector<source_t> & sources = stream.m_sources;
+		
+	std::vector<rca::Path> paths_stream;
+	
+	//loop line (5-22)
+	for (auto const & d : members) {
+		int current_node = d;
+
+		//printf ("%d ", current_node);
+		rca::Path path;
+		path.push (current_node);
+		
+		while (true) {
+			
+			//this method should be implemented in Path api.
+			tree_t t1 = f.m_trees[0];
+			rca::Path path_d_s = t1.find_path (d);
+			
+			//getting next node
+			int next_node = this->next_node ( path_d_s , current_node);
+			
+			//getting bottleneck
+			rca::Link next_width = this->get_bottleneck_link (path_d_s);
+			
+			//iner-loop lines (10-15)
+			//this loop try to find a "better path from current to an source"
+			for (int i=1; i < f.m_trees.size(); i++) {
+				tree_t t_i = f.m_trees[i];
+				rca::Path path_i = t_i.find_path ( d );
+								
+				rca::Link l = this->get_bottleneck_link (path_i);
+				
+				if (l.getValue () > next_width.getValue ()) {
+				
+					next_node = this->next_node ( path_i, current_node );
+					next_width.setValue ( l.getValue() );					
+				}
+			}
+			
+			//updating current node
+			current_node = next_node;
+			
+			//adding current_node to the path
+			path.push (current_node);
+			
+			//test if the paths arrives at the source
+			if (std::find(sources.begin(), 
+				sources.end(), current_node) != sources.end())
+			{
+				//adding the path to list of paths
+				paths_stream.push_back ( path );
+				break;
+			}
+			
+		}//endf while loop
+		
+	}//end of for loop
+	
+	return f;
+}
+
+/* Yuh-Rong private methods*/
+
+int YuhChen::next_node (rca::Path & path, int current_node)
+{
+	
+	auto it = path.begin ();
+	for (;it != path.end(); it++) {
+		
+		if (*it == current_node)
+			break;
+	}
+	
+	return (it != path.end() ? *(it+1) : -1);
+	
+}
+
+rca::Link YuhChen::get_bottleneck_link (rca::Path & path) 
+{
+	//paths are stores in reverse order
+	auto it = path.cbegin ();
+	int min_bottleneck = INT_MAX;
+	rca::Link l;
+	for ( ; it != path.cend() -1; it++) {
+		
+		int band = m_network->getBand( *it , *(it+1) );
+		//rca::Link l ( *it , *(it+1), );
+		
+		if ( band < min_bottleneck) {
+			min_bottleneck = band;
+			l = rca::Link( *it , *(it+1), band);
+		}
+	}
+	
+	return l;
+}
+
+void YuhChen::run () 
+{
+
+	wp_forest (this->m_streams[0]);
+	
+}
+
 int main (int argc, char**argv) 
 {
 
@@ -169,7 +291,13 @@ int main (int argc, char**argv)
  	
  	YuhChen yuhchen(m_instance);
 	
-
+	yuhchen.run ();
+	
+	//forest_t ff = yuhchen.widest_path_tree (0);
+	
+	//std::cout << ff.m_trees.size () << std::endl;
+	//std::cout << ff.m_cost << std::endl;
+	//std::cout << ff.Z << std::endl;
 	
 	
 	return 0;
