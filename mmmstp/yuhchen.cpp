@@ -408,6 +408,7 @@ void YuhChen::run ()
 					auto tmp = std::find(links.begin(), links.end(), link);
 					
 					int value = tmp->getValue () - 1;
+					links.erase (tmp);
 					link.setValue (value);
 					links.push_back (link);
 				}
@@ -420,6 +421,8 @@ void YuhChen::run ()
  	
 	}
 
+	std::cout << links.size () << std::endl;
+	
  	std::sort (links.begin (), links.end());
  	std::cout << links.begin ()->getValue () << std::endl;
 
