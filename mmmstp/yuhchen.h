@@ -58,6 +58,16 @@ typedef struct stream_t {
 		m_group = g;
 	}
 	
+	int get_source_index (int source) {
+		int idx = 0;
+		for (int i : m_sources) {
+			if (source == i) {
+				return idx;
+			}
+			idx++;
+		}
+	}
+	
 	//stream id
 	int m_id;
 	
