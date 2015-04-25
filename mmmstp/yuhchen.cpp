@@ -128,7 +128,8 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 			rca::Path p = inefficient_widest_path (s, d, m_network);
 			std::reverse (p.begin (), p.end());
 			
-			//if (p.size () == 0) exit (1);
+// 			std::cout << s << "-->" << d << std::endl;
+			assert (p.size () > 0);
 			
 			auto it = p.begin ();
 			for ( ; it != p.end()-1; it++) {
@@ -139,8 +140,6 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 				int cost = m_network->getCost (x,y);
 				int band = m_network->getBand (x,y);
 				rca::Link l(x, y, cost);
-				
-				m_network->setBand (l.getX(), l.getY(), band-1);
 				
 				stob.add_edge (l.getX(), l.getY(), cost, BAND);
 				
@@ -281,7 +280,7 @@ forest_t YuhChen::to_forest (int stream_id, std::vector<rca::Path> paths)
 		int source = path[ path.size () -1 ];
 		int source_idx = this->m_streams[stream_id].get_source_index (source);
 		
-		std::cout << path << std::endl;
+		//std::cout << path << std::endl;
 		
 		auto it = path.begin ();
 		for ( ; it != path.end ()-1; it++) {
@@ -363,9 +362,67 @@ rca::Link YuhChen::get_bottleneck_link (rca::Path & path)
 void YuhChen::run () 
 {
 
-	forest_t t = wp_forest (this->m_streams[0]);
+	int STREAMS = m_streams.size ();
+	std::vector<forest_t> F;
 	
-	std::cout << "finalizado\n"; 
+	std::vector<rca::Link> links;
+	
+	for (int i=0; i < STREAMS; i++) {
+		
+		printf ("Stream(%d)\n", i);
+		
+		forest_t f = wp_forest (this->m_streams[i]);
+		
+		std::vector<tree_t> trees = f.m_trees;
+		
+		for (auto t: trees) {
+			
+			std::vector<rca::Link> tree_links;
+			
+			//getting the links of a tree
+			for (auto p: t.m_paths) {
+				
+				auto node = p.begin ();
+				for ( ; node != p.end()-1; node++) {
+					int x = *node;
+					int y = *(node+1);
+					
+					rca::Link l(x,y,0);
+					
+					if (std::find (tree_links.begin(), tree_links.end(),l) 
+						== tree_links.end() )
+					{
+						tree_links.push_back (l);
+					}
+					
+				}
+			}
+			
+			//updating the congestion
+			for (auto link : tree_links) {
+				if (std::find(links.begin(), links.end(), link) == links.end())
+				{
+					link.setValue( STREAMS-1 );
+					links.push_back (link);
+				} else {
+					auto tmp = std::find(links.begin(), links.end(), link);
+					
+					int value = tmp->getValue () - 1;
+					link.setValue (value);
+					links.push_back (link);
+				}
+			}
+			tree_links.clear ();
+			
+		}
+		
+		F.push_back ( f );
+ 	
+	}
+
+ 	std::sort (links.begin (), links.end());
+ 	std::cout << links.begin ()->getValue () << std::endl;
+
 	
 }
 
