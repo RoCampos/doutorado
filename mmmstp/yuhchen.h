@@ -88,6 +88,14 @@ typedef struct forest_t {
 	
 	forest_t () : m_cost (0), Z(0){}
 	
+	forest_t (forest_t const & t) 
+	{ 
+		m_trees = t.m_trees;
+		m_id = t.m_id;
+		m_cost = t.m_cost;
+		Z = t.Z;
+	}
+	
 	//trees for the stream (group)
 	std::vector<tree_t> m_trees;
 	
@@ -181,7 +189,7 @@ private:
 	/**
 	 * This method gets a forest from a set of paths
 	 */
-	forest_t & to_forest (int stream_id, std::vector<rca::Path>);
+	forest_t to_forest (int stream_id, std::vector<rca::Path>);
 	
 private:
 	

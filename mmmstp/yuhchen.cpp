@@ -239,14 +239,14 @@ forest_t YuhChen::wp_forest (stream_t & stream)
 		
 	}//end of for loop
 	
-	to_forest (stream.m_id, paths_stream);
+	forest_t out = to_forest (stream.m_id, paths_stream);
 	
-	return f;
+	return out;
 }
 
 /* Yuh-Rong private methods*/
 
-forest_t & YuhChen::to_forest (int stream_id, std::vector<rca::Path> paths)
+forest_t YuhChen::to_forest (int stream_id, std::vector<rca::Path> paths)
 {
 	
 	std::vector<source_t> sources = this->m_streams[stream_id].m_sources;
@@ -298,16 +298,32 @@ forest_t & YuhChen::to_forest (int stream_id, std::vector<rca::Path> paths)
 		
 	}
 	
-	for (auto ob : observers) {
+	//creating the forest to be returned
+	forest_t out_solution;
+	out_solution.m_id = stream_id;
 	
+	int i=0;
+	for (auto ob : observers) {
 		//o número de grupos é a capacidade da aresta.
 		ob.prune (1, this->m_streams.size ());
+		//ob.get_steiner_tree ().xdotFormat ();
+		int source = this->m_streams[stream_id].m_sources[i];
+		std::vector<rca::Path> tree = stree_to_path (ob.get_steiner_tree(),
+													 source, NODES);
 		
-		ob.get_steiner_tree ().xdotFormat ();
-		
+		if (tree.size () > 0) {
+			
+			tree_t t;
+			t.m_paths = tree;
+			t.m_source = source;
+			
+			out_solution.m_trees.push_back ( t );
+			out_solution.m_cost += ob.get_steiner_tree ().getCost ();
+		}
+		i++;
 	}
 	
-	
+	return out_solution;
 }
 
 int YuhChen::next_node (rca::Path & path, int current_node)
@@ -347,7 +363,9 @@ rca::Link YuhChen::get_bottleneck_link (rca::Path & path)
 void YuhChen::run () 
 {
 
-	wp_forest (this->m_streams[0]);
+	forest_t t = wp_forest (this->m_streams[0]);
+	
+	std::cout << "finalizado\n"; 
 	
 }
 
