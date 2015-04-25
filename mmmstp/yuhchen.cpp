@@ -148,8 +148,6 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 			
 		} //end of three construction 
 		
-		m_network->clearRemovedEdges ();
-		
 		stob.prune (1, BAND);
 		
 		cost += stob.get_steiner_tree().getCost ();
@@ -231,6 +229,9 @@ forest_t YuhChen::wp_forest (stream_t & stream)
 			{
 				//adding the path to list of paths
 				paths_stream.push_back ( path );
+				
+// 				std::cout << path << std::endl;
+				
 				break;
 			}
 			
@@ -238,10 +239,76 @@ forest_t YuhChen::wp_forest (stream_t & stream)
 		
 	}//end of for loop
 	
+	to_forest (stream.m_id, paths_stream);
+	
 	return f;
 }
 
 /* Yuh-Rong private methods*/
+
+forest_t & YuhChen::to_forest (int stream_id, std::vector<rca::Path> paths)
+{
+	
+	std::vector<source_t> sources = this->m_streams[stream_id].m_sources;
+	std::vector<int> members = this->m_streams[stream_id].m_group.getMembers ();
+	
+	int NODES = m_network->getNumberNodes ();
+	int SOURCES = sources.size ();
+	
+	//manipulador de uso de arestas
+	CongestionHandle cg;
+	cg.init_congestion_matrix (NODES);
+	cg.init_handle_matrix (NODES);
+	
+	std::vector<STTree> sttrees;
+	for (int i=0;i < SOURCES; i++) {
+		STTree st(NODES, sources[i], members);
+		sttrees.push_back (st);
+	}
+	
+		
+	STObserver ob;
+	ob.set_container (cg);
+	std::vector<STObserver> observers( SOURCES );
+	std::fill (observers.begin(), observers.end(), ob);
+	
+	for (int i=0; i < SOURCES; i++) {
+		observers[i].set_steiner_tree ( sttrees[i], NODES );
+	}
+	
+	for (auto path : paths) {
+	
+		int source = path[ path.size () -1 ];
+		int source_idx = this->m_streams[stream_id].get_source_index (source);
+		
+		std::cout << path << std::endl;
+		
+		auto it = path.begin ();
+		for ( ; it != path.end ()-1; it++) {
+			
+			int x = (*it);
+			int y = *(it+1);
+			int cost = (int)m_network->getCost( x, y);
+			int band_usage = (int)m_network->getBand( x, y);
+			rca::Link l ( x, y, cost );
+			
+			observers[source_idx].add_edge (l.getX(), l.getY(), cost, band_usage );
+			
+		}
+		
+	}
+	
+	for (auto ob : observers) {
+	
+		//o número de grupos é a capacidade da aresta.
+		ob.prune (1, this->m_streams.size ());
+		
+		ob.get_steiner_tree ().xdotFormat ();
+		
+	}
+	
+	
+}
 
 int YuhChen::next_node (rca::Path & path, int current_node)
 {
