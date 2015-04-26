@@ -39,6 +39,8 @@ rca::Path shortest_path (int v, int w, rca::Network * network);
 
 rca::Path shortest_path (int v, int w, rca::Network & network);
 
+rca::Path inefficient_widest_path (int v, int w, rca::Network * network);
+
 rca::Path capacited_shortest_path (int v, int w, 
 								   rca::Network *network,
 								   CongestionHandle *cg,

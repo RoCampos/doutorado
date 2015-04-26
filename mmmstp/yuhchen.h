@@ -9,6 +9,9 @@
 #include "network.h"
 #include "group.h"
 #include "reader.h"
+#include "steiner_tree_observer.h"
+#include "edgecontainer.h"
+#include "sttree_visitor.h"
 
 typedef int source_t;
 
@@ -22,9 +25,18 @@ typedef struct tree_t {
 	std::vector<rca::Path> m_paths;
 	int m_source;
 	
+	rca::Path find_path (int destination) {
+		auto it = m_paths.begin ();
+		for ( ; it != m_paths.end(); it++) {
+			
+			if ( (*it)[0] == destination )
+				return *it;
+		}
+	}
+	
 } tree_t;
 
-typedef std::vector<tree_t> forest_t;
+//typedef std::vector<tree_t> forest_t;
 
 /**
  * This struct represents a stream w_k.
@@ -37,13 +49,70 @@ typedef std::vector<tree_t> forest_t;
  */
 typedef struct stream_t {
 	
+	stream_t(){}
+	
+	stream_t (int id, int req, std::vector<source_t> source, rca::Group & g)
+	: m_id (id), m_trequest (req)
+	{
+		m_sources = source;
+		m_group = g;
+	}
+	
+	int get_source_index (int source) {
+		int idx = 0;
+		for (int i : m_sources) {
+			if (source == i) {
+				return idx;
+			}
+			idx++;
+		}
+	}
+	
+	//stream id
 	int m_id;
+	
+	int m_trequest;
+	
+	//list of source of the stream
 	std::vector<source_t> m_sources;
+	
+	//destination of the stream
 	rca::Group m_group;
 	
 	friend std::ostream & operator<< (std::ostream & out, stream_t const & t);
 	
 }stream_t;
+
+
+typedef struct forest_t {
+	
+	forest_t () : m_cost (0), Z(0){}
+	
+	forest_t (forest_t const & t) 
+	{ 
+		m_trees = t.m_trees;
+		m_id = t.m_id;
+		m_cost = t.m_cost;
+		Z = t.Z;
+	}
+	
+	//trees for the stream (group)
+	std::vector<tree_t> m_trees;
+	
+	//identify the stream (group)
+	int m_id;
+	
+	int m_cost;
+	
+	int Z;
+	
+} forest_t;
+
+
+typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestinoHandle;
+typedef rca::SteinerTreeObserver<rca::EdgeContainer<rca::Comparator, rca::HCell>> STObserver;
+
+
 /**
  * This class contais the variables and 
  * algorithms used in Yuh-Chen paper.
@@ -56,20 +125,32 @@ class YuhChen {
 public:
 	YuhChen ();
 	
+	YuhChen (rca::Network *);
+	
+	YuhChen (std::string file);
+	
+	/**
+	 * Este método é utilizado para configurar os streams(grupos).
+	 * Ele é utilizdo no construtor que recebe o nome do arquivo.
+	 * @stream_list é defindo em reader.h 
+	 */
+	void configure_streams (stream_list & s);
+	
+	void configure_streams (std::vector<rca::Group> &);
 	
 	/*
 	 * This method set the stream w: a list of sources and
 	 * a set of destinations.
 	 * 
 	 */
-	void set_stream(int id, std::vector<source_t> S, rca::Group D);
+	void add_stream(int id,int req, std::vector<source_t> S, rca::Group D);
 	
 	/**
 	 * 
 	 * 
 	 */
 	stream_t & get_stream (int id) {
-		if (id < m_streams.size ()) {
+		if (id < (int)m_streams.size ()) {
 			return m_streams[id];
 		}
 	}
@@ -77,9 +158,12 @@ public:
 	
 	/**
 	 * This method build a tree using dijkstra's algorithm
-	 * adapted to find the maximum bottleneck path
+	 * adapted to find the maximum bottleneck path.
+	 * 
+	 * This method is diffent of the definition in the paper.
+	 * Here we get all paths possible in the stream_id at once.
 	 */
-	tree_t widest_path_tree (source_t & source);
+	forest_t widest_path_tree (int stream_id);
 	
 	/**
 	 * This method returns a forest associated to the stream
@@ -90,11 +174,30 @@ public:
 	 */
 	forest_t wp_forest (stream_t & stream);
 	
+	void run ();
+	
+private:
+	/**
+	 * This method gets the link with minimum bandwidth in a path
+	 * @return rca::Link
+	 */
+	rca::Link get_bottleneck_link (rca::Path &);
+	
+	/**
+	 * This method gets the next node in a path after current_node
+	 */
+	int next_node (rca::Path & path, int current_node);
+	
+	/**
+	 * This method gets a forest from a set of paths
+	 */
+	forest_t to_forest (int stream_id, std::vector<rca::Path>);
 	
 private:
 	
 	rca::Network * m_network;
 	std::vector<stream_t> m_streams;
 };
+
 
 #endif
