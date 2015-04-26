@@ -136,6 +136,8 @@ public:
 	 */
 	void configure_streams (stream_list & s);
 	
+	void configure_streams (std::vector<rca::Group> &);
+	
 	/*
 	 * This method set the stream w: a list of sources and
 	 * a set of destinations.

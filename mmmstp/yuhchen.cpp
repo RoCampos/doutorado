@@ -74,6 +74,23 @@ void YuhChen::configure_streams (stream_list & sb)
 	}
 }
 
+void YuhChen::configure_streams (std::vector<rca::Group> & groups)
+{
+	
+	int id = 0;
+	for (auto group : groups) {
+		
+		std::vector<source_t> sources;
+		sources.push_back ( group.getSource() );
+		stream_t stream (id, group.getTrequest (), sources, group);
+		
+		m_streams.push_back (stream);
+		
+		id++;
+	}
+	
+}
+
 void YuhChen::add_stream(int id, int req,  std::vector<source_t> S, rca::Group D)
 {
 	stream_t w;
@@ -367,9 +384,9 @@ void YuhChen::run ()
 	
 	std::vector<rca::Link> links;
 	
+	double cost = 0.0;
+	
 	for (int i=0; i < STREAMS; i++) {
-		
-		printf ("Stream(%d)\n", i);
 		
 		forest_t f = wp_forest (this->m_streams[i]);
 		
@@ -412,6 +429,8 @@ void YuhChen::run ()
 					link.setValue (value);
 					links.push_back (link);
 				}
+				
+				cost += m_network->getCost (link.getX(), link.getY());
 			}
 			tree_links.clear ();
 			
@@ -421,10 +440,8 @@ void YuhChen::run ()
  	
 	}
 
-	std::cout << links.size () << std::endl;
-	
  	std::sort (links.begin (), links.end());
- 	std::cout << links.begin ()->getValue () << std::endl;
+ 	std::cout << links.begin ()->getValue () << " " << cost << std::endl;
 
 	
 }
@@ -434,7 +451,21 @@ int main (int argc, char**argv)
 
 	std::string m_instance(argv[1]);
  	
- 	YuhChen yuhchen(m_instance);
+	rca::Network net;
+	std::vector<shared_ptr<rca::Group>> g;
+	std::vector<rca::Group> groups;
+	
+	MultipleMulticastReader r(m_instance);	
+	r.configure_unit_values (&net, g);
+	
+	for (auto it : g) {
+		groups.push_back (*it.get());
+	}
+	
+	YuhChen yuhchen (&net);
+	yuhchen.configure_streams (groups);
+	
+ 	//YuhChen yuhchen(m_instance);
 	
 	yuhchen.run ();
 	
