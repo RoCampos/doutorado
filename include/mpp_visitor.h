@@ -96,6 +96,8 @@ public:
 		m_ec = &ec;
 	}
 	
+	void visitByCost ();
+	
 	
 private:
 	/*faz um corte no grafo divindo a árvore em duas*/
@@ -107,6 +109,18 @@ private:
 	void getAvailableEdges (std::vector<int> &cut, 
 							const rca::Link&, 
 							std::vector<rca::Link>&);
+	
+	/**
+	 * Método used to get edges with better cost than that on the trees
+	 * 
+	 */
+	void getAvailableEdgesByCost (std::vector<int> &cut, 
+								  const rca::Link&,
+							   std::vector<rca::Link>&);
+	
+	
+	
+	
 	
 	/*cria novas árvores de steiner
 	 etapa final do replace*/
