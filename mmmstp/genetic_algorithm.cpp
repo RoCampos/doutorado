@@ -108,6 +108,16 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	std::cout << time_elapsed.get_elapsed () << std::endl;
   	//m_population[best].print_solution (m_network, m_groups);
 	
+	CongestionHandle cg = m_population[best].m_cg;
+	
+	auto it = cg.get_heap().ordered_begin ();
+	for ( ; it != cg.get_heap().ordered_end(); it++) {
+		std::cout << *it << "|";
+		std::cout << it->getValue () << "|";
+		std::cout << m_network->getCost (it->getX(), it->getY());
+		std::cout << std::endl;
+	}
+	
 	//deallocatin of resources;
 #ifdef DEBUG1
 	std::cout << "\n";

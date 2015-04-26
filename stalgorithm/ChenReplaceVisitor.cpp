@@ -38,7 +38,7 @@ void ChenReplaceVisitor::visit ()
  				std::vector<int> cut = this->make_cut( group_id, *it);
  				//pegar os links disponíveis no corte de ll (x,y);
  				std::vector<rca::Link> links;
- 				this->getAvailableEdges (cut ,*it, links);
+  				this->getAvailableEdges (cut ,*it, links);
 				
 				if ( !links.empty() ) {
 					
@@ -226,6 +226,60 @@ void ChenReplaceVisitor::getAvailableEdges(std::vector<int> &cut_xy,
 		}
 	}
 	
+}
+
+void ChenReplaceVisitor::getAvailableEdgesByCost (std::vector<int> &cut_xy, 
+								  const rca::Link& _old,
+							   std::vector<rca::Link>& newedges)
+{
+	//guarda arestas que podem subustituir o Link link	
+	//árvore com nó x = link.getX
+	std::vector<int> Tx;
+	//árvore com nó x = link.getY
+	std::vector<int> Ty;
+	
+	//separando árvore em árvore-x e árvore-y
+	for (size_t i = 0; i < cut_xy.size (); i++) {
+		if (cut_xy[i] == _old.getX ()) {
+			Tx.push_back (i);
+		} else if (cut_xy[i] == _old.getY ()) {
+			Ty.push_back (i);
+		}
+	}
+	
+	/*valor de capacidade residual*/
+	int residual_cap = m_ec->m_heap.ordered_begin ()->getValue ();
+	
+	//separando as arestas no corte entre x e y
+	for (size_t i = 0; i < Tx.size (); i++) {
+		for (size_t j = 0; j < Ty.size (); j++) {
+			
+			rca::Link l ( Tx[i], Ty[j], 0);
+			
+			//testa se a aresta existe e se o custo pe menor
+			int new_cost = m_network->getCost ( l.getX() , l.getY() );
+			int old_cost = m_network->getCost ( _old.getX() , _old.getY() );
+			if ( new_cost > 0 && new_cost < old_cost) {
+				
+				//pegar o valor de uso atual
+				if ( m_ec->is_used(l) ) {
+				
+					int usage = m_ec->value (l);
+					
+					if (usage >  (residual_cap+2) ) {
+						if (l != _old) {
+							//l.setValue (usage);
+							newedges.push_back ( l );
+						}
+					}
+				} else {
+					//se não for utilizado ainda, GOOD!
+					//l.setValue ( m_groups.size () );
+					newedges.push_back (l);
+				}				
+			}
+		}
+	}
 }
 
 void ChenReplaceVisitor::update_trees () 

@@ -108,6 +108,16 @@ private:
 							const rca::Link&, 
 							std::vector<rca::Link>&);
 	
+	/**
+	 * Método used to get edges with better cost than that on the trees
+	 * 
+	 */
+	void getAvailableEdgesByCost (std::vector<int> &cut, 
+								  const rca::Link&,
+							   std::vector<rca::Link>&);
+	
+	
+	
 	/*cria novas árvores de steiner
 	 etapa final do replace*/
 	void update_trees ();
