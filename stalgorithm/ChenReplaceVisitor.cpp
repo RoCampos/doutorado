@@ -67,6 +67,73 @@ void ChenReplaceVisitor::visit ()
 	
 }
 
+void ChenReplaceVisitor::visitByCost ()
+{
+	//passar árvores de steiner de SteinerTree para
+	//lista de arestas
+	prepare_trees ();
+
+	int min_res = m_ec->top ();
+	
+	RUN:
+	auto it_h = m_ec->m_heap.ordered_begin ();
+	auto end_h= m_ec->m_heap.ordered_end ();
+	
+	std::vector<rca::Link> tree;
+	for ( ; it_h != end_h; it_h++) {
+		rca::Link l = *it_h;
+		l.setValue ( m_network->getCost (it_h->getX(), it_h->getY()) );
+		tree.push_back (*it_h);
+	}
+	
+	std::sort (tree.begin (), tree.end());
+	
+	auto it = tree.begin ();
+	auto end = tree.end();
+	
+	for ( ; it != end; it++) {
+		
+		int group_id = 0;
+		for (std::vector<rca::Link> st : m_temp_trees) {
+		
+			auto link_it = std::find (st.begin (), st.end(), *it);
+			
+			//prepare to remove
+			if (link_it != st.end ()) {
+				
+				int link_pos = (link_it - st.begin ()); 
+				
+				//obter corte em ll(x, y)
+ 				std::vector<int> cut = this->make_cut( group_id, *it);
+ 				//pegar os links disponíveis no corte de ll (x,y);
+ 				std::vector<rca::Link> links;
+  				this->getAvailableEdgesByCost (cut ,*it, links);
+				
+				if ( !links.empty() ) {
+					
+					int _new_link = rand() % links.size ();
+					/* Criar link contendo árvore (group_id)
+					 * a posição do link na árvore (link_pos)
+					 * o link em questão (ll)
+					 * o link candidato (links[_new_link])
+					 */
+					std::tuple<int,int,rca::Link,rca::Link> 	
+							tuple (group_id, link_pos, *it, links[_new_link]);
+					
+					replace (tuple);
+					goto RUN;
+				}
+				
+			}
+			
+			group_id++;
+		}
+		
+	}
+
+	update_trees ();
+}
+
 std::vector<int> ChenReplaceVisitor::make_cut (int tree_id, const rca::Link & link)
 {
 	
@@ -266,7 +333,7 @@ void ChenReplaceVisitor::getAvailableEdgesByCost (std::vector<int> &cut_xy,
 				
 					int usage = m_ec->value (l);
 					
-					if (usage >  (residual_cap+2) ) {
+					if (usage >=  (residual_cap+1) ) {
 						if (l != _old) {
 							//l.setValue (usage);
 							newedges.push_back ( l );

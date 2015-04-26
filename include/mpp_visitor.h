@@ -96,6 +96,8 @@ public:
 		m_ec = &ec;
 	}
 	
+	void visitByCost ();
+	
 	
 private:
 	/*faz um corte no grafo divindo a árvore em duas*/
@@ -115,6 +117,8 @@ private:
 	void getAvailableEdgesByCost (std::vector<int> &cut, 
 								  const rca::Link&,
 							   std::vector<rca::Link>&);
+	
+	
 	
 	
 	
