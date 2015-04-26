@@ -106,18 +106,8 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << " ";
 	std::cout << time_elapsed.get_elapsed () << std::endl;
-  	//m_population[best].print_solution (m_network, m_groups);
-	
-	CongestionHandle cg = m_population[best].m_cg;
-	
-	auto it = cg.get_heap().ordered_begin ();
-	for ( ; it != cg.get_heap().ordered_end(); it++) {
-		std::cout << *it << "|";
-		std::cout << it->getValue () << "|";
-		std::cout << m_network->getCost (it->getX(), it->getY());
-		std::cout << std::endl;
-	}
-	
+//   	m_population[best].print_solution (m_network, m_groups);
+		
 	//deallocatin of resources;
 #ifdef DEBUG1
 	std::cout << "\n";
@@ -429,6 +419,14 @@ void GeneticAlgorithm::local_search (int i)
 			improve = false;
 		}
 	}
+	
+// 	std::cout << "c:" << cost;
+	c.visitByCost ();
+	int tt = 0.0;
+	for (auto st : trees) {
+		tt += (int)st.getCost ();
+	}
+// 	std::cout << " c_n:" << tt << std::endl;
 
 #ifdef DEBUG1
  	std::cout << congestion << std::endl;
