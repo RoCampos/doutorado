@@ -1,3 +1,42 @@
+New Version - Improvements and Bug Fixed (04/26/2015)
+========================================================
+=ChenReplaceMethod by cost
+	- Adicioonado ao visitor
+
+New Version - Improvements and Bug Fixed (04/20/2015)
+========================================================
+=Youh-ChenAlgorithm
+	- implementação do algotimo de youh-chen
+
+New Version - Improvements and Bug Fixed (04/20/2015)
+=========================================================
+=sttree_to_path:
+	- algoritmo que recebe uma árvore de Steiner(STTree)
+	e retorna uma lista de caminhos para atualizar
+	as estruturas do algoritmo genético.
+
+=GeneticAlgorihtm
+	- o genótipo é atualizado quanto se faz crossover
+	e mutação.
+	utiliza o sttre_to_path algorithm.
+
+=ChenReplaceVisitor
+	- Bug fixado.
+	- o bug está ocorrendo na STTree(copy constructor)
+
+= STTree
+	- bug fixed.
+
+=rcatime
+	- interface redefinda.
+	- incorporado no genetic e acommpp
+
+New Version - Improvements and Bug Fixed (04/20/2015)
+=========================================================
+=LocalSearch
+	- Busca local baseada no ChenReplaceMethod added
+	to GeneticAlgorithm
+
 New Version - Improvements and Bug Fixed (04/14/2015)
 =========================================================
 =ShortestPath
