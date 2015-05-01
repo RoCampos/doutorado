@@ -24,5 +24,10 @@ MESSAGE ("\tINFO: Compiling genetic_mmmstp using network configurated for REAL=$
 add_executable (genetic_mmmstp 	genetic_algorithm.cpp 
 								genetic_algorithm.h 
 								metaheuristic.h)
-target_link_libraries (genetic_mmmstp graph sttree)
+target_link_libraries (genetic_mmmstp graph sttree sttalgo myutil)
+
+MESSAGE ("\tINFO: Compiling genetic_mmmstp using network configurated for REAL=${REAL}")
+add_executable (yuhchen yuhchen.cpp
+						yuhchen.h)
+target_link_libraries (yuhchen graph sttalgo sttree)
 

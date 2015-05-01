@@ -137,7 +137,10 @@ public:
 		}
 	}
 	
-	
+	boost::heap::fibonacci_heap<rca::Link, Comp> & get_heap () 
+	{
+		return m_heap;
+	}
 	
 public:
 	//this matrix holds the congestion

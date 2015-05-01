@@ -291,7 +291,7 @@ private:
 	double m_bcongestion; //the best congestion value
 	double m_best_iter; //the best iteration
 	
-	rca::time::elapsed_time time_elapsed;
+	rca::elapsed_time time_elapsed;
 	
 	/* just for test */
 	rca::TreeBuildViewer viewer;

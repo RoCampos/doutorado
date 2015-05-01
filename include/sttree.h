@@ -52,6 +52,16 @@ typedef struct list_of_edge {
 			delete tmp;
 		}
 	}
+	
+	void clear () {
+		edge_t * aux = begin;
+		while (aux != NULL) {
+			edge_t * tmp = aux;
+			aux = aux->next;
+			delete tmp;
+		}
+		begin = NULL;
+	}
 
 	void add_edge (edge_t *edge) {
 		
@@ -250,6 +260,10 @@ public:
 		_init_nodes (nnodes);
 		_init_terminals(terminals);
 		m_nodes[source].terminal = true;
+		
+		m_cost = 0.0;
+		
+		m_edges.clear ();
 	}
 	
 	/*Copy Constructor*/

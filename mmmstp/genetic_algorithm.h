@@ -10,8 +10,12 @@
 #include "algorithm.h"
 #include "reader.h"
 #include "steinertree.h"
-#include "SteinerTreeObserver.h"
+#include "steiner_tree_observer.h"
+#include "mpp_visitor.h"
 #include "kspath.h"
+#include "rcatime.h"
+
+typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 
 class PathRepresentation;
 
@@ -20,16 +24,19 @@ class GeneticAlgorithm {
 
 public:
 	inline void init_parameters (int pop = 24, double cross = 0.5, double mut = 0.2, 
-								int iter = 25, int init = 0)
+								int iter = 25, int init = 0, double l_search = 0.1)
 	{
 		m_pop = pop;
 		m_cross = cross;
 		m_mut = mut;
 		m_iter = iter;
 		m_init = init;
+		m_local_search = l_search;
 	}
 	
 	void run_metaheuristic (std::string instance, int budged);
+	
+	void set_seed (size_t t){ m_seed = t;}
 	
 private:
 	void init_problem_information (std::string instance);
@@ -44,6 +51,13 @@ private:
 	
 	//individual i
 	void mutation (int i);
+	
+	//local_search method applied to solution i
+	void local_search (int i);
+	
+	void accept (MppVisitor * visitor) {
+		visitor->visit ();
+	}
 	
 	/* method to run the algorithm against the instance*/
 	void run ();
@@ -62,6 +76,10 @@ private:
 	double m_mut;
 	int m_iter;
 	int m_init;
+	double m_local_search;
+	
+		
+	int m_seed;
 	
 	std::vector<PathRepresentation> m_population;
 };
@@ -74,7 +92,10 @@ class PathRepresentation {
 	
 	
 public:
-	PathRepresentation (): m_cost(0), m_residual_capacity(0){}
+	PathRepresentation (): m_cost(0), m_residual_capacity(0)
+	{
+		m_cg=CongestionHandle();
+	}
 	
 	PathRepresentation (const PathRepresentation&);
 	PathRepresentation & operator= (const PathRepresentation&);
@@ -115,6 +136,12 @@ public:
 		return this->m_tree_links;
 	}
 	
+	/**
+	 * @param pos posição inicial do grupo no genotipo
+	 * @param node representa o número de vértices
+	 */
+	void setPath (int pos, STTree & st, rca::Group & group, int);
+	
 public:
 	static double USED_LIST;
 	
@@ -127,8 +154,7 @@ private:
 	std::vector<rca::Path> m_genotype;
 	bool m_feasable;
 	
-	CongestionHandle m_cg;
-	
+	CongestionHandle m_cg;	
 	
 	
 };
@@ -250,5 +276,6 @@ void help (std::string p = "--h") {
 	printf ("--path : if init is 3, --path must be defined. Representent");
 	printf (" the size of list of paths for each source/destination\n");
 	printf ("--list : used in operator1 to define the size of removed list\n");
+	printf ("--local : probability o use local search\n");
 	
 }

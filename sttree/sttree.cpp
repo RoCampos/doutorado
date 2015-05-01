@@ -5,12 +5,15 @@ STTree::STTree (int nnodes, const std::vector<int> & terminals) {
 	_init_nodes (nnodes);
 	_init_terminals (terminals);
 	
+	m_cost = 0.0;
 }
 
 /*copyt constructor*/
 STTree::STTree (const STTree & ref) {
 
 	m_cost = 0.0;
+	this->m_edges.clear (); //liberando arestas
+	
 	_init_nodes (ref.m_nodes.size ());
 	for (const node_t & t: ref.m_nodes) {
 		m_nodes [t.id].terminal = t.terminal;
@@ -18,11 +21,12 @@ STTree::STTree (const STTree & ref) {
 	
 	edge_t * e = ref.m_edges.begin;
 	while (e != NULL) {
-		this->add_edge (e->x, e->y, e->value);
+		if (e->in)
+			this->add_edge (e->x, e->y, e->value);
 		e = e->next;
 	}
 	
-	this->prunning ();
+	//this->prunning ();
 }
 
 STTree & STTree::operator= (const STTree & ref) {
@@ -31,6 +35,7 @@ STTree & STTree::operator= (const STTree & ref) {
 		return *this;
 	}
 	
+	this->m_edges.clear (); //liberando arestas
 	m_cost = 0.0;
 	_init_nodes (ref.m_nodes.size ());
 	for (const node_t & t: ref.m_nodes) {
@@ -40,11 +45,12 @@ STTree & STTree::operator= (const STTree & ref) {
 	
 	edge_t * e = ref.m_edges.begin;
 	while (e != NULL) {
-		this->add_edge (e->x, e->y, e->value);
+		if (e->in)
+			this->add_edge (e->x, e->y, e->value);
 		e = e->next;
 	}
 	
-	this->prunning ();
+	//this->prunning ();
 	
 	return *this;
 }
