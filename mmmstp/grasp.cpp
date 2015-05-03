@@ -71,15 +71,21 @@ sttree_t Grasp::build_solution ()
 		std::set<int> terminals;
 		
 		while (!links.empty()) {
+		
 			int size = m_lrc * links.size ();
-			int pos = rand () % size;
 			
-			auto link = links.begin ();
-			std::advance ( link , pos);
+			int pos = -1;
+			if (size > 0) {
+				pos = rand () % size;
+			}else {
+				pos = 0;
+			}
 			
-			int cost = m_network->getCost (link->getX(), link->getY());
-			ob.add_edge (link->getX(), link->getY(), cost, SIZE);
-			links.erase (link);
+			rca::Link link = links[pos];
+						
+			int cost = m_network->getCost (link.getX(), link.getY());
+			ob.add_edge (link.getX(), link.getY(), cost, SIZE);
+			links.erase ( (links.begin () + pos) );
 		}
 		
 		ob.prune (1, SIZE);
@@ -128,17 +134,7 @@ void Grasp::local_search (sttree_t * sol)
 	int tt = 0.0;
 	int i = 0;
 	for (auto st : sol->m_trees) {
-		tt += (int)st.getCost ();
-		
-// 		edge_t *e = st.get_edges ().begin;
-// 		while (e != NULL) {
-// 		
-// 			if (e->in) {
-// 				printf ("%d - %d:%d\n", e->x+1, e->y+1, i+1);
-// 			}
-// 			e = e->next;
-// 		}
-// 		i++;
+		tt += (int)st.getCost ();		
 	}
 	
 	std::cout << sol->cg.top () << std::endl;
@@ -151,8 +147,6 @@ void Grasp::run ()
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
 #endif
-	
-	srand ( std::time(NULL));
 	
 	int best_cap = 0;
 	int best_cost = INT_MAX;
@@ -214,6 +208,8 @@ void Grasp::reset_links_usage ()
 
 int main (int argc, char**argv) {
 	
+	srand ( std::time(NULL) );
+	
 	rca::Network m_network;
 	std::vector<std::shared_ptr<rca::Group>> g;
 	std::vector<rca::Group> m_groups;
@@ -230,6 +226,8 @@ int main (int argc, char**argv) {
 	double lrc = atof (argv[3]);
 	grasp.set_iter (iter);
 	grasp.set_lrc (lrc);
+	
+	
 	grasp.run ();
 	
 }
