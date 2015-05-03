@@ -31,7 +31,7 @@ Grasp::Grasp (rca::Network *net, std::vector<rca::Group> & groups)
 	}
 }
 	
-void Grasp::build_solution ()
+sttree_t Grasp::build_solution ()
 {
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
@@ -47,15 +47,19 @@ void Grasp::build_solution ()
 	cg.init_congestion_matrix (NODES);
 	cg.init_handle_matrix (NODES);
 	
+	sttree_t sol;
+	
+	STobserver ob;
+	ob.set_container (cg);
+	double m_cost = 0.0;
+	
+	sol.m_trees.resize (SIZE);
+	
 	for (int i=0; i < SIZE; i++) {
 		
 		int g_idx = group_idx[i];
 		
 		rca::Group group = m_groups[g_idx];
-		std::vector<int> members;
-		
-		STobserver ob;
-		ob.set_container (cg);
 		
 		int source = group.getSource ();
 		STTree steiner_tree(NODES, source, group.getMembers ());
@@ -63,6 +67,8 @@ void Grasp::build_solution ()
 		ob.set_steiner_tree (steiner_tree, NODES);
 		
 		std::vector<rca::Link> links = m_links;
+		
+		std::set<int> terminals;
 		
 		while (!links.empty()) {
 			
@@ -74,17 +80,52 @@ void Grasp::build_solution ()
 		}
 		
 		ob.prune (1, SIZE);
-		ob.get_steiner_tree ().xdotFormat ();
 		
+		m_cost += ob.get_steiner_tree ().getCost ();
+		
+		this->update_usage (ob.get_steiner_tree ());
+		
+		sol.m_trees[g_idx] = ob.get_steiner_tree ();
 	}
 	
+	sol.m_cost = m_cost;
+	sol.m_residual_cap = ob.get_container ().top ();
+	sol.cg = cg;
+	
+	return sol;
 }
 	
-void Grasp::local_search ()
+void Grasp::local_search (sttree_t * sol)
 {
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
 #endif
+	
+	ChenReplaceVisitor c(&sol->m_trees);
+	c.setNetwork (m_network);
+	c.setMulticastGroups (m_groups);
+	c.setEdgeContainer ( sol->cg );
+	
+	c.visitByCost ();
+	int tt = 0.0;
+	int i = 0;
+	for (auto st : sol->m_trees) {
+		tt += (int)st.getCost ();
+		
+// 		edge_t *e = st.get_edges ().begin;
+// 		while (e != NULL) {
+// 		
+// 			if (e->in) {
+// 				printf ("%d - %d:%d\n", e->x+1, e->y+1, i+1);
+// 			}
+// 			e = e->next;
+// 		}
+// 		i++;
+	}
+	
+	std::cout << sol->cg.top () << std::endl;
+	std::cout << tt << std::endl;
+	
 }
 	
 void Grasp::run ()
@@ -94,18 +135,44 @@ void Grasp::run ()
 #endif
 	for (int i=0; i < m_iter; i++) {
 		
-		build_solution ();
-		local_search ();
+		sttree_t sol = build_solution ();
+		local_search (&sol);
+		std::cout << sol.m_cost << std::endl;
+		std::cout << sol.m_residual_cap << std::endl;
 		
+		this->reset_links_usage ();
 	}
 	
 }
 
 /*Private Methods*/
 
-void update_usage (STTree & sttre)
+void Grasp::update_usage (STTree & sttre)
 {
 	
+	edge_t * e = sttre.get_edges ().begin;
+	while (e != NULL) {
+	
+		if (e->in) { 
+		
+			rca::Link l(e->x, e->y,0);
+			auto link = std::find(m_links.begin (), m_links.end(), l);
+			link->setValue ( link->getValue () + 1);
+			
+		}
+		
+		e = e->next;
+	}
+	
+	std::sort(m_links.begin(), m_links.end());
+	
+}
+
+void Grasp::reset_links_usage ()
+{
+	for (auto & it: m_links) {
+		it.setValue (0);
+	}
 }
 
 

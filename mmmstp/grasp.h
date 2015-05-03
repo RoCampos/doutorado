@@ -9,12 +9,42 @@
 #include "reader.h"
 #include "edgecontainer.h"
 #include "steiner_tree_observer.h"
+#include "mpp_visitor.h"
 
 #ifndef _GRASP_H_
 #define _GRASP_H_
 
 typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 typedef typename rca::SteinerTreeObserver<CongestionHandle> STobserver;
+
+typedef struct sttree_t {
+	
+	std::vector<STTree> m_trees;
+	int m_cost;
+	int m_residual_cap; 
+	CongestionHandle cg;
+	
+	sttree_t (sttree_t const & copy) 
+	{
+		m_cost = copy.m_cost;
+		m_residual_cap = copy.m_residual_cap;
+		cg = copy.cg;
+		m_trees = copy.m_trees;
+	}
+	
+	sttree_t & operator= (sttree_t const & copy) {
+		
+		m_cost = copy.m_cost;
+		m_residual_cap = copy.m_residual_cap;
+		cg = copy.cg;
+		m_trees = copy.m_trees;
+		
+		return *this;
+	}
+	
+	sttree_t () {}
+	
+} steiner_tree_t;
 
 class Grasp {
 	
@@ -25,9 +55,9 @@ public:
 	
 	void set_iter (int iter) {m_iter = iter;}
 	
-	void build_solution ();
+	sttree_t build_solution ();
 	
-	void local_search ();
+	void local_search (sttree_t* sol);
 	
 	void run ();
 	
@@ -44,7 +74,7 @@ private:
 	int m_iter;
 	
 	/*problem information*/
-	std::vector<STTree> m_strees;
+	sttree_t m_strees;
 	rca::Network * m_network;
 	std::vector<rca::Group> m_groups;
 };
