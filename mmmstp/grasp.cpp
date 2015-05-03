@@ -71,8 +71,11 @@ sttree_t Grasp::build_solution ()
 		std::set<int> terminals;
 		
 		while (!links.empty()) {
+			int size = m_lrc * links.size ();
+			int pos = rand () % size;
 			
 			auto link = links.begin ();
+			std::advance ( link , pos);
 			
 			int cost = m_network->getCost (link->getX(), link->getY());
 			ob.add_edge (link->getX(), link->getY(), cost, SIZE);
@@ -91,6 +94,21 @@ sttree_t Grasp::build_solution ()
 	sol.m_cost = m_cost;
 	sol.m_residual_cap = ob.get_container ().top ();
 	sol.cg = cg;
+	
+	//local_search app
+	ChenReplaceVisitor c(&sol.m_trees);
+	c.setNetwork (m_network);
+	c.setMulticastGroups (m_groups);
+	c.setEdgeContainer ( sol.cg );
+	
+	c.visitByCost ();
+	int tt = 0.0;
+	int i = 0;
+	for (auto st : sol.m_trees) {
+		tt += (int)st.getCost ();
+	}
+	
+	sol.m_cost = tt;
 	
 	return sol;
 }
@@ -133,15 +151,33 @@ void Grasp::run ()
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
 #endif
+	
+	srand ( std::time(NULL));
+	
+	int best_cap = 0;
+	int best_cost = INT_MAX;
+	sttree_t best;
+	
 	for (int i=0; i < m_iter; i++) {
 		
 		sttree_t sol = build_solution ();
-		local_search (&sol);
-		std::cout << sol.m_cost << std::endl;
-		std::cout << sol.m_residual_cap << std::endl;
+		//local_search (&sol);
+		
+		if (sol.m_residual_cap > best_cap) {
+			best_cap = sol.m_residual_cap;
+			best_cost = sol.m_cost;
+			best = sol;
+		} else if (sol.m_residual_cap == best_cap && sol.m_cost < best_cost ) {
+			best_cap = sol.m_residual_cap;
+			best_cost = sol.m_cost;
+			best = sol;
+		}
 		
 		this->reset_links_usage ();
 	}
+	
+	std::cout << best.m_cost << std::endl;
+	std::cout << best.m_residual_cap << std::endl;
 	
 }
 
@@ -190,7 +226,10 @@ int main (int argc, char**argv) {
 	}
 	
 	Grasp grasp(&m_network, m_groups);
-	grasp.set_iter (10);
+	int iter = atoi (argv[2]);
+	double lrc = atof (argv[3]);
+	grasp.set_iter (iter);
+	grasp.set_lrc (lrc);
 	grasp.run ();
 	
 }

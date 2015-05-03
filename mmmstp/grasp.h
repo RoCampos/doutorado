@@ -54,6 +54,7 @@ public:
 	Grasp (rca::Network *net,std::vector<rca::Group>&);
 	
 	void set_iter (int iter) {m_iter = iter;}
+	void set_lrc (double lrc) {m_lrc = lrc;}
 	
 	sttree_t build_solution ();
 	
@@ -72,6 +73,7 @@ private:
 	
 	/*Algorithm information*/
 	int m_iter;
+	double m_lrc;
 	
 	/*problem information*/
 	sttree_t m_strees;
