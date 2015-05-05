@@ -284,6 +284,8 @@ private:
 	
 	double m_local_upd;
 	
+	double m_ref; //parameter to apply cost ref heuristic
+	
 	/*solution results*/
 	std::vector<double> m_best_trees;
 	

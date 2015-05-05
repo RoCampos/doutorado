@@ -147,6 +147,8 @@ void AcoMPP::run (va_list & arglist) {
 	m_phe_rate = va_arg (arglist, double);
 	m_heuristic_prob = va_arg (arglist, double);
 	m_local_upd = va_arg(arglist,double);
+	
+	m_ref = va_arg (arglist, double);
 
 	std::vector<STTree> bestNLinks;
 	
@@ -264,6 +266,18 @@ void AcoMPP::run (va_list & arglist) {
 		}
 		
 	}
+	
+	double r = (double) (rand() % 100 +1)/100.0;
+	
+	if (r < this->m_ref) {
+		c.visitByCost ();
+		int tt = 0.0;
+		for (auto st : stts) {
+			tt += (int)st.getCost ();
+		}
+		solutions = stts;
+		cost = tt;
+	}
 /*-------------------------------------------------------*/
 	
 		/*used for congestion*/
@@ -310,11 +324,11 @@ void AcoMPP::run (va_list & arglist) {
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
-	std::cout << m_bcongestion << "\t";
-	std::cout << m_bcost << "\t";
-	std::cout << m_best_iter << "\t";
-	std::cout << time_elapsed.get_elapsed () << "\t";
-	std::cout << m_seed << "\n";
+// 	std::cout << m_bcongestion << "\t";
+	std::cout << m_bcost << "\t\n";
+// 	std::cout << m_best_iter << "\t";
+// 	std::cout << time_elapsed.get_elapsed () << "\t";
+// 	std::cout << m_seed << "\n";
 	
 	int g=0;	
 	auto it = bestNLinks.begin ();
@@ -325,7 +339,7 @@ void AcoMPP::run (va_list & arglist) {
 		while (e != NULL) {
 			//printf ("%d - %d:%d;\n", e->i+1,e->j+1,g+1);
 			if (e->in)
-				std::cerr << e->x+1 << " - " << e->y+1 << ":" << g+1 << std::endl;
+// 				std::cerr << e->x+1 << " - " << e->y+1 << ":" << g+1 << std::endl;
 			e = e->next;
 		}
 		g++;
