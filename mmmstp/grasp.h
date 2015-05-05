@@ -10,6 +10,7 @@
 #include "edgecontainer.h"
 #include "steiner_tree_observer.h"
 #include "mpp_visitor.h"
+#include "rcatime.h"
 
 #ifndef _GRASP_H_
 #define _GRASP_H_

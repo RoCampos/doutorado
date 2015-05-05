@@ -24,7 +24,7 @@ Grasp::Grasp (rca::Network *net, std::vector<rca::Group> & groups)
 		m_links.push_back (*iter);
 	}
 	
-	std::cout << m_links[0].getValue () << std::endl;
+	//std::sort (m_links.begin(), m_links.end());
 	
 	for (auto & it: m_links) {
 		it.setValue (0);
@@ -43,6 +43,7 @@ sttree_t Grasp::build_solution ()
 	iota (group_idx.begin(), group_idx.end(), 0);
 	std::random_shuffle (group_idx.begin(), group_idx.end());
 	
+	//O(n^2)
 	CongestionHandle cg;
 	cg.init_congestion_matrix (NODES);
 	cg.init_handle_matrix (NODES);
@@ -55,6 +56,7 @@ sttree_t Grasp::build_solution ()
 	
 	sol.m_trees.resize (SIZE);
 	
+	//O(K)
 	for (int i=0; i < SIZE; i++) {
 		
 		int g_idx = group_idx[i];
@@ -70,6 +72,7 @@ sttree_t Grasp::build_solution ()
 		
 		std::set<int> terminals;
 		
+		//O(E)
 		while (!links.empty()) {
 		
 			int size = m_lrc * links.size ();
@@ -84,14 +87,18 @@ sttree_t Grasp::build_solution ()
 			rca::Link link = links[pos];
 						
 			int cost = m_network->getCost (link.getX(), link.getY());
+			
+			//checar disjoint set
 			ob.add_edge (link.getX(), link.getY(), cost, SIZE);
 			links.erase ( (links.begin () + pos) );
 		}
 		
+		//O(E)
 		ob.prune (1, SIZE);
 		
 		m_cost += ob.get_steiner_tree ().getCost ();
 		
+		//O(E)
 		this->update_usage (ob.get_steiner_tree ());
 		
 		sol.m_trees[g_idx] = ob.get_steiner_tree ();
@@ -100,6 +107,8 @@ sttree_t Grasp::build_solution ()
 	sol.m_cost = m_cost;
 	sol.m_residual_cap = ob.get_container ().top ();
 	sol.cg = cg;
+	
+// 	std::cout << sol.m_cost << std::endl;
 	
 	//local_search app
 	ChenReplaceVisitor c(&sol.m_trees);
@@ -115,6 +124,8 @@ sttree_t Grasp::build_solution ()
 	}
 	
 	sol.m_cost = tt;
+	
+// 	std::cout << sol.m_cost << std::endl;
 	
 	return sol;
 }
@@ -152,6 +163,9 @@ void Grasp::run ()
 	int best_cost = INT_MAX;
 	sttree_t best;
 	
+	rca::elapsed_time time_elapsed;	
+	time_elapsed.started ();
+	
 	for (int i=0; i < m_iter; i++) {
 		
 		sttree_t sol = build_solution ();
@@ -170,8 +184,11 @@ void Grasp::run ()
 		this->reset_links_usage ();
 	}
 	
-	std::cout << best.m_cost << std::endl;
-	std::cout << best.m_residual_cap << std::endl;
+	time_elapsed.finished ();
+	
+	std::cout << best.m_cost << "\n";
+ 	std::cout << best.m_residual_cap << " ";
+ 	std::cout << time_elapsed.get_elapsed () << std::endl;
 	
 }
 
