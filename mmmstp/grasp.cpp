@@ -31,8 +31,7 @@ Grasp::Grasp (rca::Network *net, std::vector<rca::Group> & groups)
 	}
 }
 	
-sttree_t Grasp::build_solution ()
-{
+sttree_t Grasp::build_solution () {
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
 #endif
@@ -68,33 +67,8 @@ sttree_t Grasp::build_solution ()
 		
 		ob.set_steiner_tree (steiner_tree, NODES);
 		
-		std::vector<rca::Link> links = m_links;
-		
-		std::set<int> terminals;
-		
-		//O(E)
-		while (!links.empty()) {
-		
-			int size = m_lrc * links.size ();
-			
-			int pos = -1;
-			if (size > 0) {
-				pos = rand () % size;
-			}else {
-				pos = 0;
-			}
-			
-			rca::Link link = links[pos];
-						
-			int cost = m_network->getCost (link.getX(), link.getY());
-			
-			//checar disjoint set
-			ob.add_edge (link.getX(), link.getY(), cost, SIZE);
-			links.erase ( (links.begin () + pos) );
-		}
-		
-		//O(E)
-		ob.prune (1, SIZE);
+		//this->spanning_tree (&ob);
+		this->shortest_path_tree (g_idx, &ob);
 		
 		m_cost += ob.get_steiner_tree ().getCost ();
 		
@@ -107,8 +81,6 @@ sttree_t Grasp::build_solution ()
 	sol.m_cost = m_cost;
 	sol.m_residual_cap = ob.get_container ().top ();
 	sol.cg = cg;
-	
-// 	std::cout << sol.m_cost << std::endl;
 	
 	//local_search app
 	ChenReplaceVisitor c(&sol.m_trees);
@@ -125,9 +97,83 @@ sttree_t Grasp::build_solution ()
 	
 	sol.m_cost = tt;
 	
-// 	std::cout << sol.m_cost << std::endl;
-	
 	return sol;
+}
+
+void Grasp::spanning_tree (STobserver * ob)
+{
+	std::vector<rca::Link> links = m_links;
+	int GROUPS_SIZE = m_groups.size ();
+		
+	//O(E)
+	while (!links.empty()) {
+		
+		int size = m_lrc * links.size ();
+		
+		int pos = -1;
+		if (size > 0) {
+			pos = rand () % size;
+		}else {
+			pos = 0;
+		}
+			
+		rca::Link link = links[pos];
+						
+		int cost = m_network->getCost (link.getX(), link.getY());
+			
+		//checar disjoint set
+		ob->add_edge (link.getX(), link.getY(), cost, GROUPS_SIZE);
+		links.erase ( (links.begin () + pos) );
+	}
+		
+	//O(E)
+	ob->prune (1, GROUPS_SIZE);
+}
+
+void Grasp::shortest_path_tree (int id, STobserver* ob)
+{
+	
+	int N_SIZE = this->m_groups.size ();
+	
+	int source = this->m_groups[ id ].getSource ();
+	const std::vector<int> & destinations = this->m_groups[ id ].getMembers ();
+	int G_SIZE = destinations.size ();
+	
+	int d = 0;
+	
+	rca::Path spath = shortest_path (source, destinations[ d ], *m_network);
+	
+	do {
+		
+		auto rit = spath.rbegin ();
+		for (; rit != spath.rend()-1; rit++) {
+		
+			int x = *rit;
+			int y = *(rit+1);
+			
+			rca::Link l(x, y, 0);
+			
+			int cost = this->m_network->getCost (l.getX(), l.getY());
+			
+			ob->add_edge (l.getX(), l.getY(), cost, N_SIZE);
+			
+			this->m_network->removeEdge (l);
+			
+		}
+		
+		d++;
+		
+		if (d == G_SIZE) break;
+		
+		spath = shortest_path (source, destinations[ d ], *m_network);
+		if (spath.size () == 0) {
+			this->m_network->clearRemovedEdges ();
+			spath = shortest_path (source, destinations[ d ], *m_network);
+		}
+		
+	} while (d < N_SIZE);
+	
+	this->m_network->clearRemovedEdges();
 }
 	
 void Grasp::local_search (sttree_t * sol)

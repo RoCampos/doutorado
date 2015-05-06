@@ -59,6 +59,9 @@ public:
 	
 	sttree_t build_solution ();
 	
+	void shortest_path_tree (int id, STobserver*);
+	void spanning_tree (STobserver * ob);
+	
 	void local_search (sttree_t* sol);
 	
 	void run ();
