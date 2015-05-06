@@ -45,6 +45,8 @@ typedef struct sttree_t {
 	
 	sttree_t () {}
 	
+	void print_solution ();
+	
 } steiner_tree_t;
 
 class Grasp {
@@ -58,12 +60,12 @@ public:
 	void set_lrc (double lrc) {m_lrc = lrc;}
 	void set_budget (int budget) {m_budget = budget;}
 	
-	sttree_t build_solution (CongestionHandle *cg);
+	sttree_t build_solution ();
 	
 	void shortest_path_tree (int id, STobserver*);
 	void spanning_tree (STobserver * ob);
 	
-	void residual_refinament (sttree_t* sol, CongestionHandle* cg);
+	void residual_refinament (sttree_t* sol);
 	void cost_refinament (sttree_t* sol, CongestionHandle* cg);
 	
 	void run ();

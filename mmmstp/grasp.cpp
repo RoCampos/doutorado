@@ -1,5 +1,21 @@
 #include "grasp.h"
 
+void sttree_t::print_solution ()
+{
+	int i =0;
+	for (auto st : this->m_trees) {
+		edge_t *e = st.get_edges ().begin;
+		while (e != NULL) {
+		
+			if (e->in)
+				std::cerr <<  e->x+1 << " - " << e->y+1 << ":" << i+1 << std::endl;
+			
+			e = e->next;
+		}
+		i++;
+	}		
+}
+
 Grasp::Grasp () 
 {
 #ifdef DEBUG
@@ -35,7 +51,7 @@ Grasp::Grasp (rca::Network *net,
 	}
 }
 	
-sttree_t Grasp::build_solution (CongestionHandle *cg) {
+sttree_t Grasp::build_solution () {
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
 #endif
@@ -46,10 +62,15 @@ sttree_t Grasp::build_solution (CongestionHandle *cg) {
 	iota (group_idx.begin(), group_idx.end(), 0);
 	std::random_shuffle (group_idx.begin(), group_idx.end());
 	
+	CongestionHandle cg;
+	cg.init_congestion_matrix (NODES);
+	cg.init_handle_matrix (NODES);
+	
 	sttree_t sol;
+	sol.cg = cg;
 	
 	STobserver ob;
-	ob.set_container (*cg);
+	ob.set_container (sol.cg);
 	double m_cost = 0.0;
 	
 	sol.m_trees.resize (SIZE);
@@ -78,7 +99,7 @@ sttree_t Grasp::build_solution (CongestionHandle *cg) {
 	}
 	
 	sol.m_cost = m_cost;
-	sol.m_residual_cap = ob.get_container ().top ();
+	sol.m_residual_cap = ob.get_container ().top ();	
 	
 	return sol;
 }
@@ -190,12 +211,14 @@ void Grasp::cost_refinament (sttree_t * sol, CongestionHandle * cg)
 {
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
+	
+	int cg_value = cg->top ();
 #endif
 	
 	ChenReplaceVisitor c(&sol->m_trees);
 	c.setNetwork (m_network);
 	c.setMulticastGroups (m_groups);
-	c.setEdgeContainer ( *cg );
+	c.setEdgeContainer ( sol->cg );
 	
 	c.visitByCost ();
 	int tt = 0.0;
@@ -207,28 +230,30 @@ void Grasp::cost_refinament (sttree_t * sol, CongestionHandle * cg)
 #ifdef DEBUG
  	if (sol->m_cost > tt) {
  		printf ("Improved by cost refinement ");
- 		printf ("from %d to %d\n", sol->m_cost, tt);
+ 		printf ("from %d to %d ", sol->m_cost, tt);
+		
+		printf ("old cg(%d) - new cg(%d)\n", cg_value, cg->top ());
  	}
 #endif
 	
 	sol->m_cost = tt;
 	sol->m_residual_cap = cg->top ();
-	sol->cg = *cg;
+	
 }
 
-void Grasp::residual_refinament (sttree_t * sol, CongestionHandle *cg)
+void Grasp::residual_refinament (sttree_t * sol)
 {
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
 #endif
 	
 	bool improve = true;
-	int tmp_cong = cg->top();
+	int tmp_cong = sol->cg.top();
 	
 	ChenReplaceVisitor c(&sol->m_trees);
 	c.setNetwork (m_network);
 	c.setMulticastGroups (m_groups);
-	c.setEdgeContainer (*cg);
+	c.setEdgeContainer (sol->cg);
 	
 	double cost = 0;
 	double congestion = 0;
@@ -243,8 +268,8 @@ void Grasp::residual_refinament (sttree_t * sol, CongestionHandle *cg)
 			temp_cost += (int)st.getCost ();
 		}
 		
-		if (cg->top () > tmp_cong) {
-			congestion = cg->top ();
+		if (sol->cg.top () > tmp_cong) {
+			congestion = sol->cg.top ();
 			
 			tmp_cong = congestion;
 			cost = temp_cost;
@@ -256,13 +281,13 @@ void Grasp::residual_refinament (sttree_t * sol, CongestionHandle *cg)
 			tmp_tree.m_trees = sol->m_trees;
 			tmp_tree.m_cost = cost;
 			tmp_tree.m_residual_cap = congestion;
-			tmp_tree.cg = *cg;
+			tmp_tree.cg = sol->cg;
 
-		} else if (cg->top () > tmp_cong && temp_cost < sol->m_cost){
+		} else if (sol->cg.top () > tmp_cong && temp_cost < sol->m_cost){
 			tmp_tree.m_trees = sol->m_trees;
 			tmp_tree.m_cost = cost;
 			tmp_tree.m_residual_cap = congestion;
-			tmp_tree.cg = *cg;
+			tmp_tree.cg = sol->cg;
 
 		}else {
 			break;
@@ -313,50 +338,54 @@ void Grasp::run ()
 	
 	for (int i=0; i < m_iter; i++) {
 		
-		CongestionHandle cg;
-		cg.init_congestion_matrix (NODES);
-		cg.init_handle_matrix (NODES);
+		sttree_t sol = build_solution ();
 		
-		sttree_t sol = build_solution (&cg);
+		residual_refinament (&sol);
 		
-		residual_refinament (&sol, &cg);
-		cost_refinament (&sol, &cg);
-		
-		if (sol.m_residual_cap > best_cap 
-			&& sol.m_cost <= m_budget) {
-			
-			best_cap = sol.m_residual_cap;
-			best_cost = sol.m_cost;
-			best = sol;
-		
-		} else if (sol.m_residual_cap == best_cap 
-			&& sol.m_cost < best_cost 
-			&& sol.m_cost <= m_budget) {
-			
+  		cost_refinament (&sol, &sol.cg);
+ 		
+		if (sol.m_residual_cap > best_cap) {
 			best_cap = sol.m_residual_cap;
 			best_cost = sol.m_cost;
 			best = sol;
 		}
+		
+// 		if (sol.m_residual_cap > best_cap 
+// 			&& sol.m_cost <= m_budget) {
+// 			
+// 			best_cap = sol.m_residual_cap;
+// 			best_cost = sol.m_cost;
+// 			best = sol;
+// 		
+// 		} else if (sol.m_residual_cap == best_cap 
+// 			&& sol.m_cost < best_cost 
+// 			&& sol.m_cost <= m_budget) {
+// 			
+// 			best_cap = sol.m_residual_cap;
+// 			best_cost = sol.m_cost;
+// 			best = sol;
+// 		}
 	}
 	
 	time_elapsed.finished ();
-		
+	
 	std::cout << best.m_cost << "\n";
  	std::cout << best.m_residual_cap << " ";
  	std::cout << time_elapsed.get_elapsed () << std::endl;
-
-	int i =0;
- 	for (auto st : best.m_trees) { 		
-		edge_t *e = st.get_edges ().begin;
-		while (e != NULL) {
-		
-			std::cerr <<  e->x+1 << " - " << e->y+1 << ":" << i+1 << std::endl;
-// 			printf ("%d - %d:%d\n", e->x+1, e->y+1, i+1);
-			
-			e = e->next;
-		}
-		i++;
- 	}
+	
+// 	int i =0;
+//  	for (auto st : best.m_trees) { 
+// 		edge_t *e = st.get_edges ().begin;
+// 		while (e != NULL) {
+// 		
+// 			if (e->in) {
+// 				std::cerr <<  e->x+1 << " - " << e->y+1 << ":" << i+1 << std::endl;
+// 			}
+// 			
+// 			e = e->next;
+// 		}
+// 		i++;
+//  	}
 	
 }
 
