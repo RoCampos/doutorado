@@ -65,19 +65,17 @@ sttree_t Grasp::build_solution (CongestionHandle *cg) {
 		STTree steiner_tree(NODES, source, group.getMembers ());
 		
 		ob.set_steiner_tree (steiner_tree, NODES);
-
- 		this->shortest_path_tree (g_idx, &ob);
+			
+		//create a tree
+  		this->shortest_path_tree (g_idx, &ob);		
+		//make prunning
+		ob.prune (1, SIZE);
 		
-		m_cost += ob.get_steiner_tree ().getCost ();
-		
-		//O(E)
-		this->update_usage (ob.get_steiner_tree ());
-		
+		//computing the cost and store the tree
+		m_cost += ob.get_steiner_tree ().getCost ();	
 		sol.m_trees[g_idx] = ob.get_steiner_tree ();
 		
 	}
-	
-	this->reset_links_usage ();
 	
 	sol.m_cost = m_cost;
 	sol.m_residual_cap = ob.get_container ().top ();
@@ -215,6 +213,7 @@ void Grasp::cost_refinament (sttree_t * sol, CongestionHandle * cg)
 	
 	sol->m_cost = tt;
 	sol->m_residual_cap = cg->top ();
+	sol->cg = *cg;
 }
 
 void Grasp::residual_refinament (sttree_t * sol, CongestionHandle *cg)
@@ -265,7 +264,7 @@ void Grasp::residual_refinament (sttree_t * sol, CongestionHandle *cg)
 			tmp_tree.m_residual_cap = congestion;
 			tmp_tree.cg = *cg;
 
-		}else {			
+		}else {
 			break;
 		}
 	}
@@ -286,11 +285,14 @@ void Grasp::residual_refinament (sttree_t * sol, CongestionHandle *cg)
 // 	if (sol->m_cost > tt) {
 // 		printf ("Improved by cost refinement ");
 // 		printf ("from %d to %d\n", sol->m_cost, tt);
+// 		
+// 		printf ("--- residual_cap (%d) ---\n", sol->cg.top ());
 // 	}
 // #endif
 // 		
 // 		sol->m_cost = tt;
 // 		sol->m_residual_cap = cg->top ();
+// 		sol->cg = *cg;
 // 	}
 }
 	
@@ -303,7 +305,7 @@ void Grasp::run ()
 	int NODES = this->m_network->getNumberNodes();
 	
 	int best_cap = 0;
-	int best_cost = INT_MAX;
+	int best_cost = 0;
 	sttree_t best;
 	
 	rca::elapsed_time time_elapsed;	
@@ -316,11 +318,9 @@ void Grasp::run ()
 		cg.init_handle_matrix (NODES);
 		
 		sttree_t sol = build_solution (&cg);
+		
 		residual_refinament (&sol, &cg);
-		
 		cost_refinament (&sol, &cg);
-		
-		sol.cg = cg;
 		
 		if (sol.m_residual_cap > best_cap 
 			&& sol.m_cost <= m_budget) {
@@ -337,29 +337,26 @@ void Grasp::run ()
 			best_cost = sol.m_cost;
 			best = sol;
 		}
-		
-		this->reset_links_usage ();
 	}
 	
-//  	cost_refinament (&best, &best.cg);
-	
 	time_elapsed.finished ();
-	
+		
 	std::cout << best.m_cost << "\n";
  	std::cout << best.m_residual_cap << " ";
  	std::cout << time_elapsed.get_elapsed () << std::endl;
 
-// 	int i =0;
-//  	for (auto st : best.m_trees) { 		
-// 		edge_t *e = st.get_edges ().begin;
-// 		while (e != NULL) {
-// 		
+	int i =0;
+ 	for (auto st : best.m_trees) { 		
+		edge_t *e = st.get_edges ().begin;
+		while (e != NULL) {
+		
+			std::cerr <<  e->x+1 << " - " << e->y+1 << ":" << i+1 << std::endl;
 // 			printf ("%d - %d:%d\n", e->x+1, e->y+1, i+1);
-// 			
-// 			e = e->next;
-// 		}
-// 		i++;
-//  	}
+			
+			e = e->next;
+		}
+		i++;
+ 	}
 	
 }
 
@@ -393,6 +390,45 @@ void Grasp::reset_links_usage ()
 	}
 }
 
+// CongestionHandle & Grasp::getCongestionHandle (sttree_t & sol)
+// {
+// 	
+// 	int NODES = this->m_network->getNumberNodes ();
+// 	int G_SIZE = this->m_groups.size ();
+// 	
+// 	CongestionHandle cg;
+// 	cg.init_congestion_matrix (NODES);
+// 	cg.init_handle_matrix (NODES);
+// 	
+// 	STobserver ob;
+// 	ob.set_container (cg);
+// 	
+// 	int g = 0;
+// 	for (auto st : sol.m_trees) {
+// 		
+// 		int source = this->m_groups[ g ].getSource ();
+// 		const std::vector<int> & members = this->m_groups[ g ].getMembers ();
+// 		
+// 		STTree steiner_tree(NODES,source, members);
+// 		ob.set_steiner_tree (steiner_tree, NODES);
+// 		
+// 		edge_t * e = st.get_edges ().begin;
+// 		while (e != NULL) {
+// 		
+// 			int cost = this->m_network->getCost (e->x, e->y);
+// 			
+// 			ob.add_edge (e->x, e->y, cost, G_SIZE);
+// 			
+// 			e = e->next;
+// 		}
+// 		
+// 		ob.prune (1, G_SIZE);
+// 		
+// 		g++;
+// 	}
+// 	
+// 	return ob.get_container ();
+// }
 
 int main (int argc, char**argv) {
 	

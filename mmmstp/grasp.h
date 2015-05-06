@@ -73,6 +73,8 @@ private:
 	
 	void reset_links_usage ();
 	
+// 	CongestionHandle & getCongestionHandle (sttree_t&);
+	
 private:
 	/**/
 	std::vector<rca::Link> m_links;
