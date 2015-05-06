@@ -29,7 +29,7 @@ typedef struct sttree_t {
 	{
 		m_cost = copy.m_cost;
 		m_residual_cap = copy.m_residual_cap;
-		cg = copy.cg;
+		cg = std::move(copy.cg);
 		m_trees = copy.m_trees;
 	}
 	
@@ -37,7 +37,7 @@ typedef struct sttree_t {
 		
 		m_cost = copy.m_cost;
 		m_residual_cap = copy.m_residual_cap;
-		cg = copy.cg;
+		cg = std::move(copy.cg);
 		m_trees = copy.m_trees;
 		
 		return *this;
@@ -57,12 +57,13 @@ public:
 	void set_iter (int iter) {m_iter = iter;}
 	void set_lrc (double lrc) {m_lrc = lrc;}
 	
-	sttree_t build_solution ();
+	sttree_t build_solution (CongestionHandle *cg);
 	
 	void shortest_path_tree (int id, STobserver*);
 	void spanning_tree (STobserver * ob);
 	
-	void local_search (sttree_t* sol);
+	void residual_refinament (sttree_t* sol, CongestionHandle* cg);
+	void cost_refinament (sttree_t* sol, CongestionHandle* cg);
 	
 	void run ();
 	
