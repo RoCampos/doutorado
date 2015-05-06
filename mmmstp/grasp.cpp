@@ -16,22 +16,18 @@ Grasp::Grasp (rca::Network *net, std::vector<rca::Group> & groups)
 	m_network = net;
 	m_groups = groups;
 	
-	//std::vector<rca::Link> m_links(m_network->getLinks ().begin(), 
-	//							 m_network->getLinks ().end());
 	auto iter = m_network->getLinks ().begin();
 	auto end = m_network->getLinks ().end();
 	for (; iter != end; iter++) {
 		m_links.push_back (*iter);
 	}
 	
-	//std::sort (m_links.begin(), m_links.end());
-	
 	for (auto & it: m_links) {
 		it.setValue (0);
 	}
 }
 	
-sttree_t Grasp::build_solution () {
+sttree_t Grasp::build_solution (CongestionHandle *cg) {
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
 #endif
@@ -42,15 +38,10 @@ sttree_t Grasp::build_solution () {
 	iota (group_idx.begin(), group_idx.end(), 0);
 	std::random_shuffle (group_idx.begin(), group_idx.end());
 	
-	//O(n^2)
-	CongestionHandle cg;
-	cg.init_congestion_matrix (NODES);
-	cg.init_handle_matrix (NODES);
-	
 	sttree_t sol;
 	
 	STobserver ob;
-	ob.set_container (cg);
+	ob.set_container (*cg);
 	double m_cost = 0.0;
 	
 	sol.m_trees.resize (SIZE);
@@ -66,9 +57,8 @@ sttree_t Grasp::build_solution () {
 		STTree steiner_tree(NODES, source, group.getMembers ());
 		
 		ob.set_steiner_tree (steiner_tree, NODES);
-		
-		//this->spanning_tree (&ob);
-		this->shortest_path_tree (g_idx, &ob);
+
+ 		this->shortest_path_tree (g_idx, &ob);
 		
 		m_cost += ob.get_steiner_tree ().getCost ();
 		
@@ -76,32 +66,23 @@ sttree_t Grasp::build_solution () {
 		this->update_usage (ob.get_steiner_tree ());
 		
 		sol.m_trees[g_idx] = ob.get_steiner_tree ();
+		
 	}
+	
+	this->reset_links_usage ();
 	
 	sol.m_cost = m_cost;
 	sol.m_residual_cap = ob.get_container ().top ();
-	sol.cg = cg;
-	
-	//local_search app
-	ChenReplaceVisitor c(&sol.m_trees);
-	c.setNetwork (m_network);
-	c.setMulticastGroups (m_groups);
-	c.setEdgeContainer ( sol.cg );
-	
-	c.visitByCost ();
-	int tt = 0.0;
-	int i = 0;
-	for (auto st : sol.m_trees) {
-		tt += (int)st.getCost ();
-	}
-	
-	sol.m_cost = tt;
 	
 	return sol;
 }
 
 void Grasp::spanning_tree (STobserver * ob)
 {
+#ifdef DEBUG
+	printf ("%s\n",__FUNCTION__);
+#endif
+	
 	std::vector<rca::Link> links = m_links;
 	int GROUPS_SIZE = m_groups.size ();
 		
@@ -144,6 +125,9 @@ void Grasp::shortest_path_tree (int id, STobserver* ob)
 	rca::Path spath = shortest_path (source, destinations[ d ], *m_network);
 	
 	do {
+
+		//current path will be removed from network
+		std::vector<rca::Link> current_path;
 		
 		auto rit = spath.rbegin ();
 		for (; rit != spath.rend()-1; rit++) {
@@ -159,24 +143,44 @@ void Grasp::shortest_path_tree (int id, STobserver* ob)
 			
 			this->m_network->removeEdge (l);
 			
+			//to remove
+			current_path.push_back (l);
+			
 		}
 		
 		d++;
 		
 		if (d == G_SIZE) break;
 		
+// 		spath = capacited_shortest_path (source, 
+// 										 destinations[ d ], 
+// 										 m_network,
+// 										 &ob->get_container(), 
+// 										 this->m_groups[ id ]);
 		spath = shortest_path (source, destinations[ d ], *m_network);
+		
+		bool cleaned = false;
 		if (spath.size () == 0) {
 			this->m_network->clearRemovedEdges ();
 			spath = shortest_path (source, destinations[ d ], *m_network);
+			cleaned = true;			
 		}
 		
-	} while (d < N_SIZE);
+		//removing a path d if path d+1 was found.
+		if ( !cleaned ) {
+		
+			for (auto l : current_path) {
+				m_network->removeEdge (l);
+			}
+			
+		}
+		
+	} while (d < G_SIZE);
 	
 	this->m_network->clearRemovedEdges();
 }
 	
-void Grasp::local_search (sttree_t * sol)
+void Grasp::cost_refinament (sttree_t * sol, CongestionHandle * cg)
 {
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
@@ -185,7 +189,7 @@ void Grasp::local_search (sttree_t * sol)
 	ChenReplaceVisitor c(&sol->m_trees);
 	c.setNetwork (m_network);
 	c.setMulticastGroups (m_groups);
-	c.setEdgeContainer ( sol->cg );
+	c.setEdgeContainer ( *cg );
 	
 	c.visitByCost ();
 	int tt = 0.0;
@@ -194,9 +198,79 @@ void Grasp::local_search (sttree_t * sol)
 		tt += (int)st.getCost ();		
 	}
 	
-	std::cout << sol->cg.top () << std::endl;
-	std::cout << tt << std::endl;
+	sol->m_cost = tt;
+	sol->m_residual_cap = cg->top ();
+}
+
+void Grasp::residual_refinament (sttree_t * sol, CongestionHandle *cg)
+{
+#ifdef DEBUG
+	printf ("%s\n",__FUNCTION__);
+#endif
 	
+	bool improve = true;
+	int tmp_cong = cg->top();
+	
+	ChenReplaceVisitor c(&sol->m_trees);
+	c.setNetwork (m_network);
+	c.setMulticastGroups (m_groups);
+	c.setEdgeContainer (*cg);
+	
+	double cost = 0;
+	double congestion = 0;
+	
+	sttree_t tmp_tree;
+	
+	while (improve) {
+		c.visit ();
+				
+		int temp_cost = 0;
+		for (auto st : sol->m_trees) {
+			temp_cost += (int)st.getCost ();
+		}
+		
+		if (cg->top () > tmp_cong) {
+			congestion = cg->top ();
+			
+			tmp_cong = congestion;
+			cost = temp_cost;
+			
+#ifdef DEBUG
+	std::cout << "Improved by residual refinement ";
+	std::cout << sol->m_residual_cap << " to "<< congestion << std::endl;
+#endif
+			tmp_tree.m_trees = sol->m_trees;
+			tmp_tree.m_cost = cost;
+			tmp_tree.m_residual_cap = congestion;
+			tmp_tree.cg = *cg;
+
+		} else {
+			break;
+		}
+	}
+	
+	*sol = tmp_tree;
+	
+	double r = (double) (rand() % 100 +1) / 100.0;
+	if ( r < this->m_lrc) {
+		
+		c.visitByCost ();
+		int tt = 0.0;
+		int i = 0;
+		for (auto st : sol->m_trees) {
+			tt += (int)st.getCost ();		
+		}
+		
+#ifdef DEBUG
+	if (sol->m_cost > tt) {
+		printf ("Improved by cost refinement ");
+		printf ("from %d to %d\n", sol->m_cost, tt);
+	}
+#endif
+		
+		sol->m_cost = tt;
+		sol->m_residual_cap = cg->top ();
+	}
 }
 	
 void Grasp::run ()
@@ -205,6 +279,8 @@ void Grasp::run ()
 	printf ("%s\n",__FUNCTION__);
 #endif
 	
+	int NODES = this->m_network->getNumberNodes();
+	
 	int best_cap = 0;
 	int best_cost = INT_MAX;
 	sttree_t best;
@@ -212,16 +288,26 @@ void Grasp::run ()
 	rca::elapsed_time time_elapsed;	
 	time_elapsed.started ();
 	
+	
 	for (int i=0; i < m_iter; i++) {
 		
-		sttree_t sol = build_solution ();
-		//local_search (&sol);
+		CongestionHandle cg;
+		cg.init_congestion_matrix (NODES);
+		cg.init_handle_matrix (NODES);
 		
-		if (sol.m_residual_cap > best_cap) {
+		sttree_t sol = build_solution (&cg);
+		
+		residual_refinament (&sol, &cg);
+		
+		sol.cg = cg;
+		
+		if (sol.m_residual_cap > best_cap && sol.m_cost <= 167788) {
 			best_cap = sol.m_residual_cap;
 			best_cost = sol.m_cost;
 			best = sol;
-		} else if (sol.m_residual_cap == best_cap && sol.m_cost < best_cost ) {
+		} else if (sol.m_residual_cap == best_cap 
+			&& sol.m_cost < best_cost 
+			&& sol.m_cost <= 167788) {
 			best_cap = sol.m_residual_cap;
 			best_cost = sol.m_cost;
 			best = sol;
@@ -230,11 +316,25 @@ void Grasp::run ()
 		this->reset_links_usage ();
 	}
 	
+//  	cost_refinament (&best, &best.cg);
+	
 	time_elapsed.finished ();
 	
 	std::cout << best.m_cost << "\n";
  	std::cout << best.m_residual_cap << " ";
  	std::cout << time_elapsed.get_elapsed () << std::endl;
+
+// 	int i =0;
+//  	for (auto st : best.m_trees) { 		
+// 		edge_t *e = st.get_edges ().begin;
+// 		while (e != NULL) {
+// 		
+// 			printf ("%d - %d:%d\n", e->x+1, e->y+1, i+1);
+// 			
+// 			e = e->next;
+// 		}
+// 		i++;
+//  	}
 	
 }
 
