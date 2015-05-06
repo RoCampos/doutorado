@@ -316,14 +316,14 @@ void Grasp::run ()
 		cg.init_handle_matrix (NODES);
 		
 		sttree_t sol = build_solution (&cg);
-		
 		residual_refinament (&sol, &cg);
+		
 		cost_refinament (&sol, &cg);
 		
 		sol.cg = cg;
 		
 		if (sol.m_residual_cap > best_cap 
-			&& sol.m_cost <= 167788) {
+			&& sol.m_cost <= m_budget) {
 			
 			best_cap = sol.m_residual_cap;
 			best_cost = sol.m_cost;
@@ -331,7 +331,7 @@ void Grasp::run ()
 		
 		} else if (sol.m_residual_cap == best_cap 
 			&& sol.m_cost < best_cost 
-			&& sol.m_cost <= 167788) {
+			&& sol.m_cost <= m_budget) {
 			
 			best_cap = sol.m_residual_cap;
 			best_cost = sol.m_cost;
@@ -412,8 +412,11 @@ int main (int argc, char**argv) {
 	Grasp grasp(&m_network, m_groups);
 	int iter = atoi (argv[2]);
 	double lrc = atof (argv[3]);
+	int budget = atof (argv[4]);
+	
 	grasp.set_iter (iter);
 	grasp.set_lrc (lrc);
+	grasp.set_budget (budget);
 	
 	
 	grasp.run ();

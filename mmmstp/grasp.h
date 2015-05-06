@@ -56,6 +56,7 @@ public:
 	
 	void set_iter (int iter) {m_iter = iter;}
 	void set_lrc (double lrc) {m_lrc = lrc;}
+	void set_budget (int budget) {m_budget = budget;}
 	
 	sttree_t build_solution (CongestionHandle *cg);
 	
