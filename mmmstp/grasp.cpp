@@ -7,7 +7,9 @@ Grasp::Grasp ()
 #endif
 }
 
-Grasp::Grasp (rca::Network *net, std::vector<rca::Group> & groups)
+Grasp::Grasp (rca::Network *net, 
+			  std::vector<rca::Group> & groups, 
+			  int budget)
 {
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
@@ -24,6 +26,12 @@ Grasp::Grasp (rca::Network *net, std::vector<rca::Group> & groups)
 	
 	for (auto & it: m_links) {
 		it.setValue (0);
+	}
+	
+	if (budget = 0) {
+		m_budget = INT_MAX;
+	} else {
+		m_budget = budget;
 	}
 }
 	
@@ -198,6 +206,13 @@ void Grasp::cost_refinament (sttree_t * sol, CongestionHandle * cg)
 		tt += (int)st.getCost ();		
 	}
 	
+#ifdef DEBUG
+ 	if (sol->m_cost > tt) {
+ 		printf ("Improved by cost refinement ");
+ 		printf ("from %d to %d\n", sol->m_cost, tt);
+ 	}
+#endif
+	
 	sol->m_cost = tt;
 	sol->m_residual_cap = cg->top ();
 }
@@ -219,7 +234,7 @@ void Grasp::residual_refinament (sttree_t * sol, CongestionHandle *cg)
 	double cost = 0;
 	double congestion = 0;
 	
-	sttree_t tmp_tree;
+ 	sttree_t tmp_tree;
 	
 	while (improve) {
 		c.visit ();
@@ -244,33 +259,39 @@ void Grasp::residual_refinament (sttree_t * sol, CongestionHandle *cg)
 			tmp_tree.m_residual_cap = congestion;
 			tmp_tree.cg = *cg;
 
-		} else {
+		} else if (cg->top () > tmp_cong && temp_cost < sol->m_cost){
+			tmp_tree.m_trees = sol->m_trees;
+			tmp_tree.m_cost = cost;
+			tmp_tree.m_residual_cap = congestion;
+			tmp_tree.cg = *cg;
+
+		}else {			
 			break;
 		}
 	}
+	if (tmp_tree.m_trees.size () > 0)
+		*sol = tmp_tree;
 	
-	*sol = tmp_tree;
-	
-	double r = (double) (rand() % 100 +1) / 100.0;
-	if ( r < this->m_lrc) {
-		
-		c.visitByCost ();
-		int tt = 0.0;
-		int i = 0;
-		for (auto st : sol->m_trees) {
-			tt += (int)st.getCost ();		
-		}
-		
-#ifdef DEBUG
-	if (sol->m_cost > tt) {
-		printf ("Improved by cost refinement ");
-		printf ("from %d to %d\n", sol->m_cost, tt);
-	}
-#endif
-		
-		sol->m_cost = tt;
-		sol->m_residual_cap = cg->top ();
-	}
+// 	double r = (double) (rand() % 100 +1) / 100.0;
+// 	if ( r < this->m_lrc) {
+// 		
+// 		c.visitByCost ();
+// 		int tt = 0.0;
+// 		int i = 0;
+// 		for (auto st : sol->m_trees) {
+// 			tt += (int)st.getCost ();		
+// 		}
+// 		
+// #ifdef DEBUG
+// 	if (sol->m_cost > tt) {
+// 		printf ("Improved by cost refinement ");
+// 		printf ("from %d to %d\n", sol->m_cost, tt);
+// 	}
+// #endif
+// 		
+// 		sol->m_cost = tt;
+// 		sol->m_residual_cap = cg->top ();
+// 	}
 }
 	
 void Grasp::run ()
@@ -288,7 +309,6 @@ void Grasp::run ()
 	rca::elapsed_time time_elapsed;	
 	time_elapsed.started ();
 	
-	
 	for (int i=0; i < m_iter; i++) {
 		
 		CongestionHandle cg;
@@ -298,16 +318,21 @@ void Grasp::run ()
 		sttree_t sol = build_solution (&cg);
 		
 		residual_refinament (&sol, &cg);
+		cost_refinament (&sol, &cg);
 		
 		sol.cg = cg;
 		
-		if (sol.m_residual_cap > best_cap && sol.m_cost <= 167788) {
+		if (sol.m_residual_cap > best_cap 
+			&& sol.m_cost <= 167788) {
+			
 			best_cap = sol.m_residual_cap;
 			best_cost = sol.m_cost;
 			best = sol;
+		
 		} else if (sol.m_residual_cap == best_cap 
 			&& sol.m_cost < best_cost 
 			&& sol.m_cost <= 167788) {
+			
 			best_cap = sol.m_residual_cap;
 			best_cost = sol.m_cost;
 			best = sol;

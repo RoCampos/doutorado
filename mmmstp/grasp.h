@@ -52,7 +52,7 @@ class Grasp {
 public:
 	Grasp ();
 	
-	Grasp (rca::Network *net,std::vector<rca::Group>&);
+	Grasp (rca::Network *net,std::vector<rca::Group>&, int budget = 0);
 	
 	void set_iter (int iter) {m_iter = iter;}
 	void set_lrc (double lrc) {m_lrc = lrc;}
@@ -79,6 +79,7 @@ private:
 	/*Algorithm information*/
 	int m_iter;
 	double m_lrc;
+	double m_budget;
 	
 	/*problem information*/
 	sttree_t m_strees;
