@@ -65,8 +65,8 @@ public:
 	void shortest_path_tree (int id, STobserver*);
 	void spanning_tree (STobserver * ob);
 	
-	void residual_refinament (sttree_t* sol);
-	void cost_refinament (sttree_t* sol, CongestionHandle* cg);
+	void residual_refinament (sttree_t* sol, ChenReplaceVisitor&);
+	void cost_refinament (sttree_t* sol, ChenReplaceVisitor&);
 	
 	void run ();
 	

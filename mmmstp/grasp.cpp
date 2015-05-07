@@ -178,12 +178,7 @@ void Grasp::shortest_path_tree (int id, STobserver* ob)
 		d++;
 		
 		if (d == G_SIZE) break;
-		
-// 		spath = capacited_shortest_path (source, 
-// 										 destinations[ d ], 
-// 										 m_network,
-// 										 &ob->get_container(), 
-// 										 this->m_groups[ id ]);
+
 		spath = shortest_path (source, destinations[ d ], *m_network);
 		
 		bool cleaned = false;
@@ -207,18 +202,11 @@ void Grasp::shortest_path_tree (int id, STobserver* ob)
 	this->m_network->clearRemovedEdges();
 }
 	
-void Grasp::cost_refinament (sttree_t * sol, CongestionHandle * cg)
+void Grasp::cost_refinament (sttree_t * sol, ChenReplaceVisitor & c)
 {
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
-	
-	int cg_value = cg->top ();
 #endif
-	
-	ChenReplaceVisitor c(&sol->m_trees);
-	c.setNetwork (m_network);
-	c.setMulticastGroups (m_groups);
-	c.setEdgeContainer ( sol->cg );
 	
 	c.visitByCost ();
 	int tt = 0.0;
@@ -231,17 +219,15 @@ void Grasp::cost_refinament (sttree_t * sol, CongestionHandle * cg)
  	if (sol->m_cost > tt) {
  		printf ("Improved by cost refinement ");
  		printf ("from %d to %d ", sol->m_cost, tt);
-		
-		printf ("old cg(%d) - new cg(%d)\n", cg_value, cg->top ());
- 	}
+	}
 #endif
 	
 	sol->m_cost = tt;
-	sol->m_residual_cap = cg->top ();
+	sol->m_residual_cap = sol->cg.top ();
 	
 }
 
-void Grasp::residual_refinament (sttree_t * sol)
+void Grasp::residual_refinament (sttree_t * sol, ChenReplaceVisitor& c)
 {
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
@@ -249,11 +235,6 @@ void Grasp::residual_refinament (sttree_t * sol)
 	
 	bool improve = true;
 	int tmp_cong = sol->cg.top();
-	
-	ChenReplaceVisitor c(&sol->m_trees);
-	c.setNetwork (m_network);
-	c.setMulticastGroups (m_groups);
-	c.setEdgeContainer (sol->cg);
 	
 	double cost = 0;
 	double congestion = 0;
@@ -295,30 +276,6 @@ void Grasp::residual_refinament (sttree_t * sol)
 	}
 	if (tmp_tree.m_trees.size () > 0)
 		*sol = tmp_tree;
-	
-// 	double r = (double) (rand() % 100 +1) / 100.0;
-// 	if ( r < this->m_lrc) {
-// 		
-// 		c.visitByCost ();
-// 		int tt = 0.0;
-// 		int i = 0;
-// 		for (auto st : sol->m_trees) {
-// 			tt += (int)st.getCost ();		
-// 		}
-// 		
-// #ifdef DEBUG
-// 	if (sol->m_cost > tt) {
-// 		printf ("Improved by cost refinement ");
-// 		printf ("from %d to %d\n", sol->m_cost, tt);
-// 		
-// 		printf ("--- residual_cap (%d) ---\n", sol->cg.top ());
-// 	}
-// #endif
-// 		
-// 		sol->m_cost = tt;
-// 		sol->m_residual_cap = cg->top ();
-// 		sol->cg = *cg;
-// 	}
 }
 	
 void Grasp::run ()
@@ -331,7 +288,10 @@ void Grasp::run ()
 	
 	int best_cap = 0;
 	int best_cost = 0;
+	
 	sttree_t best;
+	
+	sttree_t alt_best;
 	
 	rca::elapsed_time time_elapsed;	
 	time_elapsed.started ();
@@ -340,52 +300,63 @@ void Grasp::run ()
 		
 		sttree_t sol = build_solution ();
 		
-		residual_refinament (&sol);
+		ChenReplaceVisitor c(&sol.m_trees);
+		c.setNetwork (m_network);
+		c.setMulticastGroups (m_groups);
+		c.setEdgeContainer (sol.cg);
+
+		cost_refinament (&sol, c);
+		residual_refinament (&sol, c);
 		
-  		cost_refinament (&sol, &sol.cg);
- 		
-		if (sol.m_residual_cap > best_cap) {
+#ifdef DEBUG
+	std::cout << sol.m_residual_cap << " " << sol.m_cost << "\n";	
+#endif
+		
+		if (sol.m_residual_cap > best_cap 
+			&& sol.m_cost <= m_budget) {
+			
 			best_cap = sol.m_residual_cap;
 			best_cost = sol.m_cost;
 			best = sol;
-		}
 		
-// 		if (sol.m_residual_cap > best_cap 
-// 			&& sol.m_cost <= m_budget) {
-// 			
-// 			best_cap = sol.m_residual_cap;
-// 			best_cost = sol.m_cost;
-// 			best = sol;
-// 		
-// 		} else if (sol.m_residual_cap == best_cap 
-// 			&& sol.m_cost < best_cost 
-// 			&& sol.m_cost <= m_budget) {
-// 			
-// 			best_cap = sol.m_residual_cap;
-// 			best_cost = sol.m_cost;
-// 			best = sol;
-// 		}
+		} else if (sol.m_residual_cap == best_cap 
+			&& sol.m_cost < best_cost 
+			&& sol.m_cost <= m_budget) {
+			
+			best_cap = sol.m_residual_cap;
+			best_cost = sol.m_cost;
+			best = sol;
+		} else {
+		
+			if (sol.m_residual_cap > best_cap) {
+				alt_best = sol;
+			} else if (sol.m_residual_cap == best_cap 
+						&& sol.m_cost){
+				alt_best = sol;
+			}
+			
+		}
 	}
 	
 	time_elapsed.finished ();
 	
-	std::cout << best.m_cost << "\n";
- 	std::cout << best.m_residual_cap << " ";
- 	std::cout << time_elapsed.get_elapsed () << std::endl;
+	if (!best_cap == 0) {
 	
-// 	int i =0;
-//  	for (auto st : best.m_trees) { 
-// 		edge_t *e = st.get_edges ().begin;
-// 		while (e != NULL) {
-// 		
-// 			if (e->in) {
-// 				std::cerr <<  e->x+1 << " - " << e->y+1 << ":" << i+1 << std::endl;
-// 			}
-// 			
-// 			e = e->next;
-// 		}
-// 		i++;
-//  	}
+		std::cout << best.m_cost << " ";
+		std::cout << best.m_residual_cap << " ";
+		std::cout << time_elapsed.get_elapsed () << std::endl;
+		
+		best.print_solution ();
+		
+	} else {
+		
+		std::cout << alt_best.m_cost << " ";
+		std::cout << alt_best.m_residual_cap << " ";
+		std::cout << time_elapsed.get_elapsed () << std::endl;
+		
+		alt_best.print_solution ();
+	}
+	
 	
 }
 
