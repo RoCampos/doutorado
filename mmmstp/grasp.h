@@ -59,6 +59,7 @@ public:
 	void set_iter (int iter) {m_iter = iter;}
 	void set_lrc (double lrc) {m_lrc = lrc;}
 	void set_budget (int budget) {m_budget = budget;}
+	void set_heur (double _heur) {m_heur = _heur;}
 	
 	sttree_t build_solution ();
 	
@@ -75,16 +76,15 @@ private:
 	
 	void reset_links_usage ();
 	
-// 	CongestionHandle & getCongestionHandle (sttree_t&);
-	
 private:
 	/**/
 	std::vector<rca::Link> m_links;
 	
 	/*Algorithm information*/
-	int m_iter;
-	double m_lrc;
-	double m_budget;
+	int m_iter; //número de iterações
+	double m_lrc; //tamanho da lista de aresta de spanning tree
+	double m_budget; //valor de orçamento
+	double m_heur; //define que heuristica utilizar
 	
 	/*problem information*/
 	sttree_t m_strees;
