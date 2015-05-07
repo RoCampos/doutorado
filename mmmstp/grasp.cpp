@@ -44,7 +44,7 @@ Grasp::Grasp (rca::Network *net,
 		it.setValue (0);
 	}
 	
-	if (budget = 0) {
+	if (budget == 0) {
 		m_budget = INT_MAX;
 	} else {
 		m_budget = budget;
@@ -216,7 +216,6 @@ void Grasp::cost_refinament (sttree_t * sol, ChenReplaceVisitor & c)
 	
 	c.visitByCost ();
 	int tt = 0.0;
-	int i = 0;
 	for (auto st : sol->m_trees) {
 		tt += (int)st.getCost ();		
 	}
@@ -290,8 +289,6 @@ void Grasp::run ()
 	printf ("%s\n",__FUNCTION__);
 #endif
 	
-	int NODES = this->m_network->getNumberNodes();
-	
 	int best_cap = 0;
 	int best_cost = 0;
 	
@@ -351,16 +348,18 @@ void Grasp::run ()
 		std::cout << best.m_cost << " ";
 		std::cout << best.m_residual_cap << " ";
 		std::cout << time_elapsed.get_elapsed () << std::endl;
-		
+#ifdef DEBUG		
 		best.print_solution ();
+#endif
 		
 	} else {
 		
 		std::cout << alt_best.m_cost << " ";
 		std::cout << alt_best.m_residual_cap << " ";
 		std::cout << time_elapsed.get_elapsed () << std::endl;
-		
+#ifdef DEBUG		
 		alt_best.print_solution ();
+#endif
 	}
 	
 	
@@ -396,7 +395,30 @@ void Grasp::reset_links_usage ()
 	}
 }
 
+void help ()
+{
+
+	printf ("Grasp Algorithm For the MMRBP problem\n");
+	printf ("Input:\n");
+	printf ("\t./grasp <instance> ");
+	printf (" --iter <value> --lrc <value> --budget <value> --heur <value>\n");
+	
+	std::string description = "Descrition\n";
+	description += "\t--iter: defines the number of iterations\n";
+	description += "\t--lrc: parameter used in spanning_tree algorithm\n";
+	description += "\t--budget: the budget used for limite the cost of solution\n";
+	description += "\t--heur: value the determins the algorithm to used";
+	description += "ShortestPH or Spanning Minimum Tree\n";
+	
+	printf ("%s", description.c_str ());
+}
+
 int main (int argc, char**argv) {
+	
+	if (argc < 10) {
+		help ();
+		exit (0);
+	} 
 	
 	srand ( std::time(NULL) );
 	
