@@ -69,6 +69,26 @@ template <class Comp = Comparator, class Handle = HCell>
 class EdgeContainer {
 	
 public:
+	
+	EdgeContainer<Comp, Handle> (){}
+	
+	EdgeContainer<Comp, Handle> (EdgeContainer<Comp, Handle> const & ref){
+		
+		m_ehandle_matrix = ref.m_ehandle_matrix;
+		m_matrix = ref.m_matrix;
+		m_heap = ref.m_heap;
+		
+	}
+	
+	EdgeContainer<Comp, Handle> operator=(EdgeContainer<Comp, Handle> const & ref){
+		
+		m_ehandle_matrix = ref.m_ehandle_matrix;
+		m_matrix = ref.m_matrix;
+		m_heap = ref.m_heap;
+		
+		return *this;
+	}
+	
 	void init_congestion_matrix (int nodes);
 	
 	void init_handle_matrix (int nodes);

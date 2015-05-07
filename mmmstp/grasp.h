@@ -29,7 +29,7 @@ typedef struct sttree_t {
 	{
 		m_cost = copy.m_cost;
 		m_residual_cap = copy.m_residual_cap;
-		cg = copy.cg;
+		cg = std::move(copy.cg);
 		m_trees = copy.m_trees;
 	}
 	
@@ -37,13 +37,15 @@ typedef struct sttree_t {
 		
 		m_cost = copy.m_cost;
 		m_residual_cap = copy.m_residual_cap;
-		cg = copy.cg;
+		cg = std::move(copy.cg);
 		m_trees = copy.m_trees;
 		
 		return *this;
 	}
 	
 	sttree_t () {}
+	
+	void print_solution ();
 	
 } steiner_tree_t;
 
@@ -52,14 +54,19 @@ class Grasp {
 public:
 	Grasp ();
 	
-	Grasp (rca::Network *net,std::vector<rca::Group>&);
+	Grasp (rca::Network *net,std::vector<rca::Group>&, int budget = 0);
 	
 	void set_iter (int iter) {m_iter = iter;}
 	void set_lrc (double lrc) {m_lrc = lrc;}
+	void set_budget (int budget) {m_budget = budget;}
 	
 	sttree_t build_solution ();
 	
-	void local_search (sttree_t* sol);
+	void shortest_path_tree (int id, STobserver*);
+	void spanning_tree (STobserver * ob);
+	
+	void residual_refinament (sttree_t* sol, ChenReplaceVisitor&);
+	void cost_refinament (sttree_t* sol, ChenReplaceVisitor&);
 	
 	void run ();
 	
@@ -68,6 +75,8 @@ private:
 	
 	void reset_links_usage ();
 	
+// 	CongestionHandle & getCongestionHandle (sttree_t&);
+	
 private:
 	/**/
 	std::vector<rca::Link> m_links;
@@ -75,6 +84,7 @@ private:
 	/*Algorithm information*/
 	int m_iter;
 	double m_lrc;
+	double m_budget;
 	
 	/*problem information*/
 	sttree_t m_strees;
