@@ -291,6 +291,7 @@ void Grasp::run ()
 	
 	int best_cap = 0;
 	int best_cost = 0;
+	int best_iter = 0;
 	
 	sttree_t best;
 	
@@ -322,6 +323,8 @@ void Grasp::run ()
 			best_cost = sol.m_cost;
 			best = sol;
 		
+			best_iter = i;
+		
 		} else if (sol.m_residual_cap == best_cap 
 			&& sol.m_cost < best_cost 
 			&& sol.m_cost <= m_budget) {
@@ -329,6 +332,9 @@ void Grasp::run ()
 			best_cap = sol.m_residual_cap;
 			best_cost = sol.m_cost;
 			best = sol;
+		
+			best_iter = i;
+		
 		} else {
 		
 			if (sol.m_residual_cap > best_cap) {
@@ -347,7 +353,8 @@ void Grasp::run ()
 	
 		std::cout << best.m_cost << " ";
 		std::cout << best.m_residual_cap << " ";
-		std::cout << time_elapsed.get_elapsed () << std::endl;
+		std::cout << time_elapsed.get_elapsed () << " ";
+		std::cout << best_iter << std::endl;
 #ifdef DEBUG		
 		best.print_solution ();
 #endif
@@ -356,7 +363,8 @@ void Grasp::run ()
 		
 		std::cout << alt_best.m_cost << " ";
 		std::cout << alt_best.m_residual_cap << " ";
-		std::cout << time_elapsed.get_elapsed () << std::endl;
+		std::cout << time_elapsed.get_elapsed () << " ";
+		std::cout << best_iter << std::endl;
 #ifdef DEBUG		
 		alt_best.print_solution ();
 #endif
