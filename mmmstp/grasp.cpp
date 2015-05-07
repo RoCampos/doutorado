@@ -88,7 +88,13 @@ sttree_t Grasp::build_solution () {
 		ob.set_steiner_tree (steiner_tree, NODES);
 			
 		//create a tree
-  		this->shortest_path_tree (g_idx, &ob);		
+		double r = (double) (rand () % 100)/100.0;
+		
+		if (r < this->m_heur) {
+			this->shortest_path_tree (g_idx, &ob);		
+		} else {
+			this->spanning_tree (&ob);
+		}
 		//make prunning
 		ob.prune (1, SIZE);
 		
@@ -135,7 +141,7 @@ void Grasp::spanning_tree (STobserver * ob)
 	}
 		
 	//O(E)
-	ob->prune (1, GROUPS_SIZE);
+// 	ob->prune (1, GROUPS_SIZE);
 }
 
 void Grasp::shortest_path_tree (int id, STobserver* ob)
@@ -390,46 +396,6 @@ void Grasp::reset_links_usage ()
 	}
 }
 
-// CongestionHandle & Grasp::getCongestionHandle (sttree_t & sol)
-// {
-// 	
-// 	int NODES = this->m_network->getNumberNodes ();
-// 	int G_SIZE = this->m_groups.size ();
-// 	
-// 	CongestionHandle cg;
-// 	cg.init_congestion_matrix (NODES);
-// 	cg.init_handle_matrix (NODES);
-// 	
-// 	STobserver ob;
-// 	ob.set_container (cg);
-// 	
-// 	int g = 0;
-// 	for (auto st : sol.m_trees) {
-// 		
-// 		int source = this->m_groups[ g ].getSource ();
-// 		const std::vector<int> & members = this->m_groups[ g ].getMembers ();
-// 		
-// 		STTree steiner_tree(NODES,source, members);
-// 		ob.set_steiner_tree (steiner_tree, NODES);
-// 		
-// 		edge_t * e = st.get_edges ().begin;
-// 		while (e != NULL) {
-// 		
-// 			int cost = this->m_network->getCost (e->x, e->y);
-// 			
-// 			ob.add_edge (e->x, e->y, cost, G_SIZE);
-// 			
-// 			e = e->next;
-// 		}
-// 		
-// 		ob.prune (1, G_SIZE);
-// 		
-// 		g++;
-// 	}
-// 	
-// 	return ob.get_container ();
-// }
-
 int main (int argc, char**argv) {
 	
 	srand ( std::time(NULL) );
@@ -446,14 +412,19 @@ int main (int argc, char**argv) {
 	}
 	
 	Grasp grasp(&m_network, m_groups);
-	int iter = atoi (argv[2]);
-	double lrc = atof (argv[3]);
-	int budget = atof (argv[4]);
+	int iter = atoi (argv[3]);	
+	double lrc = atof (argv[5]);
+	int budget = atof (argv[7]);
+	double heur = atof (argv[9]);
+	
+#ifdef DEBUG
+	printf ("grasp %s --iter %d --lrc %.2f --budget %d --heur %.2f\n",file.c_str(),iter, lrc, budget, heur);
+#endif
 	
 	grasp.set_iter (iter);
 	grasp.set_lrc (lrc);
 	grasp.set_budget (budget);
-	
+	grasp.set_heur (heur);
 	
 	grasp.run ();
 	
