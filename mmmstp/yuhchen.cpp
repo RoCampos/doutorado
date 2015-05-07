@@ -166,6 +166,8 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 		
 		stob.prune (1, BAND);
 		
+		this->update_usage (stob.get_steiner_tree ());
+		
 		cost += stob.get_steiner_tree().getCost ();
 		//stob.get_steiner_tree().xdotFormat ();
 		
@@ -376,6 +378,22 @@ rca::Link YuhChen::get_bottleneck_link (rca::Path & path)
 	return l;
 }
 
+void YuhChen::update_usage (STTree & st)
+{
+	
+	edge_t * e = st.get_edges ().begin;
+	while ( e != NULL) {
+		
+		rca::Link l (e->x, e->y,0);
+		int band_value = this->m_network->getBand (l.getX(), l.getY());
+		this->m_network->setBand (l.getX(), l.getY(),band_value-1);
+		this->m_network->setBand (l.getY(), l.getX(),band_value-1);
+		
+		e = e->next;
+	}
+	
+}
+
 void YuhChen::run () 
 {
 
@@ -474,7 +492,6 @@ int main (int argc, char**argv)
 	//std::cout << ff.m_trees.size () << std::endl;
 	//std::cout << ff.m_cost << std::endl;
 	//std::cout << ff.Z << std::endl;
-	
 	
 	return 0;
 }
