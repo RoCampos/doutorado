@@ -218,6 +218,16 @@ private:
 	void update_pheromone_matrix (EdgeContainer<Comparator,HCell> & ec);
 	
 	/**
+	 * This method is used to update the preromone matrix.
+	 * 
+	 * It receives a reference to a solutions and the best cost so far for
+	 * individual trees
+	 */
+	void X (std::vector<STTree>& trees, 
+									 std::vector<double>& trees_cost,
+									  EdgeContainer<Comparator,HCell> & ec);
+	
+	/**
 	 * This method is used to find a next component based
 	 * on the heuristic informations or the ant probabilities.
 	 * 

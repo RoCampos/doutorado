@@ -207,11 +207,11 @@ void AcoMPP::run (va_list & arglist) {
 			
 			//if the i-th tree is the best found util now
 			//update the edges locally
-			if (m_best_trees[i] > st.getCost ()) {
-				m_best_trees[i] = st.getCost ();
-				
-				local_update (st);
-			}
+// 			if (m_best_trees[i] > st.getCost ()) {
+// 				m_best_trees[i] = st.getCost ();
+// 				
+// 				local_update (st);
+// 			}
 			
 			solutions[i] = st;
 			
@@ -236,48 +236,48 @@ void AcoMPP::run (va_list & arglist) {
 	
 
 /*-------------------------------------------------------*/			
-	bool improve = true;
-	int tmp_cong = ec.top();
-	
+// 	bool improve = true;
+// 	int tmp_cong = ec.top();
+// 	
 	std::vector<STTree> stts = solutions;
 	ChenReplaceVisitor c(&stts);
 	c.setNetwork (m_network);
 	c.setMulticastGroups (m_groups);
 	c.setEdgeContainer (ec);
 	
-	while (improve) {
-				
-		this->accept (&c);
-				
-		int temp_cost = 0;
-		for (auto st : stts) {
-			temp_cost += (int)st.getCost ();
-		}
-		
-		if (ec.top () > tmp_cong) {
-			congestion = ec.top ();
-			tmp_cong = congestion;
-			cost = temp_cost;
-			
-			solutions.clear ();
-			solutions = stts;
-		} else {
-			improve = false;
-		}
-		
-	}
-	
-	double r = (double) (rand() % 100 +1)/100.0;
-	
-	if (r < this->m_ref) {
-		c.visitByCost ();
-		int tt = 0.0;
-		for (auto st : stts) {
-			tt += (int)st.getCost ();
-		}
-		solutions = stts;
-		cost = tt;
-	}
+// 	while (improve) {
+// 				
+// 		this->accept (&c);
+// 				
+// 		int temp_cost = 0;
+// 		for (auto st : stts) {
+// 			temp_cost += (int)st.getCost ();
+// 		}
+// 		
+// 		if (ec.top () > tmp_cong) {
+// 			congestion = ec.top ();
+// 			tmp_cong = congestion;
+// 			cost = temp_cost;
+// 			
+// 			solutions.clear ();
+// 			solutions = stts;
+// 		} else {
+// 			improve = false;
+// 		}
+// 		
+// 	}
+// 	
+// 	double r = (double) (rand() % 100 +1)/100.0;
+// 	
+// 	if (r < this->m_ref) {
+// 		c.visitByCost ();
+// 		int tt = 0.0;
+// 		for (auto st : stts) {
+// 			tt += (int)st.getCost ();
+// 		}
+// 		solutions = stts;
+// 		cost = tt;
+// 	}
 /*-------------------------------------------------------*/
 	
 		/*used for congestion*/
@@ -309,7 +309,8 @@ void AcoMPP::run (va_list & arglist) {
 			m_best_iter = iter;
 			bestNLinks.clear ();
 			bestNLinks = solutions;
-			update_pheromone_matrix (ec);
+			//update_pheromone_matrix (ec);
+			X (solutions, m_best_trees, ec);
 		}
 #endif
 		//clean the network
@@ -324,11 +325,11 @@ void AcoMPP::run (va_list & arglist) {
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
-// 	std::cout << m_bcongestion << "\t";
-	std::cout << m_bcost << "\t\n";
-// 	std::cout << m_best_iter << "\t";
-// 	std::cout << time_elapsed.get_elapsed () << "\t";
-// 	std::cout << m_seed << "\n";
+ 	std::cout << m_bcongestion << "\t";
+	std::cout << m_bcost << "\t";
+ 	std::cout << m_best_iter << "\t";
+ 	std::cout << time_elapsed.get_elapsed () << "\t";
+ 	std::cout << m_seed << "\n";
 	
 	int g=0;	
 	auto it = bestNLinks.begin ();
@@ -666,6 +667,61 @@ void AcoMPP::update_pheromone_matrix (EdgeContainer<Comparator,HCell> & ec)
 		m_pmatrix[it->getX()][it->getY()] += (1-m_phe_rate)*v;
 		
 	}
+	
+}
+
+void AcoMPP::X (std::vector<STTree>& trees, 
+									  std::vector<double>& trees_cost,
+									  EdgeContainer<Comparator,HCell> & ec)
+{
+
+// 	int bottleneck_res = ec.top ();
+// 	int max_res = m_groups.size ();
+	
+	auto it = ec.get_heap ().ordered_begin();
+	auto end = ec.get_heap ().ordered_end();
+	
+	for ( ; it != end; it++) {
+		
+		double phe = 1 - (1/it->getValue());
+		double phe_cost = 0.0;
+		
+		int count_usage = 0;
+		int i=0;
+		for (auto st : trees) {
+		
+			if (st.getCost () < trees_cost[i] ) {
+			
+				edge_t * e = st.get_edge ();
+				while (e != NULL) {
+					
+					if (e->in) {
+						rca::Link l(e->x, e->y, 0);
+						
+						if (l == *it) {
+							count_usage++;
+							int cost = this->m_network->getCost (l.getX(),  l.getY());
+							phe_cost += (1 - (1/cost));
+						}
+					}
+					
+					e = e->next;
+				}
+			
+				trees_cost[i] = st.getCost ();
+			}
+			
+			phe_cost /= count_usage;
+			
+			m_pmatrix[ it->getX()][ it->getY() ] += (phe + phe_cost); 
+			
+			i++;
+		}
+		
+		count_usage = 0.0;
+		
+	}
+	
 	
 }
 
