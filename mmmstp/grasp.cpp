@@ -99,13 +99,17 @@ sttree_t Grasp::build_solution () {
 		ob.prune (1, SIZE);
 		
 		//computing the cost and store the tree
-		m_cost += ob.get_steiner_tree ().getCost ();	
+		m_cost += ob.get_steiner_tree ().getCost ();
 		sol.m_trees[g_idx] = ob.get_steiner_tree ();
+		
+		this->update_usage (ob.get_steiner_tree());
 		
 	}
 	
 	sol.m_cost = m_cost;
-	sol.m_residual_cap = ob.get_container ().top ();	
+	sol.m_residual_cap = ob.get_container ().top ();
+	
+	this->reset_links_usage ();
 	
 	return sol;
 }
