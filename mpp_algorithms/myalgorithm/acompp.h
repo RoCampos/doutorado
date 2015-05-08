@@ -224,8 +224,9 @@ private:
 	 * individual trees
 	 */
 	void X (std::vector<STTree>& trees, 
-									 std::vector<double>& trees_cost,
-									  EdgeContainer<Comparator,HCell> & ec);
+			std::vector<double>& trees_cost,
+			EdgeContainer<Comparator,HCell> & ec,
+			bool);
 	
 	/**
 	 * This method is used to find a next component based
