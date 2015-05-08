@@ -226,7 +226,7 @@ private:
 	void X (std::vector<STTree>& trees, 
 			std::vector<double>& trees_cost,
 			EdgeContainer<Comparator,HCell> & ec,
-			bool);
+			double);
 	
 	/**
 	 * This method is used to find a next component based

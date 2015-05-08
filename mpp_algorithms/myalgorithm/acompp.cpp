@@ -220,14 +220,14 @@ void AcoMPP::run (va_list & arglist) {
 	
 
 /*-------------------------------------------------------*/			
-// 	bool improve = true;
-// 	int tmp_cong = ec.top();
-// 	
-// 	std::vector<STTree> stts = solutions;
-// 	ChenReplaceVisitor c(&stts);
-// 	c.setNetwork (m_network);
-// 	c.setMulticastGroups (m_groups);
-// 	c.setEdgeContainer (ec);
+	bool improve = true;
+	int tmp_cong = ec.top();
+	
+	std::vector<STTree> stts = solutions;
+	ChenReplaceVisitor c(&stts);
+	c.setNetwork (m_network);
+	c.setMulticastGroups (m_groups);
+	c.setEdgeContainer (ec);
 // 	
 // 	while (improve) {
 // 				
@@ -251,17 +251,17 @@ void AcoMPP::run (va_list & arglist) {
 // 		
 // 	}
 // 	
-// 	double r = (double) (rand() % 100 +1)/100.0;
-// 	
-// 	if (r < this->m_ref) {
-// 		c.visitByCost ();
-// 		int tt = 0.0;
-// 		for (auto st : stts) {
-// 			tt += (int)st.getCost ();
-// 		}
-// 		solutions = stts;
-// 		cost = tt;
-// 	}
+	double r = (double) (rand() % 100 +1)/100.0;
+	
+	if (r < this->m_ref) {
+		c.visitByCost ();
+		int tt = 0.0;
+		for (auto st : stts) {
+			tt += (int)st.getCost ();
+		}
+		solutions = stts;
+		cost = tt;
+	}
 /*-------------------------------------------------------*/
 	
 		/*used for congestion*/
@@ -282,24 +282,16 @@ void AcoMPP::run (va_list & arglist) {
 #endif
 		
 #ifdef RES_CAP
-
+		
 		/*used for residual capacity*/
 		bool upd_cg = congestion > m_bcongestion;
 		bool upd_cost = (congestion == m_bcongestion && cost < m_bcost);
-		bool upd_lim = cost <= INT_MAX;
+		bool upd_lim = cost <= 100130;
 		if ( (upd_cg || upd_cost) && upd_lim )
 		{
-			m_bcost = cost;
-			m_bcongestion = congestion;
-			//updating the pheromene
-			m_best_iter = iter;
-			bestNLinks.clear ();
-			
-			bestNLinks = solutions;
-			//update_pheromone_matrix (ec);
-			X (bestNLinks, m_best_trees, ec, true);
-			
-		} else if (upd_cg || upd_cost) {
+// #ifdef DEBUG
+// 	std::cout << "upd8 cong under budget limit\n";
+// #endif 
 			
 			m_bcost = cost;
 			m_bcongestion = congestion;
@@ -309,13 +301,49 @@ void AcoMPP::run (va_list & arglist) {
 			
 			bestNLinks = solutions;
 			//update_pheromone_matrix (ec);
-			X (bestNLinks, m_best_trees, ec, false);
+			X (bestNLinks, m_best_trees, ec, 1.0);
+			
+// 			std::cout << "limit:" << congestion << std::endl;
+			
+		} else if (upd_cg) {
+		
+// #ifdef DEBUG
+// 	std::cout << "upd8 cong under\n";
+// #endif 
+			
+			m_bcost = cost;
+			m_bcongestion = congestion;
+			//updating the pheromene
+			m_best_iter = iter;
+			bestNLinks.clear ();
+			
+			bestNLinks = solutions;
+			//update_pheromone_matrix (ec);
+			X (bestNLinks, m_best_trees, ec, 0);
+			
+		} else if (upd_cost) {
+			
+// #ifdef DEBUG
+// 	std::cout << "upd8 cost\n";
+// #endif 
+			
+			m_bcost = cost;
+			m_bcongestion = congestion;
+			//updating the pheromene
+			m_best_iter = iter;
+			bestNLinks.clear ();
+			
+			bestNLinks = solutions;
+			//update_pheromone_matrix (ec);
+			X (bestNLinks, m_best_trees, ec, 0.25);
 			
 		}
+			
 #endif
 		//clean the network
 		m_network->clearRemovedEdges ();
 
+		
 	}
 	
 	time_elapsed.finished ();
@@ -324,12 +352,12 @@ void AcoMPP::run (va_list & arglist) {
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
- 	std::cout << m_bcongestion << "\t";
-	std::cout << m_bcost << "\t";
- 	std::cout << m_best_iter << "\t";
- 	std::cout << time_elapsed.get_elapsed () << "\t";
- 	std::cout << m_seed << "\n";
-	
+   	std::cout << m_bcongestion << "\n";
+//  	std::cout << m_bcost << "\t";
+//   	std::cout << m_best_iter << "\t";
+//   	std::cout << time_elapsed.get_elapsed () << "\t";
+//   	std::cout << m_seed << "\n";
+// 	
 	int g=0;	
 	auto it = bestNLinks.begin ();
 	for (; it != bestNLinks.end(); it++) {
@@ -672,18 +700,17 @@ void AcoMPP::update_pheromone_matrix (EdgeContainer<Comparator,HCell> & ec)
 void AcoMPP::X (std::vector<STTree>& trees, 
 				std::vector<double>& trees_cost,
 				EdgeContainer<Comparator,HCell> & ec, 
-				bool upd)
+				double scale)
 {
 
-// 	int bottleneck_res = ec.top ();
-// 	int max_res = m_groups.size ();
+ 	int max_res = m_groups.size ();
 	
 	auto it = ec.get_heap ().ordered_begin();
 	auto end = ec.get_heap ().ordered_end();
 	
 	for ( ; it != end; it++) {
 		
-		double phe = 1 - (1/it->getValue());
+		double phe =  (1/ (max_res - it->getValue()));
 		double phe_cost = 0.0;
 		
 		int count_usage = 0;
@@ -712,13 +739,14 @@ void AcoMPP::X (std::vector<STTree>& trees,
 		
 		phe_cost /= count_usage;
 		
-		m_pmatrix[ it->getX()][ it->getY() ] += (phe + phe_cost); 
+		m_pmatrix[ it->getX()][ it->getY() ] += (phe + scale*phe_cost); 
 		
-// 		std::cout << *it << "- Cost(" << (int)this->m_network->getCost (it->getX(),
-// 																  it->getY());
-// 		std::cout << ") - Res(" << it->getValue () << ")";
-// 		std::cout << "- Phe+Cost(" << phe + phe_cost << ")";
-// 		printf (" - Phe(%f) - PheC(%f)\n", phe, phe_cost);
+// 		int cost = (int)this->m_network->getCost (it->getX(),it->getY());
+// 		std::cout << *it << "- Cost("<<cost <<")";
+// 		std::cout << " - Res(" << it->getValue () << ")";		
+// 		printf (" - Phe(%f) - PheC(%f)", phe, phe_cost);
+// 		std::cout << " - Phe+Cost(" << phe + phe_cost << ")";
+// 		printf (" - PMAtrix(%f)\n",m_pmatrix[ it->getX()][ it->getY() ]);
 		
 		
 	}
