@@ -148,7 +148,16 @@ void AcoMPP::run (va_list & arglist) {
 	m_heuristic_prob = va_arg (arglist, double);
 	m_local_upd = va_arg(arglist,double);
 	m_ref = va_arg (arglist, double);
+	
 	m_budget = va_arg (arglist, double);
+	if (m_budget == 0) {
+		m_budget = INT_MAX;
+	}
+	
+	//novos parâmetros
+	double upd1 = va_arg (arglist, double);
+	double upd2 = va_arg (arglist, double);
+	double upd3 = va_arg (arglist, double);
 
 	std::vector<STTree> bestNLinks;
 	
@@ -299,9 +308,9 @@ void AcoMPP::run (va_list & arglist) {
 			
 			bestNLinks = solutions;
 			//update_pheromone_matrix (ec);
-			X (bestNLinks, m_best_trees, ec, 4.0);
+			X (bestNLinks, m_best_trees, ec, upd1);
 			
-			std::cout<< "1:" << congestion<< " "<< cost << std::endl;
+// 			std::cout<< "1:" << congestion<< " "<< cost << std::endl;
 			
 		} else if (upd_cg) {
 		
@@ -313,9 +322,9 @@ void AcoMPP::run (va_list & arglist) {
 // 			
 // 			bestNLinks = solutions;
 			//update_pheromone_matrix (ec);
-			X (solutions, m_best_trees, ec, 0.15);
+			X (solutions, m_best_trees, ec, upd2);
 			
-			std::cout<< "2:" << congestion<< " "<< cost << std::endl;
+// 			std::cout<< "2:" << congestion<< " "<< cost << std::endl;
 			
 		} else if (upd_cost) {
 			
@@ -327,9 +336,9 @@ void AcoMPP::run (va_list & arglist) {
 			
 			bestNLinks = solutions;
 			//update_pheromone_matrix (ec);
-			X (bestNLinks, m_best_trees, ec, 1.5);
+			X (bestNLinks, m_best_trees, ec, upd3);
 			
-			std::cout<< "3:" << congestion<< " "<< cost << std::endl;
+// 			std::cout<< "3:" << congestion<< " "<< cost << std::endl;
 		}
 			
 #endif
@@ -345,11 +354,11 @@ void AcoMPP::run (va_list & arglist) {
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
-   	std::cout << m_bcongestion << "\t";
- 	std::cout << m_bcost << "\t";
-  	std::cout << m_best_iter << "\t";
-  	std::cout << time_elapsed.get_elapsed () << "\t";
-  	std::cout << m_seed << "\n";
+   	std::cout << m_bcongestion << "\n";
+//  	std::cout << m_bcost << "\t";
+//   	std::cout << m_best_iter << "\t";
+//   	std::cout << time_elapsed.get_elapsed () << "\t";
+//   	std::cout << m_seed << "\n";
 	
 	int g=0;	
 	auto it = bestNLinks.begin ();

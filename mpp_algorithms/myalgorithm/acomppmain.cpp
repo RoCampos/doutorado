@@ -28,8 +28,11 @@ int main (int argv, char **argc) {
 	double ref = atof (argc[15]);
 	double budget = atof (argc[17]);
 	
+	double upd1 = atof (argc[18]);
+	double upd2 = atof (argc[19]);
+	double upd3 = atof (argc[20]);
 	
-	aco.run (9, str, iterations, alpha, betha, phe_rate, prob_heur, local_upd, ref, budget);
+	aco.run (12,str,iterations,alpha,betha,phe_rate,prob_heur,local_upd,ref,budget,upd1, upd2, upd3);
 	
 	return 0;
 }
