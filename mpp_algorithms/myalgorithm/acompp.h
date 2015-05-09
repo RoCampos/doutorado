@@ -297,6 +297,8 @@ private:
 	
 	double m_ref; //parameter to apply cost ref heuristic
 	
+	double m_budget;
+	
 	/*solution results*/
 	std::vector<double> m_best_trees;
 	
