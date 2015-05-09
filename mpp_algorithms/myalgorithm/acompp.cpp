@@ -299,21 +299,21 @@ void AcoMPP::run (va_list & arglist) {
 			
 			bestNLinks = solutions;
 			//update_pheromone_matrix (ec);
-			X (bestNLinks, m_best_trees, ec, 2.0);
+			X (bestNLinks, m_best_trees, ec, 4.0);
 			
 			std::cout<< "1:" << congestion<< " "<< cost << std::endl;
 			
 		} else if (upd_cg) {
 		
-			m_bcost = cost;
-			m_bcongestion = congestion;
-			//updating the pheromene
-			m_best_iter = iter;
-			bestNLinks.clear ();
-			
-			bestNLinks = solutions;
+// 			m_bcost = cost;
+// 			m_bcongestion = congestion;
+// 			//updating the pheromene
+// 			m_best_iter = iter;
+// 			bestNLinks.clear ();
+// 			
+// 			bestNLinks = solutions;
 			//update_pheromone_matrix (ec);
-			X (solutions, m_best_trees, ec, 1.0);
+			X (solutions, m_best_trees, ec, 0.15);
 			
 			std::cout<< "2:" << congestion<< " "<< cost << std::endl;
 			
@@ -327,7 +327,7 @@ void AcoMPP::run (va_list & arglist) {
 			
 			bestNLinks = solutions;
 			//update_pheromone_matrix (ec);
-			X (bestNLinks, m_best_trees, ec, 0.5);
+			X (bestNLinks, m_best_trees, ec, 1.5);
 			
 			std::cout<< "3:" << congestion<< " "<< cost << std::endl;
 		}
