@@ -204,7 +204,7 @@ private:
 							EdgeContainer<Comparator,HCell> &ec, 
 							double&, 
 							double&,
-							int trequest);
+							int trequest, int);
 	
 	/**
 	 * 
