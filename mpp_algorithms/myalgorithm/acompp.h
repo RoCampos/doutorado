@@ -243,7 +243,8 @@ private:
 	 * @return the next step on the search.
 	 */
 	int next_component (int c_vertex, 
-						 std::vector<rca::Link>& toRemove);
+						 std::vector<rca::Link>& toRemove,
+					 EdgeContainer<Comparator,HCell> & ec);
 	
 	/**
 	 * This method is used to do local updates on the pheromene

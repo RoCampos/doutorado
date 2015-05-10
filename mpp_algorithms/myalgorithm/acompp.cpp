@@ -44,7 +44,7 @@ void AcoMPP::build_tree (int id,
 		//std::cout << "next" << next << std::endl;
 		//std::cout << "Choosed:" << next_component (c_vertex, toRemove) << std::endl;
 		
-		int next = next_component (c_vertex, toRemove);
+		int next = next_component (c_vertex, toRemove, ec);
 			
 		//if next == -1 é necessário mudar a forrmiga de lugar
 		if (next != -1) {
@@ -228,7 +228,7 @@ void AcoMPP::run (va_list & arglist) {
 #endif
 	
 		}//end for in solutioon construction
-	
+		
 
 /*-------------------------------------------------------*/			
 	bool improve = true;
@@ -239,7 +239,7 @@ void AcoMPP::run (va_list & arglist) {
 	c.setNetwork (m_network);
 	c.setMulticastGroups (m_groups);
 	c.setEdgeContainer (ec);
-// 	
+	
 //  	while (improve) {
 // 				
 // 		this->accept (&c);
@@ -298,7 +298,7 @@ void AcoMPP::run (va_list & arglist) {
 		bool upd_cg = congestion > m_bcongestion;
 		bool upd_cost = (congestion == m_bcongestion && cost < m_bcost);
 		bool upd_lim = (cost <= m_budget);
-		
+
 		if ( (upd_cg || upd_cost) && upd_lim )
 		{
 			
@@ -312,21 +312,12 @@ void AcoMPP::run (va_list & arglist) {
 			//update_pheromone_matrix (ec);
 			X (bestNLinks, m_best_trees, ec, upd1);
 			
-// 			std::cout<< "1:" << congestion<< " "<< cost << std::endl;
+			m_budget = cost;
 			
 		} else if (upd_cg) {
 		
-// 			m_bcost = cost;
-// 			m_bcongestion = congestion;
-// 			//updating the pheromene
-// 			m_best_iter = iter;
-// 			bestNLinks.clear ();
-// 			
-// 			bestNLinks = solutions;
-			//update_pheromone_matrix (ec);
+
 			X (solutions, m_best_trees, ec, upd2);
-			
-// 			std::cout<< "2:" << congestion<< " "<< cost << std::endl;
 			
 		} else if (upd_cost) {
 			
@@ -339,8 +330,7 @@ void AcoMPP::run (va_list & arglist) {
 			bestNLinks = solutions;
 			//update_pheromone_matrix (ec);
 			X (bestNLinks, m_best_trees, ec, upd3);
-			
-// 			std::cout<< "3:" << congestion<< " "<< cost << std::endl;
+
 		}
 			
 #endif
@@ -720,14 +710,15 @@ void AcoMPP::X (std::vector<STTree>& trees,
 				double scale)
 {
 
- 	int max_res = m_groups.size ();
+ 	double max_res = m_groups.size ();
 	
 	auto it = ec.get_heap ().ordered_begin();
 	auto end = ec.get_heap ().ordered_end();
 	
 	for ( ; it != end; it++) {
 		
-		double phe =  (1/ (max_res - it->getValue()));
+// 		double phe =  (1/ (max_res - it->getValue()));
+		double phe = (it->getValue() - ec.top())/max_res;
 		double phe_cost = 0.0;
 		
 		int count_usage = 0;
@@ -756,19 +747,9 @@ void AcoMPP::X (std::vector<STTree>& trees,
 		}
 		
 		phe_cost /= count_usage;
-				
-// 		m_pmatrix[ it->getX()][ it->getY() ] += (phe + scale*phe_cost);
-// 		m_pmatrix[ it->getX()][ it->getY() ] += (phe + count_usage*phe); 
+
 		m_pmatrix[ it->getX()][ it->getY() ] += scale*phe; 
-		
-// 		int cost = (int)this->m_network->getCost (it->getX(),it->getY());
-// 		std::cout << *it << "- Cost("<<cost <<")";
-// 		std::cout << " - Res(" << it->getValue () << ")";		
-// 		printf (" - Phe(%f) - PheC(%f)", phe, phe_cost);
-// 		std::cout << " - Phe+Cost(" << phe + phe_cost << ")";
-// 		printf (" - PMAtrix(%f)\n",m_pmatrix[ it->getX()][ it->getY() ]);
-		
-		
+	
 	}
 	
 	int i=0;
@@ -779,7 +760,6 @@ void AcoMPP::X (std::vector<STTree>& trees,
 		i++;
 	}
 	
-// 	getchar ();
 }
 
 void AcoMPP::local_update (STTree & st) 
@@ -806,7 +786,9 @@ void AcoMPP::local_update (STTree & st)
 	
 }
 
-int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
+int AcoMPP::next_component (int c_vertex, 
+							std::vector<rca::Link>& toRemove,
+							EdgeContainer<Comparator,HCell> & ec)
 {
 
 #ifdef DEBUG1
@@ -866,9 +848,7 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 				double heur = m_network->getCost (link.getX(), link.getY());
 					
 				double denominador = pow( phe , m_alpha) * pow( (1/heur) ,m_betha);
-				
-// 				std::cout << "Value best: " << *begin << std::endl;
-//  					printf ("Best value %lf\n", ((double)denominador/value));
+
 				if ( ((double)denominador/value) > best) {
 					best = ((double)denominador/value);
  					
@@ -888,7 +868,31 @@ int AcoMPP::next_component (int c_vertex, std::vector<rca::Link>& toRemove)
 		#ifdef DEBUG1
 			std::cout << " Using greedy procedure\n";
 		#endif
-		return m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
+		
+		typedef std::vector<int>::const_iterator adj_iter;
+		std::pair<adj_iter, adj_iter> iters;
+		std::vector<rca::Link> list;
+		
+		this->m_network->get_iterator_adjacent(c_vertex, iters);
+		auto begin = iters.first;
+		for ( ; begin != iters.second; begin++) {
+			int x = c_vertex;
+			int y = *begin;
+			rca::Link l (x,y,0);
+			if (!this->m_network->isRemoved(l)) {
+				if (ec.is_used (l)) {
+					l.setValue (ec.value (l));
+				} else {
+					l.setValue (this->m_groups.size ());
+				}
+
+				list.push_back (l);
+			}
+		}
+		std::sort (list.begin (), list.end(), std::greater<rca::Link>());
+
+		return ( (list.size () > 0) ? (list[0].getX() == c_vertex ? list[0].getY() : list[0].getX()) : -1);
+// 		return m_network->get_adjacent_by_minimun_cost (c_vertex, toRemove);
 	}
 	
 #ifdef DEBUG1
