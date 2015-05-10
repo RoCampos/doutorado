@@ -83,10 +83,10 @@ void ChenReplaceVisitor::visitByCost ()
 	for ( ; it_h != end_h; it_h++) {
 		rca::Link l = *it_h;
 		l.setValue ( m_network->getCost (it_h->getX(), it_h->getY()) );
-		tree.push_back (*it_h);
+		tree.push_back (l);
 	}
 	
-	std::sort (tree.begin (), tree.end());
+	std::sort (tree.begin (), tree.end(), std::greater<rca::Link>());
 	
 	auto it = tree.begin ();
 	auto end = tree.end();
@@ -215,6 +215,10 @@ void ChenReplaceVisitor::replace (TupleEdgeRemove & tuple)
 	rca::Link _old = std::get<2>(tuple);
 	rca::Link _new = std::get<3>(tuple);
 	
+#ifdef DEBUG1
+	std::cout << "Replacing " << _old << " by " << _new << std::endl;
+#endif 
+	
 	//updating the tree
 	m_temp_trees[st][pos] = _new;
 	
@@ -223,6 +227,9 @@ void ChenReplaceVisitor::replace (TupleEdgeRemove & tuple)
 	
 	if (m_ec->is_used (_new)) {
 		int v = m_ec->value (_new);
+#ifdef DEBUG1
+	std::cout << "\t _new value (" << v << ")" << std::endl;
+#endif
 		m_ec->erase (_new);
 		_new.setValue (v - 1);
 		m_ec->push (_new);
@@ -238,6 +245,12 @@ void ChenReplaceVisitor::replace (TupleEdgeRemove & tuple)
 		_old.setValue (value);
 		m_ec->push (_old);
 	}
+	
+#ifdef DEBUG1
+	std::cout << "\tMin (" << m_ec->top () << ")\n";
+	std::cout << "\tresidual _old (" << _old << ")=" << value;
+	std::cout << "\n\tresidual _new (" << _new << ")=" << _new.getValue () << std::endl;
+#endif
 	
 }
 

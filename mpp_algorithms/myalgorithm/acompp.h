@@ -204,7 +204,7 @@ private:
 							EdgeContainer<Comparator,HCell> &ec, 
 							double&, 
 							double&,
-							int trequest);
+							int trequest, int);
 	
 	/**
 	 * 
@@ -216,6 +216,17 @@ private:
 	 * 
 	 */
 	void update_pheromone_matrix (EdgeContainer<Comparator,HCell> & ec);
+	
+	/**
+	 * This method is used to update the preromone matrix.
+	 * 
+	 * It receives a reference to a solutions and the best cost so far for
+	 * individual trees
+	 */
+	void X (std::vector<STTree>& trees, 
+			std::vector<double>& trees_cost,
+			EdgeContainer<Comparator,HCell> & ec,
+			double);
 	
 	/**
 	 * This method is used to find a next component based
@@ -232,7 +243,8 @@ private:
 	 * @return the next step on the search.
 	 */
 	int next_component (int c_vertex, 
-						 std::vector<rca::Link>& toRemove);
+						 std::vector<rca::Link>& toRemove,
+					 EdgeContainer<Comparator,HCell> & ec);
 	
 	/**
 	 * This method is used to do local updates on the pheromene
@@ -283,6 +295,10 @@ private:
 	double m_heuristic_prob;
 	
 	double m_local_upd;
+	
+	double m_ref; //parameter to apply cost ref heuristic
+	
+	double m_budget;
 	
 	/*solution results*/
 	std::vector<double> m_best_trees;

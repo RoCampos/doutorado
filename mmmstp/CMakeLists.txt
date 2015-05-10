@@ -26,8 +26,13 @@ add_executable (genetic_mmmstp 	genetic_algorithm.cpp
 								metaheuristic.h)
 target_link_libraries (genetic_mmmstp graph sttree sttalgo myutil)
 
-MESSAGE ("\tINFO: Compiling genetic_mmmstp using network configurated for REAL=${REAL}")
+MESSAGE ("\tINFO: Compiling youhchen using network configurated for REAL=${REAL}")
 add_executable (yuhchen yuhchen.cpp
 						yuhchen.h)
 target_link_libraries (yuhchen graph sttalgo sttree)
+
+MESSAGE ("\tINFO: Compiling Grasp Algorithm using network configurated for REAL=${REAL}")
+add_executable (grasp grasp.cpp	
+						grasp.h)
+target_link_libraries (grasp graph sttree sttalgo myutil)
 

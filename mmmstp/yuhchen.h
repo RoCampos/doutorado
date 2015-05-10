@@ -193,6 +193,9 @@ private:
 	 */
 	forest_t to_forest (int stream_id, std::vector<rca::Path>);
 	
+	
+	void update_usage (STTree & st);
+	
 private:
 	
 	rca::Network * m_network;

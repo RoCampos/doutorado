@@ -106,7 +106,7 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	std::cout << m_population[best].m_cost << " ";
 	std::cout << m_population[best].m_residual_capacity << " ";
 	std::cout << time_elapsed.get_elapsed () << std::endl;
-//   	m_population[best].print_solution (m_network, m_groups);
+  	m_population[best].print_solution (m_network, m_groups);
 		
 	//deallocatin of resources;
 #ifdef DEBUG1
@@ -937,8 +937,8 @@ void PathRepresentation::print_solution (rca::Network *net,
 	for (std::vector<rca::Link> & links: m_tree_links) {
 		
 		for (rca::Link &l: links) {
-			std::cout << l.getX()+1 << " - " << l.getY()+1	 << ":";
-			std::cout << group << ";"<< std::endl;
+			std::cerr << l.getX()+1 << " - " << l.getY()+1	 << ":";
+			std::cerr << group << ";"<< std::endl;
 		}
 		group++;
 	}
