@@ -8,6 +8,13 @@ YuhChen::YuhChen ()
 YuhChen::YuhChen (rca::Network * net)
 {
 	m_network = net;
+	
+	//creating the congestion handle that will be used 
+	//to improve the cost of solution
+	int NODES = this->m_network->getNumberNodes ();
+	m_cg.init_congestion_matrix (NODES);
+	m_cg.init_handle_matrix (NODES);
+	
 }
 
 YuhChen::YuhChen (std::string file) 
@@ -33,6 +40,9 @@ YuhChen::YuhChen (std::string file)
 		}
 	}
 	
+	int NODES = this->m_network->getNumberNodes ();
+	m_cg.init_congestion_matrix (NODES);
+	m_cg.init_handle_matrix (NODES);
 	
 }
 
@@ -155,7 +165,7 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 				int y = *(it+1);
 				
 				int cost = m_network->getCost (x,y);
-				int band = m_network->getBand (x,y);
+				
 				rca::Link l(x, y, cost);
 				
 				stob.add_edge (l.getX(), l.getY(), cost, BAND);
@@ -222,7 +232,7 @@ forest_t YuhChen::wp_forest (stream_t & stream)
 			
 			//iner-loop lines (10-15)
 			//this loop try to find a "better path from current to an source"
-			for (int i=1; i < f.m_trees.size(); i++) {
+			for (size_t i=1; i < f.m_trees.size(); i++) {
 				tree_t t_i = f.m_trees[i];
 				rca::Path path_i = t_i.find_path ( d );
 								
@@ -335,6 +345,10 @@ forest_t YuhChen::to_forest (int stream_id, std::vector<rca::Path> paths)
 			t.m_paths = tree;
 			t.m_source = source;
 			
+			///adding the STTRe to tree_t
+			//it will be used to improve the cost of solutioon
+			t.m_tree = ob.get_steiner_tree ();
+			
 			out_solution.m_trees.push_back ( t );
 			out_solution.m_cost += ob.get_steiner_tree ().getCost ();
 		}
@@ -394,8 +408,41 @@ void YuhChen::update_usage (STTree & st)
 	
 }
 
-void YuhChen::run () 
+void YuhChen::update_cg (STTree & st)
 {
+	int STREAMS = m_streams.size ();
+	edge_t *e = st.get_edges().begin;
+	while (e != NULL) {
+		
+		if (e->in) {
+		
+			rca::Link l (e->x, e->y, 0);
+			if (!m_cg.is_used (l)) {
+				
+				l.setValue ( STREAMS - 1 );
+				this->m_cg.push(l);
+				
+			} else {
+				
+				int value = m_cg.value (l) - 1;
+				this->m_cg.erase (l);
+				l.setValue ( value );
+				this->m_cg.push (l);
+				
+			}
+		}
+		
+		e = e->next;
+	}
+	
+	
+}
+
+/* ---------------------- main routine -----------------------*/
+void YuhChen::run (int param) 
+{
+	
+	this->m_improve_cost = param;
 
 	int STREAMS = m_streams.size ();
 	std::vector<forest_t> F;
@@ -404,15 +451,26 @@ void YuhChen::run ()
 	
 	double cost = 0.0;
 	
+	//list of sttrees to be improved
+	std::vector<STTree> improve;
+	
 	for (int i=0; i < STREAMS; i++) {
 		
 		forest_t f = wp_forest (this->m_streams[i]);
 		
 		std::vector<tree_t> trees = f.m_trees;
 		
-		for (auto t: trees) {
+		for (tree_t t: trees) {
 			
 			std::vector<rca::Link> tree_links;
+			
+			if (this->m_improve_cost == 1) {
+				//updating the CongestioonHandle Strucute
+				this->update_cg (t.m_tree);
+				//storing three to improve Cost.
+				improve.push_back (t.m_tree);
+			}
+		
 			
 			//getting the links of a tree
 			for (auto p: t.m_paths) {
@@ -459,15 +517,40 @@ void YuhChen::run ()
 	}
 
  	std::sort (links.begin (), links.end());
- 	std::cout << links.begin ()->getValue () << " " << cost << std::endl;
-
+ 	std::cout << links.begin ()->getValue () << " " << cost << " ";
 	
+	
+	if (this->m_improve_cost == 1) {
+		/*Improving solution cost*/
+		std::vector<rca::Group> m_groups;
+		for (auto stm : m_streams) {
+			
+			rca::Group g= stm.m_group;
+			g.setSource (stm.m_sources[0]);
+			m_groups.push_back (g);
+		}
+		
+		ChenReplaceVisitor c(&improve);
+		c.setNetwork (m_network);
+		c.setMulticastGroups (m_groups);
+		c.setEdgeContainer (m_cg);
+		
+		c.visitByCost ();
+		int tt = 0.0;
+		for (auto st : improve) {
+			tt += (int)st.getCost ();
+		}
+		std::cout << tt << "\n";
+	} else {
+		std::cout << std::endl;
+	}
 }
 
 int main (int argc, char**argv) 
 {
 
 	std::string m_instance(argv[1]);
+	int improve_cost = atoi (argv[2]);
  	
 	rca::Network net;
 	std::vector<shared_ptr<rca::Group>> g;
@@ -485,7 +568,7 @@ int main (int argc, char**argv)
 	
  	//YuhChen yuhchen(m_instance);
 	
-	yuhchen.run ();
+	yuhchen.run (improve_cost);
 	
 	//forest_t ff = yuhchen.widest_path_tree (0);
 	
