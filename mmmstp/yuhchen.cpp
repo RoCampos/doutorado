@@ -517,7 +517,7 @@ void YuhChen::run (int param)
 	}
 
  	std::sort (links.begin (), links.end());
- 	std::cout << links.begin ()->getValue () << " " << cost << " ";
+ 	std::cout << links.begin ()->getValue () << "\t" << cost << "\t";
 	
 	
 	if (this->m_improve_cost == 1) {
@@ -540,10 +540,8 @@ void YuhChen::run (int param)
 		for (auto st : improve) {
 			tt += (int)st.getCost ();
 		}
-		std::cout << tt << "\n";
-	} else {
-		std::cout << std::endl;
-	}
+		std::cout << tt << "\t";
+	} 
 }
 
 int main (int argc, char**argv) 
@@ -563,6 +561,9 @@ int main (int argc, char**argv)
 		groups.push_back (*it.get());
 	}
 	
+	rca::elapsed_time time_elapsed;	
+	time_elapsed.started ();
+	
 	YuhChen yuhchen (&net);
 	yuhchen.configure_streams (groups);
 	
@@ -570,6 +571,8 @@ int main (int argc, char**argv)
 	
 	yuhchen.run (improve_cost);
 	
+	time_elapsed.finished ();
+	std::cout << time_elapsed.get_elapsed () << std::endl;
 	//forest_t ff = yuhchen.widest_path_tree (0);
 	
 	//std::cout << ff.m_trees.size () << std::endl;

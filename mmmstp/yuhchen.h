@@ -14,6 +14,8 @@
 #include "sttree_visitor.h"
 #include "mpp_visitor.h"
 
+#include "rcatime.h"
+
 typedef int source_t;
 
 /**
