@@ -32,7 +32,12 @@ int main (int argv, char **argc) {
 	double upd2 = atof (argc[19]);
 	double upd3 = atof (argc[20]);
 	
-	aco.run (12,str,iterations,alpha,betha,phe_rate,prob_heur,local_upd,ref,budget,upd1, upd2, upd3);
+	double flip = atof (argc[22]);
+	
+	
+	int _res = atoi (argc[24]);
+	
+	aco.run (14,str,iterations,alpha,betha,phe_rate,prob_heur,local_upd,ref,budget,upd1, upd2, upd3, flip, _res);
 	
 	return 0;
 }
