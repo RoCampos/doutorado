@@ -119,6 +119,14 @@ private:
 							   std::vector<rca::Link>&);
 	
 	
+	/**
+	 * Método para obter uma tupla para obter um tupla
+	 * com as informações de remoção.
+	 * 
+	 * @param int represeta o id do número para acessar m_tree_temp
+	 * @param rca::Link representa o link que vai ser subtituído
+	 */
+	std::tuple<int,int,rca::Link,rca::Link> get_tuple (int, rca::Link&);
 	
 	
 	
