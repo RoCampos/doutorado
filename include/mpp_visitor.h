@@ -96,7 +96,7 @@ public:
 		m_ec = &ec;
 	}
 	
-	void visitByCost ();
+	void visitByCost (int budget);
 	
 	
 private:
@@ -119,7 +119,9 @@ private:
 							   std::vector<rca::Link>&);
 	
 	
-	
+	void getAvailableEdgesByCost2 (std::vector<int>&, 
+								   std::vector<int>&,rca::Link&,
+									std::vector<rca::Link>&);
 	
 	
 	/*cria novas árvores de steiner
