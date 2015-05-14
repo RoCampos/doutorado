@@ -29,7 +29,7 @@ target_link_libraries (genetic_mmmstp graph sttree sttalgo myutil)
 MESSAGE ("\tINFO: Compiling youhchen using network configurated for REAL=${REAL}")
 add_executable (yuhchen yuhchen.cpp
 						yuhchen.h)
-target_link_libraries (yuhchen graph sttalgo sttree)
+target_link_libraries (yuhchen graph sttalgo sttree myutil)
 
 MESSAGE ("\tINFO: Compiling Grasp Algorithm using network configurated for REAL=${REAL}")
 add_executable (grasp grasp.cpp	

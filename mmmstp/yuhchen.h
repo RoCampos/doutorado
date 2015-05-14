@@ -12,6 +12,9 @@
 #include "steiner_tree_observer.h"
 #include "edgecontainer.h"
 #include "sttree_visitor.h"
+#include "mpp_visitor.h"
+
+#include "rcatime.h"
 
 typedef int source_t;
 
@@ -23,6 +26,7 @@ typedef int source_t;
 typedef struct tree_t {
 
 	std::vector<rca::Path> m_paths;
+	STTree m_tree;
 	int m_source;
 	
 	rca::Path find_path (int destination) {
@@ -32,6 +36,8 @@ typedef struct tree_t {
 			if ( (*it)[0] == destination )
 				return *it;
 		}
+		rca::Path p;
+		return p;
 	}
 	
 } tree_t;
@@ -66,6 +72,7 @@ typedef struct stream_t {
 			}
 			idx++;
 		}
+		return -1;
 	}
 	
 	//stream id
@@ -174,7 +181,7 @@ public:
 	 */
 	forest_t wp_forest (stream_t & stream);
 	
-	void run ();
+	void run (int improve_cost = 0);
 	
 private:
 	/**
@@ -196,10 +203,23 @@ private:
 	
 	void update_usage (STTree & st);
 	
+	/**
+	 * This method is used to update the congestion handle.
+	 * The congestioon handle will be used to improve the cost
+	 * of a solution.
+	 */
+	void update_cg (STTree & st);
+	
 private:
 	
 	rca::Network * m_network;
+	
 	std::vector<stream_t> m_streams;
+	
+	CongestinoHandle m_cg;
+	
+	int m_improve_cost;
+	
 };
 
 

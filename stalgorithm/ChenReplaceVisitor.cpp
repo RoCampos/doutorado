@@ -74,8 +74,7 @@ void ChenReplaceVisitor::visitByCost ()
 	prepare_trees ();
 
 	int min_res = m_ec->top ();
-	
-	RUN:
+
 	auto it_h = m_ec->m_heap.ordered_begin ();
 	auto end_h= m_ec->m_heap.ordered_end ();
 	
@@ -91,10 +90,14 @@ void ChenReplaceVisitor::visitByCost ()
 	auto it = tree.begin ();
 	auto end = tree.end();
 	
+	std::vector<std::tuple<int,int,rca::Link,rca::Link>> to_remove;
+
 	for ( ; it != end; it++) {
 		
+		to_remove.clear ();
+		
 		int group_id = 0;
-		for (std::vector<rca::Link> st : m_temp_trees) {
+		for (std::vector<rca::Link> st : this->m_temp_trees) {
 		
 			auto link_it = std::find (st.begin (), st.end(), *it);
 			
@@ -120,13 +123,50 @@ void ChenReplaceVisitor::visitByCost ()
 					std::tuple<int,int,rca::Link,rca::Link> 	
 							tuple (group_id, link_pos, *it, links[_new_link]);
 					
-					replace (tuple);
-					goto RUN;
+					to_remove.push_back (tuple);
+
 				}
 				
 			}
 			
 			group_id++;
+		}
+		
+		for (auto t : to_remove) {
+			rca::Link l = std::get<3>(t);
+			if (!m_ec->is_used(l)) {
+				replace (t);
+			} else {
+			
+				if (m_ec->value (l) > min_res + 1) {
+					replace (t);
+				} else {					
+					int group = std::get<0>(t);					
+					auto link_it = std::find (this->m_temp_trees[group].begin (), 
+											  this->m_temp_trees[group].end (), l);
+					
+					if (link_it != this->m_temp_trees[group].end()) {
+						int pos = (link_it -  this->m_temp_trees[group].begin ());
+						//obter corte em ll(x, y)
+						std::vector<int> cut = this->make_cut( group, l);
+						//pegar os links disponíveis no corte de ll (x,y);
+						std::vector<rca::Link> links;
+						this->getAvailableEdgesByCost (cut ,l, links);
+						if (!links.empty()) {
+							int _new_link = rand() % links.size ();
+							/* Criar link contendo árvore (group_id)
+							* a posição do link na árvore (link_pos)
+							* o link em questão (ll)
+							* o link candidato (links[_new_link])
+							*/
+							std::tuple<int,int,rca::Link,rca::Link> 	
+								tt (group, pos, l, links[_new_link]);
+							replace (tt);
+						}
+					}
+					
+				}
+			}
 		}
 		
 	}
@@ -360,6 +400,42 @@ void ChenReplaceVisitor::getAvailableEdgesByCost (std::vector<int> &cut_xy,
 			}
 		}
 	}
+}
+
+std::tuple<int,int,rca::Link,rca::Link> 
+ChenReplaceVisitor::get_tuple (int group_id, rca::Link& _old)
+{
+	std::tuple<int,int,rca::Link,rca::Link> tuple;
+	
+	auto link_it = std::find (this->m_temp_trees[group_id].begin (), 
+							  this->m_temp_trees[group_id].end (), _old);
+					
+	if (link_it != this->m_temp_trees[group_id].end()) {
+		
+		int pos = (link_it -  this->m_temp_trees[group_id].begin ());
+		
+		//obter corte em ll(x, y)
+		std::vector<int> cut = this->make_cut( group_id , _old );
+		
+		//pegar os links disponíveis no corte de ll (x,y);
+		std::vector<rca::Link> links;		
+		this->getAvailableEdgesByCost (cut ,_old, links);
+		
+		if (!links.empty()) {
+			
+			int _new_link = rand() % links.size ();
+			/* Criar link contendo árvore (group_id)
+			* a posição do link na árvore (link_pos)
+			* o link em questão (ll)
+			* o link candidato (links[_new_link])
+			*/
+			
+			tuple = std::tuple<int,int,rca::Link,rca::Link> 	
+					(group_id, pos, _old, links[_new_link]);
+			
+		}
+	}
+	return tuple;
 }
 
 void ChenReplaceVisitor::update_trees () 
