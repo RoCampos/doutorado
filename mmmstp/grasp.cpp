@@ -90,6 +90,19 @@ sttree_t Grasp::build_solution () {
 		//create a tree
 		double r = (double) (rand () % 100)/100.0;
 		
+		auto it = cg.get_heap ().ordered_begin ();
+		auto end = cg.get_heap ().ordered_end ();
+		if (i>0)
+			for ( ; it != end; it++) {
+				
+				if (it->getValue () <= cg.top()+1) {
+					this->m_network->removeEdge (*it);
+					if ( !is_connected (*m_network, m_groups[g_idx]) )
+						this->m_network->undoRemoveEdge (*it);
+				}
+			}
+		
+		
 		if (r < this->m_heur) {
 			this->shortest_path_tree (g_idx, &ob);		
 		} else {
@@ -104,6 +117,8 @@ sttree_t Grasp::build_solution () {
 		
 		this->update_usage (ob.get_steiner_tree());
 		
+		
+		m_network->clearRemovedEdges();
 	}
 	
 	sol.m_cost = m_cost;
@@ -139,6 +154,11 @@ void Grasp::spanning_tree (STobserver * ob)
 						
 		int cost = m_network->getCost (link.getX(), link.getY());
 			
+		if (this->m_network->isRemoved(link)){
+			links.erase ( (links.begin () + pos) );
+			continue;
+		}
+		
 		//checar disjoint set
 		ob->add_edge (link.getX(), link.getY(), cost, GROUPS_SIZE);
 		links.erase ( (links.begin () + pos) );
@@ -178,8 +198,10 @@ void Grasp::shortest_path_tree (int id, STobserver* ob)
 			
 			ob->add_edge (l.getX(), l.getY(), cost, N_SIZE);
 			
-			this->m_network->removeEdge (l);
-			
+ 			this->m_network->removeEdge (l);
+// 			if ( !is_connected(*this->m_network, m_groups[id]) )
+// 				this->m_network->undoRemoveEdge (l);
+				
 			//to remove
 			current_path.push_back (l);
 			
@@ -209,7 +231,7 @@ void Grasp::shortest_path_tree (int id, STobserver* ob)
 		
 	} while (d < G_SIZE);
 	
-	this->m_network->clearRemovedEdges();
+// 	this->m_network->clearRemovedEdges();
 }
 	
 void Grasp::cost_refinament (sttree_t * sol, ChenReplaceVisitor & c)
@@ -258,7 +280,7 @@ void Grasp::residual_refinament (sttree_t * sol, ChenReplaceVisitor& c)
 			temp_cost += (int)st.getCost ();
 		}
 		
-		if (sol->cg.top () > tmp_cong) {
+		if (sol->cg.top () > tmp_cong && cost < m_budget) {
 			congestion = sol->cg.top ();
 			
 			tmp_cong = congestion;
@@ -273,7 +295,10 @@ void Grasp::residual_refinament (sttree_t * sol, ChenReplaceVisitor& c)
 			tmp_tree.m_residual_cap = congestion;
 			tmp_tree.cg = sol->cg;
 
-		} else if (sol->cg.top () > tmp_cong && temp_cost < sol->m_cost){
+		} else if (sol->cg.top () > tmp_cong 
+			&& temp_cost < sol->m_cost
+			&& cost < m_budget){
+			
 			tmp_tree.m_trees = sol->m_trees;
 			tmp_tree.m_cost = cost;
 			tmp_tree.m_residual_cap = congestion;
@@ -314,12 +339,12 @@ void Grasp::run ()
 		c.setEdgeContainer (sol.cg);
 
 		cost_refinament (&sol, c);
-		residual_refinament (&sol, c);
+//  		residual_refinament (&sol, c);
 		
 #ifdef DEBUG
 	std::cout << sol.m_residual_cap << " " << sol.m_cost << "\n";	
 #endif
-		
+		std::cout << sol.m_residual_cap << " " << sol.m_cost << "\n";
 		if (sol.m_residual_cap > best_cap 
 			&& sol.m_cost <= m_budget) {
 			
