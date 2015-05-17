@@ -11,7 +11,7 @@ void helpFunction ();
 
 int main (int argv, char **argc) {
     
-	if (argv < 15) {
+	if (argv < 16) {
 		helpFunction ();
 		exit (1);
 	}
@@ -34,8 +34,12 @@ int main (int argv, char **argc) {
 	
 	double flip = atof (argc[22]);
 	
-	
 	int _res = atoi (argc[24]);
+	
+	std::string limit = argc[25];
+	std::fstream file(limit.c_str());
+	if (file.good())	
+		file >> budget;
 	
 	aco.run (14,str,iterations,alpha,betha,phe_rate,prob_heur,local_upd,ref,budget,upd1, upd2, upd3, flip, _res);
 	
