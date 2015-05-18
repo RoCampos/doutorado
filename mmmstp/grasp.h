@@ -59,7 +59,7 @@ public:
 	void set_iter (int iter) {m_iter = iter;}
 	void set_lrc (double lrc) {m_lrc = lrc;}
 	void set_budget (int budget) {
-		if (m_budget == 0)
+		if (budget == 0)
 			m_budget = INT_MAX;
 		else 
 			m_budget = budget;
