@@ -84,6 +84,15 @@ private:
 	
 	void reset_links_usage ();
 	
+	/**
+	 * Remove arestas congestiondas para evitar uso pelo
+	 * grupo idx
+	 * 
+	 * @param CongestionHandle
+	 * @param int //next group
+	 */
+	void remove_congestioned_edges (CongestionHandle &, int idx);
+	
 private:
 	/**/
 	std::vector<rca::Link> m_links;

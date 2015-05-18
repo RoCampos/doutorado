@@ -90,18 +90,7 @@ sttree_t Grasp::build_solution () {
 		//create a tree
 		double r = (double) (rand () % 100)/100.0;
 		
-		auto it = cg.get_heap ().ordered_begin ();
-		auto end = cg.get_heap ().ordered_end ();
-// 		if (i>0)
-			for ( ; it != end; it++) {
-				
-				if (it->getValue () <= cg.top()+2) {
-					this->m_network->removeEdge (*it);
-					if ( !is_connected (*m_network, m_groups[g_idx]) )
-						this->m_network->undoRemoveEdge (*it);
-				}
-			}
-		
+		this->remove_congestioned_edges (cg, g_idx);
 		
 		if (r < this->m_heur) {
 			this->shortest_path_tree (g_idx, &ob);		
@@ -429,6 +418,22 @@ void Grasp::reset_links_usage ()
 	for (auto & it: m_links) {
 		it.setValue (0);
 	}
+}
+
+void Grasp::remove_congestioned_edges (CongestionHandle & cg, int g_idx)
+{
+	auto it = cg.get_heap ().ordered_begin ();
+	auto end = cg.get_heap ().ordered_end ();
+
+	for ( ; it != end; it++) {
+			
+		if (it->getValue () <= cg.top()+2) {
+			this->m_network->removeEdge (*it);
+			if ( !is_connected (*m_network, m_groups[g_idx]) )
+				this->m_network->undoRemoveEdge (*it);
+		}
+	}
+	
 }
 
 void help ()
