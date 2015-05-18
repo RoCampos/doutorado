@@ -25,7 +25,9 @@ do
 	echo -e "CAP_R\tCUSTO\tITER\tTIME\tSEED" > ${output_dir}/${file}.result
 	for i in  $(seq 1 50)
 	do
-		./build/acompp ${instance}/${inst} --iter 400 --alpha 2.34 --beta 1.31 --evo  0.34 --pheur 0.28 --local_upd 0.07 >> ${output_dir}/${file}.result ${list[ ${idx} ]}
+		#./build/acompp ${instance}/${inst} --iter 400 --alpha 2.34 --beta 1.31 --evo  0.34 --pheur 0.28 --local_upd 0.07 >> ${output_dir}/${file}.result ${list[ ${idx} ]}
+		./build/grasp ${instance}/${inst} --iter 100 --lrc 0.25 --heur 0.87 --budget ${list[ ${idx} ]}
+		sleep 1
 	done
 
 	let "idx = idx + 1"

@@ -90,18 +90,7 @@ sttree_t Grasp::build_solution () {
 		//create a tree
 		double r = (double) (rand () % 100)/100.0;
 		
-		auto it = cg.get_heap ().ordered_begin ();
-		auto end = cg.get_heap ().ordered_end ();
-		if (i>0)
-			for ( ; it != end; it++) {
-				
-				if (it->getValue () <= cg.top()+1) {
-					this->m_network->removeEdge (*it);
-					if ( !is_connected (*m_network, m_groups[g_idx]) )
-						this->m_network->undoRemoveEdge (*it);
-				}
-			}
-		
+		this->remove_congestioned_edges (cg, g_idx);
 		
 		if (r < this->m_heur) {
 			this->shortest_path_tree (g_idx, &ob);		
@@ -174,8 +163,10 @@ void Grasp::shortest_path_tree (int id, STobserver* ob)
 	int N_SIZE = this->m_groups.size ();
 	
 	int source = this->m_groups[ id ].getSource ();
-	const std::vector<int> & destinations = this->m_groups[ id ].getMembers ();
+	std::vector<int> destinations = this->m_groups[ id ].getMembers ();
 	int G_SIZE = destinations.size ();
+	
+// 	std::random_shuffle(destinations.begin(), destinations.end());
 	
 	int d = 0;
 	
@@ -199,10 +190,7 @@ void Grasp::shortest_path_tree (int id, STobserver* ob)
 			ob->add_edge (l.getX(), l.getY(), cost, N_SIZE);
 			
  			this->m_network->removeEdge (l);
-// 			if ( !is_connected(*this->m_network, m_groups[id]) )
-// 				this->m_network->undoRemoveEdge (l);
-				
-			//to remove
+
 			current_path.push_back (l);
 			
 		}
@@ -230,8 +218,7 @@ void Grasp::shortest_path_tree (int id, STobserver* ob)
 		}
 		
 	} while (d < G_SIZE);
-	
-// 	this->m_network->clearRemovedEdges();
+
 }
 	
 void Grasp::cost_refinament (sttree_t * sol, ChenReplaceVisitor & c)
@@ -280,7 +267,7 @@ void Grasp::residual_refinament (sttree_t * sol, ChenReplaceVisitor& c)
 			temp_cost += (int)st.getCost ();
 		}
 		
-		if (sol->cg.top () > tmp_cong && cost < m_budget) {
+		if (sol->cg.top () > tmp_cong && cost <= m_budget) {
 			congestion = sol->cg.top ();
 			
 			tmp_cong = congestion;
@@ -297,7 +284,7 @@ void Grasp::residual_refinament (sttree_t * sol, ChenReplaceVisitor& c)
 
 		} else if (sol->cg.top () > tmp_cong 
 			&& temp_cost < sol->m_cost
-			&& cost < m_budget){
+			&& cost <= m_budget){
 			
 			tmp_tree.m_trees = sol->m_trees;
 			tmp_tree.m_cost = cost;
@@ -339,7 +326,7 @@ void Grasp::run ()
 		c.setEdgeContainer (sol.cg);
 
 		cost_refinament (&sol, c);
-//  		residual_refinament (&sol, c);
+ 		residual_refinament (&sol, c);
 		
 #ifdef DEBUG
 	std::cout << sol.m_residual_cap << " " << sol.m_cost << "\n";	
@@ -383,17 +370,18 @@ void Grasp::run ()
 		std::cout << best.m_cost << " ";
 		std::cout << best.m_residual_cap << " ";
 		std::cout << time_elapsed.get_elapsed () << " ";
-		std::cout << best_iter << std::endl;
+		std::cout << best_iter << " ";
+		std::cout << m_seed << std::endl;
 #ifdef DEBUG		
 		best.print_solution ();
 #endif
 		
-	} else {
-		
+	} else {		
 		std::cout << alt_best.m_cost << " ";
 		std::cout << alt_best.m_residual_cap << " ";
 		std::cout << time_elapsed.get_elapsed () << " ";
-		std::cout << best_iter << std::endl;
+		std::cout << best_iter << " ";
+		std::cout << m_seed << std::endl;
 #ifdef DEBUG		
 		alt_best.print_solution ();
 #endif
@@ -432,13 +420,29 @@ void Grasp::reset_links_usage ()
 	}
 }
 
+void Grasp::remove_congestioned_edges (CongestionHandle & cg, int g_idx)
+{
+	auto it = cg.get_heap ().ordered_begin ();
+	auto end = cg.get_heap ().ordered_end ();
+
+	for ( ; it != end; it++) {
+			
+		if (it->getValue () <= cg.top()+2) {
+			this->m_network->removeEdge (*it);
+			if ( !is_connected (*m_network, m_groups[g_idx]) )
+				this->m_network->undoRemoveEdge (*it);
+		}
+	}
+	
+}
+
 void help ()
 {
 
 	printf ("Grasp Algorithm For the MMRBP problem\n");
 	printf ("Input:\n");
 	printf ("\t./grasp <instance> ");
-	printf (" --iter <value> --lrc <value> --budget <value> --heur <value>\n");
+	printf (" --iter <value> --lrc <value> --heur <value> --budget <value>\n");
 	
 	std::string description = "Descrition\n";
 	description += "\t--iter: defines the number of iterations\n";
@@ -457,7 +461,8 @@ int main (int argc, char**argv) {
 		exit (0);
 	} 
 	
-	srand ( std::time(NULL) );
+	int m_seed = std::time(NULL);
+	srand ( m_seed );
 	
 	rca::Network m_network;
 	std::vector<std::shared_ptr<rca::Group>> g;
@@ -473,17 +478,26 @@ int main (int argc, char**argv) {
 	Grasp grasp(&m_network, m_groups);
 	int iter = atoi (argv[3]);	
 	double lrc = atof (argv[5]);
-	int budget = atof (argv[7]);
-	double heur = atof (argv[9]);
+	double heur = atof (argv[7]);
+	
+	int budget = atof (argv[9]);
+// 	std::string file2(argv[9]);
+// 	std::fstream bud(file2.c_str());
+// 	if (bud.good()) {
+// 		bud >> budget;
+// 	} else {
+// 		budget = 0;
+// 	}
 	
 #ifdef DEBUG
-	printf ("grasp %s --iter %d --lrc %.2f --budget %d --heur %.2f\n",file.c_str(),iter, lrc, budget, heur);
+	printf ("grasp %s --iter %d --lrc %.2f --heur %d --budget %.2f\n",file.c_str(),iter, lrc, budget, heur);
 #endif
 	
 	grasp.set_iter (iter);
 	grasp.set_lrc (lrc);
 	grasp.set_budget (budget);
 	grasp.set_heur (heur);
+	grasp.set_seed (m_seed);
 	
 	grasp.run ();
 	

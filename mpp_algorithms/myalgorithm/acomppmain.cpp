@@ -41,7 +41,12 @@ int main (int argv, char **argc) {
 	if (file.good())	
 		file >> budget;
 	
-	aco.run (14,str,iterations,alpha,betha,phe_rate,prob_heur,local_upd,ref,budget,upd1, upd2, upd3, flip, _res);
+	aco.run (14,str,iterations,
+			alpha,betha,
+			phe_rate,prob_heur,
+			local_upd,ref,
+			budget,upd1, upd2, upd3, 
+			flip, _res);
 	
 	return 0;
 }
@@ -53,7 +58,9 @@ void helpFunction () {
 	printf ("acompp <instance> --iter <value>");
 	printf (" --alpha <value> --betha <value>");
 	printf (" --phe <value> --pheur <value> --local_upd <value>");
-	printf (" --ref <value> --budget <value>\n");
+	printf (" --ref <value> --budget <value>");
+	printf ("   <upd1> <upd2 upd3>");
+	printf (" --flip --res\n\n");
 	
 	std::string str = "--ter: define o número máximo de iterações\n";
 	str += "--alpha: parâmetro alpha do colônia de formigas(0.01,1.00)\n";
@@ -63,6 +70,9 @@ void helpFunction () {
 	str += "--local_upd: valor para atualizar feromônio com base em árvores de Steiner\n";
 	str += "--ref: valor de aplicação do operador de refinamento de custo\n";
 	str += "--budget: valor de limite de custo\n";
+	str += "upd1, upd2, upd3 parameters the multiple the pheromone value\n";
+	str += "--flip: changes the way the edges a choosed by next_component\n";
+	str += "--res: indicates the limite for a maximum for remove edges\n";
 	
 	printf ("%s", str.c_str () );
 }

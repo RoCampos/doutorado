@@ -58,8 +58,16 @@ public:
 	
 	void set_iter (int iter) {m_iter = iter;}
 	void set_lrc (double lrc) {m_lrc = lrc;}
-	void set_budget (int budget) {m_budget = budget;}
+	void set_budget (int budget) {
+		if (budget == 0)
+			m_budget = INT_MAX;
+		else 
+			m_budget = budget;
+		
+	}
 	void set_heur (double _heur) {m_heur = _heur;}
+	
+	void set_seed (int seed) {m_seed = seed;}
 	
 	sttree_t build_solution ();
 	
@@ -76,6 +84,15 @@ private:
 	
 	void reset_links_usage ();
 	
+	/**
+	 * Remove arestas congestiondas para evitar uso pelo
+	 * grupo idx
+	 * 
+	 * @param CongestionHandle
+	 * @param int //next group
+	 */
+	void remove_congestioned_edges (CongestionHandle &, int idx);
+	
 private:
 	/**/
 	std::vector<rca::Link> m_links;
@@ -85,6 +102,8 @@ private:
 	double m_lrc; //tamanho da lista de aresta de spanning tree
 	double m_budget; //valor de orçamento
 	double m_heur; //define que heuristica utilizar
+	
+	int m_seed;
 	
 	/*problem information*/
 	sttree_t m_strees;
