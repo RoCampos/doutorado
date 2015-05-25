@@ -130,6 +130,69 @@ std::vector<rca::Path> stree_to_path (STTree & st, int source, int nodes)
 	return paths;
 }
 
+std::vector<int> make_cut_visitor (std::vector<rca::Link>& st, 
+			   int source, 
+			   rca::Link & link,
+			   std::vector<int> & mark, 
+			   int nodes)
+{
+	
+#ifdef DEBUG
+	printf ("BEGIN ---- %s ---- BEGIN\n",__FUNCTION__);
+#endif 
+	
+	//all vertex of the cut reachable from source
+	std::vector<int> tree_nodes;
+	
+	//used in the depth search first
+	std::vector<int> stack;
+	std::vector<int> visited = std::vector<int>(nodes,0);
+	
+	//mark source as visited
+	visited[source] = 1;
+	
+	//init the stack
+	stack.push_back (source);
+	
+	while (!stack.empty ()) {
+
+		//getting the current node to process
+		int curr_node = stack[ stack.size () - 1];
+		
+		//erasing the curr_node from stack
+		stack.pop_back ();
+		
+		//mark curr_node as visited
+		mark[curr_node] = source;
+		
+		//look for neighbor of curr_node
+		for (rca::Link const& e : st){
+			
+			if (link == e) continue;
+				
+			//test if x ou y is a neighbor of curr_node
+			//and add it to the stack
+			if (e.getX() == curr_node && visited[e.getY()] == 0) {
+				stack.push_back (e.getY());
+				visited[e.getY()] = 1;
+// 				break;
+			} else if (e.getY() == curr_node && visited[e.getX()] == 0) {
+				stack.push_back (e.getX());
+				visited[e.getX()] = 1;
+// 				break;
+			}
+		}
+		
+		//add curr_node to the vertex set
+		tree_nodes.push_back (curr_node);		
+	}
+	
+#ifdef DEBUG
+	printf ("END ---- %s  ---- END\n",__FUNCTION__);
+#endif 	
+	
+	return tree_nodes;
+}
 
 template void prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>>
 		(STTree& st, 

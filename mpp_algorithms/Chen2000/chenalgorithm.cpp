@@ -374,7 +374,13 @@ cout << "Click enter to continue and test BREAK_TEST...\n";
 	Z = get_max_congestion ();
 	cout << m_init_congestion << " ";
 	cout << Z << " ";
+	cout << m_groups.size () - Z << " ";
 	cout << std::setprecision(3) << std::fixed << evaluate_cost () << endl;
+	
+	for (unsigned int i=0; i < m_trees.size (); i++) {
+		m_trees[i].print ();
+		//cout << endl;
+	}
 }
 
 double Chen::evaluate_cost () {
@@ -383,17 +389,23 @@ double Chen::evaluate_cost () {
 	double cost = 0.0;
 	
 	//percorrendo a matriz de arestas usadas.
-	size_t  i = 0;
-	for (; i < m_edges.size (); i++) {
-	
-		for (size_t j = i; j < m_edges[i].size (); j++) {
-			
-			if (m_edges[i][j] > 0.0) {
-				cost += m_net->getCost (i,j);
-			}
-			
+// 	size_t  i = 0;
+// 	for (; i < m_edges.size (); i++) {
+// 	
+// 		for (size_t j = i; j < m_edges[i].size (); j++) {
+// 			
+// 			if (m_edges[i][j] > 0.0) {
+// 				cost += m_net->getCost (i,j) ;
+// 			}
+// 			
+// 		}
+// 	}
+	for (auto t : m_trees) {
+		for (auto link : t.edges) {
+			cost += m_net->getCost (link.getX(), link.getY());
 		}
 	}
+	
 	//returning the cost of solution
 	return cost;	
 }

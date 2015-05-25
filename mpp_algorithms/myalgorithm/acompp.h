@@ -267,6 +267,10 @@ private:
 	
 private:
 	
+	bool m_test; // change the parameters
+	double m_flip; //flip the iterations
+	int m_res;
+	
 	//random number generator
 	Random my_random;
 	

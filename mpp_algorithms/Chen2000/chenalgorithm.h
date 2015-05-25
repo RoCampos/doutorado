@@ -41,8 +41,8 @@ typedef struct sttree {
 	
 	void print () {
 		for (auto it = edges.begin(); it != edges.end(); it++) {
-			cout << it->getX ()+1 << " - ";
-			cout << it->getY ()+1 << ":" << this->id + 1 << ";"<< endl;
+			cerr << it->getX ()+1 << " - ";
+			cerr << it->getY ()+1 << ":" << this->id + 1 << ";"<< endl;
 		}
 	}
 	
