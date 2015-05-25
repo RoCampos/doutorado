@@ -1,3 +1,20 @@
+New Version - Improvements and Bug Fixed (05/25/2015)
+========================================================
+=ChenReplaceMethod
+	- o método foi modificado para aumentar a velocidade.
+	- É possível não obter o melhor custo, mas a velocidade
+	aumentou consideravelmente.
+
+=YouhChen's algorithm
+	- Modificação do algoritmo para receber o visitor no fim
+	de sua execução.
+
+=GRASP
+	- Arestas são removidas antes de construir uma árvore
+	- remove-se apenas arestas mais utilizadas e que manténham
+	o grafo conectado para a próxima árvore.
+
+
 New Version - Improvements and Bug Fixed (04/26/2015)
 ========================================================
 =ChenReplaceMethod by cost
