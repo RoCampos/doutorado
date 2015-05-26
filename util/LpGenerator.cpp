@@ -97,7 +97,7 @@ int main (int argv, char**argc)
 	
 	//std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
 	
-	MMSTPBudgetLP dg;	
+	MMSTPCostLP dg;	
 	int budget = atoi (argc[2]); //limite de orçamento
 	dg.generate2 (net, g, budget);
 

@@ -558,34 +558,83 @@ void MMSTPBudgetLP::generate(rca::Network *network,
 
 void MMSTPCostLP::constraint6 (rca::Network *net,
 				   std::vector<std::shared_ptr<rca::Group>>&groups) { 
-	int NODES = net->getNumberNodes ();
-	int GROUPS = groups.size ();
-
-	std::cout << " r6:";
 	
-	for ( int i=0; i < NODES; i++) {
-		for ( int j=0; j < i; j++) { 
+// 	int NODES = net->getNumberNodes ();
+// 	int GROUPS = groups.size ();
+// 	
+// 	for ( int i=0; i < NODES; i++) {
+// 		for ( int j=0; j < i; j++) {
+// 			
+// 			int cost = net->getCost (i,j);
+// 			if ( cost > 0 ) {
+// 				
+// 				std::cout << " r6:";
+// 				for (int k = 0; k < GROUPS; k++) {
+// 					//TODO para instâncias com valores diferentes
+// 					//de capacidade deve-se coloar o TK multiplicando
+// 					printf (" + y(%d,%d,%d)",i+1,j+1,k+1);
+// 					printf (" + y(%d,%d,%d)",j+1,i+1,k+1);
+// 				}
+// 				printf (" <= %d\n", Z);			
+// 			}
+// 			
+// 		}
+// 	}
+	int GROUPS = groups.size ();
+	int NODES = net->getNumberNodes ();
+	
+	for (int v = 0; v < NODES; v++) {
+		for (int w = 0; w < v; w++) {
 			
-			for (int k = 0; k < GROUPS; k++) {
-				int cost = net->getCost (i,j);
-				if ( cost > 0 ) {
-					
-					//TODO para instâncias com valores diferentes
-					//de capacidade deve-se coloar o TK multiplicando
-					printf (" + y(%d,%d,%d)",i+1,j+1,k+1);
-					printf (" + y(%d,%d,%d)",j+1,i+1,k+1);
+			int cap = (int)net->getBand (v,w);
+			
+			if (net->getBand (v,w) > 0.0) {
+				
+				printf (" r5(%d,%d): ",v+1,w+1);
+				for (int k = GROUPS-1; k >=0; k--) {					
+					int traffic = (int)groups[k]->getTrequest();
+					printf (" - %d y(%d,%d,%d) - %d y(%d,%d,%d)", traffic, w+1,v+1,k+1, traffic, v+1, w+1,k+1);					
 				}
+				printf (" >= %d\n", Z - cap);	
+				
+				printf (" r5(%d,%d): ",w+1,v+1);
+				for (int k = GROUPS-1; k >=0; k--) {					
+					int traffic = (int)groups[k]->getTrequest();
+					printf (" - %d y(%d,%d,%d) - %d y(%d,%d,%d)", traffic, v+1, w+1,k+1, traffic, w+1,v+1,k+1);					
+				}
+				printf (" >= %d\n", Z - cap);	
+				
 			}
-			
 		}
 	}
-	printf (" <= %d\n", Z);
+	
 }
 
 void MMSTPCostLP::generate(rca::Network *network,
 							 std::vector<std::shared_ptr<rca::Group>>&groups)
 {
-	std::cout << "Maximize\n objective: + Z\n\nSubject To\n";
+// 	std::cout << "Maximize\n objective: + Z\n\nSubject To\n";
+	
+	std::cout << "Minimize\n objective: ";
+	int NODES = network->getNumberNodes ();
+	int GROUPS = groups.size ();
+
+	for (int k = 0; k < GROUPS; k++) {
+		for ( int i=0; i < NODES; i++) {	
+			//for ( int j=0; j < NODES; j++) { com ESTE FOR É POSSÍVEL TER
+			//O BUDGET POR ÁRVER.
+			//A IMPLMENTAÇÃO ATUAL CALCULA POR SOLUÇÃO
+			for ( int j=0; j < i; j++) { 
+				int cost = network->getCost (i,j);
+				if ( cost > 0 ) {
+					printf (" + %d y(%d,%d,%d)",cost,i+1,j+1,k+1);
+					printf (" + %d y(%d,%d,%d)",cost,j+1,i+1,k+1);
+				}
+			}
+		}
+	}
+	std::cout << "\nSubject To\n";
+	
 	
 	constraint1 (network, groups);
 	constraint2 (network, groups);
