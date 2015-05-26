@@ -39,7 +39,7 @@ rca::Path shortest_path (int v, int w, rca::Network * network);
 
 rca::Path shortest_path (int v, int w, rca::Network & network);
 
-rca::Path inefficient_widest_path (int v, int w, rca::Network * network);
+std::vector<int> inefficient_widest_path (int v, int w, rca::Network * network);
 
 rca::Path capacited_shortest_path (int v, int w, 
 								   rca::Network *network,
@@ -47,5 +47,12 @@ rca::Path capacited_shortest_path (int v, int w,
 								   rca::Group &g);
 
 bool is_connected (rca::Network & network, rca::Group & group);
+
+/**
+ * This method is used to build the path from v to w after
+ * apply shortest_path algorithm.
+ * 
+ */
+rca::Path get_shortest_path (int v, int w, rca::Network & network, std::vector<int> & prev);
 
 #endif

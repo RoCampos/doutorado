@@ -86,7 +86,7 @@ rca::Path shortest_path(int v, int w, rca::Network * network) {
 	return path;
 }
 
-rca::Path inefficient_widest_path (int v, int w, rca::Network * network)
+std::vector<int> inefficient_widest_path (int v, int w, rca::Network * network)
 {
 	typedef FibonacciHeapNode<int,double> Element; //todo VErificar se é double ou int 1
 
@@ -149,30 +149,8 @@ rca::Path inefficient_widest_path (int v, int w, rca::Network * network)
 
 	delete elem;
 
-	rca::Path path;
-	int pos = 0;
-	double pathcost = 0.0;
-	int s = w;
-	while (s != v) {
-		path.push (s);
-		s = prev[s];
-		
-		if (s == -1 || s >= NODES)
-		{
-			rca::Path path2;
-			return path2; //se não há caminho
-		}
-		
-		
-		pathcost += network->getCost (path[pos],s);
-		
-		pos++;
-
-	}
-	path.push (s);
-	path.setCost (pathcost); //definindo o custo
+	return prev;
 	
-	return path;
 }
 
 rca::Path shortest_path (int source, int w, rca::Network & network) {
@@ -405,4 +383,33 @@ typedef typename std::vector<int>::const_iterator c_iterator;
   
   //std::cout << count_terminals << std::endl;
   return (count_terminals == terminals.size () );
+}
+
+
+rca::Path get_shortest_path (int v, int w, rca::Network & network, std::vector<int> & prev)
+{
+	int NODES = network.getNumberNodes ();
+	
+	rca::Path path;
+	int pos = 0;
+	double pathcost = 0.0;
+	int s = w;
+	while (s != v) {
+		path.push (s);
+		s = prev[s];
+		
+		if (s == -1 || s >= NODES)
+		{
+			rca::Path path2;
+			return path2; //se não há caminho
+		}
+		
+		
+		pathcost += network.getCost (path[pos],s);
+		
+		pos++;
+
+	}
+	path.push (s);
+	return path;
 }
