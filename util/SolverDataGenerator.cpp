@@ -553,3 +553,51 @@ void MMSTPBudgetLP::generate(rca::Network *network,
 	
 	
 }
+
+//-------------------------------- MODELO OTIMIZADO POR CUSTO ----------------------//
+
+void MMSTPCostLP::constraint6 (rca::Network *net,
+				   std::vector<std::shared_ptr<rca::Group>>&groups) { 
+	int NODES = net->getNumberNodes ();
+	int GROUPS = groups.size ();
+
+	std::cout << " r6:";
+	
+	for ( int i=0; i < NODES; i++) {
+		for ( int j=0; j < i; j++) { 
+			
+			for (int k = 0; k < GROUPS; k++) {
+				int cost = net->getCost (i,j);
+				if ( cost > 0 ) {
+					
+					//TODO para instâncias com valores diferentes
+					//de capacidade deve-se coloar o TK multiplicando
+					printf (" + y(%d,%d,%d)",i+1,j+1,k+1);
+					printf (" + y(%d,%d,%d)",j+1,i+1,k+1);
+				}
+			}
+			
+		}
+	}
+	printf (" <= %d\n", Z);
+}
+
+void MMSTPCostLP::generate(rca::Network *network,
+							 std::vector<std::shared_ptr<rca::Group>>&groups)
+{
+	std::cout << "Maximize\n objective: + Z\n\nSubject To\n";
+	
+	constraint1 (network, groups);
+	constraint2 (network, groups);
+	constraint3 (network, groups);
+	constraint4 (network, groups);
+	//constraint5 (network, groups);
+	constraint7 (network, groups);
+	constraint8 (network, groups);
+	constraint6 (network, groups);
+	
+	bounds (network, groups);
+	
+	
+}
+

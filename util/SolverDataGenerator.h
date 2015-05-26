@@ -177,4 +177,50 @@ private:
 	
 };
 
+/**
+ * Esta classe é utilizada para gerar instâncias do MMSTP-congestion.
+ * Ele gerá instâncias no formato LP (Linear Program).
+ * 
+ * A classe herda de @MultipleMulticastCommodityLP. Esta versão
+ * recebe adiciona a capacidade residual oriunda da otimização do 
+ * @MMSTPBudgetLP e a coloca como restrição do @MMSTPCostLP.
+ * 
+ * Este novo modelo, portanto, otimiza a custo com limite na 
+ * capaciade residual.
+ * 
+ * A variável m_budget neste modelo representa a capacidade residual
+ * obtida pela otimização do modelo @MMSTPBudgetLP.
+ * 
+ */
+class MMSTPCostLP : protected MultipleMulticastCommodityLP
+{
+
+public:
+	virtual void generate (rca::Network *,
+				   std::vector<std::shared_ptr<rca::Group>>&);
+	
+	void generate2 (rca::Network * network,
+				   std::vector<std::shared_ptr<rca::Group>>& groups, 
+				   int z)
+	{
+		Z = z;
+		generate (network, groups);
+	}
+	
+	
+private:
+	/**
+	 * Implementação da função para limitar a congestão das arestas
+	 * Tendo em vista que o valor de limite aqui é Z(capacidade residual)
+	 * e o valor a ser otimizado é o custo.
+	 */
+	void constraint6 (rca::Network *,
+				   std::vector<std::shared_ptr<rca::Group>>&);
+	
+	
+	int Z;
+	
+	
+};
+
 #endif
