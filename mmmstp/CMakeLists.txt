@@ -36,3 +36,7 @@ add_executable (grasp grasp.cpp
 						grasp.h)
 target_link_libraries (grasp graph sttree sttalgo myutil)
 
+MESSAGE ("\tINFO: Compiling Heuristic Algorithm based on Shortest Path")
+add_executable (spheuristic sph_heuristic.cpp ${includes})
+target_link_libraries (spheuristic graph sttalgo sttree myutil)
+
