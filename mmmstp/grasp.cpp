@@ -320,13 +320,15 @@ void Grasp::run ()
 		
 		sttree_t sol = build_solution ();
 		
-		ChenReplaceVisitor c(&sol.m_trees);
-		c.setNetwork (m_network);
-		c.setMulticastGroups (m_groups);
-		c.setEdgeContainer (sol.cg);
+		if (m_local_search) {
+			ChenReplaceVisitor c(&sol.m_trees);
+			c.setNetwork (m_network);
+			c.setMulticastGroups (m_groups);
+			c.setEdgeContainer (sol.cg);
 
-		cost_refinament (&sol, c);
- 		residual_refinament (&sol, c);
+			cost_refinament (&sol, c);
+			residual_refinament (&sol, c);
+		}
 		
 #ifdef DEBUG
 	std::cout << sol.m_residual_cap << " " << sol.m_cost << "\n";	
@@ -386,7 +388,7 @@ void Grasp::run ()
 		alt_best.print_solution ();
 #endif
 	}
-	
+	best.print_solution ();
 	
 }
 
@@ -442,7 +444,8 @@ void help ()
 	printf ("Grasp Algorithm For the MMRBP problem\n");
 	printf ("Input:\n");
 	printf ("\t./grasp <instance> ");
-	printf (" --iter <value> --lrc <value> --heur <value> --budget <value>\n");
+	printf (" --iter <value> --lrc <value> --heur <value> --budget <value>");
+	printf (" --local_search <value>\n");
 	
 	std::string description = "Descrition\n";
 	description += "\t--iter: defines the number of iterations\n";
@@ -450,13 +453,14 @@ void help ()
 	description += "\t--budget: the budget used for limite the cost of solution\n";
 	description += "\t--heur: value the determins the algorithm to used";
 	description += "ShortestPH or Spanning Minimum Tree\n";
+	description += "\t--local_search (1 - actived|0 - not actived)\n";
 	
 	printf ("%s", description.c_str ());
 }
 
 int main (int argc, char**argv) {
 	
-	if (argc < 10) {
+	if (argc < 11) {
 		help ();
 		exit (0);
 	} 
@@ -481,16 +485,12 @@ int main (int argc, char**argv) {
 	double heur = atof (argv[7]);
 	
 	int budget = atof (argv[9]);
-// 	std::string file2(argv[9]);
-// 	std::fstream bud(file2.c_str());
-// 	if (bud.good()) {
-// 		bud >> budget;
-// 	} else {
-// 		budget = 0;
-// 	}
+
+	int local_search = atoi (argv[11]);
+	
 	
 #ifdef DEBUG
-	printf ("grasp %s --iter %d --lrc %.2f --heur %d --budget %.2f\n",file.c_str(),iter, lrc, budget, heur);
+	printf ("grasp %s --iter %d --lrc %.2f --heur %d --budget %.2f\n --local_search %d",file.c_str(),iter, lrc, budget, heur, local_search);
 #endif
 	
 	grasp.set_iter (iter);
@@ -498,6 +498,7 @@ int main (int argc, char**argv) {
 	grasp.set_budget (budget);
 	grasp.set_heur (heur);
 	grasp.set_seed (m_seed);
+	grasp.set_local_search (local_search);
 	
 	grasp.run ();
 	

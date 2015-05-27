@@ -360,6 +360,8 @@ typedef typename std::vector<int>::const_iterator c_iterator;
     
     if (group.isMember (current_node) || group.getSource () == current_node) {
       count_terminals++;
+	  
+	  if (count_terminals == terminals.size () ) return true;
     }
     
     std::pair<c_iterator, c_iterator> iterators;
