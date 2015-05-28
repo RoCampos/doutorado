@@ -415,3 +415,60 @@ rca::Path get_shortest_path (int v, int w, rca::Network & network, std::vector<i
 	path.push (s);
 	return path;
 }
+
+std::vector<int> all_shortest_path (int source, int w, rca::Network & network)
+{
+#ifdef DEBUG1
+	printf ("Call: %s\n", __FUNCTION__);
+#endif
+	
+	typedef typename std::vector<int>::const_iterator c_iterator;
+	
+	int NODES = network.getNumberNodes ();
+	double infty = std::numeric_limits<double>::infinity();
+	
+	std::vector<double> distance = std::vector<double>(NODES,infty);
+	std::vector<int> previous = std::vector<int> (NODES,-1);
+	std::vector<handle_t> handles = std::vector<handle_t> (NODES);
+	
+ 	boost::heap::fibonacci_heap< vertex_t, boost::heap::compare<std::less<vertex_t>> > queue;
+	
+	distance[source] = 0;
+	vertex_t v( distance[source]*-1, source );
+	handles[source] = queue.push ( v );
+	
+	while (!queue.empty ()) {
+	
+		vertex_t v = queue.top ();
+		queue.pop ();
+		
+		std::pair<c_iterator, c_iterator> neighbors;
+		network.get_iterator_adjacent (v.id, neighbors);
+		for (auto u=neighbors.first; u!= neighbors.second; u++) {
+			
+			double cost = network.getCost(v.id, *u);
+			
+			bool removed = network.isRemoved(rca::Link(v.id, *u, cost));
+			
+			if (distance[*u] > ((v.weight*-1 + cost)) 
+				&& !removed) {
+				double old_u_cost = distance[*u];
+				distance[*u] = (v.weight*-1 + cost);
+				previous[*u] = v.id;
+				
+				// TODO update heap. How to manipulate the handle
+				vertex_t t(distance[*u]*-1, *u);
+				
+				if ( old_u_cost == infty ) {
+					handles[ t.id ] = queue.push ( t );
+				} else {
+					queue.increase ( handles[*u], t );
+				}
+			}
+		}
+	}
+	
+	return previous;
+
+		
+}

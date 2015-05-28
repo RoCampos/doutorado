@@ -55,4 +55,14 @@ bool is_connected (rca::Network & network, rca::Group & group);
  */
 rca::Path get_shortest_path (int v, int w, rca::Network & network, std::vector<int> & prev);
 
+/**
+ * This algororithm is used to return a shortest_path tree
+ * from v to all nodes. 
+ * 
+ * The nodes could be recovered using get_shortest_path method.
+ * 
+ */
+std::vector<int> all_shortest_path (int v, int w, rca::Network & network);
+
+
 #endif
