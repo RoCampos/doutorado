@@ -166,58 +166,77 @@ void Grasp::shortest_path_tree (int id, STobserver* ob)
 	std::vector<int> destinations = this->m_groups[ id ].getMembers ();
 	int G_SIZE = destinations.size ();
 	
-// 	std::random_shuffle(destinations.begin(), destinations.end());
+	std::vector<int> prev;
+	prev = all_shortest_path (source, destinations[0] ,*m_network);
 	
-	int d = 0;
-	
-	rca::Path spath = shortest_path (source, destinations[ d ], *m_network);
-	
-	do {
-
-		//current path will be removed from network
-		std::vector<rca::Link> current_path;
-		
-		auto rit = spath.rbegin ();
-		for (; rit != spath.rend()-1; rit++) {
+	for (int m : destinations) {
+		rca::Path path = get_shortest_path (source, m, *m_network, prev);
+			
+		auto rit = path.rbegin ();
+		for (; rit != path.rend()-1; rit++) {
 		
 			int x = *rit;
 			int y = *(rit+1);
-			
+				
 			rca::Link l(x, y, 0);
-			
+				
 			int cost = this->m_network->getCost (l.getX(), l.getY());
-			
+				
 			ob->add_edge (l.getX(), l.getY(), cost, N_SIZE);
-			
- 			this->m_network->removeEdge (l);
-
-			current_path.push_back (l);
-			
-		}
-		
-		d++;
-		
-		if (d == G_SIZE) break;
-
-		spath = shortest_path (source, destinations[ d ], *m_network);
-		
-		bool cleaned = false;
-		if (spath.size () == 0) {
-			this->m_network->clearRemovedEdges ();
-			spath = shortest_path (source, destinations[ d ], *m_network);
-			cleaned = true;			
-		}
-		
-		//removing a path d if path d+1 was found.
-		if ( !cleaned ) {
-		
-			for (auto l : current_path) {
-				m_network->removeEdge (l);
-			}
-			
-		}
-		
-	} while (d < G_SIZE);
+		}			
+	}
+	
+	
+// 	int d = 0;
+// 	
+// 	rca::Path spath = shortest_path (source, destinations[ d ], *m_network);
+// 	
+// 	do {
+// 
+// 		//current path will be removed from network
+// 		std::vector<rca::Link> current_path;
+// 		
+// 		auto rit = spath.rbegin ();
+// 		for (; rit != spath.rend()-1; rit++) {
+// 		
+// 			int x = *rit;
+// 			int y = *(rit+1);
+// 			
+// 			rca::Link l(x, y, 0);
+// 			
+// 			int cost = this->m_network->getCost (l.getX(), l.getY());
+// 			
+// 			ob->add_edge (l.getX(), l.getY(), cost, N_SIZE);
+// 			
+//  			this->m_network->removeEdge (l);
+// 
+// 			current_path.push_back (l);
+// 			
+// 		}
+// 		
+// 		d++;
+// 		
+// 		if (d == G_SIZE) break;
+// 
+// 		spath = shortest_path (source, destinations[ d ], *m_network);
+// 		
+// 		bool cleaned = false;
+// 		if (spath.size () == 0) {
+// 			this->m_network->clearRemovedEdges ();
+// 			spath = shortest_path (source, destinations[ d ], *m_network);
+// 			cleaned = true;			
+// 		}
+// 		
+// 		//removing a path d if path d+1 was found.
+// 		if ( !cleaned ) {
+// 		
+// 			for (auto l : current_path) {
+// 				m_network->removeEdge (l);
+// 			}
+// 			
+// 		}
+// 		
+// 	} while (d < G_SIZE);
 
 }
 	
@@ -388,7 +407,7 @@ void Grasp::run ()
 		alt_best.print_solution ();
 #endif
 	}
-	best.print_solution ();
+// 	best.print_solution ();
 	
 }
 

@@ -111,7 +111,7 @@ int main (int argc, char** argv)
 			m_network.clearRemovedEdges ();
 		}
 		
-		previous_t prev = shortest_path2 (source, members[0] ,m_network);
+		previous_t prev = all_shortest_path (source, members[0] ,m_network);
 		
 		for (int m : members) {
 			rca::Path path = get_path (source, m, m_network, prev);
