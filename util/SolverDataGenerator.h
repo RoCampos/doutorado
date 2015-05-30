@@ -130,6 +130,13 @@ protected:
 	void constraint8 (rca::Network *,
 				   std::vector<std::shared_ptr<rca::Group>>&);
 	
+	/**
+	 * Evitar que arestas fiquem soltas na solução
+	 * Proposta por elizabeth
+	 */
+	void out (rca::Network *,
+				   std::vector<std::shared_ptr<rca::Group>>&);
+	
 	void bounds (rca::Network *,
 				   std::vector<std::shared_ptr<rca::Group>>&);
 	
