@@ -166,58 +166,77 @@ void Grasp::shortest_path_tree (int id, STobserver* ob)
 	std::vector<int> destinations = this->m_groups[ id ].getMembers ();
 	int G_SIZE = destinations.size ();
 	
-// 	std::random_shuffle(destinations.begin(), destinations.end());
+	std::vector<int> prev;
+	prev = all_shortest_path (source, destinations[0] ,*m_network);
 	
-	int d = 0;
-	
-	rca::Path spath = shortest_path (source, destinations[ d ], *m_network);
-	
-	do {
-
-		//current path will be removed from network
-		std::vector<rca::Link> current_path;
-		
-		auto rit = spath.rbegin ();
-		for (; rit != spath.rend()-1; rit++) {
+	for (int m : destinations) {
+		rca::Path path = get_shortest_path (source, m, *m_network, prev);
+			
+		auto rit = path.rbegin ();
+		for (; rit != path.rend()-1; rit++) {
 		
 			int x = *rit;
 			int y = *(rit+1);
-			
+				
 			rca::Link l(x, y, 0);
-			
+				
 			int cost = this->m_network->getCost (l.getX(), l.getY());
-			
+				
 			ob->add_edge (l.getX(), l.getY(), cost, N_SIZE);
-			
- 			this->m_network->removeEdge (l);
-
-			current_path.push_back (l);
-			
-		}
-		
-		d++;
-		
-		if (d == G_SIZE) break;
-
-		spath = shortest_path (source, destinations[ d ], *m_network);
-		
-		bool cleaned = false;
-		if (spath.size () == 0) {
-			this->m_network->clearRemovedEdges ();
-			spath = shortest_path (source, destinations[ d ], *m_network);
-			cleaned = true;			
-		}
-		
-		//removing a path d if path d+1 was found.
-		if ( !cleaned ) {
-		
-			for (auto l : current_path) {
-				m_network->removeEdge (l);
-			}
-			
-		}
-		
-	} while (d < G_SIZE);
+		}			
+	}
+	
+	
+// 	int d = 0;
+// 	
+// 	rca::Path spath = shortest_path (source, destinations[ d ], *m_network);
+// 	
+// 	do {
+// 
+// 		//current path will be removed from network
+// 		std::vector<rca::Link> current_path;
+// 		
+// 		auto rit = spath.rbegin ();
+// 		for (; rit != spath.rend()-1; rit++) {
+// 		
+// 			int x = *rit;
+// 			int y = *(rit+1);
+// 			
+// 			rca::Link l(x, y, 0);
+// 			
+// 			int cost = this->m_network->getCost (l.getX(), l.getY());
+// 			
+// 			ob->add_edge (l.getX(), l.getY(), cost, N_SIZE);
+// 			
+//  			this->m_network->removeEdge (l);
+// 
+// 			current_path.push_back (l);
+// 			
+// 		}
+// 		
+// 		d++;
+// 		
+// 		if (d == G_SIZE) break;
+// 
+// 		spath = shortest_path (source, destinations[ d ], *m_network);
+// 		
+// 		bool cleaned = false;
+// 		if (spath.size () == 0) {
+// 			this->m_network->clearRemovedEdges ();
+// 			spath = shortest_path (source, destinations[ d ], *m_network);
+// 			cleaned = true;			
+// 		}
+// 		
+// 		//removing a path d if path d+1 was found.
+// 		if ( !cleaned ) {
+// 		
+// 			for (auto l : current_path) {
+// 				m_network->removeEdge (l);
+// 			}
+// 			
+// 		}
+// 		
+// 	} while (d < G_SIZE);
 
 }
 	
@@ -320,13 +339,15 @@ void Grasp::run ()
 		
 		sttree_t sol = build_solution ();
 		
-		ChenReplaceVisitor c(&sol.m_trees);
-		c.setNetwork (m_network);
-		c.setMulticastGroups (m_groups);
-		c.setEdgeContainer (sol.cg);
+		if (m_local_search) {
+			ChenReplaceVisitor c(&sol.m_trees);
+			c.setNetwork (m_network);
+			c.setMulticastGroups (m_groups);
+			c.setEdgeContainer (sol.cg);
 
-		cost_refinament (&sol, c);
- 		residual_refinament (&sol, c);
+			cost_refinament (&sol, c);
+			residual_refinament (&sol, c);
+		}
 		
 #ifdef DEBUG
 	std::cout << sol.m_residual_cap << " " << sol.m_cost << "\n";	
@@ -386,7 +407,7 @@ void Grasp::run ()
 		alt_best.print_solution ();
 #endif
 	}
-	
+// 	best.print_solution ();
 	
 }
 
@@ -442,7 +463,8 @@ void help ()
 	printf ("Grasp Algorithm For the MMRBP problem\n");
 	printf ("Input:\n");
 	printf ("\t./grasp <instance> ");
-	printf (" --iter <value> --lrc <value> --heur <value> --budget <value>\n");
+	printf (" --iter <value> --lrc <value> --heur <value> --budget <value>");
+	printf (" --local_search <value>\n");
 	
 	std::string description = "Descrition\n";
 	description += "\t--iter: defines the number of iterations\n";
@@ -450,13 +472,14 @@ void help ()
 	description += "\t--budget: the budget used for limite the cost of solution\n";
 	description += "\t--heur: value the determins the algorithm to used";
 	description += "ShortestPH or Spanning Minimum Tree\n";
+	description += "\t--local_search (1 - actived|0 - not actived)\n";
 	
 	printf ("%s", description.c_str ());
 }
 
 int main (int argc, char**argv) {
 	
-	if (argc < 10) {
+	if (argc < 11) {
 		help ();
 		exit (0);
 	} 
@@ -481,16 +504,12 @@ int main (int argc, char**argv) {
 	double heur = atof (argv[7]);
 	
 	int budget = atof (argv[9]);
-// 	std::string file2(argv[9]);
-// 	std::fstream bud(file2.c_str());
-// 	if (bud.good()) {
-// 		bud >> budget;
-// 	} else {
-// 		budget = 0;
-// 	}
+
+	int local_search = atoi (argv[11]);
+	
 	
 #ifdef DEBUG
-	printf ("grasp %s --iter %d --lrc %.2f --heur %d --budget %.2f\n",file.c_str(),iter, lrc, budget, heur);
+	printf ("grasp %s --iter %d --lrc %.2f --heur %d --budget %.2f\n --local_search %d",file.c_str(),iter, lrc, budget, heur, local_search);
 #endif
 	
 	grasp.set_iter (iter);
@@ -498,6 +517,7 @@ int main (int argc, char**argv) {
 	grasp.set_budget (budget);
 	grasp.set_heur (heur);
 	grasp.set_seed (m_seed);
+	grasp.set_local_search (local_search);
 	
 	grasp.run ();
 	
