@@ -42,6 +42,9 @@ MESSAGE ("\tINFO:solutionTest-- REAL(${REAL})")
 add_executable (solutionTest SolverSolutionTest.cpp SolverSolutionTest.h ${INCLUDE})
 target_link_libraries (solutionTest graph sttree)
 
+MESSAGE ("\tINFO:Instance Generator")
+add_executable (instance InstanceGenerator.cpp InstanceGenerator.h ${INCLUDE})
+
 INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION util)
 
 
