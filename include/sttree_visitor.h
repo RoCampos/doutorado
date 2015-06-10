@@ -36,4 +36,26 @@ void prunning (STTree & st, Container & cont, int, int);
  */ 
 std::vector<rca::Path> stree_to_path (STTree & st, int source, int nodes);
 
+/**
+ * This method is used to separeted the nodes from a cut in the
+ * steiner tree.
+ * 
+ * @param STTree steiner tree
+ * @param int source of the tree Ti after the division
+ * @param rca::Link the cur
+ * @param std::vector<int> vertex marked
+ * @param int nodes. The number of nodes of the graph
+ */
+std::vector<int> make_cut_visitor (std::vector<rca::Link> & st, 
+			   int source, 
+			   rca::Link &,
+			   std::vector<int> &mark, 
+			   int nodes);
+
+
+template<class Container>
+void remove_top_edges (Container & ob, 
+					   rca::Network & m_network, 
+					   rca::Group & group, int res);
+
 #endif
