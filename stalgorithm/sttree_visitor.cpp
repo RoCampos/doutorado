@@ -194,6 +194,34 @@ std::vector<int> make_cut_visitor (std::vector<rca::Link>& st,
 	return tree_nodes;
 }
 
+template<class Container>
+void remove_top_edges (Container & ob, rca::Network & m_network,
+					   rca::Group & group, int res) 
+{
+	
+	auto it = ob.get_heap ().ordered_begin ();
+	auto end = ob.get_heap ().ordered_end ();
+	
+	for ( ; it != end; it++) {
+ 		if (it->getValue () <= ob.top()+res) {
+			m_network.removeEdge (*it);
+ 			if ( !is_connected (m_network, group) )
+ 				m_network.undoRemoveEdge (*it);
+ 		} else {
+			break;
+		}
+	}
+	
+}
+
+
+/** explicit instantiation of methods**/
+template void remove_top_edges<rca::EdgeContainer<rca::Comparator, rca::HCell>> 
+			(rca::EdgeContainer<rca::Comparator, rca::HCell> & ob, 
+			rca::Network & m_network, 
+			rca::Group & group, 
+			int res);
+
 template void prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>>
 		(STTree& st, 
 		rca::EdgeContainer<rca::Comparator, rca::HCell>& cont, 
