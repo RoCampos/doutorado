@@ -24,4 +24,7 @@
  */
 double kruskal_limits (std::vector<rca::Group> &, rca::Network &);
 
+double dijkstra_limits (std::vector<rca::Group> & m_groups, 
+						rca::Network & m_network);
+
 #endif /*_LIMITS_H_*/
