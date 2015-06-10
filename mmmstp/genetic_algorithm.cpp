@@ -562,10 +562,23 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 	
 	std::vector<int> index = create_gene_vector (GROUPS);
 	std::random_shuffle (index.begin(), index.end());
-		
+	
+	std::vector<int> init_pos;
+	init_pos.resize (GROUPS);
+	init_pos [0] = 0;
+	int size_gen = groups[0].getMembers ().size ();
+	for (int i=1; i < GROUPS; i++) {
+		size_gen += groups[i].getMembers ().size ();
+		init_pos[i] = init_pos[i-1] + groups[i-1].getMembers ().size();
+	}
+	
+	m_genotype.resize (size_gen);
+	
+	std::cout << "------------" << std::endl;
 	for (int j=0; j < GROUPS; j++) {
 	
 		int i = index[j];
+	
 		//getting the source
 		int source = groups[i].getSource ();
 		
@@ -578,8 +591,7 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 		//configuring observer
 		stObserver.set_steiner_tree (st, NODES);
 		
-		//getting the first path
-		rca::Path path;
+		//getting the first path		
 		int w = groups[i].getMember (0);
 		
 		remove_top_edges ( stObserver.get_container (), 
@@ -594,12 +606,16 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 		std::cout << path << std::endl;
 #endif		
 		//loop over members
-		for (int d=0; d < groups[i].getSize (); d++) {
+// 		for (int d=0; d < groups[i].getSize (); d++) {
+		int g=0;
+		for (int d : groups[i].getMembers()) {
 			
 			
 			//getting the path
-			path = get_shortest_path (source , groups[i].getMember (d),
+			rca::Path path = get_shortest_path (source , d ,
 									*net, previous_t);
+			
+			assert (path.size () > 0);
 			
 			std::vector<int>::reverse_iterator its = path.rbegin ();
 			for (; its!= path.rend () -1; its++) {
@@ -626,12 +642,12 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 			std::cout << path << " size (";
 			std::cout << path.size () << ")\n";
 #endif
-			//}
-			//add path to genetype
-			m_genotype.push_back (path);
+			
+ 			m_genotype[ init_pos[i] + g ] = path;
+ 			g++;
 		
 #ifdef DEBUG1
-		printf ("\tpath %d to %d ", source, w);
+		printf ("\tpath %d to %d ", source, d);
 		std::cout << path;
 		std::cout << " size= " << path.size () <<std::endl;
 #endif
@@ -640,14 +656,6 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 		
 		//making prunning in the tree
 		stObserver.prune (1,  groups[i].getSize () );
-		
-		//setting the correct path to genotype
-		this->setPath (pos_path, 
-					   stObserver.get_steiner_tree(), 
-					   groups[i], NODES);
-		
-		//updating position for next group
-		pos_path += groups[i].getSize ();
 		
 		//storing the links of the tree i
 		tree_as_links.push_back (stObserver.getTreeAsLinks ());
@@ -664,6 +672,9 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 	}
 	
 	index.clear ();
+	
+	for (rca::Path p : m_genotype) 
+		std::cout << p << std::endl;
 	
 	//m_cost = stObserver.getCost ();
 	this->m_residual_capacity = this->m_cg.top ();
