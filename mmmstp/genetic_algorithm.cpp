@@ -673,8 +673,8 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 	
 	index.clear ();
 	
-	for (rca::Path p : m_genotype) 
-		std::cout << p << std::endl;
+// 	for (rca::Path p : m_genotype) 
+// 		std::cout << p << std::endl;
 	
 	//m_cost = stObserver.getCost ();
 	this->m_residual_capacity = this->m_cg.top ();
