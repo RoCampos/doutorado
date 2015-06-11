@@ -526,7 +526,7 @@ void PathRepresentation::setPath (int init_pos,
 		
 		ind_pos++;
 	}
-	
+
 }
 
 void PathRepresentation::init_rand_solution1 (rca::Network * net, 
@@ -573,8 +573,8 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 	}
 	
 	m_genotype.resize (size_gen);
+	tree_as_links.resize (GROUPS);
 	
-	std::cout << "------------" << std::endl;
 	for (int j=0; j < GROUPS; j++) {
 	
 		int i = index[j];
@@ -657,8 +657,12 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 		//making prunning in the tree
 		stObserver.prune (1,  groups[i].getSize () );
 		
+		this->setPath (init_pos[i], 
+					   stObserver.get_steiner_tree (), 
+					   groups[i], NODES);
+		
 		//storing the links of the tree i
-		tree_as_links.push_back (stObserver.getTreeAsLinks ());
+		tree_as_links [i] = stObserver.getTreeAsLinks ();
 		
 		//updating the cost
 		this->m_cost += stObserver.get_steiner_tree ().getCost ();
@@ -672,9 +676,6 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 	}
 	
 	index.clear ();
-	
-// 	for (rca::Path p : m_genotype) 
-// 		std::cout << p << std::endl;
 	
 	//m_cost = stObserver.getCost ();
 	this->m_residual_capacity = this->m_cg.top ();
