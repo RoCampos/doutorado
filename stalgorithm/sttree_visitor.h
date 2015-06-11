@@ -52,4 +52,10 @@ std::vector<int> make_cut_visitor (std::vector<rca::Link> & st,
 			   std::vector<int> &mark, 
 			   int nodes);
 
+
+template<class Container>
+void remove_top_edges (Container & ob, 
+					   rca::Network & m_network, 
+					   rca::Group & group, int res);
+
 #endif
