@@ -52,6 +52,11 @@ void print_solution (std::vector<STTree>& m_trees) {
 	
 }
 
+void improve_cost (std::vector<STTree>& m_trees, 
+				   Network & network, 
+				   std::vector<rca::Group>& m_groups, 
+				   CongestionHandle & cg, int);
+
 int main (int argc, char** argv) 
 {
 
@@ -110,7 +115,11 @@ int main (int argc, char** argv)
 	std::cout << time_elapsed.get_elapsed () <<std::endl;
 	
 	//printing all steiner tree to evaluate corrections of results
+	for (int i=0; i < m_groups.size (); i++) {
+		improve_cost (steiner_trees, m_network, m_groups, cg, i);
+	}
 	print_solution (steiner_trees);
+	
 	
 	return 0;
 }
@@ -171,4 +180,83 @@ void agm_heuristic (STobserver * ob,
 		ob->add_edge (link.getX(), link.getY(), cost, GROUPS_SIZE);
 		links.erase ( (links.begin () + pos) );
 	}
+}
+
+void improve_cost (std::vector<STTree>& m_trees, 
+				   Network & network,
+				   std::vector<rca::Group>& m_groups, 
+				   CongestionHandle& cg, int best)
+{
+
+	int GSIZE = m_groups.size ();
+	edge_t * e = m_trees[best].get_edge ();
+	while (e != NULL) {
+		
+		if (e->in) {
+			//updating usage
+			
+			rca::Link l (e->x, e->y,0);
+			if (cg.value (l) == (GSIZE-1) ) {
+				cg.erase (l);
+			} else {
+				int value = cg.value (l) + 1;
+				cg.erase (l);
+				l.setValue (value);
+				cg.push (l);
+			}
+			
+		}
+		
+		e = e->next;
+	}
+	
+	network.clearRemovedEdges ();
+	
+	remove_top_edges<CongestionHandle> (cg, network, m_groups[best], 0);
+	
+	int  NODES = network.getNumberNodes ();
+	int source = m_groups[best].getSource ();
+	STTree steiner_tree(NODES, source, m_groups[best].getMembers ());
+		
+	STobserver ob;
+	ob.set_container (cg);
+	ob.set_steiner_tree (steiner_tree, NODES);
+
+	std::vector<rca::Link> m_links;
+	create_list (m_links, network);
+	for (auto &	 l : m_links) {
+		int cost = network.getCost (l.getX(), l.getY());
+		l.setValue (cost);
+	}
+	
+	std::sort (m_links.begin(), m_links.end());
+	
+	auto it = m_links.rbegin ();
+	auto end = m_links.rend();
+	
+	for ( ; it != end; it++) {
+		network.removeEdge (*it);
+ 		if ( !is_connected (network, m_groups[best]) )
+			network.undoRemoveEdge (*it);
+	}
+	
+	while (!m_links.empty()) {
+	
+		rca::Link l = m_links[0];
+		
+		if (network.isRemoved(l)) {
+		
+			m_links.erase (m_links.begin());
+			continue;
+			
+		}
+		
+		ob.add_edge (l.getX(), l.getY(), l.getValue(), GSIZE);
+		m_links.erase ( m_links.begin () );
+		
+	}
+	
+	ob.prune (1, GSIZE);
+	
+	m_trees[best] = ob.get_steiner_tree();
 }
