@@ -52,10 +52,18 @@ void print_solution (std::vector<STTree>& m_trees) {
 	
 }
 
-void improve_cost (std::vector<STTree>& m_trees, 
-				   Network & network, 
-				   std::vector<rca::Group>& m_groups, 
-				   CongestionHandle & cg, int);
+
+void local_search (std::vector<STTree>&, 
+				   int tree, 
+				   rca::Network&, 
+				   std::vector<rca::Group>&, 
+				   CongestionHandle &cg);
+
+
+std::vector<rca::Link> getCircle (std::vector<rca::Link>&, 
+				rca::Group& group, 
+				rca::Link&, 
+				rca::Network & m_network);
 
 int main (int argc, char** argv) 
 {
@@ -109,33 +117,39 @@ int main (int argc, char** argv)
 		update_usage (m_links, ob.get_steiner_tree ());
 	}
 	
+	
+	
+//  	std::cout << cg.top () << " " << cost << " \n";
+	
+	//printing all steiner tree to evaluate corrections of results	
+	cost = 0.0;
+	for (int i=0; i < m_groups.size (); i++) {		
+		improve_cost (steiner_trees, m_network, m_groups, cg, i);		
+		cost += steiner_trees[i].getCost ();
+	}
 	time_elapsed.finished ();
+//  	std::cout << cg.top () << " " << cost << " ";
+//  	std::cout << time_elapsed.get_elapsed () <<std::endl;
 	
-	std::cout << cg.top () << " " << cost << " ";
-	std::cout << time_elapsed.get_elapsed () <<std::endl;
+	std::vector<int> idx(m_groups.size(), 0);
+	std::iota(idx.begin(), idx.end(), 0);
 	
-	//printing all steiner tree to evaluate corrections of results
-	for (int i=0; i < m_groups.size (); i++) {
-		improve_cost (steiner_trees, m_network, m_groups, cg, i);
-	}
-	print_solution (steiner_trees);
+	int improve;
+	do {
+		improve = cost;
+		cost = 0;
+		std::random_shuffle (idx.begin(), idx.end());
+		for (int i: idx) {
+			local_search (steiner_trees, i, m_network, 
+ 			   m_groups, cg);		
+			cost += steiner_trees[i].getCost ();
+		}
+// 		std::cout <<"\t" << cg.top () << " " << cost << " \n";
+	}while (cost < improve);
 	
-	
+	std::cout << cg.top () << " " << cost << " \n";
+// 	print_solution (steiner_trees);
 	return 0;
-}
-
-void create_list (std::vector<rca::Link>& m_links, Network & m_network)
-{
-	auto iter = m_network.getLinks ().begin();
-	auto end = m_network.getLinks ().end();
-	for (; iter != end; iter++) {
-		m_links.push_back (*iter);
-	}
-		
-	for (auto & it: m_links) {
-		it.setValue (0);
-	}
-	
 }
 
 void update_usage (std::vector<rca::Link>& m_links, STTree & sttree)
@@ -182,81 +196,242 @@ void agm_heuristic (STobserver * ob,
 	}
 }
 
-void improve_cost (std::vector<STTree>& m_trees, 
-				   Network & network,
+void local_search (std::vector<STTree>& m_trees, 
+				   int tree, 
+				   rca::Network& m_network, 
 				   std::vector<rca::Group>& m_groups, 
-				   CongestionHandle& cg, int best)
+				   CongestionHandle &cg)
 {
-
+	
+	int NODES = m_network.getNumberNodes ();
 	int GSIZE = m_groups.size ();
-	edge_t * e = m_trees[best].get_edge ();
+	
+	int tcost = m_trees[tree].getCost ();
+	int old = tcost;
+	
+	std::set<int> vertex;	
+	std::vector<rca::Link> m_links;
+	
+	edge_t * e = m_trees[tree].get_edge ();
 	while (e != NULL) {
-		
 		if (e->in) {
-			//updating usage
 			
-			rca::Link l (e->x, e->y,0);
-			if (cg.value (l) == (GSIZE-1) ) {
-				cg.erase (l);
+			rca::Link link (e->x, e->y, 0);
+			
+			if (cg.value (link) == (GSIZE-1) ) {
+				cg.erase (link);
 			} else {
-				int value = cg.value (l) + 1;
-				cg.erase (l);
-				l.setValue (value);
-				cg.push (l);
+				int value = cg.value (link) + 1;
+				cg.erase (link);
+				link.setValue (value);
+				cg.push (link);
 			}
 			
+			vertex.insert (link.getX());
+			vertex.insert (link.getY());
+			
+			m_links.push_back (link);
+			
+		}
+		e = e->next;
+	}
+	
+	for (auto v : vertex) {
+		for (auto w: vertex) {
+			
+			if (v < w) {
+				
+				if (m_network.getCost (v,w) > 0) {
+					
+					
+					rca::Link link (v,w, (int) m_network.getCost (v,w));
+					
+					if (cg.is_used(link)) {
+						
+						if (cg.value (link) <= cg.top ()) continue;
+						
+					}
+					
+					
+					if (std::find(m_links.begin(), m_links.end(), link) 
+						== m_links.end()) {
+#ifdef DEBUG						
+						std::string s('-', 60);
+						std::cout << s << std::endl;
+						
+						std::cout << "Circle Induced by : " << link << std::endl;
+#endif
+						std::vector<rca::Link> toRemove;
+						toRemove = getCircle (m_links, 
+										m_groups[tree], 
+										link, m_network);
+						
+						//adding the links an remove others
+						Group g = m_groups[tree];
+						for (auto l : toRemove) {
+#ifdef DEBUG				
+							std::cout <<"Removing "<<l << std::endl;
+#endif				
+							int source = g.getSource ();
+							STTree steiner_tree(NODES, source, g.getMembers ());
+							for (auto ll : m_links) {
+							
+								if (ll != l) {
+									int cost = m_network.getCost (ll.getX(), 
+																  ll.getY());
+									steiner_tree.add_edge (ll.getX(), 
+														   ll.getY(),
+														   cost);
+								}
+								
+							}
+							int cost = m_network.getCost(link.getX(), link.getY());
+							steiner_tree.add_edge (link.getX(), link.getY(), cost);
+							
+							steiner_tree.prunning ();
+#ifdef DEBUG
+							steiner_tree.xdotFormat ();
+#endif
+							
+#ifdef DEBUG
+							std::cout << tcost << " ";
+							std::cout << steiner_tree.getCost () << std::endl;
+#endif			
+							if (tcost > steiner_tree.getCost ()) {
+								m_trees[tree] = steiner_tree;
+								tcost = steiner_tree.getCost ();
+							}
+#ifdef DEBUG							
+ 							getchar ();
+#endif
+						}
+						
+#ifdef DEBUG
+						std::cout << s << std::endl;					
+						std::cout << std::endl;
+#endif
+					}
+					
+				}
+			}
+			
+		}
+	}
+	
+#ifdef DEBUG
+	std::cout << old <<" "<< m_trees[tree].getCost () << std::endl;
+#endif
+	
+	e = m_trees[tree].get_edge ();
+	while ( e != NULL) {
+			
+		if (e->in) {
+			
+			rca::Link link (e->x, e->y, 0);
+			
+			if (cg.is_used (link)) {
+				
+				int value = cg.value (link) - 1;
+				
+				cg.erase (link);
+				link.setValue (value);
+				cg.push (link);
+				
+			} else {
+				link.setValue (GSIZE - 1); 
+				cg.push (link);
+			}
 		}
 		
 		e = e->next;
 	}
 	
-	network.clearRemovedEdges ();
-	
-	remove_top_edges<CongestionHandle> (cg, network, m_groups[best], 0);
-	
-	int  NODES = network.getNumberNodes ();
-	int source = m_groups[best].getSource ();
-	STTree steiner_tree(NODES, source, m_groups[best].getMembers ());
-		
-	STobserver ob;
-	ob.set_container (cg);
-	ob.set_steiner_tree (steiner_tree, NODES);
+}
 
-	std::vector<rca::Link> m_links;
-	create_list (m_links, network);
-	for (auto &	 l : m_links) {
-		int cost = network.getCost (l.getX(), l.getY());
-		l.setValue (cost);
-	}
+std::vector<rca::Link> getCircle (std::vector<rca::Link>& m_links, 
+							rca::Group &group, rca::Link & link, 
+							rca::Network & m_network)
+{
 	
-	std::sort (m_links.begin(), m_links.end());
+#define WHITE 0
+#define GREY 1
+#define BLACK 2
 	
-	auto it = m_links.rbegin ();
-	auto end = m_links.rend();
+	int x = link.getX();
+	int y = link.getY();
 	
-	for ( ; it != end; it++) {
-		network.removeEdge (*it);
- 		if ( !is_connected (network, m_groups[best]) )
-			network.undoRemoveEdge (*it);
-	}
+	int NODES = m_network.getNumberNodes ();
 	
-	while (!m_links.empty()) {
+	std::vector<int> predecessor(NODES, -1);
+	std::vector<int> visited(NODES, 0);
+	std::vector<int> color(NODES, WHITE);
+	std::vector<int> time(NODES, 0);
 	
-		rca::Link l = m_links[0];
+	std::vector<int> stack;
+	
+	stack.push_back (x);
+	
+	int tempo = 0;
+	
+	while ( !stack.empty() ) {
 		
-		if (network.isRemoved(l)) {
+		int current_node = stack[ stack.size() -1 ];
 		
-			m_links.erase (m_links.begin());
-			continue;
+		if (current_node == y) break;
+		
+		tempo++;
+		time[current_node] = tempo;
+		color[current_node] = GREY;
+		
+		bool found = false;
+		for (auto link : m_links) {
+			
+			int xx = link.getX();
+			int yy = link.getY();
+			if (xx == current_node && color[yy] == WHITE) {
+			
+				predecessor [yy] = current_node;
+				stack.push_back (yy);
+				found = true;
+				break;
+			} 
+			
+			if (yy == current_node && color[xx] == WHITE) {
+			
+				predecessor [xx] = current_node;
+				stack.push_back (xx);
+				found = true;
+				break;
+			} 
 			
 		}
 		
-		ob.add_edge (l.getX(), l.getY(), l.getValue(), GSIZE);
-		m_links.erase ( m_links.begin () );
+		if (found) {
+			continue;
+		}
+		
+		color[current_node] = BLACK;
+		tempo++;
+		time[current_node] = tempo;
+		
+		stack.erase ( stack.begin() + (stack.size () - 1) );
 		
 	}
 	
-	ob.prune (1, GSIZE);
+	std::vector<rca::Link> toRemove;
 	
-	m_trees[best] = ob.get_steiner_tree();
+	int source = group.getSource ();
+	for (int i=stack.size () - 1; i >=1; i--) {
+		
+		int x = stack[i];
+		int y = stack[i-1];
+		
+		rca::Link l(x,y,0);
+		
+		if ( !group.isMember(x) && !group.isMember(y) && source != x && source != y)
+			toRemove.push_back (l);
+	}
+	
+	return toRemove;
+	
 }

@@ -58,4 +58,14 @@ void remove_top_edges (Container & ob,
 					   rca::Network & m_network, 
 					   rca::Group & group, int res);
 
+
+void improve_cost (std::vector<STTree>& m_trees, 
+				   Network & network, 
+				   std::vector<rca::Group>& m_groups, 
+				   CongestionHandle & cg, int);
+
+void cost_by_usage (std::vector<rca::Link>&, 
+					std::vector<STTree>&, 
+					rca::Network & network);
+
 #endif

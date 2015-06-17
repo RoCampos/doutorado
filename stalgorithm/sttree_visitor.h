@@ -5,6 +5,7 @@
 
 #include "sttree.h"
 #include "edgecontainer.h"
+#include "steiner_tree_observer.h"
 
 /**
  * Este método é um template, ele é usado
@@ -57,5 +58,15 @@ template<class Container>
 void remove_top_edges (Container & ob, 
 					   rca::Network & m_network, 
 					   rca::Group & group, int res);
+
+
+void improve_cost (std::vector<STTree>& m_trees, 
+	rca::Network & network, 
+	std::vector<rca::Group>& m_groups, 
+	rca::EdgeContainer<rca::Comparator, rca::HCell> & cg, int);
+
+void cost_by_usage (std::vector<rca::Link>&, 
+					std::vector<STTree>&, 
+					rca::Network & network);
 
 #endif

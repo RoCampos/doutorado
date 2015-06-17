@@ -214,6 +214,141 @@ void remove_top_edges (Container & ob, rca::Network & m_network,
 	
 }
 
+void cost_by_usage (std::vector<rca::Link> & m_links, 
+					std::vector<STTree> & m_trees, 
+					rca::Network & network)
+{
+	
+	for (auto st : m_trees) {
+	
+		edge_t * e = st.get_edge ();
+		while ( e != NULL) {
+
+			if (e->in) {
+				
+				rca::Link link (e->x, e->y, 0);
+				auto res = std::find(m_links.begin(), m_links.end(), link);
+				int cost = network.getCost (link.getX(), link.getY());
+				if (res == m_links.end()) {
+					
+					link.setValue (cost);
+					m_links.push_back (link);
+				} else if (res != m_links.end()) {
+					
+					int value = res->getValue() + cost;
+					res->setValue (value);
+					
+				}
+				
+			}
+			e = e->next;
+		}
+		
+	}
+	
+	std::sort (m_links.begin(), m_links.end(), std::greater<rca::Link>());
+	
+}
+
+void create_list (std::vector<rca::Link>& m_links, rca::Network & m_network)
+{
+	auto iter = m_network.getLinks ().begin();
+	auto end = m_network.getLinks ().end();
+	for (; iter != end; iter++) {
+		m_links.push_back (*iter);
+	}
+		
+	for (auto & it: m_links) {
+		it.setValue (0);
+	}
+	
+}
+
+void improve_cost (std::vector<STTree>& m_trees, 
+	rca::Network & network,
+	std::vector<rca::Group>& m_groups, 
+	rca::EdgeContainer<rca::Comparator, rca::HCell> & cg, int best)
+{
+	typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
+	typedef typename rca::SteinerTreeObserver<CongestionHandle> STobserver;
+	
+	network.clearRemovedEdges ();
+	
+	int GSIZE = m_groups.size ();
+	edge_t * e = m_trees[best].get_edge ();
+	while (e != NULL) {
+		
+		if (e->in) {
+			//updating usage
+			
+			rca::Link l (e->x, e->y,0);
+			if (cg.value (l) == (GSIZE-1) ) {
+				cg.erase (l);
+			} else {
+				int value = cg.value (l) + 1;
+				cg.erase (l);
+				l.setValue (value);
+				cg.push (l);
+			}
+			
+		}
+		
+		e = e->next;
+	}
+	
+	//removendo arestas congestionadas
+	remove_top_edges<CongestionHandle> (cg, network, m_groups[best], 0);
+	
+	int  NODES = network.getNumberNodes ();
+	int source = m_groups[best].getSource ();
+	STTree steiner_tree(NODES, source, m_groups[best].getMembers ());
+		
+	STobserver ob;
+	ob.set_container (cg);
+	ob.set_steiner_tree (steiner_tree, NODES);
+
+	std::vector<rca::Link> m_links;
+	create_list (m_links, network);
+	for (auto &	 l : m_links) {
+		int cost = network.getCost (l.getX(), l.getY());
+		l.setValue (cost);
+	}
+	
+	std::sort (m_links.begin(), m_links.end());
+	
+	auto it = m_links.rbegin ();
+	auto end = m_links.rend();
+	
+	for ( ; it != end; it++) {
+		
+		if (!network.isRemoved(*it)) {
+			network.removeEdge (*it);
+		
+			if ( !is_connected (network, m_groups[best]) )
+				network.undoRemoveEdge (*it);
+		}
+	}
+	
+	while (!m_links.empty()) {
+	
+		rca::Link l = m_links[0];
+		
+		if (network.isRemoved(l)) {
+		
+			m_links.erase (m_links.begin());
+			continue;
+			
+		}
+		
+		ob.add_edge (l.getX(), l.getY(), l.getValue(), GSIZE);
+		m_links.erase ( m_links.begin () );
+		
+	}
+	
+	ob.prune (1, GSIZE);
+	
+	m_trees[best] = ob.get_steiner_tree();
+}
 
 /** explicit instantiation of methods**/
 template void remove_top_edges<rca::EdgeContainer<rca::Comparator, rca::HCell>> 
