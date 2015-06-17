@@ -229,7 +229,7 @@ void local_search (std::vector<STTree>& m_trees,
 	for (auto v : vertex) {
 		for (auto w: vertex) {
 			
-			if (v != w) {
+			if (v < w) {
 				
 				if (m_network.getCost (v,w) > 0) {
 					
@@ -256,6 +256,9 @@ void local_search (std::vector<STTree>& m_trees,
 						//adding the links an remove others
 						for (auto l : toRemove) {
 							std::cout << l << std::endl;
+							
+							
+							
 						}
 						std::cout << std::endl;
 					}
