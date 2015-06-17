@@ -117,10 +117,6 @@ int main (int argc, char** argv)
 		update_usage (m_links, ob.get_steiner_tree ());
 	}
 	
-	
-	
-//  	std::cout << cg.top () << " " << cost << " \n";
-	
 	//printing all steiner tree to evaluate corrections of results	
 	cost = 0.0;
 	for (int i=0; i < m_groups.size (); i++) {		
@@ -128,8 +124,6 @@ int main (int argc, char** argv)
 		cost += steiner_trees[i].getCost ();
 	}
 	time_elapsed.finished ();
-//  	std::cout << cg.top () << " " << cost << " ";
-//  	std::cout << time_elapsed.get_elapsed () <<std::endl;
 	
 	std::vector<int> idx(m_groups.size(), 0);
 	std::iota(idx.begin(), idx.end(), 0);
@@ -144,7 +138,7 @@ int main (int argc, char** argv)
  			   m_groups, cg);		
 			cost += steiner_trees[i].getCost ();
 		}
-// 		std::cout <<"\t" << cg.top () << " " << cost << " \n";
+
 	}while (cost < improve);
 	
 	std::cout << cg.top () << " " << cost << " \n";
@@ -196,7 +190,7 @@ void agm_heuristic (STobserver * ob,
 	}
 }
 
-void local_search (std::vector<STTree>& m_trees, 
+void local_search (std::vector<STTree>& m_trees,
 				   int tree, 
 				   rca::Network& m_network, 
 				   std::vector<rca::Group>& m_groups, 
