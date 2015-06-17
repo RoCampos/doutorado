@@ -119,7 +119,7 @@ int main (int argc, char** argv)
 	
 	
 	
-// 	std::cout << cg.top () << " " << cost << " \n";
+//  	std::cout << cg.top () << " " << cost << " \n";
 	
 	//printing all steiner tree to evaluate corrections of results	
 	cost = 0.0;
@@ -128,18 +128,27 @@ int main (int argc, char** argv)
 		cost += steiner_trees[i].getCost ();
 	}
 	time_elapsed.finished ();
- 	std::cout << cg.top () << " " << cost << " ";
- 	std::cout << time_elapsed.get_elapsed () <<std::endl;
+//  	std::cout << cg.top () << " " << cost << " ";
+//  	std::cout << time_elapsed.get_elapsed () <<std::endl;
 	
- 	std::cout << steiner_trees[2].getCost () << std::endl;
+	std::vector<int> idx(m_groups.size(), 0);
+	std::iota(idx.begin(), idx.end(), 0);
 	
- 	steiner_trees[2].xdotFormat ();
+	int improve;
+	do {
+		improve = cost;
+		cost = 0;
+		std::random_shuffle (idx.begin(), idx.end());
+		for (int i: idx) {
+			local_search (steiner_trees, i, m_network, 
+ 			   m_groups, cg);		
+			cost += steiner_trees[i].getCost ();
+		}
+// 		std::cout <<"\t" << cg.top () << " " << cost << " \n";
+	}while (cost < improve);
 	
+	std::cout << cg.top () << " " << cost << " \n";
 // 	print_solution (steiner_trees);
-
- 	local_search (steiner_trees, 2, m_network, 
- 				   m_groups, cg);
-	
 	return 0;
 }
 
@@ -197,6 +206,9 @@ void local_search (std::vector<STTree>& m_trees,
 	int NODES = m_network.getNumberNodes ();
 	int GSIZE = m_groups.size ();
 	
+	int tcost = m_trees[tree].getCost ();
+	int old = tcost;
+	
 	std::set<int> vertex;	
 	std::vector<rca::Link> m_links;
 	
@@ -224,8 +236,6 @@ void local_search (std::vector<STTree>& m_trees,
 		e = e->next;
 	}
 	
-	STTree copy_tree = m_trees[tree];
-	
 	for (auto v : vertex) {
 		for (auto w: vertex) {
 			
@@ -245,22 +255,61 @@ void local_search (std::vector<STTree>& m_trees,
 					
 					if (std::find(m_links.begin(), m_links.end(), link) 
 						== m_links.end()) {
+#ifdef DEBUG						
+						std::string s('-', 60);
+						std::cout << s << std::endl;
 						
-						
-						std::cout << "Circle by: " << link << std::endl;
+						std::cout << "Circle Induced by : " << link << std::endl;
+#endif
 						std::vector<rca::Link> toRemove;
 						toRemove = getCircle (m_links, 
 										m_groups[tree], 
 										link, m_network);
 						
 						//adding the links an remove others
+						Group g = m_groups[tree];
 						for (auto l : toRemove) {
-							std::cout << l << std::endl;
+#ifdef DEBUG				
+							std::cout <<"Removing "<<l << std::endl;
+#endif				
+							int source = g.getSource ();
+							STTree steiner_tree(NODES, source, g.getMembers ());
+							for (auto ll : m_links) {
 							
+								if (ll != l) {
+									int cost = m_network.getCost (ll.getX(), 
+																  ll.getY());
+									steiner_tree.add_edge (ll.getX(), 
+														   ll.getY(),
+														   cost);
+								}
+								
+							}
+							int cost = m_network.getCost(link.getX(), link.getY());
+							steiner_tree.add_edge (link.getX(), link.getY(), cost);
 							
+							steiner_tree.prunning ();
+#ifdef DEBUG
+							steiner_tree.xdotFormat ();
+#endif
 							
+#ifdef DEBUG
+							std::cout << tcost << " ";
+							std::cout << steiner_tree.getCost () << std::endl;
+#endif			
+							if (tcost > steiner_tree.getCost ()) {
+								m_trees[tree] = steiner_tree;
+								tcost = steiner_tree.getCost ();
+							}
+#ifdef DEBUG							
+ 							getchar ();
+#endif
 						}
+						
+#ifdef DEBUG
+						std::cout << s << std::endl;					
 						std::cout << std::endl;
+#endif
 					}
 					
 				}
@@ -269,13 +318,33 @@ void local_search (std::vector<STTree>& m_trees,
 		}
 	}
 	
-// 	std::sort (m_links.begin(), m_links.end());
-// 	std::cout << "link size: " << m_links.size () << std::endl;
-// 	for (auto ll : m_links) {
-// 		std::cout << ll <<" " << ll.getValue () << std::endl;
-// 	}
+#ifdef DEBUG
+	std::cout << old <<" "<< m_trees[tree].getCost () << std::endl;
+#endif
 	
-// 	getCircle (m_links, m_groups[tree], m_links[1], m_network);
+	e = m_trees[tree].get_edge ();
+	while ( e != NULL) {
+			
+		if (e->in) {
+			
+			rca::Link link (e->x, e->y, 0);
+			
+			if (cg.is_used (link)) {
+				
+				int value = cg.value (link) - 1;
+				
+				cg.erase (link);
+				link.setValue (value);
+				cg.push (link);
+				
+			} else {
+				link.setValue (GSIZE - 1); 
+				cg.push (link);
+			}
+		}
+		
+		e = e->next;
+	}
 	
 }
 
