@@ -245,6 +245,32 @@ cycle_local_search<Container>::get_circle (std::vector<rca::Link>& m_links,
 	return toRemove;
 	
 }
+template <class Container>
+void cycle_local_search<Container>::local_search (int tree, 
+											std::vector<STTree> & m_trees, 
+											rca::Network& m_network, 
+											std::vector<rca::Group>& m_groups, 
+											Container& cg, 
+											int cost)
+{
+
+	std::vector<int> idx(m_groups.size(), 0);
+	std::iota(idx.begin(), idx.end(), 0);
+	
+	int improve;
+	do {
+		improve = cost;
+		cost = 0;
+		std::random_shuffle (idx.begin(), idx.end());
+		for (int i: idx) {
+			this->execute (i, m_trees, m_network, 
+ 			   m_groups, cg);		
+			cost += m_trees[i].getCost ();
+		}
+
+	}while (cost < improve);
+	
+}
 
 //***********************************************************************/
 template class cycle_local_search<rca::EdgeContainer<rca::Comparator, rca::HCell>>;
