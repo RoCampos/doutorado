@@ -70,7 +70,7 @@ struct cycle_local_search {
 				rca::Network& m_network, 
 				std::vector<rca::Group>&, 
 				Container&, 
-				int cost);
+				int & cost);
 	
 };
 

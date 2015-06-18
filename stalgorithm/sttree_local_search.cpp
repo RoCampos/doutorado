@@ -250,13 +250,13 @@ void cycle_local_search<Container>::local_search (std::vector<STTree> & m_trees,
 											rca::Network& m_network, 
 											std::vector<rca::Group>& m_groups, 
 											Container& cg, 
-											int cost)
+											int & cost)
 {
 
 	std::vector<int> idx(m_groups.size(), 0);
 	std::iota(idx.begin(), idx.end(), 0);
 	
-	int improve;
+	int improve = cost;
 	do {
 		improve = cost;
 		cost = 0;
