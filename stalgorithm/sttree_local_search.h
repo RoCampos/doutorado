@@ -60,14 +60,13 @@ struct cycle_local_search {
 	 * 
 	 * It receives the same set of parameters pluas and adicional paramete: cost
 	 * of solution befora start the local search.
-	 * @param int tree_id where the local search is perfomed
+	 * 
 	 * @param std::vector<STTree> vector containing the trees to update the tree
 	 * @param rca::Group group multicast related to tree tree_id
 	 * @param Container template parameter: @see rca::EdgetContainer
 	 * @param int cost of solution before local search
 	 */
-	void local_search (int tree_id, 
-				std::vector<STTree> &, 
+	void local_search (std::vector<STTree> &, 
 				rca::Network& m_network, 
 				std::vector<rca::Group>&, 
 				Container&, 

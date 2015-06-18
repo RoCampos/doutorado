@@ -246,8 +246,7 @@ cycle_local_search<Container>::get_circle (std::vector<rca::Link>& m_links,
 	
 }
 template <class Container>
-void cycle_local_search<Container>::local_search (int tree, 
-											std::vector<STTree> & m_trees, 
+void cycle_local_search<Container>::local_search (std::vector<STTree> & m_trees, 
 											rca::Network& m_network, 
 											std::vector<rca::Group>& m_groups, 
 											Container& cg, 
