@@ -60,7 +60,8 @@ void helpFunction () {
 	printf (" --phe <value> --pheur <value> --local_upd <value>");
 	printf (" --ref <value> --budget <value>");
 	printf ("   <upd1> <upd2 upd3>");
-	printf (" --flip --res\n\n");
+	printf (" --flip <value> --res <value>");
+	printf (" <file_limit>\n\n");
 	
 	std::string str = "--ter: define o número máximo de iterações\n";
 	str += "--alpha: parâmetro alpha do colônia de formigas(0.01,1.00)\n";
@@ -73,6 +74,7 @@ void helpFunction () {
 	str += "upd1, upd2, upd3 parameters the multiple the pheromone value\n";
 	str += "--flip: changes the way the edges a choosed by next_component\n";
 	str += "--res: indicates the limite for a maximum for remove edges\n";
+	str += "The last parameter could be a file with a limit(irace input) \n";
 	
 	printf ("%s", str.c_str () );
 }
