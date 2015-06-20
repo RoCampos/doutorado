@@ -185,58 +185,6 @@ void Grasp::shortest_path_tree (int id, STobserver* ob)
 			ob->add_edge (l.getX(), l.getY(), cost, N_SIZE);
 		}			
 	}
-	
-	
-// 	int d = 0;
-// 	
-// 	rca::Path spath = shortest_path (source, destinations[ d ], *m_network);
-// 	
-// 	do {
-// 
-// 		//current path will be removed from network
-// 		std::vector<rca::Link> current_path;
-// 		
-// 		auto rit = spath.rbegin ();
-// 		for (; rit != spath.rend()-1; rit++) {
-// 		
-// 			int x = *rit;
-// 			int y = *(rit+1);
-// 			
-// 			rca::Link l(x, y, 0);
-// 			
-// 			int cost = this->m_network->getCost (l.getX(), l.getY());
-// 			
-// 			ob->add_edge (l.getX(), l.getY(), cost, N_SIZE);
-// 			
-//  			this->m_network->removeEdge (l);
-// 
-// 			current_path.push_back (l);
-// 			
-// 		}
-// 		
-// 		d++;
-// 		
-// 		if (d == G_SIZE) break;
-// 
-// 		spath = shortest_path (source, destinations[ d ], *m_network);
-// 		
-// 		bool cleaned = false;
-// 		if (spath.size () == 0) {
-// 			this->m_network->clearRemovedEdges ();
-// 			spath = shortest_path (source, destinations[ d ], *m_network);
-// 			cleaned = true;			
-// 		}
-// 		
-// 		//removing a path d if path d+1 was found.
-// 		if ( !cleaned ) {
-// 		
-// 			for (auto l : current_path) {
-// 				m_network->removeEdge (l);
-// 			}
-// 			
-// 		}
-// 		
-// 	} while (d < G_SIZE);
 
 }
 	
@@ -339,6 +287,9 @@ void Grasp::run ()
 		
 		sttree_t sol = build_solution ();
 		
+		cycle_local_search<CongestionHandle> cls;
+		cls.local_search (sol.m_trees, *m_network, m_groups, sol.cg, sol.m_cost);
+
 		if (m_local_search) {
 			ChenReplaceVisitor c(&sol.m_trees);
 			c.setNetwork (m_network);
@@ -346,13 +297,13 @@ void Grasp::run ()
 			c.setEdgeContainer (sol.cg);
 
 			cost_refinament (&sol, c);
-			residual_refinament (&sol, c);
+// 			residual_refinament (&sol, c);
 		}
 		
 #ifdef DEBUG
 	std::cout << sol.m_residual_cap << " " << sol.m_cost << "\n";	
 #endif
-		std::cout << sol.m_residual_cap << " " << sol.m_cost << "\n";
+// 		std::cout << sol.m_residual_cap << " " << sol.m_cost << "\n";
 		if (sol.m_residual_cap > best_cap 
 			&& sol.m_cost <= m_budget) {
 			
@@ -388,21 +339,22 @@ void Grasp::run ()
 	
 	if (!best_cap == 0) {
 	
-		std::cout << best.m_cost << " ";
+ 		std::cout << best.m_cost << " ";
 		std::cout << best.m_residual_cap << " ";
-		std::cout << time_elapsed.get_elapsed () << " ";
-		std::cout << best_iter << " ";
-		std::cout << m_seed << std::endl;
+ 		std::cout << time_elapsed.get_elapsed () << " ";
+ 		std::cout << best_iter << " ";
+ 		std::cout << m_seed << std::endl;
 #ifdef DEBUG		
 		best.print_solution ();
 #endif
 		
-	} else {		
-		std::cout << alt_best.m_cost << " ";
-		std::cout << alt_best.m_residual_cap << " ";
-		std::cout << time_elapsed.get_elapsed () << " ";
-		std::cout << best_iter << " ";
-		std::cout << m_seed << std::endl;
+	} else {
+		std::cout << -1 << std::endl;
+//  		std::cout << alt_best.m_cost << " ";
+//  		std::cout << alt_best.m_residual_cap << " ";
+//  		std::cout << time_elapsed.get_elapsed () << " ";
+//  		std::cout << best_iter << " ";
+//  		std::cout << m_seed << std::endl;
 #ifdef DEBUG		
 		alt_best.print_solution ();
 #endif
@@ -448,7 +400,7 @@ void Grasp::remove_congestioned_edges (CongestionHandle & cg, int g_idx)
 
 	for ( ; it != end; it++) {
 			
-		if (it->getValue () <= cg.top()+2) {
+		if (it->getValue () <= cg.top()+1) {
 			this->m_network->removeEdge (*it);
 			if ( !is_connected (*m_network, m_groups[g_idx]) )
 				this->m_network->undoRemoveEdge (*it);
@@ -506,6 +458,13 @@ int main (int argc, char**argv) {
 	int budget = atof (argv[9]);
 
 	int local_search = atoi (argv[11]);
+	
+	std::string budget_file (argv[13]);
+	std::ifstream fileb (budget_file.c_str ());
+	
+	if (fileb.good ()) {
+		fileb >> budget;
+	}
 	
 	
 #ifdef DEBUG

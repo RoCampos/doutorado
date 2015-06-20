@@ -12,6 +12,8 @@
 #include "mpp_visitor.h"
 #include "rcatime.h"
 
+#include "sttree_local_search.h"
+
 #ifndef _GRASP_H_
 #define _GRASP_H_
 
