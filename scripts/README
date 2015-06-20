@@ -21,3 +21,9 @@ para o algoritmo de Chen.
 Para cada instância há um arquivo com extensão .pre que contém
 as árvores de steiner correspondentes.
 
+
+ALGORITHMS
+=========================
+./build/acompp ../MPP_instances/b400/b400_02.brite --iter 15 --alpha 16.911 --beta 7.587 --phe  0 --pheur 0.01 --local_upd 0 --ref 0.732 --budget 0 3.814 1.448 7.377 --flip 0.072 --res 1 file
+./build/grasp ../MPP_instances/n30/b30_29.brite --iter 100 --lrc 0.3 --heur 0.5 --budget 98000 --lsearch 2
+./build/genetic_mmmstp ../MPP_instances/n30/b30_1.brite --pop 24 --cross 0.64 --mut 0.01 --iter 10 --init 1 --list 0.2 lseearch 0 2>/dev/null
