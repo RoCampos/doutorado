@@ -54,7 +54,6 @@ public:
 	 */
 	void set_mode (bool g_mode, bool cap_mode, bool tk_mode);
 	
-
 	void set_num_groups (int num)
 	{
 		this->m_num_groups = num;
@@ -121,13 +120,13 @@ private:
 	int m_num_nodes;
 	int m_num_groups;
 	
-	int m_group_mode;
-	int m_capacity_mode;
-	int m_traffic_mode;
+	int m_group_mode; //1 - valores fixos, 0 - percentual
+	int m_capacity_mode; // 1 - valores fixos, 0 - percentual
+	int m_traffic_mode; // 1 - valores fixos, 0 - percentual
 	
-	double m_tk_min, m_tk_max;
-	double m_c_min, m_c_max;
-	double m_g_min, m_g_max;
+	double m_tk_min, m_tk_max; //limites dos valores utilizados para tk
+	double m_c_min, m_c_max; //limites dos valores utilizados para capacidade
+	double m_g_min, m_g_max; //limites dos valores utilizados para tamanho de grupos
 	
 	int m_seed;
 	
