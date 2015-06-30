@@ -15,6 +15,8 @@
 #include "kspath.h"
 #include "rcatime.h"
 
+#include "sttree_local_search.h"
+
 typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 
 class PathRepresentation;

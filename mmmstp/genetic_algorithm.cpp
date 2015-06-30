@@ -45,12 +45,15 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
   	//local_search (0);
   	//getchar ();
 	
+	int best = 0;
+	int best_cong;
+	
 	while ( --m_iter > 0) {
 		
 #ifdef DEBUG 
 	printf ("Interation (%d)\n", m_iter);
 #endif
-		
+	
 		//crossover
 		for (unsigned int pop = 0; pop < m_population.size (); pop+=4) {
 			
@@ -80,33 +83,33 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 				local_search (i);
 			}
 		}
-
-	}
-	
-	int best = 0;
-	int max = m_population[0].m_residual_capacity;
-	for (int i=1; i < (int)m_population.size (); i++)
-	{
-		if (m_population[i].m_residual_capacity > max)
+		
+		int max = m_population[0].m_residual_capacity;
+		for (int i=1; i < (int)m_population.size (); i++)
 		{
 			
-			//if (m_population[i].m_cost < m_budget) {
-				max = m_population[i].m_residual_capacity;
-				best = i;
-			//}
-		} else if (m_population[i].m_cost < m_population[best].m_cost){
-				max = m_population[i].m_residual_capacity;
-				best = i;
+			if (m_population[i].m_residual_capacity > max)
+			{	
+				if (m_population[i].m_cost < m_budget) {
+					max = m_population[i].m_residual_capacity;
+					best = i;
+					best_cong = max;
+				}
+			} else if (m_population[i].m_cost < m_population[best].m_cost){
+					max = m_population[i].m_residual_capacity;
+					best = i;
+					best_cong = max;
+			}
 		}
+
+		
 	}
+	
 	time_elapsed.finished ();
 	
-//#ifdef DEBUG1
-	//std::cout << "Best: ";
-	//std::cout << std::endl;
-	std::cout << m_population[best].m_cost << " ";
-	std::cout << m_population[best].m_residual_capacity << " ";
-	std::cout << time_elapsed.get_elapsed () << std::endl;
+ 	std::cout << m_population[best].m_cost << " ";
+ 	std::cout << m_population[best].m_residual_capacity << " ";
+ 	std::cout << time_elapsed.get_elapsed () << std::endl;
   	m_population[best].print_solution (m_network, m_groups);
 		
 	//deallocatin of resources;
@@ -169,7 +172,7 @@ void GeneticAlgorithm::init_population ()
 #endif 
 				max =  m_population[i].getResidualCap ();
 				
-				m_budget = m_population[i].m_cost;
+				//m_budget = m_population[i].m_cost;
 			} else if (max == m_population[i].getResidualCap ()) {
 			
 				if (m_population[i].getCost () < cost) {
@@ -177,7 +180,7 @@ void GeneticAlgorithm::init_population ()
 #ifdef DEBUG1
 					best = i;
 #endif
-					m_budget = m_population[i].m_cost;
+				//	m_budget = m_population[i].m_cost;
 				}
 			}
 			
@@ -331,7 +334,7 @@ void GeneticAlgorithm::crossover (int i, int j)
 }
 
 /**
- * Local Searc method using visitor replacement
+ * Local Search method using visitor replacement
  * 
  * 
  */
@@ -394,41 +397,51 @@ void GeneticAlgorithm::local_search (int i)
 	c.setMulticastGroups (m_groups);
 	c.setEdgeContainer (ec);
 	
-	double cost = 0;
+	int cost = 0;
 	double congestion = 0;
 	
 	
-	while (improve) {
-		this->accept (&c);
-				
-		int temp_cost = 0;
-		for (auto st : trees) {
-			temp_cost += (int)st.getCost ();
-		}
-		
-		if (ec.top () > tmp_cong) {
-			congestion = ec.top ();
-			
-			tmp_cong = congestion;
-			cost = temp_cost;
-#ifdef DEBUG1
-	printf ("Improvoment Local Search\n");
-#endif
-			
-		} else {
-			cost = temp_cost;
-			improve = false;
-		}
-	}
+// 	while (improve) {
+// 		this->accept (&c);
+// 				
+// 		int temp_cost = 0;
+// 		for (auto st : trees) {
+// 			temp_cost += (int)st.getCost ();
+// 		}
+// 		
+// 		if (ec.top () > tmp_cong) {
+// 			congestion = ec.top ();
+// 			
+// 			tmp_cong = congestion;
+// 			cost = temp_cost;
+// #ifdef DEBUG1
+// 	printf ("Improvoment Local Search\n");
+// #endif
+// 			
+// 		} else {
+// 			cost = temp_cost;
+// 			improve = false;
+// 		}
+// 	}
 	
-// 	std::cout << "c:" << cost;
-	c.visitByCost ();
-	int tt = 0.0;
-	for (auto st : trees) {
-		tt += (int)st.getCost ();
-	}
-// 	std::cout << " c_n:" << tt << std::endl;
 
+	
+	int tt = 0.0;
+	int imp = 0;
+	do {
+		imp = tt;
+		tt = 0.0;
+		c.visitByCost ();		
+		for (auto st : trees) {
+			tt += (int)st.getCost ();
+		}
+	} while (tt < imp);
+
+	cost = tt;
+	
+	cycle_local_search<CongestionHandle> cls;
+ 	cls.local_search (trees, *m_network, m_groups, ec, cost);
+	
 #ifdef DEBUG1
  	std::cout << congestion << std::endl;
  	std::cout << cost << std::endl;
@@ -1073,12 +1086,20 @@ int main (int argc, char**argv)
 		}
 	}
 	
+	
+	int budget = 0;
 	if (strcmp(argv[12],"--list") == 0) {
 		PathRepresentation::USED_LIST = atof (argv[13]);
 		local_search = atof (argv[15]);
+		budget = atoi(argv[17]);
 	} else {
 		PathRepresentation::USED_LIST = atof (argv[15]);	
-		local_search = atof (argv[17]);
+		local_search = atof (argv[17]);		
+		budget = atoi (argv[19]);
+	}
+	
+	if (budget == 0) {
+		budget = INT_MAX;
 	}
 	
 #ifdef DEBUG
@@ -1088,6 +1109,6 @@ int main (int argc, char**argv)
 #endif
 	
 	algorithm.init_parameters (pop, cross, mut, iter, init, local_search);
-	algorithm.run_metaheuristic (instance, INT_MAX);
+	algorithm.run_metaheuristic (instance, budget);
 	
 }
