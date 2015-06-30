@@ -332,6 +332,37 @@ void MultipleMulticastCommodityLP::constraint4 (rca::Network *net,
 	
 }
 
+void MultipleMulticastCommodityLP::out (rca::Network * net,
+				   std::vector<std::shared_ptr<rca::Group>>& groups)
+{
+	int GROUP_SIZE = groups.size ();
+	int NODES = net->getNumberNodes ();
+	for(int k = 0; k < GROUP_SIZE; k++) {
+	
+		for (int x = 0; x < NODES; x++) {
+			for (int y = 0; y < NODES; y++) {
+				
+				double cost = net->getCost (x,y);
+				if (cost > 0.0) {
+					std::cout << "out(" << (k + 1); //group k
+					std::cout << "," << (x+1) << ","<< (y+1) << "):"; //edge (x,y)
+					std::cout << " - y(" << (x+1) << "," << (y+1) <<","<< (k+1)<<")";
+					
+					for (int g : groups[k]->getMembers()) {
+						
+						printf (" + x(%d,%d,%d,%d)",(x+1),(y+1),(k+1),(g+1));
+						
+					}					
+					std::cout << " >= -0\n";
+				}				
+			}	
+		}
+		
+		
+	}
+	
+}
+
 void MultipleMulticastCommodityLP::constraint5 (rca::Network *net,
 				   std::vector<std::shared_ptr<rca::Group>>&groups)
 {
@@ -543,13 +574,108 @@ void MMSTPBudgetLP::generate(rca::Network *network,
 	constraint1 (network, groups);
 	constraint2 (network, groups);
 	constraint3 (network, groups);
+	
 	constraint4 (network, groups);
+	out (network, groups);
+	
 	constraint5 (network, groups);
 	constraint7 (network, groups);
-	constraint8 (network, groups);
+	
+	//this restriction is not necessary
+	//evitar que chegue fluxo na fonte
+	//constraint8 (network, groups);
+	
+	//budget_constraint
+// 	constraint6 (network, groups);
+	
+	bounds (network, groups);
+	
+	
+}
+
+//-------------------------------- MODELO OTIMIZADO POR CUSTO ----------------------//
+
+void MMSTPCostLP::constraint6 (rca::Network *net,
+				   std::vector<std::shared_ptr<rca::Group>>&groups) { 
+	
+
+	int GROUPS = groups.size ();
+	int NODES = net->getNumberNodes ();
+	
+	for (int v = 0; v < NODES; v++) {
+		for (int w = 0; w < v; w++) {
+			
+			int cap = (int)net->getBand (v,w);
+			
+			if (net->getBand (v,w) > 0.0) {
+				
+				printf (" r5(%d,%d): ",v+1,w+1);
+				for (int k = GROUPS-1; k >=0; k--) {					
+					int traffic = (int)groups[k]->getTrequest();
+					printf (" - %d y(%d,%d,%d) - %d y(%d,%d,%d)", traffic, w+1,v+1,k+1, traffic, v+1, w+1,k+1);					
+				}
+				printf (" >= %d\n", Z - cap);	
+				
+				printf (" r5(%d,%d): ",w+1,v+1);
+				for (int k = GROUPS-1; k >=0; k--) {					
+					int traffic = (int)groups[k]->getTrequest();
+					printf (" - %d y(%d,%d,%d) - %d y(%d,%d,%d)", traffic, v+1, w+1,k+1, traffic, w+1,v+1,k+1);					
+				}
+				printf (" >= %d\n", Z - cap);	
+				
+			}
+		}
+	}
+	
+}
+
+void MMSTPCostLP::generate(rca::Network *network,
+							 std::vector<std::shared_ptr<rca::Group>>&groups)
+{
+// 	std::cout << "Maximize\n objective: + Z\n\nSubject To\n";
+	
+	std::cout << "Minimize\n objective: ";
+	int NODES = network->getNumberNodes ();
+	int GROUPS = groups.size ();
+
+	for (int k = 0; k < GROUPS; k++) {
+		for ( int i=0; i < NODES; i++) {	
+			//for ( int j=0; j < NODES; j++) { com ESTE FOR É POSSÍVEL TER
+			//O BUDGET POR ÁRVER.
+			//A IMPLMENTAÇÃO ATUAL CALCULA POR SOLUÇÃO
+			for ( int j=0; j < i; j++) { 
+				int cost = network->getCost (i,j);
+				if ( cost > 0 ) {
+					printf (" + %d y(%d,%d,%d)",cost,i+1,j+1,k+1);
+					printf (" + %d y(%d,%d,%d)",cost,j+1,i+1,k+1);
+				}
+			}
+		}
+	}
+	std::cout << "\nSubject To\n";
+	
+	
+	constraint1 (network, groups);
+	
+	constraint2 (network, groups);
+	
+	constraint3 (network, groups);
+	
+	constraint4 (network, groups);
+	out (network, groups);
+	
+	//constraint5 (network, groups);
+	
+	constraint7 (network, groups);
+	
+	//this restriction is not necessary
+	//evitar que chegue fluxo na fonte
+	//constraint8 (network, groups);
+	
 	constraint6 (network, groups);
 	
 	bounds (network, groups);
 	
 	
 }
+

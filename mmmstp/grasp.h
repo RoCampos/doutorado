@@ -12,6 +12,8 @@
 #include "mpp_visitor.h"
 #include "rcatime.h"
 
+#include "sttree_local_search.h"
+
 #ifndef _GRASP_H_
 #define _GRASP_H_
 
@@ -69,6 +71,8 @@ public:
 	
 	void set_seed (int seed) {m_seed = seed;}
 	
+	void set_local_search (int local) {m_local_search = local;} 
+	
 	sttree_t build_solution ();
 	
 	void shortest_path_tree (int id, STobserver*);
@@ -103,7 +107,9 @@ private:
 	double m_budget; //valor de orçamento
 	double m_heur; //define que heuristica utilizar
 	
-	int m_seed;
+	int m_seed; //the seed used in the algorithm
+	
+	int m_local_search; //indicates if the local seach is applyied.
 	
 	/*problem information*/
 	sttree_t m_strees;

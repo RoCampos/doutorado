@@ -162,7 +162,7 @@ void AcoMPP::run (va_list & arglist) {
 	double m_flip = va_arg (arglist, double);
 	
 	m_res = va_arg (arglist, int);
- 	std::cout << m_res << std::endl;
+//  	std::cout << m_res << std::endl;
 	
 	std::vector<STTree> bestNLinks;
 	
@@ -323,7 +323,7 @@ void AcoMPP::run (va_list & arglist) {
 		bool upd_cg = congestion > m_bcongestion;
 		bool upd_cost = (congestion == m_bcongestion && cost < m_bcost);
 		bool upd_lim = (cost <= m_budget);
- 		std::cout << congestion << "\t" << cost << "\t" << iter <<std::endl;
+//  		std::cout << congestion << "\t" << cost << "\t" << iter <<std::endl;
 		if ( (upd_cg || upd_cost) && upd_lim )
 		{
 			
@@ -334,18 +334,13 @@ void AcoMPP::run (va_list & arglist) {
 			bestNLinks.clear ();
 			
 			bestNLinks = solutions;
-			//update_pheromone_matrix (ec);
-			X (bestNLinks, m_best_trees, ec, upd1);
-		
-//  		m_budget = m_budget*1.025;
-// 			std::cout << congestion << "\t" << cost << "\t" << iter <<std::endl;
-// 			m_budget = cost;
-
+// 			update_pheromone_matrix (ec);
+ 			X (bestNLinks, m_best_trees, ec, upd1);
 			
 		} else if (upd_cg) {
 		
 
-			X (solutions, m_best_trees, ec, upd2);
+ 			X (solutions, m_best_trees, ec, upd2);
 			
 		} else if (upd_cost) {
 			
@@ -356,8 +351,8 @@ void AcoMPP::run (va_list & arglist) {
 			bestNLinks.clear ();
 			
 			bestNLinks = solutions;
-			//update_pheromone_matrix (ec);
-			X (bestNLinks, m_best_trees, ec, upd3);
+// 			update_pheromone_matrix (ec);
+ 			X (bestNLinks, m_best_trees, ec, upd3);
 
 		}
 			
@@ -779,7 +774,7 @@ void AcoMPP::X (std::vector<STTree>& trees,
 		
 		phe_cost /= count_usage;
 
-		m_pmatrix[ it->getX()][ it->getY() ] += scale*phe; 
+		m_pmatrix[ it->getX()][ it->getY() ] += scale*phe + phe_cost; 
 	
 	}
 	

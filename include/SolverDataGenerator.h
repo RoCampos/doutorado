@@ -230,4 +230,32 @@ private:
 	
 };
 
+/**
+ * Esta classe implementa a versão bi-objectivo do modelo baseado
+ * em MultiCommodities. 
+ * 
+ * Neste caso o modelo é escalarizado.
+ * 
+ * A função generate é re-implementada. Além disso, define-se
+ * uma nova função membro generate2 que recebe dois atributos
+ * adicionais f1 e f2 - que representam os valores escalares.
+ * 
+ */
+class BiObjectiveMMSTP : protected MultipleMulticastCommodityLP
+{
+	
+public:
+	virtual void generate (rca::Network *, 
+						   std::vector<std::shared_ptr<rca::Group>>&);
+	
+	void generate2(rca::Network *, 
+				  std::vector<std::shared_ptr<rca::Group>>&, 
+			   double f1, 
+			   double f2);
+	
+private:
+	double m_f1, m_f2; //fatores utilizados na escalarização dos objetivos
+	
+};
+
 #endif

@@ -150,12 +150,19 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 		std::vector<int> members = w.m_group.getMembers ();
 		STTree st (NODES, members);
 		stob.set_steiner_tree (st, NODES);
+		
+		//shortest_path_tree
+		//computed here
+		std::vector<int> previous = 
+				inefficient_widest_path (s, members[0], m_network);
+		
 		for (int & d : members) {
 			
-			rca::Path p = inefficient_widest_path (s, d, m_network);
-			std::reverse (p.begin (), p.end());
+			Path p = get_shortest_path (s, d, *m_network, previous);
 			
-// 			std::cout << s << "-->" << d << std::endl;
+			//TODO BUILDING A PATH			
+ 			std::reverse (p.begin (), p.end());
+			
 			assert (p.size () > 0);
 			
 			auto it = p.begin ();
