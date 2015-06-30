@@ -1,3 +1,32 @@
+New Version - Improvements and Bug Fixed (06/30/2015)
+=STTreeLocalSearch
+	- cycle_local_search struct: usado para melhorar valor de
+	custo de uma solução. Cria cíclos e depois remove as arestas que possuem 
+	não-terminais.
+	- improve_cost: reconstrução de solução baseado em árvore geradora mínima
+
+=GeneticAlgorithm
+	- O algoritmo foi modificado para melhor o tempo de processamento.
+	O algoritmo utiliza o método all_shortest_path para construir uma árvore.
+
+=STTreeVisitor
+	- remove_top_edges: método que recebe um container e um objeto do tipo 
+	Network e remove as arestas mais congestionadas.
+
+=IntanceGenerator
+	Utilizado para gerar informações de grupos para serem adicionads as
+	topologias geradas pelo BRITE. Considera geração de informações sobre
+	grupo utilizando valores fixos ou pencetuais.
+
+=Heurísticas:
+	- AGM: heurística baseada em árvore geradora com remoção de arestas mais congestionadas
+	- SPH: heurística baseada em caminho mais curto com remoção de arestas mais congestionadas
+
+=Modelo Matemático:
+	- gerar modelo matemático com função objetivo otimizando o custo sujeito à restrição de capacidade
+	residual.
+
+
 New Version - Improvements and Bug Fixed (05/25/2015)
 ========================================================
 =ChenReplaceMethod
