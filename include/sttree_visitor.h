@@ -5,6 +5,7 @@
 
 #include "sttree.h"
 #include "edgecontainer.h"
+#include "steiner_tree_observer.h"
 
 /**
  * Este método é um template, ele é usado
@@ -53,16 +54,43 @@ std::vector<int> make_cut_visitor (std::vector<rca::Link> & st,
 			   int nodes);
 
 
+/**
+ * Este método é utilizado para remover as arestas da rede cujo o valor
+ * seja menor ou igual ao valor minimo ob.top() + res. 
+ * 
+ * Durante as remoções, verifica-se a conectividade entre os membros do 
+ * grupo multicast group.
+ * 
+ * @param Container edge container por exemplo
+ * @param rca::Network
+ * @param rca::Group
+ * @author Romerito Campos.
+ */
 template<class Container>
 void remove_top_edges (Container & ob, 
 					   rca::Network & m_network, 
 					   rca::Group & group, int res);
 
-
+/**
+ * This method create a new steiner tree based on AGM algorithm.
+ * First, the most congested edges on network object are removed.
+ * 
+ * Second, all edges are sorted by its cost and removed from the network
+ * if it is possible. 
+ * 
+ * Then, an AGM is built. After, we remove all non-terminal nodes. 
+ * 
+ * @param std::vector<STTree>
+ * @param rca::Network
+ * @param std::vector<rca::Group>
+ * @param rca::EdgeContainer<rca::Comparator,rca::HCell>
+ * @date 7/1/2015 
+ * @author Romerito Campos.
+ */
 void improve_cost (std::vector<STTree>& m_trees, 
-				   Network & network, 
-				   std::vector<rca::Group>& m_groups, 
-				   CongestionHandle & cg, int);
+	rca::Network & network, 
+	std::vector<rca::Group>& m_groups, 
+	rca::EdgeContainer<rca::Comparator, rca::HCell> & cg, int);
 
 void cost_by_usage (std::vector<rca::Link>&, 
 					std::vector<STTree>&, 
