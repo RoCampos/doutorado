@@ -105,6 +105,64 @@ void ShortestPathSteinerTree<Container>::build (
 	
 }
 
+/** ------------------------ WildestSteinerTree ------------------- **/
+template <class Container>
+void WildestSteinerTree<Container>::build (
+				SteinerTreeObserver<Container> & sttree, 
+				rca::Network & network, 
+				rca::Group & g,
+				Container& cg)
+{
+
+	int source = g.getSource ();
+	std::vector<int> members = g.getMembers ();
+	std::vector<int> prev = inefficient_widest_path (source, 
+													members[0], 
+													&network);
+		
+	for (int m : members) {
+		rca::Path path = get_shortest_path (source, m, network, prev);
+		
+		auto rit = path.rbegin ();
+		for (; rit != path.rend()-1; rit++) {
+	
+			int x = *rit;
+			int y = *(rit+1);
+			
+			rca::Link l(x, y, 0);
+			
+			int cost = network.getCost (l.getX(), l.getY());
+			int BAND = network.getBand (l.getX(), l.getY());
+			
+			sttree.add_edge (l.getX(), l.getY(), cost, BAND);
+		}			
+	}
+	
+}
+
+template <class Container>
+void WildestSteinerTree<Container>::update_band (rca::Group & g, 
+												rca::Network& network,
+												STTree & st)
+{
+
+	edge_t *e = st.get_edge ();
+	while (e != NULL) {
+		
+		if (e->in) {
+		
+			int tk = g.getTrequest ();
+			int band = network.getBand(e->x, e->y);
+			network.setBand(e->x, e->y, band - tk);
+			network.setBand(e->y, e->x, band - tk);
+		}
+		
+		e = e->next;
+	}
+	
+}
+
 template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell> >; 
 template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell> >;
 template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell> >;
+template class rca::sttalgo::WildestSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell> >;

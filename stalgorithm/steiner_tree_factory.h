@@ -124,6 +124,34 @@ public:
 	
 };
 
+
+template <class Container>
+class WildestSteinerTree : SteinerTreeFactory<Container>
+{
+
+public:
+	void build (SteinerTreeObserver<Container> & sttree, 
+				rca::Network & network, 
+				rca::Group & g,
+				Container& cg);
+	
+	/**
+	 * Este método é utilizado para atualizar a largura de banda
+	 * das arestas.
+	 * 
+	 * Este procedimento é necessário para registrar as arestas
+	 * que estão sendo mais utilizadas para construção das árvores
+	 * 
+	 * @param rca::Group
+	 * @param STTree
+	 * @param rca::Network
+	 */
+	void update_band (rca::Group & g, 
+					rca::Network& network,
+					STTree & st);
+	
+};
+
 } //namespace factory
 } //namespace rca
 
