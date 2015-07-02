@@ -65,4 +65,6 @@ rca::Path get_shortest_path (int v, int w, rca::Network & network, std::vector<i
 std::vector<int> all_shortest_path (int v, int w, rca::Network & network);
 
 
+double min_bandwidth (rca::Network& network);
+
 #endif
