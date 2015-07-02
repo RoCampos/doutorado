@@ -261,7 +261,7 @@ private:
 	void local_update (STTree & st);
 	
 	
-	void accept (MppVisitor * visitor) {
+	void accept (rca::sttalgo::MppVisitor * visitor) {
 		visitor->visit ();
 	}
 	

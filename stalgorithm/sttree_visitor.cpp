@@ -1,7 +1,10 @@
 #include "sttree_visitor.h"
 
+using namespace rca::sttalgo;
+using namespace rca;
+
 template<class Container>
-void prunning (STTree & st, Container & cont, int trequest, int band)
+void rca::sttalgo::prunning (STTree & st, Container & cont, int trequest, int band)
 {
 	list_leafs_t& list = st.get_leafs (); 
 	leaf_t * aux = list.begin;
@@ -70,7 +73,7 @@ void prunning (STTree & st, Container & cont, int trequest, int band)
 	aux = NULL;
 }
 
-std::vector<rca::Path> stree_to_path (STTree & st, int source, int nodes)
+std::vector<rca::Path> rca::sttalgo::stree_to_path (STTree & st, int source, int nodes)
 {
 // 	st.xdotFormat ();
 	std::vector<rca::Path> paths;
@@ -195,7 +198,7 @@ std::vector<int> make_cut_visitor (std::vector<rca::Link>& st,
 }
 
 template<class Container>
-void remove_top_edges (Container & ob, rca::Network & m_network,
+void rca::sttalgo::remove_top_edges (Container & ob, rca::Network & m_network,
 					   rca::Group & group, int res) 
 {
 	
@@ -264,13 +267,13 @@ void create_list (std::vector<rca::Link>& m_links, rca::Network & m_network)
 	
 }
 
-void improve_cost (std::vector<STTree>& m_trees, 
+void rca::sttalgo::improve_cost (std::vector<STTree>& m_trees, 
 	rca::Network & network,
 	std::vector<rca::Group>& m_groups, 
 	rca::EdgeContainer<rca::Comparator, rca::HCell> & cg, int best)
 {
 	typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
-	typedef typename rca::SteinerTreeObserver<CongestionHandle> STobserver;
+	typedef typename rca::sttalgo::SteinerTreeObserver<CongestionHandle> STobserver;
 	
 	network.clearRemovedEdges ();
 	
@@ -351,13 +354,13 @@ void improve_cost (std::vector<STTree>& m_trees,
 }
 
 /** explicit instantiation of methods**/
-template void remove_top_edges<rca::EdgeContainer<rca::Comparator, rca::HCell>> 
+template void rca::sttalgo::remove_top_edges<rca::EdgeContainer<rca::Comparator, rca::HCell>> 
 			(rca::EdgeContainer<rca::Comparator, rca::HCell> & ob, 
 			rca::Network & m_network, 
 			rca::Group & group, 
 			int res);
 
-template void prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>>
+template void rca::sttalgo::prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>>
 		(STTree& st, 
 		rca::EdgeContainer<rca::Comparator, rca::HCell>& cont, 
 		int treq, 

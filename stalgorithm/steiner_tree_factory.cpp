@@ -1,6 +1,7 @@
 #include "steiner_tree_factory.h"
 
-using namespace rca::factory;
+using namespace rca::sttalgo;
+using namespace rca;
 
 template <class Container>
 void AGMZSteinerTree<Container>::create_list (rca::Network& network)
@@ -17,7 +18,7 @@ void AGMZSteinerTree<Container>::create_list (rca::Network& network)
 }
 
 template <class Container>
-void AGMZSteinerTree<Container>::build (rca::SteinerTreeObserver<Container> & sttree, 
+void AGMZSteinerTree<Container>::build (SteinerTreeObserver<Container> & sttree, 
 							rca::Network & network, 
 							rca::Group & g,
 							Container& cg)
@@ -74,7 +75,7 @@ void AGMZSteinerTree<Container>::update_usage (	rca::Group& g,
 
 template <class Container>
 void ShortestPathSteinerTree<Container>::build (
-				rca::SteinerTreeObserver<Container> & sttree, 
+				SteinerTreeObserver<Container> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg)
@@ -104,6 +105,6 @@ void ShortestPathSteinerTree<Container>::build (
 	
 }
 
-template class rca::factory::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell> >; 
-template class rca::factory::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell> >;
-template class rca::factory::ShortestPathSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell> >;
+template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell> >; 
+template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell> >;
+template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell> >;

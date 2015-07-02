@@ -287,7 +287,7 @@ void Grasp::run ()
 		
 		sttree_t sol = build_solution ();
 		
-		cycle_local_search<CongestionHandle> cls;
+		rca::sttalgo::cycle_local_search<CongestionHandle> cls;
 		cls.local_search (sol.m_trees, *m_network, m_groups, sol.cg, sol.m_cost);
 
 		if (m_local_search) {

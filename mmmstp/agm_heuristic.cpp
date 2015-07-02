@@ -12,7 +12,7 @@ using namespace rca;
 
 typedef std::vector<int> previous_t;
 typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
-typedef typename rca::SteinerTreeObserver<CongestionHandle> STobserver;
+typedef typename rca::sttalgo::SteinerTreeObserver<CongestionHandle> STobserver;
 
 void remove_top_edges (CongestionHandle & ob, Network & m_network, Group & group, int res) {
 	
@@ -95,7 +95,7 @@ int main (int argc, char** argv)
 	double cost = 0.0;
  	
 	std::vector<rca::Link> m_links;
-	create_list (m_links, m_network);
+	create_list (m_links, m_network); //from visitor
 	
 	rca::elapsed_time time_elapsed;
 	time_elapsed.started ();
@@ -120,7 +120,7 @@ int main (int argc, char** argv)
 	//printing all steiner tree to evaluate corrections of results	
 	cost = 0.0;
 	for (int i=0; i < m_groups.size (); i++) {		
-		improve_cost (steiner_trees, m_network, m_groups, cg, i);		
+		rca::sttalgo::improve_cost (steiner_trees, m_network, m_groups, cg, i);		
 		cost += steiner_trees[i].getCost ();
 	}
 	time_elapsed.finished ();

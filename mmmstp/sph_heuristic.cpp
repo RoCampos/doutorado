@@ -7,12 +7,14 @@
 #include "steiner_tree_observer.h"
 #include "edgecontainer.h"
 #include "rcatime.h"
+#include "mpp_visitor.h"
 
 using namespace rca;
 
 typedef std::vector<int> previous_t;
 typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
-typedef typename rca::SteinerTreeObserver<CongestionHandle> STobserver;
+typedef typename rca::sttalgo::SteinerTreeObserver<CongestionHandle> STobserver;
+typedef typename rca::sttalgo::ChenReplaceVisitor ChenReplaceVisitor;
 
 previous_t shortest_path2 (int v, int w, rca::Network & network);
 

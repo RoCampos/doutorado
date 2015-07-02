@@ -15,7 +15,9 @@ typedef std::vector<STTree> MPPSolution;
 typedef std::vector<rca::Group> MulticastGroup;
 typedef std::tuple<int,int,rca::Link,rca::Link> TupleEdgeRemove;
 
-using namespace rca;
+namespace rca {
+	
+namespace sttalgo {
 
 class MppVisitor {
 	
@@ -140,5 +142,8 @@ private:
 	rca::EdgeContainer<Comparator, HCell> * m_ec;
 	
 };
+
+} //end of sttalgo namespace
+} //end of rca namespace
 
 #endif

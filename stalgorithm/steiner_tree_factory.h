@@ -15,7 +15,7 @@
 
 namespace rca {
 	
-namespace factory {
+namespace sttalgo {
 
 template<class Container>
 class SteinerTreeFactory {
@@ -37,7 +37,7 @@ public:
 	 * @param Container
 	 * @author Romerito Campos.
 	 */
-	virtual void build (rca::SteinerTreeObserver<Container> & sttree, 
+	virtual void build (SteinerTreeObserver<Container> & sttree, 
 					rca::Network & network, 
 					rca::Group & g,
 					Container& cg) = 0;
@@ -69,7 +69,7 @@ public:
 	 * @param Container
 	 * @author Romerito Campos. 
 	 */
-	void build (rca::SteinerTreeObserver<Container> & sttree, 
+	void build (SteinerTreeObserver<Container> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg);
@@ -117,7 +117,7 @@ class ShortestPathSteinerTree : SteinerTreeFactory<Container>
 
 public:
 	
-	void build (rca::SteinerTreeObserver<Container> & sttree, 
+	void build (SteinerTreeObserver<Container> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg);
