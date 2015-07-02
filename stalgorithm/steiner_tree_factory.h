@@ -124,6 +124,19 @@ public:
 	
 };
 
+
+template <class Container>
+class WildestSteinerTree : SteinerTreeFactory<Container>
+{
+
+public:
+	void build (SteinerTreeObserver<Container> & sttree, 
+				rca::Network & network, 
+				rca::Group & g,
+				Container& cg);
+	
+};
+
 } //namespace factory
 } //namespace rca
 
