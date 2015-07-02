@@ -66,7 +66,6 @@ public:
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg);
-	
 	/**
 	 * Este atualiza a lista de arestas mais utilizadas
 	 * Esta lista é utilizada para fazer a construção da árvore geradora.
@@ -77,11 +76,31 @@ public:
 	 * @param rca::Group 
 	 * @param STTree 
 	 */
-	void update_usage (	std::vector<rca::Link> &, 
-						rca::Group g,
+	void update_usage (	rca::Group &g,
+						rca::Network & m_network,
 						STTree & st);
 	
+// 	/**
+// 	 * Este método é utilizado para passar os links utilizados na construção
+// 	 * da árvore para um grupo multicast.
+// 	 * 
+// 	 * Este links será atualizados por update_usage.
+// 	 * Após a construção de uma árvore.
+// 	 * 
+// 	 * @param std::vector<rca::Link>
+// 	 */
+// 	void set_links (std::vector<rca::Link>& links) {m_links = links;}
 	
+	/**
+	 * Método para criar a lista de arestas.
+	 * 
+	 * @param rca::Network
+	 */
+	void create_list (rca::Network&);
+	
+private:
+	//used to control link utilization while build the tree using AGM
+	std::vector<rca::Link> m_links;
 	
 };
 
