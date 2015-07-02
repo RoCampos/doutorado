@@ -7,6 +7,10 @@
 #include "edgecontainer.h"
 #include "steiner_tree_observer.h"
 
+namespace rca {
+	
+namespace sttalgo {
+
 /**
  * Este método é um template, ele é usado
  * para fazer o prunning na árvore quando
@@ -95,5 +99,8 @@ void improve_cost (std::vector<STTree>& m_trees,
 void cost_by_usage (std::vector<rca::Link>&, 
 					std::vector<STTree>&, 
 					rca::Network & network);
+
+}// end of namespace visitor
+}// end of namespace rca
 
 #endif

@@ -1,5 +1,7 @@
 #include "mpp_visitor.h"
 
+using namespace rca;
+using namespace rca::sttalgo;
 
 void ChenReplaceVisitor::visit ()
 {

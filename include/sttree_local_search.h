@@ -11,6 +11,10 @@
 #include "edgecontainer.h"
 #include "sttree.h"
 
+namespace rca {
+	
+namespace sttalgo {
+
 /**
  * This struct is used to perform local search 
  * on steiner tree. The improvement is based
@@ -73,5 +77,8 @@ struct cycle_local_search {
 				int & cost);
 	
 };
+
+} //end of sttalgo namespace
+} //end of rca namespace
 
 #endif

@@ -1,5 +1,6 @@
 #include "steiner_tree_observer.h"
 
+using namespace rca::sttalgo;
 using namespace rca;
 
 template<typename ContainerType>
@@ -105,4 +106,4 @@ void SteinerTreeObserver<ContainerType>::prune (int rest, int band)
 	prunning<ContainerType>(*m_st, *m_ec, rest, band); 
 }
 
-template class SteinerTreeObserver<EdgeContainer<Comparator, HCell>>;
+template class rca::sttalgo::SteinerTreeObserver<EdgeContainer<Comparator, HCell>>;

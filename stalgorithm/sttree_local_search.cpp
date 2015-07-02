@@ -1,6 +1,8 @@
 
 #include "sttree_local_search.h"
 
+using namespace rca::sttalgo;
+
 template<typename Container>
 void cycle_local_search<Container>::execute ( int tree, 
 											std::vector<STTree> & m_trees, 

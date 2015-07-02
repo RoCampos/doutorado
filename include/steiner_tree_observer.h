@@ -6,6 +6,8 @@
 #include "link.h"
 
 namespace rca {
+	
+namespace sttalgo {
 
 #ifndef _STEINER_TREE_OBSERVER_
 #define _STEINER_TREE_OBSERVER_
@@ -38,5 +40,7 @@ private:
 
 #endif
 
-};
+}
+
+}
 
