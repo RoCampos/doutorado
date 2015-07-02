@@ -117,8 +117,8 @@ typedef struct forest_t {
 
 
 typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestinoHandle;
-typedef rca::SteinerTreeObserver<rca::EdgeContainer<rca::Comparator, rca::HCell>> STObserver;
-
+typedef rca::sttalgo::SteinerTreeObserver<rca::EdgeContainer<rca::Comparator, rca::HCell>> STObserver;
+typedef typename rca::sttalgo::SteinerTreeObserver<CongestinoHandle> STObserver;
 
 /**
  * This class contais the variables and 

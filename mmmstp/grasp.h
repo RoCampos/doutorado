@@ -18,7 +18,8 @@
 #define _GRASP_H_
 
 typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
-typedef typename rca::SteinerTreeObserver<CongestionHandle> STobserver;
+typedef typename rca::sttalgo::SteinerTreeObserver<CongestionHandle> STobserver;
+typedef typename rca::sttalgo::ChenReplaceVisitor ChenReplaceVisitor;
 
 typedef struct sttree_t {
 	

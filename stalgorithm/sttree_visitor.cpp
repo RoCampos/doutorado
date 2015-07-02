@@ -73,7 +73,7 @@ void rca::sttalgo::prunning (STTree & st, Container & cont, int trequest, int ba
 	aux = NULL;
 }
 
-std::vector<rca::Path> stree_to_path (STTree & st, int source, int nodes)
+std::vector<rca::Path> rca::sttalgo::stree_to_path (STTree & st, int source, int nodes)
 {
 // 	st.xdotFormat ();
 	std::vector<rca::Path> paths;
@@ -267,7 +267,7 @@ void create_list (std::vector<rca::Link>& m_links, rca::Network & m_network)
 	
 }
 
-void improve_cost (std::vector<STTree>& m_trees, 
+void rca::sttalgo::improve_cost (std::vector<STTree>& m_trees, 
 	rca::Network & network,
 	std::vector<rca::Group>& m_groups, 
 	rca::EdgeContainer<rca::Comparator, rca::HCell> & cg, int best)
