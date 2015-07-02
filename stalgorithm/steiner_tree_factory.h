@@ -7,8 +7,15 @@
 #include "network.h"
 #include "group.h"
 #include "link.h"
+#include "path.h"
 #include "edgecontainer.h"
 #include "steiner_tree_observer.h"
+
+#include "algorithm.h"
+
+namespace rca {
+	
+namespace factory {
 
 template<class Container>
 class SteinerTreeFactory {
@@ -103,5 +110,21 @@ private:
 	std::vector<rca::Link> m_links;
 	
 };
+
+template <class Container>
+class ShortestPathSteinerTree : SteinerTreeFactory<Container>
+{
+
+public:
+	
+	void build (rca::SteinerTreeObserver<Container> & sttree, 
+				rca::Network & network, 
+				rca::Group & g,
+				Container& cg);
+	
+};
+
+} //namespace factory
+} //namespace rca
 
 #endif
