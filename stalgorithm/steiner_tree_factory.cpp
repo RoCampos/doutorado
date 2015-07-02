@@ -137,7 +137,28 @@ void WildestSteinerTree<Container>::build (
 			sttree.add_edge (l.getX(), l.getY(), cost, BAND);
 		}			
 	}
+	
+}
 
+template <class Container>
+void WildestSteinerTree<Container>::update_band (rca::Group & g, 
+												rca::Network& network,
+												STTree & st)
+{
+
+	edge_t *e = st.get_edge ();
+	while (e != NULL) {
+		
+		if (e->in) {
+		
+			int tk = g.getTrequest ();
+			int band = network.getBand(e->x, e->y);
+			network.setBand(e->x, e->y, band - tk);
+			network.setBand(e->y, e->x, band - tk);
+		}
+		
+		e = e->next;
+	}
 	
 }
 
