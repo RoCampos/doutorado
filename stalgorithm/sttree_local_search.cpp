@@ -159,7 +159,7 @@ void cycle_local_search<Container>::execute ( int tree,
 
 template <class Container>
 std::vector<rca::Link> 
-cycle_local_search<Container>::get_circle (std::vector<rca::Link>& m_links, 
+cycle_local_search<Container>::get_circle (std::vector<rca::Link>& links, 
 				rca::Group& group, 
 				rca::Link& link, 
 				rca::Network & m_network)
@@ -185,6 +185,10 @@ cycle_local_search<Container>::get_circle (std::vector<rca::Link>& m_links,
 	
 	int tempo = 0;
 	
+	std::vector<rca::Link> m_links = links;
+	
+	//busca em profundidade iniciando em x até alcançar x novamente.
+	//usada para detectar um ciclo.
 	while ( !stack.empty() ) {
 		
 		int current_node = stack[ stack.size() -1 ];
@@ -196,6 +200,9 @@ cycle_local_search<Container>::get_circle (std::vector<rca::Link>& m_links,
 		color[current_node] = GREY;
 		
 		bool found = false;
+		int l = 0;
+		
+		
 		for (auto link : m_links) {
 			
 			int xx = link.getX();
@@ -205,6 +212,9 @@ cycle_local_search<Container>::get_circle (std::vector<rca::Link>& m_links,
 				predecessor [yy] = current_node;
 				stack.push_back (yy);
 				found = true;
+				
+				//erase a link after visited the vertex yy by xx
+				m_links.erase (m_links.begin()+l); 
 				break;
 			} 
 			
@@ -213,9 +223,13 @@ cycle_local_search<Container>::get_circle (std::vector<rca::Link>& m_links,
 				predecessor [xx] = current_node;
 				stack.push_back (xx);
 				found = true;
+				
+				//erase a link after visited the vertex xx by yy
+				m_links.erase (m_links.begin()+l); 
 				break;
 			} 
 			
+			l++; //link counter
 		}
 		
 		if (found) {
@@ -240,8 +254,10 @@ cycle_local_search<Container>::get_circle (std::vector<rca::Link>& m_links,
 		
 		rca::Link l(x,y,0);
 		
-		if ( !group.isMember(x) && !group.isMember(y) && source != x && source != y)
+		if ( !group.isMember(x) && !group.isMember(y) && source != x && source != y) {
 			toRemove.push_back (l);
+ 			break;
+		}
 	}
 	
 	return toRemove;
