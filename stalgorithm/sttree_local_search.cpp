@@ -224,28 +224,6 @@ cycle_local_search<Container>::get_circle (std::vector<rca::Link>& links,
 				rca::Network & m_network)
 {
 
-// #define WHITE 0
-// #define GREY 1
-// #define BLACK 2
-	
-// 	int x = link.getX();
-// 	int y = link.getY();
-	
-// 	int NODES = m_network.getNumberNodes ();
-	
-// 	std::vector<int> predecessor(NODES, -1);
-// 	std::vector<int> visited(NODES, 0);
-// 	std::vector<int> color(NODES, WHITE);
-// 	std::vector<int> time(NODES, 0);
-	
-// 	std::vector<int> stack;
-// 	
-// 	stack.push_back (x);
-	
-// 	int tempo = 0;
-	
-// 	std::vector<rca::Link> m_links = links;
-	
 	rca::sttalgo::depth_first_search<AdjacentNetwork> dfs;
 	dfs.execute (links, group, link, m_network);
 	
@@ -270,85 +248,6 @@ cycle_local_search<Container>::get_circle (std::vector<rca::Link>& links,
 		
 		yy = prev[yy];
 	}
-	
-	//busca em profundidade iniciando em x até alcançar x novamente.
-	//usada para detectar um ciclo.
-// 	while ( !stack.empty() ) {
-// 		
-// 		int current_node = stack[ stack.size() -1 ];
-// 		
-// 		if (current_node == y) break;
-// 		
-// 		tempo++;
-// 		time[current_node] = tempo;
-// 		color[current_node] = GREY;
-// 		
-// 		bool found = false;
-// 		int l = 0;
-// 		
-// 		
-// 		for (auto link : m_links) {
-// 			
-// 			int xx = link.getX();
-// 			int yy = link.getY();
-// 			if (xx == current_node && color[yy] == WHITE) {
-// 			
-// 				predecessor [yy] = current_node;
-// 				stack.push_back (yy);
-// 				found = true;
-// 				
-// 				//erase a link after visited the vertex yy by xx
-// 				m_links.erase (m_links.begin()+l); 
-// 				break;
-// 			} 
-// 			
-// 			if (yy == current_node && color[xx] == WHITE) {
-// 			
-// 				predecessor [xx] = current_node;
-// 				stack.push_back (xx);
-// 				found = true;
-// 				
-// 				//erase a link after visited the vertex xx by yy
-// 				m_links.erase (m_links.begin()+l); 
-// 				break;
-// 			} 
-// 			
-// 			l++; //link counter
-// 		}
-// 		
-// 		if (found) {
-// 			continue;
-// 		}
-// 		
-// 		color[current_node] = BLACK;
-// 		tempo++;
-// 		time[current_node] = tempo;
-// 		
-// 		stack.erase ( stack.begin() + (stack.size () - 1) );
-// 		
-// 	}
-// 	
-// 	std::vector<rca::Link> toRemove;
-// 	
-// 	for (int i : stack) {
-// 		std::cout << i << " ";
-// 	}
-// 	std::cout << std::endl;
-// 	getchar ();
-// 	
-// 	int source = group.getSource ();
-// 	for (int i=stack.size () - 1; i >=1; i--) {
-// 		
-// 		int x = stack[i];
-// 		int y = stack[i-1];
-// 		
-// 		rca::Link l(x,y,0);
-// 		
-// 		if ( !group.isMember(x) && !group.isMember(y) && source != x && source != y) {
-// 			toRemove.push_back (l);
-//  			break;
-// 		}
-// 	}
 	
 	return toRemove;
 	
