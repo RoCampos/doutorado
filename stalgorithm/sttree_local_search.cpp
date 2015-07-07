@@ -224,27 +224,27 @@ cycle_local_search<Container>::get_circle (std::vector<rca::Link>& links,
 				rca::Network & m_network)
 {
 
-#define WHITE 0
-#define GREY 1
-#define BLACK 2
+// #define WHITE 0
+// #define GREY 1
+// #define BLACK 2
 	
-	int x = link.getX();
-	int y = link.getY();
+// 	int x = link.getX();
+// 	int y = link.getY();
 	
-	int NODES = m_network.getNumberNodes ();
+// 	int NODES = m_network.getNumberNodes ();
 	
-	std::vector<int> predecessor(NODES, -1);
-	std::vector<int> visited(NODES, 0);
-	std::vector<int> color(NODES, WHITE);
-	std::vector<int> time(NODES, 0);
+// 	std::vector<int> predecessor(NODES, -1);
+// 	std::vector<int> visited(NODES, 0);
+// 	std::vector<int> color(NODES, WHITE);
+// 	std::vector<int> time(NODES, 0);
 	
-	std::vector<int> stack;
+// 	std::vector<int> stack;
+// 	
+// 	stack.push_back (x);
 	
-	stack.push_back (x);
+// 	int tempo = 0;
 	
-	int tempo = 0;
-	
-	std::vector<rca::Link> m_links = links;
+// 	std::vector<rca::Link> m_links = links;
 	
 	rca::sttalgo::depth_first_search<AdjacentNetwork> dfs;
 	dfs.execute (links, group, link, m_network);
