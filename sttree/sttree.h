@@ -310,8 +310,8 @@ public:
 	
 private:
 	void _init_nodes(int nnodes) {
-		m_nodes = std::vector<node_t> (nnodes, node_t(0,0,false));
-		for (size_t i = 0; i < m_nodes.size (); i++) {
+		for (size_t i = 0; i < nnodes; i++) {
+			m_nodes.push_back (node_t(0,0,false));
 			m_nodes[i].id = i;
 		}
 	}
