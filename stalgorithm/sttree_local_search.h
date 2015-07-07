@@ -15,6 +15,39 @@ namespace rca {
 	
 namespace sttalgo {
 
+	
+template<class NetworkType>
+class depth_first_search{
+
+	//TODO APLICAR VISITOR PARA OBTER OS PATHS EM UMA LISTA DE ARESTAS
+	
+public:
+	void execute (std::vector<rca::Link>&, 
+				rca::Group&, 
+				rca::Link&, 
+				rca::Network &);
+	
+	void dfs (int x, 
+				rca::Group&,
+				NetworkType&);
+
+	int getStart () {return x;}
+	int getTarget () {return y;}
+	
+	//return the predecessor list of visited vertex
+	std::vector<int> getPredecessorList () {return predecessor;}
+	
+private:	
+	std::vector<int> predecessor;
+	std::vector<int> color;
+	
+	int x; //start the search
+	int y; //target of the search
+	
+	bool stop;
+	
+};
+	
 /**
  * This struct is used to perform local search 
  * on steiner tree. The improvement is based
