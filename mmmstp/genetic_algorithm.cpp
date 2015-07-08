@@ -29,24 +29,22 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
  		m_groups.push_back (*g[i].get ());
  	}
 	
-	/*Lista de caminhos used in init_rand_solution3*/
-	g_paths = k_paths (m_network, m_groups, path_size);	
-	/*lista de genes used in init_rand_solution3*/
-	g_members_info = create_members_info (m_groups);
-	
 	/*orçamento*/
 	m_budget = budget;
 	
+// 	std::cout << m_pop << std::endl;
+// 	std::cout << m_cross << std::endl;
+// 	std::cout << m_mut << std::endl;
+// 	std::cout << m_iter << std::endl;
+// 	std::cout << m_init << std::endl;
+// 	std::cout << m_local_search << std::endl;
+// 	
 	rca::elapsed_time time_elapsed;	
 	time_elapsed.started ();
 	/*init population*/
 	init_population ();
 	
-  	//local_search (0);
-  	//getchar ();
-	
 	int best = 0;
-	int best_cong;
 	
 	while ( --m_iter > 0) {
 		
@@ -73,7 +71,6 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 			double cross_rate = (double)(rand () % 100 + 1)/100.0;
 			if (cross_rate < m_mut) {				
 				m_population[i].operator1 (m_network, m_groups);
-				
 			}
 		}
 		
@@ -93,12 +90,10 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 				if (m_population[i].m_cost < m_budget) {
 					max = m_population[i].m_residual_capacity;
 					best = i;
-					best_cong = max;
 				}
 			} else if (m_population[i].m_cost < m_population[best].m_cost){
 					max = m_population[i].m_residual_capacity;
 					best = i;
-					best_cong = max;
 			}
 		}
 
@@ -389,8 +384,6 @@ void GeneticAlgorithm::local_search (int i)
 // 	CongestionHandle & ec = m_population[i].m_cg;
 	
 	//starting local search
-	bool improve = true;
-	int tmp_cong = ec.top();
 	
 	rca::sttalgo::ChenReplaceVisitor c(&trees);
 	c.setNetwork (m_network);
@@ -398,9 +391,11 @@ void GeneticAlgorithm::local_search (int i)
 	c.setEdgeContainer (ec);
 	
 	int cost = 0;
-	double congestion = 0;
-	
-	
+
+// local search to improve residual capacity
+// 	double congestion = 0;	
+//  bool improve = true;
+// 	int tmp_cong = ec.top();
 // 	while (improve) {
 // 		this->accept (&c);
 // 				
@@ -567,7 +562,7 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 	stObserver.set_container ( this->getCongestionHandle () );
 	
 	//variable control the position used in setPath
-	int pos_path = 0;
+// 	int pos_path = 0;
 	
 	//store the links of the tree
 	//TODO maybe can be removed, since genotype stores correct path
@@ -902,7 +897,6 @@ void PathRepresentation::operator1 (rca::Network *net,
 	
 	TreeAsLinks tree_as_links;
 	
-	//std::cout << "Group " << k << std::endl;
 	//std::cout << end << std::endl;
 	std::vector<rca::Path> paths;
 	for (int i=0; i < (int)m_genotype.size (); i++ ) {
@@ -1103,10 +1097,14 @@ int main (int argc, char**argv)
 	}
 	
 #ifdef DEBUG
-	printf ("--pop %d --cross %f --mut %f --iter %d --init %d --path %d --list %f\n --lsearc",
-			pop, cross, mut, iter, init, path_size, 
-		 PathRepresentation::USED_LIST, local_search);
+	printf ("--pop %d --cross %f --mut %f --iter %d --init %d --path %d --list %f --lsearc %f\n",
+			pop, cross, mut, iter, init, path_size, PathRepresentation::USED_LIST, local_search);
 #endif
+	
+// 	std::cout << argc << std::endl;
+// 	for (int i=0; i < argc; i++) {
+// 		std::cout << argv[i] << std::endl;
+// 	}
 	
 	algorithm.init_parameters (pop, cross, mut, iter, init, local_search);
 	algorithm.run_metaheuristic (instance, budget);
