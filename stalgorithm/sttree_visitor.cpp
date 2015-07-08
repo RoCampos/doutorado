@@ -126,6 +126,8 @@ std::vector<rca::Path> rca::sttalgo::stree_to_path (STTree & st, int source, int
 		}
 		
 		stack.pop_back ();
+		
+		if (stack.empty()) break;
 		curr_node = stack[ stack.size () - 1];
 		
 	}
