@@ -63,6 +63,9 @@ class AcoMPP {
 	
 public:
 	
+	~AcoMPP () {
+		delete m_network;
+	}
 	/**
 	 * This method is the initial point of the 
 	 * execution.
