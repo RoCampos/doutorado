@@ -23,17 +23,20 @@ INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION mmmstp)
 MESSAGE ("\tINFO: Compiling genetic_mmmstp using network configurated for REAL=${REAL}")
 add_executable (genetic_mmmstp 	genetic_algorithm.cpp 
 								genetic_algorithm.h 
-								metaheuristic.h)
+								metaheuristic.h
+								${includes})
 target_link_libraries (genetic_mmmstp graph sttree sttalgo myutil)
 
 MESSAGE ("\tINFO: Compiling youhchen using network configurated for REAL=${REAL}")
 add_executable (yuhchen yuhchen.cpp
-						yuhchen.h)
+						yuhchen.h
+						${includes})
 target_link_libraries (yuhchen graph sttalgo sttree myutil)
 
 MESSAGE ("\tINFO: Compiling Grasp Algorithm using network configurated for REAL=${REAL}")
 add_executable (grasp grasp.cpp	
-						grasp.h)
+						grasp.h
+						${includes})
 target_link_libraries (grasp graph sttree sttalgo myutil)
 
 MESSAGE ("\tINFO: Compiling Heuristic Algorithm based on Shortest Path")
