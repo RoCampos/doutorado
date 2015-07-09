@@ -48,7 +48,7 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	
 	while ( --m_iter > 0) {
 		
-#ifdef DEBUG 
+#ifdef DEBUG1
 	printf ("Interation (%d)\n", m_iter);
 #endif
 	
@@ -105,7 +105,7 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
  	std::cout << m_population[best].m_cost << " ";
  	std::cout << m_population[best].m_residual_capacity << " ";
  	std::cout << time_elapsed.get_elapsed () << std::endl;
-  	m_population[best].print_solution (m_network, m_groups);
+//   	m_population[best].print_solution (m_network, m_groups);
 		
 	//deallocatin of resources;
 #ifdef DEBUG1
@@ -122,8 +122,16 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 
 int GeneticAlgorithm::selection_operator (int i, int j)
 {
-
+	
 	//retorna melhor individual com base na capacidade residual
+	
+	if (m_population[i].m_residual_capacity == 
+		m_population[j].m_residual_capacity)
+	{
+		return m_population[i].m_cost < 
+			m_population[j].m_cost ? i : j;
+	}
+	
 	return (m_population[i].m_residual_capacity > 
 			m_population[j].m_residual_capacity ?
 		   i : j);
@@ -131,10 +139,10 @@ int GeneticAlgorithm::selection_operator (int i, int j)
 
 void GeneticAlgorithm::init_population ()
 {
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << "Creating Population: size = " << m_pop << std::endl;	
 #endif
-	
+
 #ifdef DEBUG1
 	int best = -1;	
 #endif
@@ -152,7 +160,7 @@ void GeneticAlgorithm::init_population ()
 // 			m_population[i].init_rand_solution3 (m_network, m_groups);
 			
 		
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << m_population[i].m_cost << " ";
 	std::cout << m_population[i].m_residual_capacity << std::endl;
 	//m_population[i].print_solution (m_network,m_groups);
@@ -278,13 +286,13 @@ void GeneticAlgorithm::crossover (int i, int j)
 	//sol.print_solution (m_network, m_groups);
 	
 	int old = -1;
-#ifdef DEBUG
+#ifdef DEBUG1
 	int impro = -1;
 #endif
 	if (m_population[i].m_residual_capacity < m_population[j].m_residual_capacity)
 	{
 		old = i;
-#ifdef DEBUG
+#ifdef DEBUG1
 		impro = 1;
 #endif
 		
@@ -292,7 +300,7 @@ void GeneticAlgorithm::crossover (int i, int j)
 	else if (m_population[i].m_residual_capacity > m_population[j].m_residual_capacity)
 	{
 		old = j;
-#ifdef DEBUG
+#ifdef DEBUG1
 		impro = 1;
 #endif
 	} else {
@@ -306,14 +314,14 @@ void GeneticAlgorithm::crossover (int i, int j)
 		
 		if (aux != -1) {
 			old = aux;
-#ifdef DEBUG
+#ifdef DEBUG1
 			impro = 2;
 #endif
 		}
 	}
 	
 	if (old != -1) {
-#ifdef DEBUG
+#ifdef DEBUG1
 	//std::cout << "Crossver Improvement :\n";
 	printf ("Crossover Improvement: (%s)\n", 
 			(impro == 2 ? "Cost" : "Residual Capacity"));
@@ -419,14 +427,12 @@ void GeneticAlgorithm::local_search (int i)
 // 		}
 // 	}
 	
-
-	
 	int tt = 0.0;
 	int imp = 0;
 	do {
 		imp = tt;
 		tt = 0.0;
-		c.visitByCost ();		
+		c.visitByCost ();
 		for (auto st : trees) {
 			tt += (int)st.getCost ();
 		}
@@ -434,8 +440,8 @@ void GeneticAlgorithm::local_search (int i)
 
 	cost = tt;
 	
-	rca::sttalgo::cycle_local_search<CongestionHandle> cls;
- 	cls.local_search (trees, *m_network, m_groups, ec, cost);
+// 	rca::sttalgo::cycle_local_search<CongestionHandle> cls;
+// 	cls.local_search (trees, *m_network, m_groups, ec, cost);
 	
 #ifdef DEBUG1
  	std::cout << congestion << std::endl;
@@ -887,12 +893,14 @@ void PathRepresentation::operator1 (rca::Network *net,
 	stObserver.set_container (cg);
 	
 	int end = group[0].getSize ();
-	STTree st (net->getNumberNodes (), 
-					group[0].getSource(),
-					group[0].getMembers ());
+	STTree *st = new STTree (net->getNumberNodes (), 
+							group[0].getSource(),
+							group[0].getMembers ());
 	
+	std::vector<STTree*> trees;
+	trees.push_back (st);
 	
-	stObserver.set_steiner_tree (st, NODES);
+	stObserver.set_steiner_tree (*trees[0], NODES);
 	int k = 0; //group counting
 	
 	TreeAsLinks tree_as_links;
@@ -978,12 +986,14 @@ void PathRepresentation::operator1 (rca::Network *net,
 			
 			//creating the next tree
 			k++;
-			st = STTree(net->getNumberNodes (), 
-					group[k].getSource(),
-					group[k].getMembers ());
+			STTree *_st = new STTree(net->getNumberNodes (), 
+							group[k].getSource(),
+							group[k].getMembers ());
 			
-			st.setCost (0.0);
-			stObserver.set_steiner_tree (st, NODES);
+			trees.push_back (_st);
+			
+			_st->setCost (0.0);
+			stObserver.set_steiner_tree (*trees[k], NODES);
 			
 			//adding the path to group k
 			auto it = path.rbegin ();
@@ -1007,6 +1017,10 @@ void PathRepresentation::operator1 (rca::Network *net,
 	cost += stObserver.get_steiner_tree ().getCost ();
 	tree_as_links.push_back( stObserver.getTreeAsLinks () );
 	
+	for (int i=0; i < trees.size (); i++) {
+		delete trees[i];
+	}
+	
 	net->clearRemovedEdges ();
 	
 	if (cg.top () > this->m_residual_capacity) {
@@ -1015,7 +1029,7 @@ void PathRepresentation::operator1 (rca::Network *net,
 		this->m_residual_capacity = cg.top ();
 		this->m_cost = cost;
 		this->setTreeAsLinks (tree_as_links);
-#ifdef DEBUG
+#ifdef DEBUG1
 	printf ("Opeartor1 Improvement: Residual Capacity\n");
 #endif
 		
@@ -1025,7 +1039,7 @@ void PathRepresentation::operator1 (rca::Network *net,
 		this->m_residual_capacity = cg.top ();
 		this->m_cost = cost;
 		this->setTreeAsLinks (tree_as_links);
-#ifdef DEBUG
+#ifdef DEBUG1
 	printf ("Operator1 Improvement: Cost\n");
 #endif
 		
@@ -1048,7 +1062,7 @@ int main (int argc, char**argv)
 	//srand (1426441393); //for bug in mutation on instance b30_14
 	srand (T);
 	//std::cout << T << std::endl;
-	//srand (0);
+// 	srand (0);
 	
 	std::string instance = argv[1];
 	//MetaHeuristic<GeneticAlgorithm> algorithm;
@@ -1096,15 +1110,10 @@ int main (int argc, char**argv)
 		budget = INT_MAX;
 	}
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	printf ("--pop %d --cross %f --mut %f --iter %d --init %d --path %d --list %f --lsearc %f\n",
 			pop, cross, mut, iter, init, path_size, PathRepresentation::USED_LIST, local_search);
 #endif
-	
-// 	std::cout << argc << std::endl;
-// 	for (int i=0; i < argc; i++) {
-// 		std::cout << argv[i] << std::endl;
-// 	}
 	
 	algorithm.init_parameters (pop, cross, mut, iter, init, local_search);
 	algorithm.run_metaheuristic (instance, budget);

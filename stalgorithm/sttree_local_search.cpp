@@ -122,7 +122,7 @@ void cycle_local_search<Container>::execute ( int tree,
 					
 					if (std::find(m_links.begin(), m_links.end(), link) 
 						== m_links.end()) {
-#ifdef DEBUG						
+#ifdef DEBUG1						
 						std::string s('-', 60);
 						std::cout << s << std::endl;
 						
@@ -136,7 +136,7 @@ void cycle_local_search<Container>::execute ( int tree,
 						//adding the links an remove others
 						rca::Group g = m_groups[tree];
 						for (auto l : toRemove) {
-#ifdef DEBUG				
+#ifdef DEBUG1				
 							std::cout <<"Removing "<<l << std::endl;
 #endif				
 							int source = g.getSource ();
@@ -156,11 +156,11 @@ void cycle_local_search<Container>::execute ( int tree,
 							steiner_tree.add_edge (link.getX(), link.getY(), cost);
 							
 							steiner_tree.prunning ();
-#ifdef DEBUG
+#ifdef DEBUG1
 							steiner_tree.xdotFormat ();
 #endif
 							
-#ifdef DEBUG
+#ifdef DEBUG1
 							std::cout << tcost << " ";
 							std::cout << steiner_tree.getCost () << std::endl;
 #endif			
@@ -168,12 +168,12 @@ void cycle_local_search<Container>::execute ( int tree,
 								m_trees[tree] = steiner_tree;
 								tcost = steiner_tree.getCost ();
 							}
-#ifdef DEBUG							
+#ifdef DEBUG1							
  							getchar ();
 #endif
 						}
 						
-#ifdef DEBUG
+#ifdef DEBUG1
 						std::cout << s << std::endl;					
 						std::cout << std::endl;
 #endif
@@ -185,7 +185,7 @@ void cycle_local_search<Container>::execute ( int tree,
 		}
 	}
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << old <<" "<< m_trees[tree].getCost () << std::endl;
 #endif
 	
