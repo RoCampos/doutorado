@@ -22,6 +22,8 @@ class SteinerTreeFactory {
 
 public:
 	
+	virtual ~SteinerTreeFactory (){}
+	
 	/**
 	 * Este método é utilizado para criar uma árvore de Steiner para o grupo
 	 * multicast g. A árvore será construída na topologia representada pelo 
