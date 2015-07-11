@@ -21,7 +21,7 @@ rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::TabuSearch (s
 	this->m_cost = std::numeric_limits<ObjectiveType>::max ();
 	
 	
-	m_tabu_list = std::vector( this->m_groups.size(), 0 );
+	m_tabu_list = std::vector<int>( this->m_groups.size(), 0 );
 	
 }
 
@@ -80,6 +80,14 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 	
 		int i = index[j];
 		
+ 		if (m_tabu_list[j] == 1) {
+ 			
+			sol[i] = m_best_sol[i];			
+			update_container (m_best_sol[i], cg, m_groups[i], m_network);
+			
+ 			continue;
+ 		}
+		
 		SolutionType tree = SolutionType(NODES, 
 										 m_groups[i].getSource(), 
 										 m_groups[i].getMembers());
@@ -124,6 +132,52 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::update_t
 #ifdef DEBUG
 	std::cout << __FUNCTION__ << std::endl;
 #endif
+	
+	int value = rand () % ( 2^m_groups.size () );	
+ 	std::string str = std::bitset< 8 >( value ).to_string();
+	
+	for (int i=0; i < m_tabu_list.size(); i++) {
+		if (str[i] == '1') {
+			m_tabu_list[i] = 1;
+		}
+	}
+	
+}
+
+template <class SolutionType, class Container, class ObjectiveType>
+void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::update_container (SolutionType& tree, 
+																			  Container& cg, 
+																			  rca::Group& g, 
+																			  rca::Network& net)
+{
+	
+	edge_t * e = tree.get_edge ();
+	while (e != NULL) {
+	
+		if (e->in) {
+		
+			rca::Link l(e->x, e->y, 0);
+			
+			if (cg.is_used (l)) {
+			
+				int value = cg.value (l);
+				value -= g.getTrequest ();				
+				
+				cg.erase (l);
+				l.setValue (value);
+				cg.push (l);
+				
+			} else {
+				int band = net.getBand(l.getX(), l.getY());				
+				l.setValue (band-g.getTrequest ());
+				
+				cg.push (l);
+			}
+			
+		}
+		
+		e = e->next;
+	}
 	
 }
 

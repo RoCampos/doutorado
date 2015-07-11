@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <bitset>
 
 #include "sttree.h"
 #include "network.h"
@@ -32,6 +33,11 @@ public:
 	
 	void build_solution (std::vector<SolutionType>& );
 	void update_tabu ();
+	
+//*auxiliar methods
+private:
+	
+	void update_container (SolutionType&, Container&, rca::Group&, rca::Network&);
 	
 private:
 	
