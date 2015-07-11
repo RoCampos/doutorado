@@ -35,18 +35,38 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::run ()
 	int iter = 0;
 	
 	int GROUPS = this->m_groups.size ();
+	int NODES = this->m_network.getNumberNodes ();
 	std::vector<SolutionType> sol1( GROUPS );
 	build_solution (sol1);
 	
 	do {
 		
+		if (iter%5 == 0) {
+			update_tabu ();
+		}
 		std::vector<SolutionType> sol ( GROUPS );
 		build_solution (sol);
-		update_tabu ();
 		
 	} while (iter++ < this->m_iter);
 
+	rca::sttalgo::cycle_local_search<Container> cls;
+	
+	Container cg;
+	cg.init_congestion_matrix (NODES);
+	cg.init_handle_matrix (NODES);
+	
+	
+	ObjectiveType cost = 0;
+	for (int i=0; i < m_best_sol.size (); i++) {
+		cost += update_container (m_best_sol[i], cg, m_groups[i], m_network);
+	}
+	
+	std::vector<SolutionType> sol = m_best_sol;
 	std::cout << this->m_best << " " << this->m_cost << std::endl;
+	cls.local_search (sol, m_network, m_groups, cg, cost);
+	std::cout << cg.top () << " " << cost << std::endl;
+	
+	
 	
 }
 
@@ -63,11 +83,11 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 	int NODES = this->m_network.getNumberNodes();
 	int GROUPS= this->m_groups.size ();
 
-	CongestionHandle cg;
+	Container cg;
 	cg.init_congestion_matrix (NODES);
 	cg.init_handle_matrix (NODES);
 	
-	rca::sttalgo::SteinerTreeObserver<CongestionHandle> ob;
+	rca::sttalgo::SteinerTreeObserver<Container> ob;
 	ob.set_container (cg);
 	
 	std::vector<int> index(GROUPS, 0);
@@ -83,7 +103,7 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
  		if (m_tabu_list[j] == 1) {
  			
 			sol[i] = m_best_sol[i];			
-			update_container (m_best_sol[i], cg, m_groups[i], m_network);
+			cost += update_container (m_best_sol[i], cg, m_groups[i], m_network);
 			
  			continue;
  		}
@@ -124,6 +144,8 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 		
 	}
 	
+// 	std::cout << cg.top () << " " << cost << std::endl;
+	 
 }
 
 template <class SolutionType, class Container, class ObjectiveType>
@@ -145,12 +167,12 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::update_t
 }
 
 template <class SolutionType, class Container, class ObjectiveType>
-void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::update_container (SolutionType& tree, 
+ObjectiveType rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::update_container (SolutionType& tree, 
 																			  Container& cg, 
 																			  rca::Group& g, 
 																			  rca::Network& net)
 {
-	
+	ObjectiveType tree_cost = 0;
 	edge_t * e = tree.get_edge ();
 	while (e != NULL) {
 	
@@ -174,11 +196,13 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::update_c
 				cg.push (l);
 			}
 			
+			tree_cost += net.getCost (l.getX(), l.getY());
+			
 		}
 		
 		e = e->next;
 	}
-	
+	return tree_cost;
 }
 
 typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
@@ -187,13 +211,18 @@ int main (int argv, char**argc) {
 
 	srand (time(NULL));
 	
+	int r = time(NULL);
+	std::cout << r << std::endl;
+	
 	using namespace rca;
 	using namespace rca::metaalgo;
 	
 	std::string file(argc[1]);
+	int iterations = atoi(argc[2]);
 	
 	TabuSearch<STTree, CongestionHandle, int> tabueSearch (file);
-	tabueSearch.set_iterations (10);
+	tabueSearch.set_iterations ( iterations );
+	
 	tabueSearch.run ();
 	
 	return 0;

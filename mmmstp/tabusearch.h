@@ -10,8 +10,10 @@
 #include "edgecontainer.h"
 #include "group.h"
 #include "reader.h"
+
 #include "steiner_tree_factory.h"
 #include "steiner_tree_observer.h"
+#include "sttree_local_search.h"
 
 namespace rca{
 	
@@ -37,7 +39,7 @@ public:
 //*auxiliar methods
 private:
 	
-	void update_container (SolutionType&, Container&, rca::Group&, rca::Network&);
+	ObjectiveType update_container (SolutionType&, Container&, rca::Group&, rca::Network&);
 	
 private:
 	
