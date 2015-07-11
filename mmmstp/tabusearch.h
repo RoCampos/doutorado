@@ -35,7 +35,8 @@ public:
 	
 private:
 	
-	ObjectiveType m_best;	
+	ObjectiveType m_best;
+	ObjectiveType m_cost;
 	std::vector<SolutionType> m_best_sol;
 	
 	int m_iter; //número de iterações

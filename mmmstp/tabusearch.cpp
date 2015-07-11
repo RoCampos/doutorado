@@ -7,6 +7,8 @@ rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::TabuSearch (s
 	std::cout << __FUNCTION__ << std::endl;
 #endif
 	
+	m_factory = NULL;
+	
 	std::vector<std::shared_ptr<rca::Group>> g;
 	
 	MultipleMulticastReader reader(file);
@@ -16,6 +18,10 @@ rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::TabuSearch (s
 	}
 	
 	this->m_best = std::numeric_limits<ObjectiveType>::min ();
+	this->m_cost = std::numeric_limits<ObjectiveType>::max ();
+	
+	
+	m_tabu_list = std::vector( this->m_groups.size(), 0 );
 	
 }
 
@@ -40,7 +46,7 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::run ()
 		
 	} while (iter++ < this->m_iter);
 
-	std::cout << m_best << std::endl;
+	std::cout << this->m_best << " " << this->m_cost << std::endl;
 	
 }
 
@@ -92,16 +98,23 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 		
  		m_network.clearRemovedEdges ();
 		
-// 		sol[i] = ob.get_steiner_tree ();
+		sol[i] = ob.get_steiner_tree ();
 		
 	}
 	
-// 	if (cg.top () > this->m_best) {
-// 		
-// 		this->m_best = cg.top ();
-// 		this->m_best_sol = sol;
-// 		
-// 	}
+	if (cg.top () > this->m_best) {
+		
+		this->m_best = cg.top ();
+		this->m_cost = cost;
+		this->m_best_sol = sol;
+		
+	} else if ( (cg.top() == this->m_best) && (cost < this->m_cost) ) {
+		
+		this->m_best = cg.top ();
+		this->m_cost = cost;
+		this->m_best_sol = sol;
+		
+	}
 	
 }
 
@@ -118,6 +131,8 @@ typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 
 int main (int argv, char**argc) {
 
+	srand (time(NULL));
+	
 	using namespace rca;
 	using namespace rca::metaalgo;
 	
