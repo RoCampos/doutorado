@@ -47,8 +47,8 @@ MESSAGE ("\tINFO: Compiling Heuristic Algorithm based on AGM")
 add_executable (agmheuristic agm_heuristic.cpp ${includes})
 target_link_libraries (agmheuristic graph sttalgo sttree myutil)
 
-add_executable (limite_agm 
-				limite.cpp 
-				limite.h 
-				${includes})
-target_link_libraries (limite_agm graph sttalgo sttree)
+add_executable (tabu_test tabusearch.h tabusearch.cpp ${includes})
+target_link_libraries (tabu_test graph sttree sttalgo)
+
+#add_executable (limite_agm limite.cpp limite.h ${includes})
+#target_link_libraries (limite_agm graph sttalgo sttree)

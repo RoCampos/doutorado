@@ -112,7 +112,7 @@ private:
 };
 
 template <class Container>
-class ShortestPathSteinerTree : SteinerTreeFactory<Container>
+class ShortestPathSteinerTree : public SteinerTreeFactory<Container>
 {
 
 public:
@@ -126,7 +126,7 @@ public:
 
 
 template <class Container>
-class WildestSteinerTree : SteinerTreeFactory<Container>
+class WildestSteinerTree : public SteinerTreeFactory<Container>
 {
 
 public:
