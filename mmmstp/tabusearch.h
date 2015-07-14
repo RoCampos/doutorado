@@ -15,6 +15,8 @@
 #include "steiner_tree_observer.h"
 #include "sttree_local_search.h"
 
+#include "mpp_visitor.h"
+
 namespace rca{
 	
 	namespace metaalgo {
@@ -29,7 +31,7 @@ public:
 	}
 	
 	inline void set_iterations (int iter) {m_iter = iter;}
-// 	inline void set_budget (ObjectiveType budget) {m_budget = budget;}
+	inline void set_budget (ObjectiveType budget) {m_budget = budget;}
 	
 	void run ();
 	
