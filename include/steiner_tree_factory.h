@@ -22,6 +22,8 @@ class SteinerTreeFactory {
 
 public:
 	
+	virtual ~SteinerTreeFactory (){}
+	
 	/**
 	 * Este método é utilizado para criar uma árvore de Steiner para o grupo
 	 * multicast g. A árvore será construída na topologia representada pelo 
@@ -112,7 +114,7 @@ private:
 };
 
 template <class Container>
-class ShortestPathSteinerTree : SteinerTreeFactory<Container>
+class ShortestPathSteinerTree : public SteinerTreeFactory<Container>
 {
 
 public:
@@ -126,7 +128,7 @@ public:
 
 
 template <class Container>
-class WildestSteinerTree : SteinerTreeFactory<Container>
+class WildestSteinerTree : public SteinerTreeFactory<Container>
 {
 
 public:

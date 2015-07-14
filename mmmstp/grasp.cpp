@@ -194,11 +194,17 @@ void Grasp::cost_refinament (sttree_t * sol, ChenReplaceVisitor & c)
 	printf ("%s\n",__FUNCTION__);
 #endif
 	
-	c.visitByCost ();
-	int tt = 0.0;
-	for (auto st : sol->m_trees) {
-		tt += (int)st.getCost ();		
-	}
+	int cost = sol->m_cost;
+	int tt = cost;
+	do {
+	
+		cost = tt;
+		
+		c.visitByCost ();
+		tt = 0.0;
+		for (auto st : sol->m_trees) {
+			tt += (int)st.getCost ();		
+		}
 	
 #ifdef DEBUG
  	if (sol->m_cost > tt) {
@@ -206,6 +212,9 @@ void Grasp::cost_refinament (sttree_t * sol, ChenReplaceVisitor & c)
  		printf ("from %d to %d ", sol->m_cost, tt);
 	}
 #endif
+		
+		
+	} while (tt < cost);
 	
 	sol->m_cost = tt;
 	sol->m_residual_cap = sol->cg.top ();
@@ -287,17 +296,17 @@ void Grasp::run ()
 		
 		sttree_t sol = build_solution ();
 		
-		rca::sttalgo::cycle_local_search<CongestionHandle> cls;
-		cls.local_search (sol.m_trees, *m_network, m_groups, sol.cg, sol.m_cost);
+ 		rca::sttalgo::cycle_local_search<CongestionHandle> cls;
+ 		cls.local_search (sol.m_trees, *m_network, m_groups, sol.cg, sol.m_cost);
 
 		if (m_local_search) {
 			ChenReplaceVisitor c(&sol.m_trees);
 			c.setNetwork (m_network);
 			c.setMulticastGroups (m_groups);
 			c.setEdgeContainer (sol.cg);
-
+			
 			cost_refinament (&sol, c);
-// 			residual_refinament (&sol, c);
+//  			residual_refinament (&sol, c);
 		}
 		
 #ifdef DEBUG

@@ -135,7 +135,7 @@ std::vector<rca::Path> rca::sttalgo::stree_to_path (STTree & st, int source, int
 	return paths;
 }
 
-std::vector<int> make_cut_visitor (std::vector<rca::Link>& st, 
+std::vector<int> rca::sttalgo::make_cut_visitor (std::vector<rca::Link>& st, 
 			   int source, 
 			   rca::Link & link,
 			   std::vector<int> & mark, 

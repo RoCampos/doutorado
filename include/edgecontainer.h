@@ -157,6 +157,23 @@ public:
 		}
 	}
 	
+	//passar valor negativo para indicar decremento
+	void push (rca::Link & l, int usage) {
+	
+		if ( this->is_used (l) ) {
+		
+			int value = this->value (l);
+			value += usage;
+			
+			this->erase (l); //erasing			
+			l.setValue (value); //updating
+			
+		} 
+		
+		this->push (l); //inserting
+		
+	}
+	
 	boost::heap::fibonacci_heap<rca::Link, Comp> & get_heap () 
 	{
 		return m_heap;
