@@ -100,6 +100,10 @@ void cost_by_usage (std::vector<rca::Link>&,
 					std::vector<STTree>&, 
 					rca::Network & network);
 
+
+template<class SteinerType>
+void print_solution (std::vector<SteinerType>& trees);
+
 }// end of namespace visitor
 }// end of namespace rca
 

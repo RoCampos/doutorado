@@ -355,6 +355,16 @@ void rca::sttalgo::improve_cost (std::vector<STTree>& m_trees,
 	m_trees[best] = ob.get_steiner_tree();
 }
 
+template<class SteinerType>
+void rca::sttalgo::print_solution (std::vector<SteinerType>& trees)
+{
+
+	for (auto steiner_tree : trees) {
+		steiner_tree.xdotFormat ();
+	}
+	
+}
+
 /** explicit instantiation of methods**/
 template void rca::sttalgo::remove_top_edges<rca::EdgeContainer<rca::Comparator, rca::HCell>> 
 			(rca::EdgeContainer<rca::Comparator, rca::HCell> & ob, 
@@ -367,3 +377,5 @@ template void rca::sttalgo::prunning<rca::EdgeContainer<rca::Comparator, rca::HC
 		rca::EdgeContainer<rca::Comparator, rca::HCell>& cont, 
 		int treq, 
 		int band);
+		
+template void rca::sttalgo::print_solution<STTree> (std::vector<STTree> &st);
