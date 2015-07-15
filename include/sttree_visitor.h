@@ -121,11 +121,14 @@ void print_solution (std::vector<SteinerType>& trees);
  * @param NetworkType tipo que representa uma árvore de steiner
  */
 template<class SteinerType, class Container, class NetworkType>
-void get_available_links (SteinerType &, 
-						  Container&, 
-						  NetworkType&,
-						  rca::Group&,
-						  rca::Link& );
+std::vector<rca::Link> 
+get_available_links (SteinerType &, 
+					Container&, 
+					NetworkType&,
+					rca::Group&,
+					rca::Link& );
+
+std::vector<rca::Link> sttreeToVector (STTree & st);
 
 }// end of namespace visitor
 }// end of namespace rca

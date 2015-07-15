@@ -219,6 +219,19 @@ void rca::sttalgo::remove_top_edges (Container & ob, rca::Network & m_network,
 	
 }
 
+std::vector<rca::Link> rca::sttalgo::sttreeToVector (STTree & st) {
+	std::vector<rca::Link> links;
+	edge_t *e = st.get_edge();
+	while (e != NULL) {
+		if (e->in) {
+			rca::Link link (e->x, e->y, 0);
+			links.push_back (link);
+		}
+		e = e->next;
+	}
+	return links;
+}
+
 void cost_by_usage (std::vector<rca::Link> & m_links, 
 					std::vector<STTree> & m_trees, 
 					rca::Network & network)

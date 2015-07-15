@@ -128,6 +128,8 @@ get_available_links (SteinerType &,
 					rca::Group&,
 					rca::Link& );
 
+std::vector<rca::Link> sttreeToVector (STTree & st);
+
 }// end of namespace visitor
 }// end of namespace rca
 
