@@ -130,6 +130,8 @@ get_available_links (SteinerType &,
 
 std::vector<rca::Link> sttreeToVector (STTree & st);
 
+void replace_edge (STTree &, rca::Link &_old, rca::Link & _new);
+
 }// end of namespace visitor
 }// end of namespace rca
 

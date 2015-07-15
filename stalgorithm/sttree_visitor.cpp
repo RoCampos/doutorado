@@ -232,6 +232,19 @@ std::vector<rca::Link> rca::sttalgo::sttreeToVector (STTree & st) {
 	return links;
 }
 
+void rca::sttalgo::replace_edge (STTree & st, 
+								rca::Link &_old, 
+								rca::Link & _new)
+{
+
+	std::vector<rca::Link> links = sttreeToVector (st);
+	
+	auto res = std::find (std::begin(links), std::end(links), _old);
+	res->setX(_new.getX());
+	res->setY(_new.getY());
+	
+}
+
 void cost_by_usage (std::vector<rca::Link> & m_links, 
 					std::vector<STTree> & m_trees, 
 					rca::Network & network)
