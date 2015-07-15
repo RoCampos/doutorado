@@ -365,6 +365,63 @@ void rca::sttalgo::print_solution (std::vector<SteinerType>& trees)
 	
 }
 
+template<class SteinerType, class Container, class NetworkType>
+void rca::sttalgo::get_available_links (SteinerType & tree, 
+						  Container& cg, 
+						  NetworkType& network, 
+						  rca::Group& group,
+						  rca::Link& old)
+{
+	
+	tree.xdotFormat ();
+	
+	int NODES = network.getNumberNodes ();
+	
+	//O(E)
+	std::vector<rca::Link> links;
+	edge_t * e = tree.get_edge();
+	while (e!=NULL) {
+		if (e->in) {
+			rca::Link link (e->x, e->y, 0);
+			links.push_back (link);
+		}
+		e = e->next;
+	}
+	
+	int x = old.getX(); //source of t1
+	int y = old.getY(); //source of t2
+	
+	if (std::find ( std::begin(links), std::end(links), old ) == 
+		std::end(links)) 
+	{ 
+		return;
+	}else {
+		
+		std::vector<int> nodes_x(NODES, -1);
+		std::vector<int> nodes_y(NODES, -1);
+		
+		auto T_x = make_cut_visitor(links, x, old, nodes_x, NODES);
+		auto T_y = make_cut_visitor(links, y, old, nodes_y, NODES);
+		
+		for (int i : T_x) {
+			for (int j : T_y) {
+			
+				rca::Link link (i,j,0);
+				
+				int cost_link = network.getCost (link.getX(),link.getY());
+				if (cost_link > 0 && link != old) {
+					std::cout << i << " " << j << " ";
+					std::cout << cost_link << " ";
+					std::cout << (cg.is_used(link) ? cg.value (link) : -1) << std::endl;
+				}
+				
+			}
+		}
+		
+	}
+	
+}
+
 /** explicit instantiation of methods**/
 template void rca::sttalgo::remove_top_edges<rca::EdgeContainer<rca::Comparator, rca::HCell>> 
 			(rca::EdgeContainer<rca::Comparator, rca::HCell> & ob, 
@@ -379,3 +436,12 @@ template void rca::sttalgo::prunning<rca::EdgeContainer<rca::Comparator, rca::HC
 		int band);
 		
 template void rca::sttalgo::print_solution<STTree> (std::vector<STTree> &st);
+
+template 
+void 
+rca::sttalgo::get_available_links<STTree,rca::EdgeContainer<rca::Comparator, rca::HCell>, rca::Network> 
+	(STTree&st, 
+	rca::EdgeContainer<rca::Comparator, rca::HCell> & cg,
+	rca::Network& net,
+	rca::Group & group, 
+	rca::Link & link );

@@ -100,9 +100,32 @@ void cost_by_usage (std::vector<rca::Link>&,
 					std::vector<STTree>&, 
 					rca::Network & network);
 
-
+/**
+ * Este método é utilizado para imprimir uma solução do MPP
+ * utilizando o formato xdot.
+ * 
+ * As informações são enviadas para std::cerr
+ * 
+ * @param std::vector<SteinerType> lista de árvores de steiner de um tipo genético
+ */
 template<class SteinerType>
 void print_solution (std::vector<SteinerType>& trees);
+
+
+/**
+ * Este método é utilizado para retonar os links disponíveis para substituir
+ * um Link _link_ na árvore SteinerType considerando o valor de capacidade residual
+ * 
+ * @param SteinerType tipo que representa uma árvore de steiner
+ * @param Container tipo que represnta o container de arestas
+ * @param NetworkType tipo que representa uma árvore de steiner
+ */
+template<class SteinerType, class Container, class NetworkType>
+void get_available_links (SteinerType &, 
+						  Container&, 
+						  NetworkType&,
+						  rca::Group&,
+						  rca::Link& );
 
 }// end of namespace visitor
 }// end of namespace rca
