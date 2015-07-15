@@ -366,14 +366,15 @@ void rca::sttalgo::print_solution (std::vector<SteinerType>& trees)
 }
 
 template<class SteinerType, class Container, class NetworkType>
-void rca::sttalgo::get_available_links (SteinerType & tree, 
+std::vector<rca::Link> rca::sttalgo::get_available_links (SteinerType & tree, 
 						  Container& cg, 
 						  NetworkType& network, 
 						  rca::Group& group,
 						  rca::Link& old)
 {
 	
-	tree.xdotFormat ();
+// 	tree.xdotFormat ();
+	std::vector<rca::Link> backup_links;
 	
 	int NODES = network.getNumberNodes ();
 	
@@ -394,7 +395,7 @@ void rca::sttalgo::get_available_links (SteinerType & tree,
 	if (std::find ( std::begin(links), std::end(links), old ) == 
 		std::end(links)) 
 	{ 
-		return;
+		return backup_links;
 	}else {
 		
 		std::vector<int> nodes_x(NODES, -1);
@@ -410,14 +411,20 @@ void rca::sttalgo::get_available_links (SteinerType & tree,
 				
 				int cost_link = network.getCost (link.getX(),link.getY());
 				if (cost_link > 0 && link != old) {
-					std::cout << i << " " << j << " ";
-					std::cout << cost_link << " ";
-					std::cout << (cg.is_used(link) ? cg.value (link) : -1) << std::endl;
+// 					std::cout << i << " " << j << " ";
+// 					std::cout << cost_link << " ";
+// 					std::cout << (cg.is_used(link) ? cg.value (link) : -1) << std::endl;
+					int value = (cg.is_used(link) ? cg.value (link) : -1);
+					
+					if (value >= cg.top () || value == -1) 
+					backup_links.push_back (link);
 				}
 				
 			}
 		}
 		
+		
+		return backup_links;
 	}
 	
 }
@@ -438,7 +445,7 @@ template void rca::sttalgo::prunning<rca::EdgeContainer<rca::Comparator, rca::HC
 template void rca::sttalgo::print_solution<STTree> (std::vector<STTree> &st);
 
 template 
-void 
+std::vector<rca::Link> 
 rca::sttalgo::get_available_links<STTree,rca::EdgeContainer<rca::Comparator, rca::HCell>, rca::Network> 
 	(STTree&st, 
 	rca::EdgeContainer<rca::Comparator, rca::HCell> & cg,
