@@ -43,6 +43,8 @@ private:
 	
 	ObjectiveType update_container (SolutionType&, Container&, rca::Group&, rca::Network&);
 	
+	std::vector<rca::Link> tabu_list (std::vector<SolutionType>&); 
+	
 private:
 	
 	ObjectiveType m_best;
@@ -52,6 +54,8 @@ private:
 	int m_iter; //número de iterações
 	
 	std::vector<int> m_tabu_list;
+	
+	std::vector<rca::Link> links_tabu;
 	
 	/*--- Problem informations*/
 	rca::Network m_network;
