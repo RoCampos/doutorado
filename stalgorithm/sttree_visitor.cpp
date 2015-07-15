@@ -407,7 +407,7 @@ void rca::sttalgo::print_solution2 (std::vector<SteinerType>& trees)
 	for (auto st : trees) {
 		
 		edge_t * e = st.get_edge();
-		while (e != NULL) 
+		while (e != NULL) {
 			if (e->in) {
 				
 				rca::Link l(e->x+1, e->y+1,0);
