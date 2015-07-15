@@ -111,6 +111,16 @@ void cost_by_usage (std::vector<rca::Link>&,
 template<class SteinerType>
 void print_solution (std::vector<SteinerType>& trees);
 
+/**
+ * Este método imprime uma solução na saída padrão.
+ * O formato da impressão é utilizado para fazer o teste
+ * do valor objetivo e do valor limite de orçamento.
+ * 
+ * @param std::vector<SteinerType> lista de árvores de steiner de um tipo genético
+ */
+template<class SteinerType>
+void print_solution2 (std::vector<SteinerType>& trees);
+
 
 /**
  * Este método é utilizado para retonar os links disponíveis para substituir
@@ -130,7 +140,10 @@ get_available_links (SteinerType &,
 
 std::vector<rca::Link> sttreeToVector (STTree & st);
 
-void replace_edge (STTree &, rca::Link &_old, rca::Link & _new);
+void replace_edge (STTree &, 
+				   rca::Link &_old, 
+				   rca::Link & _new, 
+				   rca::Network&);
 
 }// end of namespace visitor
 }// end of namespace rca
