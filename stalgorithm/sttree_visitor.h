@@ -121,6 +121,10 @@ void print_solution (std::vector<SteinerType>& trees);
 template<class SteinerType>
 void print_solution2 (std::vector<SteinerType>& trees);
 
+template<class SteinerType, class Container, class NetworkType>
+void print_solutions_stats (std::vector<SteinerType>& trees, 
+							Container &cg, NetworkType& net);
+
 
 /**
  * Este método é utilizado para retonar os links disponíveis para substituir
