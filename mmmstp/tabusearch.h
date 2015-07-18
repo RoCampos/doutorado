@@ -45,8 +45,13 @@ public:
 	
 	void update_tabu ();
 	
-	void cost_tabu_based (std::vector<V>&);
+	void cost_tabu_based (std::vector<SolutionType>&);
 	
+	
+	
+	void zig_zag (std::vector<SolutionType>&, 
+					ObjectiveType& res, 
+					ObjectiveType& cost);
 	
 //*auxiliar methods
 private:
