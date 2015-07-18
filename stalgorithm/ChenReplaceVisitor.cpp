@@ -326,7 +326,7 @@ void ChenReplaceVisitor::getAvailableEdges(std::vector<int> &cut_xy,
 			rca::Link l ( Tx[i], Ty[j], 0);
 			
 			//testa se a aresta existe
-			if ( m_network->getCost ( l.getX() , l.getY() ) > 0 ) {
+			if ( m_network->getCost ( l.getX() , l.getY() ) > 0 && !m_network->isRemoved(l) ) {
 				
 				//pegar o valor de uso atual
 				if ( m_ec->is_used(l) ) {
@@ -381,7 +381,7 @@ void ChenReplaceVisitor::getAvailableEdgesByCost (std::vector<int> &cut_xy,
 			//testa se a aresta existe e se o custo pe menor
 			int new_cost = m_network->getCost ( l.getX() , l.getY() );
 			int old_cost = m_network->getCost ( _old.getX() , _old.getY() );
-			if ( new_cost > 0 && new_cost < old_cost) {
+			if ( new_cost > 0 && new_cost < old_cost && !m_network->isRemoved(l)) {
 				
 				//pegar o valor de uso atual
 				if ( m_ec->is_used(l) ) {

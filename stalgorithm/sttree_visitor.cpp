@@ -219,6 +219,41 @@ void rca::sttalgo::remove_top_edges (Container & ob, rca::Network & m_network,
 	
 }
 
+std::vector<rca::Link> rca::sttalgo::sttreeToVector (STTree & st) {
+	std::vector<rca::Link> links;
+	edge_t *e = st.get_edge();
+	while (e != NULL) {
+		if (e->in) {
+			rca::Link link (e->x, e->y, 0);
+			links.push_back (link);
+		}
+		e = e->next;
+	}
+	return links;
+}
+
+void rca::sttalgo::replace_edge (STTree & st, 
+									rca::Link &_old, 
+									rca::Link & _new, 
+									rca::Network& net)
+{
+
+	std::vector<rca::Link> links = sttreeToVector (st);
+	
+	auto res = std::find (std::begin(links), std::end(links), _old);
+	res->setX(_new.getX());
+	res->setY(_new.getY());
+	
+	STTree new_st (st.getNodes(), st.getSource (), st.getTerminals());
+	for (auto l : links) {
+		int cost = net.getCost (l.getX(), l.getY());
+		new_st.add_edge (l.getX(), l.getY(), cost);
+	}
+	
+	st = new_st;
+	st.prunning ();
+}
+
 void cost_by_usage (std::vector<rca::Link> & m_links, 
 					std::vector<STTree> & m_trees, 
 					rca::Network & network)
@@ -365,6 +400,25 @@ void rca::sttalgo::print_solution (std::vector<SteinerType>& trees)
 	
 }
 
+template<class SteinerType>
+void rca::sttalgo::print_solution2 (std::vector<SteinerType>& trees)
+{
+	int i=0;
+	for (auto st : trees) {
+		
+		edge_t * e = st.get_edge();
+		while (e != NULL) {
+			if (e->in) {
+				
+				rca::Link l(e->x+1, e->y+1,0);
+				std::cerr << l.getX()<< " - " <<l.getY() << ":" << i+1 <<";"<< std::endl;				
+			}
+			e = e->next;
+		}
+		i++;
+	}
+}
+
 template<class SteinerType, class Container, class NetworkType>
 std::vector<rca::Link> rca::sttalgo::get_available_links (SteinerType & tree, 
 						  Container& cg, 
@@ -411,9 +465,7 @@ std::vector<rca::Link> rca::sttalgo::get_available_links (SteinerType & tree,
 				
 				int cost_link = network.getCost (link.getX(),link.getY());
 				if (cost_link > 0 && link != old) {
-// 					std::cout << i << " " << j << " ";
-// 					std::cout << cost_link << " ";
-// 					std::cout << (cg.is_used(link) ? cg.value (link) : -1) << std::endl;
+
 					int value = (cg.is_used(link) ? cg.value (link) : -1);
 					
 					if (value >= cg.top () || value == -1) 
@@ -425,6 +477,43 @@ std::vector<rca::Link> rca::sttalgo::get_available_links (SteinerType & tree,
 		
 		
 		return backup_links;
+	}
+	
+}
+
+template<class SteinerType, class Container, class NetworkType>
+void rca::sttalgo::print_solutions_stats (std::vector<SteinerType>& trees, 
+							Container &cg, 
+							NetworkType& net)
+{
+
+	auto heap = cg.get_heap ();
+	auto begin = heap.ordered_begin ();
+	auto end = heap.ordered_end ();
+	
+	for (; begin != end; begin++) {
+	
+		int cost = net.getCost (begin->getX(), begin->getY());
+		
+		std::cout << *begin <<" : ";
+		std::cout << begin->getValue () << " : ";		
+		std::cout << cost << ": ";
+		std::cout << "Trees (";
+		
+		int tree_id = 0;
+		for (auto st : trees) {
+		
+			std::vector<rca::Link> treeLinks = 
+				sttreeToVector (st);
+				
+			if (std::find (std::begin(treeLinks), 
+				std::end(treeLinks), *begin) != std::end(treeLinks))
+			{
+				std::cout << tree_id << " ";
+			}
+			tree_id++;
+		}
+		std::cout << ")\n";
 	}
 	
 }
@@ -443,6 +532,13 @@ template void rca::sttalgo::prunning<rca::EdgeContainer<rca::Comparator, rca::HC
 		int band);
 		
 template void rca::sttalgo::print_solution<STTree> (std::vector<STTree> &st);
+template void rca::sttalgo::print_solution2<STTree> (std::vector<STTree> &st);
+
+template void 
+rca::sttalgo::print_solutions_stats<STTree,rca::EdgeContainer<rca::Comparator, rca::HCell>, rca::Network>
+		(std::vector<STTree> & trees, 
+		rca::EdgeContainer<rca::Comparator, rca::HCell> &cg, 
+		rca::Network& net);
 
 template 
 std::vector<rca::Link> 
