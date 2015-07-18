@@ -21,8 +21,12 @@ namespace rca{
 	
 	namespace metaalgo {
 
-template <class SolutionType, class Container, class ObjectiveType>
+template <class V, class Z, class X>
 class TabuSearch {
+	
+	typedef V SolutionType;
+	typedef Z Container;
+	typedef X ObjectiveType;
 	
 public:
 	TabuSearch (std::string& );
@@ -35,15 +39,23 @@ public:
 	
 	void run ();
 	
-	void build_solution (std::vector<SolutionType>& );
+	void build_solution (std::vector<SolutionType>& ,
+						ObjectiveType& res, 
+						ObjectiveType& cost);
+	
 	void update_tabu ();
+	
+	void cost_tabu_based (std::vector<V>&);
+	
 	
 //*auxiliar methods
 private:
 	
 	ObjectiveType update_container (SolutionType&, Container&, rca::Group&, rca::Network&);
 	
-	std::vector<rca::Link> tabu_list (std::vector<SolutionType>&); 
+	std::vector<rca::Link> tabu_list (std::vector<SolutionType>&);	
+	
+	ObjectiveType improvement (std::vector<SolutionType>&, int&);
 	
 private:
 	
@@ -53,7 +65,8 @@ private:
 	
 	int m_iter; //número de iterações
 	
-	std::vector<int> m_tabu_list;
+	std::vector<int> m_tabu_list; //control each tree will be build
+	std::vector<int> m_best_cost; //used as tabu
 	
 	std::vector<rca::Link> links_tabu;
 	
