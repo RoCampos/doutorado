@@ -59,8 +59,6 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	
 	int count_iter = 0;
 	
-	
-	bool iter_w_impro = true;
 	Container _cg;
 	do {
 		
@@ -68,8 +66,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 		if (count_iter >= 5) {
 			
 			std::cout << "dfd\n";
- 			update_tabu ();
-				
+ 			update_tabu ();				
 			count_iter = 0;			
 		} 
 		
@@ -112,35 +109,11 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 			
 		} while (tt < cost);
 		
-		std::cout << cg.top () << " " << cost << std::endl;
-		if (cg.top() > this->m_best && cost < this->m_budget) {
+		//updating a solution
+		this->update_best_solution (sol, cg.top(), cost);
 		
-			this->m_best = cg.top();
-			this->m_cost = cost;
-			this->m_best_sol = sol;
-
-			std::vector<rca::Link> 
-				links_cost = tabu_list (m_best_sol);
-			
- 			links_tabu.clear ();
-			for (int i=0; i < links_cost.size ()*0.1; i++) {
-				links_tabu.push_back (links_cost[i]);
-			}
-			
-		} else if ( (cg.top() == this->m_best) && (cost < this->m_cost) && cost < this->m_budget ) {
-			
-			this->m_best = cg.top();
-			this->m_cost = cost;
-			this->m_best_sol = sol;
-			
-			std::vector<rca::Link> 
-				links_cost = tabu_list (m_best_sol);
-			
- 			links_tabu.clear ();
-			for (int i=0; i < links_cost.size ()*0.1; i++) {
-				links_tabu.push_back (links_cost[i]);
-			}
-		}
+		std::cout << cg.top () << " " << cost << std::endl;
+		
 		
 		
 	} while (iter++ < this->m_iter);
@@ -240,6 +213,44 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 	cost_sol = cost;
 	
  
+}
+
+template <class V, class X, class Z>
+void 
+rca::metaalgo::TabuSearch<V, X, Z>::update_best_solution 
+								(std::vector<V>& sol,
+								const Z res,
+								const Z cost)
+{
+	if (res > this->m_best && cost < this->m_budget) {
+		
+		this->m_best = res;
+		this->m_cost = cost;
+		this->m_best_sol = sol;
+		
+		std::vector<rca::Link> 
+		links_cost = this->tabu_list (this->m_best_sol);
+		
+		links_tabu.clear ();
+		for (int i=0; i < links_cost.size ()*0.1; i++) {
+			links_tabu.push_back (links_cost[i]);
+		}
+		
+	} else if ( (res == this->m_best) 
+		&& (cost < this->m_cost) && cost < this->m_budget ) {
+		
+		this->m_best = res;
+		this->m_cost = cost;
+		this->m_best_sol = sol;
+		
+		std::vector<rca::Link> 
+		links_cost = this->tabu_list (this->m_best_sol);
+		
+		links_tabu.clear ();
+		for (int i=0; i < links_cost.size ()*0.1; i++) {
+			links_tabu.push_back (links_cost[i]);
+		}
+	}								
 }
 
 template <class V, class X, class Z>

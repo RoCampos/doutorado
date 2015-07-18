@@ -57,6 +57,10 @@ private:
 	
 	ObjectiveType improvement (std::vector<SolutionType>&, int&);
 	
+	void update_best_solution (std::vector<SolutionType>&,
+								const ObjectiveType,
+								const ObjectiveType);
+	
 private:
 	
 	ObjectiveType m_best;
