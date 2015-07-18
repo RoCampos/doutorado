@@ -47,15 +47,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	
 	this->m_best_sol = sol1;
 	
-	update_tabu ();	
-	
-	std::vector<rca::Link> 
-			links_cost = tabu_list (m_best_sol);
-			
- 	links_tabu.clear ();
-	for (int i=0; i < links_cost.size ()*0.1; i++) {
-		links_tabu.push_back (links_cost[i]);
-	}
+	update_tabu (); //for groups	
 	
 	int count_iter = 0;
 	
@@ -64,16 +56,15 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 		
 		count_iter++;
 		if (count_iter >= 5) {
-			
-			std::cout << "dfd\n";
- 			update_tabu ();				
-			count_iter = 0;			
+			update_tabu ();
+			count_iter = 0;
 		} 
 		
 		std::vector<SolutionType> sol ( GROUPS );
 		int x, y;
 		build_solution (sol, x, y);
 		
+		//-------------------------------------------------
 		rca::sttalgo::cycle_local_search<Container> cls;
 	
 		Container cg;
@@ -108,28 +99,26 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 			}
 			
 		} while (tt < cost);
+		//-------------------------------------------------
 		
 		//updating a solution
-		this->update_best_solution (sol, cg.top(), cost);
-		
-		std::cout << cg.top () << " " << cost << std::endl;
-		
-		
+ 		this->update_best_solution (sol, cg.top(), cost);
+ 		std::cout << cg.top () << " " << cost << std::endl;
 		
 	} while (iter++ < this->m_iter);
 
-	std::cout << "best" << std::endl;
- 	std::cout << this->m_best << " " << this->m_cost << std::endl;
-	
-	Container cg;
-	cg.init_congestion_matrix (NODES);
-	cg.init_handle_matrix (NODES);
-		
-	ObjectiveType cost = 0;
-	for (int i=0; i < this->m_best_sol.size (); i++) {
-		cost += update_container (this->m_best_sol[i], cg, m_groups[i], m_network);
-	}
-	rca::sttalgo::print_solutions_stats (this->m_best_sol, cg, m_network);
+ 	std::cout << "best" << std::endl;
+  	std::cout << this->m_best << " " << this->m_cost << std::endl;
+// 	
+// 	Container cg;
+// 	cg.init_congestion_matrix (NODES);
+// 	cg.init_handle_matrix (NODES);
+// 		
+// 	ObjectiveType cost = 0;
+// 	for (int i=0; i < this->m_best_sol.size (); i++) {
+// 		cost += update_container (this->m_best_sol[i], cg, m_groups[i], m_network);
+// 	}
+// 	rca::sttalgo::print_solutions_stats (this->m_best_sol, cg, m_network);
 
 }
 
@@ -175,17 +164,9 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 		SolutionType tree = SolutionType(NODES, 
 										 m_groups[i].getSource(), 
 										 m_groups[i].getMembers());
+
+		this->remove_tabu_links (i);
 		
-		//removing tabu
-		for (auto l : this->links_tabu) {
-			if (m_network.isRemoved(l)) continue;
-			
-			m_network.removeEdge (l);
-			
-			if ( !is_connected (m_network, m_groups[i]) ) {
-				m_network.undoRemoveEdge (l);
-			}
-		}
 		
 		ob.set_steiner_tree (tree, NODES);
 		int r = rand () % 10 + 1;
@@ -231,9 +212,9 @@ rca::metaalgo::TabuSearch<V, X, Z>::update_best_solution
 		std::vector<rca::Link> 
 		links_cost = this->tabu_list (this->m_best_sol);
 		
-		links_tabu.clear ();
+		m_links_tabu.clear ();
 		for (int i=0; i < links_cost.size ()*0.1; i++) {
-			links_tabu.push_back (links_cost[i]);
+			m_links_tabu.push_back (links_cost[i]);
 		}
 		
 	} else if ( (res == this->m_best) 
@@ -246,9 +227,9 @@ rca::metaalgo::TabuSearch<V, X, Z>::update_best_solution
 		std::vector<rca::Link> 
 		links_cost = this->tabu_list (this->m_best_sol);
 		
-		links_tabu.clear ();
+		m_links_tabu.clear ();
 		for (int i=0; i < links_cost.size ()*0.1; i++) {
-			links_tabu.push_back (links_cost[i]);
+			m_links_tabu.push_back (links_cost[i]);
 		}
 	}								
 }

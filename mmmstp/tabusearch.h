@@ -61,6 +61,29 @@ private:
 								const ObjectiveType,
 								const ObjectiveType);
 	
+	//receives group id
+	void remove_tabu_links (int g_id) {
+		for (auto l : this->m_links_tabu) {
+			if (m_network.isRemoved(l)) continue;
+			
+			m_network.removeEdge (l);
+			
+			if ( !is_connected (m_network, m_groups[g_id]) ) {
+				m_network.undoRemoveEdge (l);
+			}
+		}
+	}
+	
+	
+	//update tabu list based on 
+	void redo_tabu_list (std::vector<rca::Link> & links_cost) {		
+			
+		m_links_tabu.clear ();
+		for (int i=0; i < links_cost.size ()*0.1; i++) {
+			m_links_tabu.push_back (links_cost[i]);
+		}	
+	}
+	
 private:
 	
 	ObjectiveType m_best;
@@ -72,7 +95,7 @@ private:
 	std::vector<int> m_tabu_list; //control each tree will be build
 	std::vector<int> m_best_cost; //used as tabu
 	
-	std::vector<rca::Link> links_tabu;
+	std::vector<rca::Link> m_links_tabu;
 	
 	/*--- Problem informations*/
 	rca::Network m_network;
