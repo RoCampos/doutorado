@@ -91,23 +91,35 @@ private:
 	
 private:
 	
+	//objective value
 	ObjectiveType m_best;
+	
+	//solution cost
 	ObjectiveType m_cost;
+	
+	//solution representation
 	std::vector<SolutionType> m_best_sol;
 	
-	int m_iter; //número de iterações
+	//max iteration number
+	int m_iter; 
+	
+	//indicates if the firs solutions has been created
+	bool m_has_init;
 	
 	std::vector<int> m_tabu_list; //control each tree will be build
 	std::vector<int> m_best_cost; //used as tabu
 	
-	std::vector<rca::Link> m_links_tabu;
+	//links used as tabu - based on cost
+	std::vector<rca::Link> m_links_tabu; 
 	
 	/*--- Problem informations*/
 	rca::Network m_network;
 	std::vector<rca::Group> m_groups;
 	
+	//limit of budget
 	ObjectiveType m_budget;
 	
+	//multicast tree factory
 	rca::sttalgo::SteinerTreeFactory<Container> * m_factory;
 	
 	

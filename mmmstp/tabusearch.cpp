@@ -38,12 +38,14 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	int iter = 0;
 	
 	int GROUPS = this->m_groups.size ();
-	int NODES = this->m_network.getNumberNodes ();
+	
 	std::vector<SolutionType> sol1( GROUPS );
 	
 	int c=0, r=0;
 	build_solution (sol1, r, c);
 	std::cout << r << " " << c << std::endl;
+	
+	this->zig_zag (sol1, r, c);
 	
 	this->m_best_sol = sol1;
 	
@@ -114,17 +116,17 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 
  	std::cout << "best" << std::endl;
   	std::cout << this->m_best << " " << this->m_cost << std::endl;
-// 	this->zig_zag (this->m_best_sol);
 	
-// 	Container cg;
-// 	cg.init_congestion_matrix (NODES);
-// 	cg.init_handle_matrix (NODES);
-// 		
-// 	ObjectiveType cost = 0;
-// 	for (int i=0; i < this->m_best_sol.size (); i++) {
-// 		cost += update_container (this->m_best_sol[i], cg, m_groups[i], m_network);
-// 	}
-// 	rca::sttalgo::print_solutions_stats (this->m_best_sol, cg, m_network);
+	int NODES = this->m_network.getNumberNodes ();
+	Container cg;
+	cg.init_congestion_matrix (NODES);
+	cg.init_handle_matrix (NODES);
+		
+	ObjectiveType cost = 0;
+	for (int i=0; i < this->m_best_sol.size (); i++) {
+		cost += update_container (this->m_best_sol[i], cg, m_groups[i], m_network);
+	}
+	rca::sttalgo::print_solutions_stats (this->m_best_sol, cg, m_network);
 
 }
 
@@ -177,9 +179,9 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 		
 		
 		ob.set_steiner_tree (tree, NODES);
-		int r = rand () % 10 + 1;
-		
+// 		int r = rand () % 10 + 1;
 // 		if (r % 2 == 0)
+		
  		rca::sttalgo::remove_top_edges<CongestionHandle> (cg, 
  													m_network, 
  													m_groups[i], 0);
