@@ -62,7 +62,7 @@ private:
 	
 	ObjectiveType improvement (std::vector<SolutionType>&, int&);
 	
-	void update_best_solution (std::vector<SolutionType>&,
+	bool update_best_solution (std::vector<SolutionType>&,
 								const ObjectiveType,
 								const ObjectiveType);
 	
@@ -87,6 +87,59 @@ private:
 		for (int i=0; i < links_cost.size ()*0.1; i++) {
 			m_links_tabu.push_back (links_cost[i]);
 		}	
+	}
+	
+	void residual_refinement (std::vector<SolutionType>& sol, Container & cg, 
+							  ObjectiveType &res, ObjectiveType &cos) 
+	{
+		rca::sttalgo::ChenReplaceVisitor c(&sol);
+		c.setNetwork (&m_network);
+		c.setMulticastGroups (m_groups);
+		c.setEdgeContainer (cg);
+		
+		//-----improving by cost
+		ObjectiveType cost = 0;
+		for (auto st : sol) {
+			cost += (int)st.getCost ();
+		}		
+
+		int tt = cost;
+		do {
+			
+			cost = tt;
+			c.visitByCost ();
+			tt = 0.0;
+			for (auto st : sol) {
+				tt += (int)st.getCost ();		
+			}
+				
+		} while (tt < cost);
+		
+		cos = cost;
+		res = cg.top ();
+		
+	}
+	
+	void cost_refinement (std::vector<SolutionType>& sol, Container & cg, 
+							  ObjectiveType &res, ObjectiveType &cos) 
+	{
+		rca::sttalgo::ChenReplaceVisitor c(&sol);
+		c.setNetwork (&m_network);
+		c.setMulticastGroups (m_groups);
+		c.setEdgeContainer (cg);
+		
+		if(this->m_has_init) {
+			c.visit ();
+		}
+		
+		//-----improving by cost
+		ObjectiveType cost = 0;
+		for (auto st : sol) {
+			cost += (int)st.getCost ();
+		}
+		
+		cos = cost;
+		res = cg.top ();
 	}
 	
 private:
