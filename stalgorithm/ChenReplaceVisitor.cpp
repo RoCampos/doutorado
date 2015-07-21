@@ -94,9 +94,13 @@ void ChenReplaceVisitor::visitByCost ()
 	
 	std::vector<std::tuple<int,int,rca::Link,rca::Link>> to_remove;
 
+	std::vector<rca::Link> marked;
+	
 	for ( ; it != end; it++) {
 		
 		to_remove.clear ();
+		
+		marked.clear();
 		
 		int group_id = 0;
 		for (std::vector<rca::Link> st : this->m_temp_trees) {
@@ -122,11 +126,24 @@ void ChenReplaceVisitor::visitByCost ()
 					 * o link em questão (ll)
 					 * o link candidato (links[_new_link])
 					 */
-					std::tuple<int,int,rca::Link,rca::Link> 	
-							tuple (group_id, link_pos, *it, links[_new_link]);
 					
-					to_remove.push_back (tuple);
-
+					
+					
+					for (auto lll : links) {
+					
+						auto b = marked.begin();
+						auto e = marked.end();	
+						if (std::find(b,e,lll) == e) {
+							
+							std::tuple<int,int,rca::Link,rca::Link> 	
+								tuple (group_id, link_pos, *it, lll);					
+								
+							to_remove.push_back (tuple);					
+							break;
+						}
+						
+					}
+					
 				}
 				
 			}
