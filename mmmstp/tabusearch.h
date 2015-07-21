@@ -57,6 +57,9 @@ public:
 	
 	void improvement (std::vector<SolutionType>&, int&, int&);
 	
+	void zig (std::vector<SolutionType>&, 
+			  ObjectiveType& res, ObjectiveType& cos);
+	
 //*auxiliar methods
 private:
 	

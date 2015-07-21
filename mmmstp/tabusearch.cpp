@@ -78,96 +78,20 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 		
 	} while (iter++ < this->m_iter);
 
- 	std::cout << "best" << std::endl;
+ 	std::cout << "best: ";
   	std::cout << this->m_best << " " << this->m_cost << std::endl;
 	
 	int x, y;
 	this->improvement (this->m_best_sol, x, y);
+	std::cout << "improvment: ";
 	std::cout << x << " " << y<<std::endl;
 	
-	int NODES = this->m_network.getNumberNodes ();
-	Container * cg = new Container;
-	cg->init_congestion_matrix (NODES);
-	cg->init_handle_matrix (NODES);
 	
-	ObjectiveType cost = 0;
-	for (int i=0; i < this->m_best_sol.size (); i++) {
-		cost += update_container (this->m_best_sol[i], *cg, m_groups[i], m_network);
-	}
-
-	//getting all links that could be replaced and for what link
-	std::vector<rca::Link> all_links;
-	const auto & heap = cg->get_heap ();
-	auto begin = heap.ordered_begin ();
-	auto end = heap.ordered_end ();
+ 	this->zig (this->m_best_sol, x, y);
 	
-	for (; begin != end; begin++) {
-	
-		rca::Link l = *begin;
-// 		int VALUE = GROUPS - begin->getValue ();
-		int COST = m_network.getCost (l.getX(), l.getY());
-		l.setValue (COST);
-		all_links.push_back (l);
-		
-	}
-	
-	std::sort (std::begin(all_links), 
-			   std::end(all_links), 
-			   std::greater<rca::Link>());
-	
-	std::vector<rca::Link> replaced;
-	int ccc = 0;
-	
-	for (auto link : all_links) {
-		std::cerr << link << " |cost(" << link.getValue() << ")";
-		std::cerr << "res(" << cg->value (link) << ")\n";
-		
-		if (cg->value (link) == cg->top()) continue;
-		
-		for (int g = 0; g < GROUPS; g++){
-			std::vector<rca::Link> update = 
-			get_available_links<SolutionType,Container,rca::Network> 
-			(m_best_sol[g], *cg, m_network, m_groups[g], link);	
-			
-			if (update.size () > 0) {
-				std::cerr << "G: " << g << std::endl;
-				for (auto & link_rep : update) {
-					
-					int value = cg->is_used(link_rep)? cg->value(link_rep): 5;
-					int _cost = (int)m_network.getCost (link_rep.getX(), link_rep.getY());
-					
-					if (value >= cg->top ()) {						
-						
-						if (_cost < link.getValue()) {
-							std::cerr << "  " << link_rep;				
-							
-							std::cerr << "| Res (" << value<< ")";
-							
-							std::cerr << "Cost (" << _cost << ")";
-							std::cerr << std::endl;
-							
-							auto bb = replaced.begin();
-							auto ee = replaced.end();
-							if (std::find(bb, ee, link_rep) == ee) {
-								replaced.push_back (link_rep);
-								ccc += link.getValue ()-_cost;
-							}
-						}
-					
-					}
-				}
-			}
-			
-		}
-		std::cerr << std::endl;		
-	}
-	
-	std::cout << cg->top () << " "<< (cost-ccc) << std::endl;
-// 	
 // 	rca::sttalgo::print_solutions_stats (this->m_best_sol, *cg, m_network);
-// 	
-	delete cg;
-// 	rca::sttalgo::print_solution<SolutionType> (this->m_best_sol);
+
+	rca::sttalgo::print_solution2<SolutionType> (this->m_best_sol);
 
 }
 
@@ -518,18 +442,6 @@ rca::metaalgo::TabuSearch<V, X, Z>::improvement (std::vector<V>& sol,
 	
 	cos = cost;
 	
-// 	Container * cg1 = new Container;
-// 	cg1->init_congestion_matrix (NODES);
-// 	cg1->init_handle_matrix (NODES);
-// 	
-// 	cost = 0;
-// 	for (int i=0; i < sol.size (); i++) {
-// 		cost += update_container (sol[i], *cg1, m_groups[i], m_network);
-// 	}
-// 	
-// 	rca::sttalgo::print_solutions_stats (sol, *cg1, m_network);
-// 	delete cg1;
-// 	
 	this->m_network.clearRemovedEdges ();
 }
 
@@ -643,14 +555,108 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	this->m_network.clearRemovedEdges();
 }
 
+template <class V, class X, class Z>
+void rca::metaalgo::TabuSearch<V, X, Z>::zig (std::vector<V>& sol, 
+												Z& res, 
+												Z& cos)
+{
+	
+	int NODES = this->m_network.getNumberNodes ();
+	int GROUPS = this->m_groups.size ();
+	
+	Container * cg = new Container;
+	cg->init_congestion_matrix (NODES);
+	cg->init_handle_matrix (NODES);
+	
+	ObjectiveType cost = 0;
+	for (int i=0; i < sol.size (); i++) {
+		cost += update_container (sol[i],*cg, m_groups[i], m_network);
+	}
+
+	//getting all links that could be replaced and for what link
+	std::vector<rca::Link> all_links;
+	const auto & heap = cg->get_heap ();
+	auto begin = heap.ordered_begin ();
+	auto end = heap.ordered_end ();
+	
+	for (; begin != end; begin++) {
+	
+		rca::Link l = *begin;
+		int COST = m_network.getCost (l.getX(), l.getY());
+		l.setValue (COST);
+		all_links.push_back (l);
+		
+	}
+	
+	std::sort (std::begin(all_links), 
+			   std::end(all_links), 
+			   std::greater<rca::Link>());
+	
+	std::vector<rca::Link> replaced;
+ 	int ccc = 0;
+ 	
+ 	for (auto link : all_links) {
+	
+		if (cg->value (link) == cg->top()) continue;
+		
+// 		std::cerr << link.getValue () << " " << cg->value (link) << std::endl;
+		
+		for (int g = 0; g < GROUPS; g++){
+		
+			std::vector<rca::Link> update = 
+			get_available_links<SolutionType,Container,rca::Network> 
+				(m_best_sol[g], *cg, m_network, m_groups[g], link);	
+			
+			if (update.size () > 0) {
+			
+				for (auto & link_rep : update) {
+ 					
+					int value = cg->is_used(link_rep)? cg->value(link_rep): 5;
+					int _cost = (int)m_network.getCost (link_rep.getX(), link_rep.getY());
+					
+					if (value > cg->top ()) {
+						
+						if (_cost < link.getValue()) {
+// 							std::cerr << "  " << link_rep;
+// 							std::cerr << "| Res (" << value<< ")";
+// 							std::cerr << "Cost (" << _cost << ")";
+// 							std::cerr << std::endl;
+							
+							auto bb = replaced.begin();
+							auto ee = replaced.end();
+							if (std::find(bb, ee, link_rep) == ee) {
+								replaced.push_back (link_rep);
+								ccc += link.getValue ()-_cost;
+								
+								cg->push (link_rep, -1);
+								cg->push (link, 1);
+								
+							}
+						}
+					
+					}
+				}
+				
+			}
+		
+		}
+		
+	}
+	
+	std::cout << "Expected value: ";
+ 	std::cout << cg->top () << " "<< (cost-ccc) << std::endl;
+	
+	delete cg;
+}
+
 typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 
 int main (int argv, char**argc) {
 
- 	srand (time(NULL));
+	int r = time(NULL);
+ 	std::cout << r << std::endl;
 	
-// 	int r = time(NULL);
-// 	std::cout << r << std::endl;
+ 	srand ( 1437504224 );
 	
 	using namespace rca;
 	using namespace rca::metaalgo;
@@ -662,8 +668,7 @@ int main (int argv, char**argc) {
 	TabuSearch<STTree, CongestionHandle, int> tabueSearch (file);
 	tabueSearch.set_iterations ( iterations );
 	tabueSearch.set_budget ( budget );
-	
-	
+		
  	tabueSearch.run ();
 	
 // 	std::vector <STTree> sol (25);
