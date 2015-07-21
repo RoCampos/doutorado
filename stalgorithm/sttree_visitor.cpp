@@ -487,6 +487,11 @@ void rca::sttalgo::print_solutions_stats (std::vector<SteinerType>& trees,
 							NetworkType& net)
 {
 
+	int size_cg = cg.get_heap ().size ();
+	
+	std::cout << "Network Edges= " << net.getNumberEdges () << std::endl;
+	std::cout << "Used = " << size_cg << std::endl;
+	
 	auto heap = cg.get_heap ();
 	auto begin = heap.ordered_begin ();
 	auto end = heap.ordered_end ();

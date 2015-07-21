@@ -21,8 +21,12 @@ namespace rca{
 	
 	namespace metaalgo {
 
-template <class SolutionType, class Container, class ObjectiveType>
+template <class V, class Z, class X>
 class TabuSearch {
+	
+	typedef V SolutionType;
+	typedef Z Container;
+	typedef X ObjectiveType;
 	
 public:
 	TabuSearch (std::string& );
@@ -35,34 +39,140 @@ public:
 	
 	void run ();
 	
-	void build_solution (std::vector<SolutionType>& );
+	void build_solution (std::vector<SolutionType>& ,
+						ObjectiveType& res, 
+						ObjectiveType& cost);
+	
 	void update_tabu ();
+	
+	void cost_tabu_based (std::vector<SolutionType>&);
+	
+	
+	
+	void zig_zag (std::vector<SolutionType>&, 
+					ObjectiveType& res, 
+					ObjectiveType& cost);
 	
 //*auxiliar methods
 private:
 	
 	ObjectiveType update_container (SolutionType&, Container&, rca::Group&, rca::Network&);
 	
-	std::vector<rca::Link> tabu_list (std::vector<SolutionType>&); 
+	std::vector<rca::Link> tabu_list (std::vector<SolutionType>&);	
+	
+	ObjectiveType improvement (std::vector<SolutionType>&, int&);
+	
+	bool update_best_solution (std::vector<SolutionType>&,
+								const ObjectiveType,
+								const ObjectiveType);
+	
+	//receives group id
+	void remove_tabu_links (int g_id) {
+		for (auto l : this->m_links_tabu) {
+			if (m_network.isRemoved(l)) continue;
+			
+			m_network.removeEdge (l);
+			
+			if ( !is_connected (m_network, m_groups[g_id]) ) {
+				m_network.undoRemoveEdge (l);
+			}
+		}
+	}
+	
+	
+	//update tabu list based on 
+	void redo_tabu_list (std::vector<rca::Link> & links_cost) {		
+			
+		m_links_tabu.clear ();
+		for (int i=0; i < links_cost.size ()*0.1; i++) {
+			m_links_tabu.push_back (links_cost[i]);
+		}	
+	}
+	
+	void residual_refinement (std::vector<SolutionType>& sol, Container & cg, 
+							  ObjectiveType &res, ObjectiveType &cos) 
+	{
+		rca::sttalgo::ChenReplaceVisitor c(&sol);
+		c.setNetwork (&m_network);
+		c.setMulticastGroups (m_groups);
+		c.setEdgeContainer (cg);
+		
+		//-----improving by cost
+		ObjectiveType cost = 0;
+		for (auto st : sol) {
+			cost += (int)st.getCost ();
+		}		
+
+		int tt = cost;
+		do {
+			
+			cost = tt;
+			c.visitByCost ();
+			tt = 0.0;
+			for (auto st : sol) {
+				tt += (int)st.getCost ();		
+			}
+				
+		} while (tt < cost);
+		
+		cos = cost;
+		res = cg.top ();
+		
+	}
+	
+	void cost_refinement (std::vector<SolutionType>& sol, Container & cg, 
+							  ObjectiveType &res, ObjectiveType &cos) 
+	{
+		rca::sttalgo::ChenReplaceVisitor c(&sol);
+		c.setNetwork (&m_network);
+		c.setMulticastGroups (m_groups);
+		c.setEdgeContainer (cg);
+		
+		if(this->m_has_init) {
+			c.visit ();
+		}
+		
+		//-----improving by cost
+		ObjectiveType cost = 0;
+		for (auto st : sol) {
+			cost += (int)st.getCost ();
+		}
+		
+		cos = cost;
+		res = cg.top ();
+	}
 	
 private:
 	
+	//objective value
 	ObjectiveType m_best;
+	
+	//solution cost
 	ObjectiveType m_cost;
+	
+	//solution representation
 	std::vector<SolutionType> m_best_sol;
 	
-	int m_iter; //número de iterações
+	//max iteration number
+	int m_iter; 
 	
-	std::vector<int> m_tabu_list;
+	//indicates if the firs solutions has been created
+	bool m_has_init;
 	
-	std::vector<rca::Link> links_tabu;
+	std::vector<int> m_tabu_list; //control each tree will be build
+	std::vector<int> m_best_cost; //used as tabu
+	
+	//links used as tabu - based on cost
+	std::vector<rca::Link> m_links_tabu; 
 	
 	/*--- Problem informations*/
 	rca::Network m_network;
 	std::vector<rca::Group> m_groups;
 	
+	//limit of budget
 	ObjectiveType m_budget;
 	
+	//multicast tree factory
 	rca::sttalgo::SteinerTreeFactory<Container> * m_factory;
 	
 	
