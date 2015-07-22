@@ -283,7 +283,7 @@ public:
 	inline int getSource () {return m_source;}
 	std::vector<int> getTerminals () {
 		std::vector<int> term;
-		for (int i=0;i < m_nodes.size (); i++) {
+		for (size_t i=0;i < m_nodes.size (); i++) {
 			if (m_nodes[i].terminal)
 				term.push_back (i);
 		}
@@ -323,7 +323,7 @@ public:
 	
 private:
 	void _init_nodes(int nnodes) {
-		for (size_t i = 0; i < nnodes; i++) {
+		for (int i = 0; i < nnodes; i++) {
 			m_nodes.push_back (node_t(0,0,false));
 			m_nodes[i].id = i;
 		}
