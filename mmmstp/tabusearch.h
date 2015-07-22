@@ -72,7 +72,7 @@ private:
 	 */
 	std::vector<rca::Link> tabu_list (std::vector<SolutionType>&);	
 	
-	bool update_best_solution (std::vector<SolutionType>&,
+	bool update_best_solution (const std::vector<SolutionType>&,
 								const ObjectiveType,
 								const ObjectiveType);
 	

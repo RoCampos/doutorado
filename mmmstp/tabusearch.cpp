@@ -49,6 +49,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	build_solution (sol1, r, c);
 	
 	this->zig_zag (sol1, r, c);
+	
 	this->m_best_sol = sol1;
 	
 	update_tabu (); //for groups	
@@ -91,7 +92,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	
 // 	rca::sttalgo::print_solutions_stats (this->m_best_sol, *cg, m_network);
 
-	rca::sttalgo::print_solution2<SolutionType> (this->m_best_sol);
+// 	rca::sttalgo::print_solution2<SolutionType> (this->m_best_sol);
 
 }
 
@@ -178,7 +179,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 template <class V, class X, class Z>
 bool 
 rca::metaalgo::TabuSearch<V, X, Z>::update_best_solution 
-								(std::vector<V>& sol,
+								(const std::vector<V>& sol,
 								const Z res,
 								const Z cost)
 {
@@ -187,7 +188,11 @@ rca::metaalgo::TabuSearch<V, X, Z>::update_best_solution
 		
 		this->m_best = res;
 		this->m_cost = cost;
-		this->m_best_sol = sol;
+		
+		this->m_best_sol.clear ();
+		for (auto st : sol) {
+			this->m_best_sol.push_back (st);
+		}
 		
 		std::vector<rca::Link> 
 		links_cost = this->tabu_list (this->m_best_sol);
@@ -348,7 +353,7 @@ rca::metaalgo::TabuSearch<V, X, Z>::improvement (std::vector<V>& sol,
 												 int& res, int &cos)
 {
 	int NODES = m_network.getNumberNodes ();
-	int GROUPS = m_groups.size();
+// 	int GROUPS = m_groups.size();
 	Container cg;
 	cg.init_congestion_matrix (NODES);
 	cg.init_handle_matrix (NODES);
@@ -560,6 +565,8 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig (std::vector<V>& sol,
 												Z& res, 
 												Z& cos)
 {
+	typedef std::tuple<int,rca::Link, rca::Link> TupleRemove;
+	
 	
 	int NODES = this->m_network.getNumberNodes ();
 	int GROUPS = this->m_groups.size ();
@@ -595,9 +602,11 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig (std::vector<V>& sol,
 	std::vector<rca::Link> replaced;
  	int ccc = 0;
  	
+	std::vector<TupleRemove> to_remove;
+	
  	for (auto link : all_links) {
 	
-		if (cg->value (link) == cg->top()) continue;
+// 		if (cg->value (link) == cg->top()) continue;
 		
 // 		std::cerr << link.getValue () << " " << cg->value (link) << std::endl;
 		
@@ -605,18 +614,19 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig (std::vector<V>& sol,
 		
 			std::vector<rca::Link> update = 
 			get_available_links<SolutionType,Container,rca::Network> 
-				(m_best_sol[g], *cg, m_network, m_groups[g], link);	
+				(sol[g], *cg, m_network, m_groups[g], link);	
 			
 			if (update.size () > 0) {
 			
+				bool pushed = false;
 				for (auto & link_rep : update) {
  					
-					int value = cg->is_used(link_rep)? cg->value(link_rep): 5;
+					int value = cg->is_used(link_rep)? cg->value(link_rep): m_groups.size();
 					int _cost = (int)m_network.getCost (link_rep.getX(), link_rep.getY());
 					
 					if (value > cg->top ()) {
 						
-						if (_cost < link.getValue()) {
+						if (_cost < link.getValue() && link != link_rep) {
 // 							std::cerr << "  " << link_rep;
 // 							std::cerr << "| Res (" << value<< ")";
 // 							std::cerr << "Cost (" << _cost << ")";
@@ -628,19 +638,34 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig (std::vector<V>& sol,
 								replaced.push_back (link_rep);
 								ccc += link.getValue ()-_cost;
 								
+								link_rep.setValue (value);
+								
 								cg->push (link_rep, -1);
 								cg->push (link, 1);
 								
+								TupleRemove t (g, link, link_rep);
+								to_remove.push_back (t);
+								
+								pushed = true;
+								break;
+								
 							}
-						}
-					
+						}					
 					}
-				}
+				}//end edge for loop
 				
-			}
+				if (pushed) break;
+				
+			}//test if there is some edge to be used
 		
 		}
 		
+	}
+	
+	for (TupleRemove & t : to_remove) {
+		std::cout << std::get<0> (t);
+		std::cout << " " << std::get<1> (t);
+		std::cout << " " << std::get<2> (t) << std::endl;
 	}
 	
 	std::cout << "Expected value: ";
