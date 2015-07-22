@@ -37,6 +37,7 @@ public:
 	inline void set_iterations (int iter) {m_iter = iter;}
 	inline void set_budget (ObjectiveType budget) {m_budget = budget;}
 	inline void set_has_init (bool value) {m_has_init = value;}
+	inline void set_tabu_links_size (double value){m_links_perc = value;}
 		
 	
 	void run ();
@@ -94,10 +95,13 @@ private:
 		}
 	}
 	
+	/**
+	 * Remove todos as arestas que são tabu na iteração
+	 * 
+	 * 
+	 */
 	void remove_tabu_links () {
-	
 		m_network.clearRemovedEdges();
-		
 		for (auto l : this->m_links_tabu) {
 			m_network.removeEdge (l);
 		}
@@ -139,10 +143,11 @@ private:
 	bool m_has_init;
 	
 	std::vector<int> m_tabu_list; //control each tree will be build
-	std::vector<int> m_best_cost; //used as tabu
+	std::vector<int> m_best_cost; //used in cost_tabu_based
 	
 	//links used as tabu - based on cost
 	std::vector<rca::Link> m_links_tabu; 
+	double m_links_perc;
 	
 	/*--- Problem informations*/
 	rca::Network m_network;
