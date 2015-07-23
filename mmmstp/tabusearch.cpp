@@ -77,9 +77,10 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 		int x, y;
 		build_solution (sol, x, y);
 
-		int rr = 0, cc = 0;
-		this->zig_zag (sol, rr, cc);
-// 		std::cout <<iter << " " << rr <<" " << cc << " zig-zag"<< std::endl;
+ 		int rr = 0, cc = 0;
+ 		this->zig_zag (sol, rr, cc);
+		
+ 		std::cout <<iter << " " << rr <<" " << cc << " zig-zag"<< std::endl;
 		
 		//updating a solution
  		this->update_best_solution (sol, rr, cc);
@@ -89,14 +90,26 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
  	std::cout << "best: ";
   	std::cout << this->m_best << " " << this->m_cost << std::endl;
 	
-	int x, y;	
- 	this->zig (this->m_best_sol, x, y);
-	std::cout << "zig: ";
-	std::cout << x << " " << y << std::endl;
 	
-// 	rca::sttalgo::print_solutions_stats (this->m_best_sol, *cg, m_network);
+	int NODES = m_network.getNumberNodes ();	
+	Container * cg = new Container;
+	cg->init_congestion_matrix (NODES);
+	cg->init_handle_matrix (NODES);
+	
+	//updating the cost of the solution and the container
+	ObjectiveType cost = 0;
+	for (int i=0; i < this->m_best_sol.size (); i++) {
+		cost += update_container (this->m_best_sol[i], *cg, m_groups[i], m_network);
+	}
+ 	rca::sttalgo::print_solutions_stats (this->m_best_sol, *cg, m_network);
+	delete cg;
 
-// 	rca::sttalgo::print_solution2<SolutionType> (this->m_best_sol);
+	for (auto it : this->tabu_list (this->m_best_sol) ) {
+		std::cout << it << " "<< it.getValue ()<< " ";
+		std::cout << m_network.getCost(it) << std::endl;
+	}
+	
+//  rca::sttalgo::print_solution2<SolutionType> (this->m_best_sol);
 
 }
 
@@ -111,7 +124,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 #endif
 	
 	if (this->m_factory == NULL)
-		this->m_factory = new rca::sttalgo::WildestSteinerTree<Container>();
+		this->m_factory = new rca::sttalgo::ShortestPathSteinerTree<Container>();
 	
 	int NODES = this->m_network.getNumberNodes();
 	int GROUPS= this->m_groups.size ();
@@ -295,13 +308,13 @@ rca::metaalgo::TabuSearch<V, X, Z>::tabu_list (std::vector<V>& trees)
 					l.setValue (cost);
 					
 					links_cost.push_back (l);
-				} else {
+				} /*else {
 					
 					int cost = it->getValue () + this->m_network.getCost (l.getX(), 
 																		  l.getY());								
 					it->setValue (cost);
 					
-				}
+				}*/
 			}
 			
 			e = e->next;
@@ -483,6 +496,9 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	c.setMulticastGroups (m_groups);
 	c.setEdgeContainer (*cg);
 	
+	//performing cycle local search
+	//cls.local_search (sol, m_network, m_groups, *cg, cost);
+	
 	//performing cost refinement
 	int tt = cost;
 	do {
@@ -501,7 +517,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	
 	//builing tabu list based on the most expensive edges	
 	auto tabu = this->tabu_list (sol);
-	this->redo_tabu_list (tabu);	
+	this->redo_tabu_list (tabu);
 	for (int i=0;i < GROUPS; i++) {
 		this->remove_tabu_links (i);
 	}
@@ -690,7 +706,7 @@ int main (int argv, char**argc) {
 	int r = time(NULL);
  	std::cout << r << std::endl;
 	
-//  	srand ( 1437504224 );
+//   	srand ( 1437587840 );
 	srand ( r );
 	
 	using namespace rca;
