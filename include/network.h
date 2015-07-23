@@ -103,6 +103,10 @@ public:
 	double getCost (unsigned row, unsigned col) {
 		return m_costMatrix.at (row, col);
 	}
+	
+	double getCost (rca::Link l) {
+		return this->getCost (l.getX(), l.getY());
+	}
 
 	/**
 	 * Método para retornar a capacidade de uma aresta.

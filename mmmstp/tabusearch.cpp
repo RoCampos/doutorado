@@ -48,12 +48,11 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	int c=0, r=0;
 	build_solution (sol1, r, c);
 	
-	std::cout << r << " " << c << std::endl;
-	
 	this->zig_zag (sol1, r, c);
-	this->m_best_sol = sol1;
 	
-	std::cout << r << " " << c << std::endl;
+	this->m_best_sol = sol1;
+	this->m_best = r;
+	this->m_cost = c;
 	
 	update_tabu (); //for groups	
 	
@@ -65,107 +64,77 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 		this->m_has_init = true;
 		
 		count_iter++;
-		if (count_iter >= 10) {
-			cost_tabu_based (this->m_best_sol);			
+		if (count_iter >= 5) {
+// 			std::cout << "upd_cost:";
+			cost_tabu_based (this->m_best_sol);
 			count_iter = 0;
-		} 
+		} else {
+			update_tabu ();
+// 			std::cout << "upd_tabu:";
+		}
 		
 		std::vector<SolutionType> sol ( GROUPS );
 		int x, y;
 		build_solution (sol, x, y);
-		std::cout << x << " " << y << " --- ";
-		int rr = 0, cc = 0;
-		this->zig_zag (sol, rr, cc);
+		
+//  		this->improvement (sol, x, y);
+//  		std::cout << x << " " << y << std::endl;
 
-		std::cout << rr << " " << cc << std::endl;
+  		int rr = 0, cc = 0;
+  		this->zig_zag (sol, rr, cc);
+		
+ 		std::cout <<iter << " " << rr <<" " << cc << " zig-zag"<< std::endl;
+		
 		//updating a solution
  		this->update_best_solution (sol, rr, cc);
 		
 	} while (iter++ < this->m_iter);
 
- 	std::cout << "best" << std::endl;
+ 	std::cout << "best: ";
   	std::cout << this->m_best << " " << this->m_cost << std::endl;
 	
-	int NODES = this->m_network.getNumberNodes ();
+	int NODES = m_network.getNumberNodes ();	
 	Container * cg = new Container;
 	cg->init_congestion_matrix (NODES);
 	cg->init_handle_matrix (NODES);
 	
+	//updating the cost of the solution and the container
 	ObjectiveType cost = 0;
 	for (int i=0; i < this->m_best_sol.size (); i++) {
 		cost += update_container (this->m_best_sol[i], *cg, m_groups[i], m_network);
 	}
+//  	rca::sttalgo::print_solutions_stats (this->m_best_sol, *cg, m_network);
+	
+	rca::sttalgo::ChenReplaceVisitor cv(&this->m_best_sol);
+	cv.setNetwork (&m_network);
+	cv.setMulticastGroups (m_groups);
+	cv.setEdgeContainer (*cg);
+	
+	cv.visit ();
+	cv.visitByCost();
+	cv.visit ();
+	
+	c = 0;
+	for (auto it : m_best_sol) {
+		c+= (int)it.getCost ();
+	}
+	
+	r = cg->top ();
+	
+	std::cout << "\n";
+ 	rca::sttalgo::print_solutions_stats (this->m_best_sol, *cg, m_network);
 
-	//getting all links that could be replaced and for what link
-	std::vector<rca::Link> all_links;
-	const auto & heap = cg->get_heap ();
-	auto begin = heap.ordered_begin ();
-	auto end = heap.ordered_end ();
+	std::cout << r << " " << c << "\n"; 
 	
-	for (; begin != end; begin++) {
 	
-		rca::Link l = *begin;
-// 		int VALUE = GROUPS - begin->getValue ();
-		int COST = m_network.getCost (l.getX(), l.getY());
-		l.setValue (COST);
-		all_links.push_back (l);
-		
-	}
-	
-	std::sort (std::begin(all_links), 
-			   std::end(all_links), 
-			   std::greater<rca::Link>());
-	
-	std::vector<rca::Link> replaced;
-	int ccc = 0;
-	
-	for (auto link : all_links) {
-		std::cerr << link << " |cost(" << link.getValue() << ")";
-		std::cerr << "res(" << cg->value (link) << ")\n";
-		
-		for (int g = 0; g < GROUPS; g++){
-			std::vector<rca::Link> update = 
-			get_available_links<SolutionType,Container,rca::Network> 
-			(m_best_sol[g], *cg, m_network, m_groups[g], link);	
-			
-			if (update.size () > 0) {
-				std::cerr << "G: " << g << std::endl;
-				for (auto & link_rep : update) {
-					
-					int value = cg->is_used(link_rep)? cg->value(link_rep): 5;
-					int _cost = (int)m_network.getCost (link_rep.getX(), link_rep.getY());
-					
-					if (value > cg->top ()) {						
-						
-						if (_cost < link.getValue()) {
-							std::cerr << "  " << link_rep;				
-							
-							std::cerr << "| Res (" << value<< ")";
-							
-							std::cerr << "Cost (" << _cost << ")";
-							std::cerr << std::endl;
-							
-							auto bb = replaced.begin();
-							auto ee = replaced.end();
-							if (std::find(bb, ee, link_rep) == ee) {
-								replaced.push_back (link_rep);
-								ccc += link.getValue ()-_cost;
-							}
-						}
-					
-					}
-				}
-			}
-			
-		}
-		std::cerr << std::endl;		
-	}
-	
-	std::cout << cg->top () << " "<< (cost-ccc) << std::endl;
-		
 	delete cg;
-//	rca::sttalgo::print_solutions_stats (this->m_best_sol, cg, m_network);
-// 	rca::sttalgo::print_solution<SolutionType> (this->m_best_sol);
+// 
+// 	for (auto it : this->tabu_list (this->m_best_sol) ) {
+// 		std::cout << it << " "<< it.getValue ()<< " ";
+// 		std::cout << m_network.getCost(it) << std::endl;
+// 	}
+	
+//  rca::sttalgo::print_solution2<SolutionType> (this->m_best_sol);
 
 }
 
@@ -220,7 +189,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 		
 			auto links = tabu_list (sol);
 			this->redo_tabu_list (links);
-			this->remove_tabu_links (i);			
+			this->remove_tabu_links (i);
 		}
 		
 		
@@ -252,7 +221,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 template <class V, class X, class Z>
 bool 
 rca::metaalgo::TabuSearch<V, X, Z>::update_best_solution 
-								(std::vector<V>& sol,
+								(const std::vector<V>& sol,
 								const Z res,
 								const Z cost)
 {
@@ -261,13 +230,17 @@ rca::metaalgo::TabuSearch<V, X, Z>::update_best_solution
 		
 		this->m_best = res;
 		this->m_cost = cost;
-		this->m_best_sol = sol;
+		
+		this->m_best_sol.clear ();
+		for (auto st : sol) {
+			this->m_best_sol.push_back (st);
+		}
 		
 		std::vector<rca::Link> 
 		links_cost = this->tabu_list (this->m_best_sol);
 		
 		m_links_tabu.clear ();
-		for (int i=0; i < links_cost.size ()*0.1; i++) {
+		for (int i=0; i < links_cost.size () * m_links_perc ; i++) {
 			m_links_tabu.push_back (links_cost[i]);
 		}
 		
@@ -278,19 +251,22 @@ rca::metaalgo::TabuSearch<V, X, Z>::update_best_solution
 		
 		this->m_best = res;
 		this->m_cost = cost;
-		this->m_best_sol = sol;
+		this->m_best_sol.clear ();
+		for (auto st : sol) {
+			this->m_best_sol.push_back (st);
+		}
 		
 		std::vector<rca::Link> 
 		links_cost = this->tabu_list (this->m_best_sol);
 		
 		m_links_tabu.clear ();
-		for (int i=0; i < links_cost.size ()*0.1; i++) {
+		for (int i=0; i < links_cost.size () * m_links_perc; i++) {
 			m_links_tabu.push_back (links_cost[i]);
 		}
 
 		return true;
 		
-	}
+	} 
 	
 	return false;
 }
@@ -357,13 +333,13 @@ rca::metaalgo::TabuSearch<V, X, Z>::tabu_list (std::vector<V>& trees)
 					l.setValue (cost);
 					
 					links_cost.push_back (l);
-				} else {
+				} /*else {
 					
 					int cost = it->getValue () + this->m_network.getCost (l.getX(), 
 																		  l.getY());								
 					it->setValue (cost);
 					
-				}
+				}*/
 			}
 			
 			e = e->next;
@@ -417,80 +393,114 @@ Z rca::metaalgo::TabuSearch<V, X, Z>::update_container (SolutionType& tree,
 }
 
 template <class V, class X, class Z>
-Z 
-rca::metaalgo::TabuSearch<V, X, Z>::improvement (std::vector<V>& sol, int& res)
+void
+rca::metaalgo::TabuSearch<V, X, Z>::improvement (std::vector<V>& sol, 
+												 int& res, int &cos)
 {
-	int GROUPS = this->m_groups.size ();
-	int NODES = this->m_network.getNumberNodes ();
-	
+	int NODES = m_network.getNumberNodes ();
+// 	int GROUPS = m_groups.size();
 	Container cg;
 	cg.init_congestion_matrix (NODES);
 	cg.init_handle_matrix (NODES);
-
- 	ObjectiveType cost = 0;
- 	for (int i=0; i < sol.size (); i++) {
- 		cost += update_container (sol[i], cg, m_groups[i], m_network);
- 	}
- 	
- 	auto links = this->tabu_list (sol);
-	int count = 0;
-	int top = cg.top ()-1;
-	for (rca::Link & l : links) {
-		if (l.getValue() >= top) {
-			for (int g = 0; g < GROUPS; g++){
-				std::vector<rca::Link> update = 
-				get_available_links<SolutionType,Container,rca::Network> 
-				(sol[g], cg, m_network, m_groups[g], l);
-				
-				if (update.size () == 0) continue;
-				else {
-					
-					rca::Link ll = update[0];
-					int cost1 = m_network.getCost (l.getX(), l.getY());
-					int cost2 = m_network.getCost (ll.getX(), ll.getY());
-					
-					int band_ll =  m_network.getBand (ll.getX(), ll.getY());
-					int etop = (cg.is_used (ll) ? cg.value(l) : band_ll - m_groups[g].getTrequest());
-					
-					if (cost2 < cost1 && etop > cg.top()) {
-						
-						rca::Link ll = update[0];
- 						std::cout << l << ":"<<cost1<<":"<<cg.value(l)<< "<-->";
- 						std::cout << ll << ":"<<cost2<<":"<<etop<<std::endl;
-						count+=  (cost1-cost2);
-						rca::sttalgo::replace_edge (sol[g], 
- 											l, 
- 											ll, 
- 											m_network);
-						
-						cg.push(l,+1);
-						cg.push(ll,-1);
- 						std::cout <<"\t"<< l << ":"<<cost1<<":"<<cg.value(l)<< "<-->";
- 						std::cout << ll << ":"<<cost2<<":"<<etop<<std::endl;
-						
-						break;
-					}
-				}
-			}
-			
-		}
-		
-		if (cost-count < this->m_budget) 
-			break;
-		
+	
+	ObjectiveType cost = 0;
+	for (int i=0; i < sol.size (); i++) {
+		cost += update_container (sol[i], cg, m_groups[i], m_network);
 	}
 	
-	Container cg1;
-	cg1.init_congestion_matrix (NODES);
-	cg1.init_handle_matrix (NODES);
-	cost = 0;
- 	for (int i=0; i < sol.size (); i++) {
- 		cost += update_container (sol[i], cg1, m_groups[i], m_network);
- 	}
- 	
- 	res = cg1.top ();	
-	return cost;
+	rca::sttalgo::ChenReplaceVisitor c(&sol);
+	c.setNetwork (&m_network);
+	c.setMulticastGroups (m_groups);
+	c.setEdgeContainer (cg);
 	
+	rca::sttalgo::cycle_local_search<Container> cls;
+	
+	bool imp_cost = false, imp_res = false;
+	int orig_cost = cost;
+	std::vector<SolutionType> copy;
+	do {
+		imp_cost = false; imp_res = false;
+		
+		m_network.clearRemovedEdges ();
+		
+		auto links = tabu_list (sol);
+		redo_tabu_list (links);
+		remove_tabu_links ();
+		
+		//improving by cost
+		int tt = cost;
+		
+		do {
+			
+			cost = tt;
+			c.visitByCost ();
+			tt = 0.0;
+			for (auto st : sol) {
+				tt += (int)st.getCost ();		
+			}
+				
+		} while (tt < cost);
+		
+		if (tt < orig_cost) {
+			orig_cost = tt;
+			cost = orig_cost;
+			imp_cost = true;
+		}
+		
+		cls.local_search (sol, m_network, m_groups, cg, cost);
+		
+		m_network.clearRemovedEdges ();
+		
+		links = tabu_list (sol);
+		redo_tabu_list (links);
+		for (int i=0;i < m_groups.size (); i++)
+			remove_tabu_links (i);
+		
+		int ress = cg.top ();
+		
+		//copy = sol;
+		copy.clear ();
+		for (auto st : sol) copy.push_back (st);
+		
+		c.visit ();
+		
+		if (cg.top () > ress) {
+			res = cg.top ();
+			imp_res = true;
+		
+			int ccc = 0;
+			for (auto st : sol) {
+				ccc += (int)st.getCost ();		
+			}
+			
+// 			std::cout << res << " " << ccc << std::endl;
+			
+		} else {
+
+			res = ress;
+			
+			int ccc = 0;
+			for (auto st : copy) {
+				ccc += (int)st.getCost ();		
+			}
+			
+// 			std::cout << res << " " << ccc << std::endl;
+			
+			break;
+		}
+		
+	} while (imp_cost || imp_res);
+	
+	sol.clear ();
+	cost = 0;
+	for (auto st : copy) {
+		cost += (int)st.getCost ();
+		sol.push_back (st);
+	}
+	
+	cos = cost;
+	
+	this->m_network.clearRemovedEdges ();
 }
 
 template <class V, class X, class Z>
@@ -500,14 +510,14 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	//creating the container to store the edges usage
 	int NODES = m_network.getNumberNodes ();
 	int GROUPS = m_groups.size();
-	Container cg;
-	cg.init_congestion_matrix (NODES);
-	cg.init_handle_matrix (NODES);
+	Container * cg = new Container;
+	cg->init_congestion_matrix (NODES);
+	cg->init_handle_matrix (NODES);
 	
 	//updating the cost of the solution and the container
 	ObjectiveType cost = 0;
 	for (int i=0; i < sol.size (); i++) {
-		cost += update_container (sol[i], cg, m_groups[i], m_network);
+		cost += update_container (sol[i], *cg, m_groups[i], m_network);
 	}
 	
 	//object to perform cycle local search
@@ -517,7 +527,10 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	rca::sttalgo::ChenReplaceVisitor c(&sol);
 	c.setNetwork (&m_network);
 	c.setMulticastGroups (m_groups);
-	c.setEdgeContainer (cg);
+	c.setEdgeContainer (*cg);
+	
+	//performing cycle local search
+	//cls.local_search (sol, m_network, m_groups, *cg, cost);
 	
 	//performing cost refinement
 	int tt = cost;
@@ -531,28 +544,27 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 		}
 			
 	} while (tt < cost);
-		
+	
 	//performing cycle local search
-// 	if (this->m_has_init)
-	cls.local_search (sol, m_network, m_groups, cg, cost);
+	cls.local_search (sol, m_network, m_groups, *cg, cost);
 	
 	//builing tabu list based on the most expensive edges	
 	auto tabu = this->tabu_list (sol);
-	this->redo_tabu_list (tabu);	
+	this->redo_tabu_list (tabu);
 	for (int i=0;i < GROUPS; i++) {
 		this->remove_tabu_links (i);
 	}
 		
 	//applying ChenReplaceVisitor by cost
 	if(this->m_has_init) {
- 		c.visit ();
+		c.visit ();
 	}
 	
 	//updating cost of the solution after apply residual refinement
 	cost = 0;
  	for (auto st : sol) {
  		cost += (int)st.getCost ();
- 	}		
+ 	}
 
  	//applying cost refinement based on
 	tt = cost;
@@ -562,54 +574,173 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 		c.visitByCost ();
 		tt = 0.0;
 		for (auto st : sol) {
-			tt += (int)st.getCost ();		
+			tt += (int)st.getCost ();
 		}
 			
 	} while (tt < cost);
-		
 	
 	//applying cycle local search after refine by cost
 	if (this->m_has_init)
-		cls.local_search (sol, m_network, m_groups, cg, cost);
+		cls.local_search (sol, m_network, m_groups, *cg, cost);
 	
 	//cleaning the network
 	this->m_network.clearRemovedEdges();
 	
-	//building tabu and removing the links
-	tabu = this->tabu_list (sol);
-	this->redo_tabu_list (tabu);	
-	for (int i=0;i < GROUPS; i++) {
-		this->remove_tabu_links (i);
-	}
-	
-	
-	//applying residual refinement
-	if(this->m_has_init) {
- 		c.visit ();
-	}
-	
-	
-	//updating the cost of solution
-	cost = 0;
-	for (auto st : sol) {
-		cost += (int)st.getCost ();
-	}
-	
-	res = cg.top ();
+	res = cg->top ();
 	cos = cost;
 	
 	//cleang the network
 	this->m_network.clearRemovedEdges();
 }
 
+template <class V, class X, class Z>
+void rca::metaalgo::TabuSearch<V, X, Z>::zig (std::vector<V>& sol, 
+												Z& res, 
+												Z& cos)
+{
+	typedef std::tuple<int,rca::Link, rca::Link> TupleRemove;
+	
+	
+	int NODES = this->m_network.getNumberNodes ();
+	int GROUPS = this->m_groups.size ();
+	
+	Container * cg = new Container;
+	cg->init_congestion_matrix (NODES);
+	cg->init_handle_matrix (NODES);
+	
+	ObjectiveType cost = 0;
+	for (int i=0; i < sol.size (); i++) {
+		cost += update_container (sol[i],*cg, m_groups[i], m_network);
+	}
+
+	//getting all links that could be replaced and for what link
+	std::vector<rca::Link> all_links;
+	const auto & heap = cg->get_heap ();
+	auto begin = heap.ordered_begin ();
+	auto end = heap.ordered_end ();
+	
+	for (; begin != end; begin++) {
+	
+		rca::Link l = *begin;
+		int COST = m_network.getCost (l.getX(), l.getY());
+		l.setValue (COST);
+		all_links.push_back (l);
+		
+	}
+	
+	std::sort (std::begin(all_links), 
+			   std::end(all_links), 
+			   std::greater<rca::Link>());
+	
+	std::vector<rca::Link> replaced;
+ 	int ccc = 0;
+ 	
+	std::vector<TupleRemove> to_remove;
+	
+ 	for (auto link : all_links) {
+	
+// 		if (cg->value (link) == cg->top()) continue;
+		
+// 		std::cerr << link.getValue () << " " << cg->value (link) << std::endl;
+		
+		for (int g = 0; g < GROUPS; g++){
+		
+			std::vector<rca::Link> update = 
+			get_available_links<SolutionType,Container,rca::Network> 
+				(sol[g], *cg, m_network, m_groups[g], link);	
+			
+			if (update.size () > 0) {
+			
+				bool pushed = false;
+				for (auto & link_rep : update) {
+ 					
+					int value = cg->is_used(link_rep)? cg->value(link_rep): m_groups.size();
+					int _cost = (int)m_network.getCost (link_rep.getX(), link_rep.getY());
+					
+					if (value >= cg->top ()) {
+						
+						if (_cost < link.getValue() && link != link_rep) {
+// 							std::cerr << "  " << link_rep;
+// 							std::cerr << "| Res (" << value<< ")";
+// 							std::cerr << "Cost (" << _cost << ")";
+// 							std::cerr << std::endl;
+							
+							auto bb = replaced.begin();
+							auto ee = replaced.end();
+							if (std::find(bb, ee, link_rep) == ee) {
+								replaced.push_back (link_rep);
+								ccc += link.getValue ()-_cost;
+								
+								link_rep.setValue (value);
+								
+								cg->push (link_rep, -1);
+								cg->push (link, 1);
+								
+								TupleRemove t (g, link, link_rep);
+								to_remove.push_back (t);
+								
+								pushed = true;
+								break;
+								
+							}
+						}					
+					}
+				}//end edge for loop
+				
+				if (pushed) break;
+				
+			}//test if there is some edge to be used
+		
+		}
+		
+	}
+	
+	for (TupleRemove & t : to_remove) {
+// 		std::cout << std::get<0> (t);
+// 		std::cout << " " << std::get<1> (t);
+// 		std::cout << " " << std::get<2> (t) << std::endl;
+		
+		int tree = std::get<0> (t);
+		rca::Link l = std::get<1> (t);
+		rca::Link ll = std::get<2> (t);
+		
+		rca::sttalgo::replace_edge (sol[tree], l, ll, m_network);
+	}
+	
+#ifdef DEBUG1
+	std::cout << "Expected value: ";	
+ 	std::cout << cg->top () << " "<< (cost-ccc) << std::endl;
+#endif
+	
+	delete cg;
+	
+	cg = new Container;
+	cg->init_congestion_matrix (NODES);
+	cg->init_handle_matrix (NODES);
+	
+	cost = 0;
+	for (int i=0; i < sol.size (); i++) {
+		cost += update_container (sol[i],*cg, m_groups[i], m_network);
+	}
+	
+#ifdef DEBUG1
+	std::cout << "Real Value: ";
+	std::cout << cg->top () << " " << cost << std::endl;
+#endif
+	
+	res = cg->top ();
+	cos = cost;
+}
+
 typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 
 int main (int argv, char**argc) {
 
-// 	srand (time(NULL));
+	int r = time(NULL);
+ 	std::cout << r << std::endl;
 	
-// 	int r = time(NULL);
-// 	std::cout << r << std::endl;
+   	srand ( 1437673232 ); 
+// 	srand ( r );
 	
 	using namespace rca;
 	using namespace rca::metaalgo;
@@ -617,12 +748,25 @@ int main (int argv, char**argc) {
 	std::string file(argc[1]);
 	int iterations = atoi(argc[2]);
 	int budget = atoi (argc[3]);
+	double list_perc = atof (argc[4]);
 	
 	TabuSearch<STTree, CongestionHandle, int> tabueSearch (file);
 	tabueSearch.set_iterations ( iterations );
 	tabueSearch.set_budget ( budget );
+	tabueSearch.set_tabu_links_size (list_perc);
+		
+ 	tabueSearch.run ();
 	
-	tabueSearch.run ();
+// 	std::vector <STTree> sol (25);
+// 	
+// 	int x, y;
+// 	tabueSearch.set_has_init (true);
+// 	tabueSearch.build_solution (sol, x, y);
+// 	std::cout << x << " " << y << std::endl;
+//  	tabueSearch.improvement (sol, x, y);
+// 	std::cout << x << " " << y << std::endl;
+	
+	
 	
 	return 0;
 }

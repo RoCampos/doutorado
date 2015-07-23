@@ -36,6 +36,9 @@ public:
 	
 	inline void set_iterations (int iter) {m_iter = iter;}
 	inline void set_budget (ObjectiveType budget) {m_budget = budget;}
+	inline void set_has_init (bool value) {m_has_init = value;}
+	inline void set_tabu_links_size (double value){m_links_perc = value;}
+		
 	
 	void run ();
 	
@@ -53,20 +56,33 @@ public:
 					ObjectiveType& res, 
 					ObjectiveType& cost);
 	
+	void improvement (std::vector<SolutionType>&, int&, int&);
+	
+	void zig (std::vector<SolutionType>&, 
+			  ObjectiveType& res, ObjectiveType& cos);
+	
 //*auxiliar methods
 private:
 	
 	ObjectiveType update_container (SolutionType&, Container&, rca::Group&, rca::Network&);
 	
+	/**
+	 * Método utilizado para criar uma lista tabu com as arestas
+	 * da solução passada como parâmetro.
+	 * 
+	 */
 	std::vector<rca::Link> tabu_list (std::vector<SolutionType>&);	
 	
-	ObjectiveType improvement (std::vector<SolutionType>&, int&);
-	
-	bool update_best_solution (std::vector<SolutionType>&,
+	bool update_best_solution (const std::vector<SolutionType>&,
 								const ObjectiveType,
 								const ObjectiveType);
 	
-	//receives group id
+	/**
+	 * Este método é utilizado para remover arestas
+	 * consideradas tabu.
+	 * 
+	 * A remoção é realizada consisderando grupos individuais
+	 */
 	void remove_tabu_links (int g_id) {
 		for (auto l : this->m_links_tabu) {
 			if (m_network.isRemoved(l)) continue;
@@ -79,8 +95,27 @@ private:
 		}
 	}
 	
+	/**
+	 * Remove todos as arestas que são tabu na iteração
+	 * 
+	 * 
+	 */
+	void remove_tabu_links () {
+		m_network.clearRemovedEdges();
+		for (auto l : this->m_links_tabu) {
+			m_network.removeEdge (l);
+		}
+		
+	}
+	
 	
 	//update tabu list based on 
+	/**
+	 * Método utilizado para atualizar a lista tabu com
+	 * novas aretas.
+	 * 
+	 * 
+	 */
 	void redo_tabu_list (std::vector<rca::Link> & links_cost) {		
 			
 		m_links_tabu.clear ();
@@ -88,59 +123,7 @@ private:
 			m_links_tabu.push_back (links_cost[i]);
 		}	
 	}
-	
-	void residual_refinement (std::vector<SolutionType>& sol, Container & cg, 
-							  ObjectiveType &res, ObjectiveType &cos) 
-	{
-		rca::sttalgo::ChenReplaceVisitor c(&sol);
-		c.setNetwork (&m_network);
-		c.setMulticastGroups (m_groups);
-		c.setEdgeContainer (cg);
 		
-		//-----improving by cost
-		ObjectiveType cost = 0;
-		for (auto st : sol) {
-			cost += (int)st.getCost ();
-		}		
-
-		int tt = cost;
-		do {
-			
-			cost = tt;
-			c.visitByCost ();
-			tt = 0.0;
-			for (auto st : sol) {
-				tt += (int)st.getCost ();		
-			}
-				
-		} while (tt < cost);
-		
-		cos = cost;
-		res = cg.top ();
-		
-	}
-	
-	void cost_refinement (std::vector<SolutionType>& sol, Container & cg, 
-							  ObjectiveType &res, ObjectiveType &cos) 
-	{
-		rca::sttalgo::ChenReplaceVisitor c(&sol);
-		c.setNetwork (&m_network);
-		c.setMulticastGroups (m_groups);
-		c.setEdgeContainer (cg);
-		
-		if(this->m_has_init) {
-			c.visit ();
-		}
-		
-		//-----improving by cost
-		ObjectiveType cost = 0;
-		for (auto st : sol) {
-			cost += (int)st.getCost ();
-		}
-		
-		cos = cost;
-		res = cg.top ();
-	}
 	
 private:
 	
@@ -160,10 +143,11 @@ private:
 	bool m_has_init;
 	
 	std::vector<int> m_tabu_list; //control each tree will be build
-	std::vector<int> m_best_cost; //used as tabu
+	std::vector<int> m_best_cost; //used in cost_tabu_based
 	
 	//links used as tabu - based on cost
 	std::vector<rca::Link> m_links_tabu; 
+	double m_links_perc;
 	
 	/*--- Problem informations*/
 	rca::Network m_network;
