@@ -100,6 +100,15 @@ public:
 	
 	void visitByCost ();
 	
+	std::vector<rca::Link> get_replaced () {return m_replaced;}
+	void clear_replaced () {
+		m_replaced.clear ();
+	}
+	
+	double get_solution_cost () 
+	{
+		return m_cost;
+	}
 	
 private:
 	/*faz um corte no grafo divindo a árvore em duas*/
@@ -136,10 +145,23 @@ private:
 	 etapa final do replace*/
 	void update_trees ();
 	
+	void push_replaced (rca::Link & _old) {
+		auto it = std::find(std::begin(m_replaced), 
+							std::end(m_replaced), 
+							_old);	
+		
+		if (it == std::end(m_replaced))
+			m_replaced.push_back (_old);		
+	}
+	
 	
 private:
 	int m_capacity;
 	rca::EdgeContainer<Comparator, HCell> * m_ec;
+	
+	std::vector<rca::Link> m_replaced;
+	
+	double m_cost;
 	
 };
 

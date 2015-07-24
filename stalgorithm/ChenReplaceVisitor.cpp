@@ -311,6 +311,7 @@ void ChenReplaceVisitor::replace (TupleEdgeRemove & tuple)
 	std::cout << "\n\tresidual _new (" << _new << ")=" << _new.getValue () << std::endl;
 #endif
 	
+	this->push_replaced (_old);
 }
 
 void ChenReplaceVisitor::getAvailableEdges(std::vector<int> &cut_xy, 
@@ -459,6 +460,8 @@ ChenReplaceVisitor::get_tuple (int group_id, rca::Link& _old)
 
 void ChenReplaceVisitor::update_trees () 
 {
+	this->m_cost = 0;
+	
 	int BAND = m_groups.size ();
 	int g = 0;
 	m_trees->clear ();
@@ -479,6 +482,8 @@ void ChenReplaceVisitor::update_trees ()
 		
 		//_st.prunning ();
 		prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>>(_st, *m_ec, 1, BAND);
+		
+		this->m_cost += _st.getCost ();
 		
 		m_trees->push_back (_st);
 		g++;
