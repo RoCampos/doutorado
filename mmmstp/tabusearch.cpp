@@ -96,7 +96,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	} while (iter++ < this->m_iter);
 
 	_time_.finished ();
-//  std::cout << "best: ";
+
   	std::cout << this->m_best << " ";
 	std::cout << this->m_cost << " ";
 	std::cout << _time_.get_elapsed() << std::endl;
@@ -140,14 +140,18 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
  			continue;
  		}
 		
+		//cria árvore
 		SolutionType tree = SolutionType(NODES, 
 										 m_groups[i].getSource(), 
 										 m_groups[i].getMembers());
 
+		//se a primeira solução tiver sido criada
 		if (m_has_init) {
+			//remove tabus com com base na melhor solução
 			this->remove_tabu_links (i);
 		} else {
 		
+			//remove tabus com base na solução atual
 			auto links = tabu_list (sol);
 			this->redo_tabu_list (links);
 			this->remove_tabu_links (i);
@@ -156,6 +160,8 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 		
 		ob.set_steiner_tree (tree, NODES);
 		
+		//se a primeira solução tiver sido criada, 
+		//evita congestionamento de arestas
 		if (m_has_init) {
 			rca::sttalgo::remove_top_edges<CongestionHandle> (cg, 
  													m_network, 
