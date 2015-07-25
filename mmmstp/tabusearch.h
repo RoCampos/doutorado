@@ -17,6 +17,8 @@
 
 #include "mpp_visitor.h"
 
+#include "rcatime.h"
+
 namespace rca{
 	
 	namespace metaalgo {
