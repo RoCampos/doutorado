@@ -110,6 +110,24 @@ public:
 		return m_cost;
 	}
 	
+	int get_number_top_nodes () {
+	
+		const auto & heap = m_ec->get_heap ();
+		auto it = heap.ordered_begin ();
+		auto end = heap.ordered_end ();
+		int top = m_ec->top ();
+		int count = 0;
+		for (; it != end; it++) {
+			if (it->getValue () == top) {
+				count++;
+			} else if (it->getValue () > top) {
+				break;
+			}
+		}
+		
+		return count;
+	}
+	
 private:
 	/*faz um corte no grafo divindo a árvore em duas*/
 	std::vector<int> make_cut (int tree_id, const rca::Link&);	
