@@ -42,6 +42,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	int iter = 0;
 	
 	int GROUPS = this->m_groups.size ();
+	int NODES = this->m_network.getNumberNodes ();
 	
 	std::vector<SolutionType> sol1( GROUPS );
 	
@@ -49,9 +50,14 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	_time_.started ();
 	
 	int c=0, r=0;
-	build_solution (sol1, r, c);
 	
-	this->zig_zag (sol1, r, c);
+	Container _cg;
+	_cg.init_congestion_matrix (NODES);
+	_cg.init_handle_matrix (NODES);
+	
+	build_solution (sol1, r, c, _cg);
+	
+	this->zig_zag (sol1, r, c, _cg);
 	
 	this->m_best_sol = sol1;
 	this->m_best = r;
@@ -61,7 +67,6 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	
 	int count_iter = 0;
 	
-	Container _cg;
 	do {
 		
 		this->m_has_init = true;
@@ -75,13 +80,15 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
  		}
 		
 		std::vector<SolutionType> sol ( GROUPS );
+		Container cg;
+		cg.init_congestion_matrix (NODES);
+		cg.init_handle_matrix (NODES);
+		
 		int x, y;
-		build_solution (sol, x, y);
+		build_solution (sol, x, y, cg);
 		
    		int rr = 0, cc = 0;
-   		this->zig_zag (sol, rr, cc);
-		
-//   		std::cout <<iter << " " << rr <<" " << cc << " zig-zag"<< std::endl;
+   		this->zig_zag (sol, rr, cc, cg);
 		
 		//updating a solution
  		this->update_best_solution (sol, rr, cc);
@@ -99,7 +106,8 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 
 template <class V, class X, class Z>
 void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol, 
-														 Z& res_sol, Z& cost_sol)
+														 Z& res_sol, Z& cost_sol,
+														X &cg)
 {
 #ifdef DEBUG1
 	std::cout << __FUNCTION__ << std::endl;
@@ -111,10 +119,6 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 	int NODES = this->m_network.getNumberNodes();
 	int GROUPS= this->m_groups.size ();
 
-	Container cg;
-	cg.init_congestion_matrix (NODES);
-	cg.init_handle_matrix (NODES);
-	
 	rca::sttalgo::SteinerTreeObserver<Container> ob;
 	ob.set_container (cg);
 	
@@ -452,20 +456,11 @@ rca::metaalgo::TabuSearch<V, X, Z>::improvement (std::vector<V>& sol,
 
 template <class V, class X, class Z>
 void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol, 
-												  Z& res, Z& cos)
+												  Z& res, Z& cos,
+												  Container& cg)
 {
 	//creating the container to store the edges usage
-	int NODES = m_network.getNumberNodes ();
 	int GROUPS = m_groups.size();
-	Container * cg = new Container;
-	cg->init_congestion_matrix (NODES);
-	cg->init_handle_matrix (NODES);
-	
-	//updating the cost of the solution and the container
-	ObjectiveType cost = 0;
-	for (int i=0; i < sol.size (); i++) {
-		cost += update_container (sol[i], *cg, m_groups[i], m_network);
-	}
 	
 	//object to perform cycle local search
 	rca::sttalgo::cycle_local_search<Container> cls;
@@ -474,26 +469,19 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	rca::sttalgo::ChenReplaceVisitor c(&sol);
 	c.setNetwork (&m_network);
 	c.setMulticastGroups (m_groups);
-	c.setEdgeContainer (*cg);
+	c.setEdgeContainer (cg);
 	
-	//performing cycle local search
-	//cls.local_search (sol, m_network, m_groups, *cg, cost);
-	
+	ObjectiveType cost = cos;
 	//performing cost refinement
 	int tt = cost;
-	do {
-		
+	do {		
 		cost = tt;
 		c.visitByCost ();
-		tt = 0.0;
-		for (auto st : sol) {
-			tt += (int)st.getCost ();		
-		}
-			
+		tt = c.get_solution_cost ();			
 	} while (tt < cost);
 	
 	//performing cycle local search
-	cls.local_search (sol, m_network, m_groups, *cg, cost);
+	cls.local_search (sol, m_network, m_groups, cg, cost);
 	
 	//builing tabu list based on the most expensive edges	
  	auto tabu = this->tabu_list (sol);
@@ -508,32 +496,24 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	}
 	
 	//updating cost of the solution after apply residual refinement
-	cost = 0;
- 	for (auto st : sol) {
- 		cost += (int)st.getCost ();
- 	}
+	cost = c.get_solution_cost ();
 
  	//applying cost refinement based on
 	tt = cost;
-	do {
-		
+	do {		
 		cost = tt;
 		c.visitByCost ();
-		tt = 0.0;
-		for (auto st : sol) {
-			tt += (int)st.getCost ();
-		}
-			
+		tt = c.get_solution_cost ();			
 	} while (tt < cost);
 	
 	//applying cycle local search after refine by cost
 	if (this->m_has_init)
-		cls.local_search (sol, m_network, m_groups, *cg, cost);
+		cls.local_search (sol, m_network, m_groups, cg, cost);
 	
 	//cleaning the network
 	this->m_network.clearRemovedEdges();
 	
-	res = cg->top ();
+	res = cg.top ();
 	cos = cost;
 	
 	//cleang the network
