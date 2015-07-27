@@ -66,6 +66,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	update_tabu (); //for groups	
 	
 	int count_iter = 0;
+	int best_iteration = 0;
 	
 	do {
 		
@@ -91,7 +92,8 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
    		this->zig_zag (sol, rr, cc, cg);
 		
 		//updating a solution
- 		this->update_best_solution (sol, rr, cc);
+ 		if (this->update_best_solution (sol, rr, cc) ) 
+			best_iteration = iter;
 		
 	} while (iter++ < this->m_iter);
 
@@ -99,7 +101,11 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 
   	std::cout << this->m_best << " ";
 	std::cout << this->m_cost << " ";
-	std::cout << _time_.get_elapsed() << std::endl;
+	std::cout << _time_.get_elapsed() << " ";
+	std::cout << m_seed << " ";
+	std::cout << best_iteration << std::endl;
+	
+	
 
 }
 
@@ -670,7 +676,6 @@ typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 int main (int argv, char**argc) {
 
 	int r = time(NULL);
-// 	std::cout << r << std::endl;
    	
   	srand ( r );
 	
@@ -690,6 +695,7 @@ int main (int argv, char**argc) {
 	tabueSearch.set_iterations ( iterations );
 	tabueSearch.set_budget ( budget );
 	tabueSearch.set_tabu_links_size (list_perc);
+	tabueSearch.set_seed ( r );
 		
  	tabueSearch.run ();	
 	

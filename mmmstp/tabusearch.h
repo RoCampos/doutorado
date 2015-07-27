@@ -40,7 +40,7 @@ public:
 	inline void set_budget (ObjectiveType budget) {m_budget = budget;}
 	inline void set_has_init (bool value) {m_has_init = value;}
 	inline void set_tabu_links_size (double value){m_links_perc = value;}
-		
+	inline void set_seed (int seed) {m_seed = seed;}
 	
 	void run ();
 	
@@ -142,6 +142,9 @@ private:
 	
 	//max iteration number
 	int m_iter; 
+	
+	//seed used to execute
+	int m_seed;
 	
 	//indicates if the firs solutions has been created
 	bool m_has_init;

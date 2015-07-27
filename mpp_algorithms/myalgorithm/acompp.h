@@ -36,6 +36,8 @@
 
 #include "mpp_visitor.h"
 
+#include "sttree_local_search.h"
+
 typedef typename std::vector<std::shared_ptr<rca::Group>> MGroups;
 
 typedef typename std::vector<std::vector<double>> PheromenMatrix;
