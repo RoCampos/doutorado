@@ -46,7 +46,8 @@ public:
 	
 	void build_solution (std::vector<SolutionType>& ,
 						ObjectiveType& res, 
-						ObjectiveType& cost);
+						ObjectiveType& cost, 
+						Container& cg);
 	
 	void update_tabu ();
 	
@@ -56,7 +57,8 @@ public:
 	
 	void zig_zag (std::vector<SolutionType>&, 
 					ObjectiveType& res, 
-					ObjectiveType& cost);
+					ObjectiveType& cost,
+					Container& cg);
 	
 	void improvement (std::vector<SolutionType>&, int&, int&);
 	
