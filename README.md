@@ -1,4 +1,48 @@
+New Version - Improvements, bug fixed and new procedures (07/27/2015)
+=====================================================================
+=SteinerTreeFactory
+	- implementa uma fábrica de objectos do tipo árvore de Steiner.
+	Utiliza uma classe template para definir que tipo de objeto será gerado.
+	- Há três algoritmos implementados: AGM, ShortestPath e WildestPath.
+
+=Network
+	- Há um novo método para recuperar o custo de um link. 
+	Este método recebe como entrada um rca::Link.
+
+=ChenReplaceVisitor
+	- Este método considera que o link já está presente. Contém um parâmetro
+	adicional para incrementar ou decrementar o valor do link.
+
+=GeneticAlgorithm
+	- Bug fixed on genetic algorithm.
+
+=STTree_visitor
+	- get_available_links: retorna os links que podem substituir outro em uma
+	árvore passada como parâmetro
+
+	- prints: métodos para imprimir uma solução utilizando diversos formatos.
+
+	- replace_edge: método utilizado para susbstituir um link em uma árvore.
+
+
+=EdgeContainer
+	-Novo método para inserir um link no heap foi adicioando.
+
+=Namespaces definition
+	- foram definidos os seguintes namespaces: sttalgo, rca, etc.
+
+=TabuSearch
+	- uma versão do algoritmo tabu_search foi implementado.
+	- Este algoritmo conta com diversas operações
+	- possui dois tabus: um nas árvores que podem ser construídas
+	e outro nos links que podem ser utilizados.
+
+
+	
+
+
 New Version - Improvements and Bug Fixed (06/30/2015)
+=====================================================
 =STTreeLocalSearch
 	- cycle_local_search struct: usado para melhorar valor de
 	custo de uma solução. Cria cíclos e depois remove as arestas que possuem 

@@ -103,6 +103,10 @@ public:
 	double getCost (unsigned row, unsigned col) {
 		return m_costMatrix.at (row, col);
 	}
+	
+	double getCost (rca::Link l) {
+		return this->getCost (l.getX(), l.getY());
+	}
 
 	/**
 	 * Método para retornar a capacidade de uma aresta.
@@ -353,6 +357,67 @@ private:
 public:
 	std::vector< std::vector<Link> > m_edgesByNodes;
 
+};
+
+
+class AdjacentNetwork {
+
+public:
+	
+	AdjacentNetwork (int nodes, std::vector<Link>& links) {
+		
+		m_adjacent_vertex = std::vector<std::vector<int>>(nodes);
+		m_nodes = nodes;
+		//considerando que não links repetidos
+		for (auto l : links) {
+			this->addEdge (l.getX(), l.getY());
+		}
+	}
+	
+	int getNumberNodes () {
+		return m_nodes;
+	}
+	
+	/**
+	 * Método para adicionar uma aresta.
+	 * 
+	 * @param int vértice i
+	 * @param int vértice j
+	 */
+	inline void addEdge (int i, int j) {
+		m_adjacent_vertex[i].push_back (j);
+		m_adjacent_vertex[j].push_back (i);
+	}
+	
+	void removeEdge (int i, int j);
+	
+	/**
+	 * Verifica se uma aresta exisite.
+	 * 
+	 * @param int vértice i
+	 * @param int vértice j
+	 */
+	inline bool hasEdge (int i, int j) {
+		return std::find (m_adjacent_vertex[i].begin(), 
+						  m_adjacent_vertex[i].end(), j) !=
+						  m_adjacent_vertex[i].end();
+	}
+	
+	/**
+	 * Retorna lista de vértices saíndo de i.
+	 * 
+	 * @param int vértice i
+	 */
+	std::vector<int> outEdge (int i) {
+		return m_adjacent_vertex[i];
+	}
+	
+private:
+	
+	int m_nodes;
+	int m_vertex;
+	std::vector<std::vector<int>> m_adjacent_vertex;
+	
 };
 
 } /* namespace rca */

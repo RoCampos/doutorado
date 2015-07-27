@@ -57,7 +57,7 @@ private:
 	//local_search method applied to solution i
 	void local_search (int i);
 	
-	void accept (MppVisitor * visitor) {
+	void accept (rca::sttalgo::MppVisitor * visitor) {
 		visitor->visit ();
 	}
 	

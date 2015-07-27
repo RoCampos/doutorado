@@ -1,5 +1,7 @@
 #include "mpp_visitor.h"
 
+using namespace rca;
+using namespace rca::sttalgo;
 
 void ChenReplaceVisitor::visit ()
 {
@@ -92,9 +94,13 @@ void ChenReplaceVisitor::visitByCost ()
 	
 	std::vector<std::tuple<int,int,rca::Link,rca::Link>> to_remove;
 
+	std::vector<rca::Link> marked;
+	
 	for ( ; it != end; it++) {
 		
 		to_remove.clear ();
+		
+		marked.clear();
 		
 		int group_id = 0;
 		for (std::vector<rca::Link> st : this->m_temp_trees) {
@@ -120,11 +126,24 @@ void ChenReplaceVisitor::visitByCost ()
 					 * o link em questão (ll)
 					 * o link candidato (links[_new_link])
 					 */
-					std::tuple<int,int,rca::Link,rca::Link> 	
-							tuple (group_id, link_pos, *it, links[_new_link]);
 					
-					to_remove.push_back (tuple);
-
+					
+					
+					for (auto lll : links) {
+					
+						auto b = marked.begin();
+						auto e = marked.end();	
+						if (std::find(b,e,lll) == e) {
+							
+							std::tuple<int,int,rca::Link,rca::Link> 	
+								tuple (group_id, link_pos, *it, lll);					
+								
+							to_remove.push_back (tuple);					
+							break;
+						}
+						
+					}
+					
 				}
 				
 			}
@@ -292,6 +311,7 @@ void ChenReplaceVisitor::replace (TupleEdgeRemove & tuple)
 	std::cout << "\n\tresidual _new (" << _new << ")=" << _new.getValue () << std::endl;
 #endif
 	
+	this->push_replaced (_old);
 }
 
 void ChenReplaceVisitor::getAvailableEdges(std::vector<int> &cut_xy, 
@@ -324,7 +344,7 @@ void ChenReplaceVisitor::getAvailableEdges(std::vector<int> &cut_xy,
 			rca::Link l ( Tx[i], Ty[j], 0);
 			
 			//testa se a aresta existe
-			if ( m_network->getCost ( l.getX() , l.getY() ) > 0 ) {
+			if ( m_network->getCost ( l.getX() , l.getY() ) > 0 && !m_network->isRemoved(l) ) {
 				
 				//pegar o valor de uso atual
 				if ( m_ec->is_used(l) ) {
@@ -379,7 +399,7 @@ void ChenReplaceVisitor::getAvailableEdgesByCost (std::vector<int> &cut_xy,
 			//testa se a aresta existe e se o custo pe menor
 			int new_cost = m_network->getCost ( l.getX() , l.getY() );
 			int old_cost = m_network->getCost ( _old.getX() , _old.getY() );
-			if ( new_cost > 0 && new_cost < old_cost) {
+			if ( new_cost > 0 && new_cost < old_cost && !m_network->isRemoved(l)) {
 				
 				//pegar o valor de uso atual
 				if ( m_ec->is_used(l) ) {
@@ -440,6 +460,8 @@ ChenReplaceVisitor::get_tuple (int group_id, rca::Link& _old)
 
 void ChenReplaceVisitor::update_trees () 
 {
+	this->m_cost = 0;
+	
 	int BAND = m_groups.size ();
 	int g = 0;
 	m_trees->clear ();
@@ -460,6 +482,8 @@ void ChenReplaceVisitor::update_trees ()
 		
 		//_st.prunning ();
 		prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>>(_st, *m_ec, 1, BAND);
+		
+		this->m_cost += _st.getCost ();
 		
 		m_trees->push_back (_st);
 		g++;

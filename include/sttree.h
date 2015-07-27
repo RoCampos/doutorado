@@ -261,6 +261,8 @@ public:
 		_init_terminals(terminals);
 		m_nodes[source].terminal = true;
 		
+		m_source = source;
+		
 		m_cost = 0.0;
 		
 		m_edges.clear ();
@@ -275,6 +277,17 @@ public:
 #ifdef DEBUG1
 		printf ("STTree destroyed(%x)\n", this);
 #endif
+	}
+	
+	inline int getNodes () {return m_nodes.size();}
+	inline int getSource () {return m_source;}
+	std::vector<int> getTerminals () {
+		std::vector<int> term;
+		for (size_t i=0;i < m_nodes.size (); i++) {
+			if (m_nodes[i].terminal)
+				term.push_back (i);
+		}
+		return term;
 	}
 	
 	void add_edge (int x, int y, double value);
@@ -310,8 +323,8 @@ public:
 	
 private:
 	void _init_nodes(int nnodes) {
-		m_nodes = std::vector<node_t> (nnodes, node_t(0,0,false));
-		for (size_t i = 0; i < m_nodes.size (); i++) {
+		for (int i = 0; i < nnodes; i++) {
+			m_nodes.push_back (node_t(0,0,false));
 			m_nodes[i].id = i;
 		}
 	}
@@ -333,6 +346,8 @@ private:
 	
 	list_leafs_t m_leafs;
 	list_edge m_edges;
+	
+	int m_source;
 	
 };
 

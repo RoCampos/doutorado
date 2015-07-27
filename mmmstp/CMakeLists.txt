@@ -23,17 +23,20 @@ INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION mmmstp)
 MESSAGE ("\tINFO: Compiling genetic_mmmstp using network configurated for REAL=${REAL}")
 add_executable (genetic_mmmstp 	genetic_algorithm.cpp 
 								genetic_algorithm.h 
-								metaheuristic.h)
+								metaheuristic.h
+								${includes})
 target_link_libraries (genetic_mmmstp graph sttree sttalgo myutil)
 
 MESSAGE ("\tINFO: Compiling youhchen using network configurated for REAL=${REAL}")
 add_executable (yuhchen yuhchen.cpp
-						yuhchen.h)
+						yuhchen.h
+						${includes})
 target_link_libraries (yuhchen graph sttalgo sttree myutil)
 
 MESSAGE ("\tINFO: Compiling Grasp Algorithm using network configurated for REAL=${REAL}")
 add_executable (grasp grasp.cpp	
-						grasp.h)
+						grasp.h
+						${includes})
 target_link_libraries (grasp graph sttree sttalgo myutil)
 
 MESSAGE ("\tINFO: Compiling Heuristic Algorithm based on Shortest Path")
@@ -44,8 +47,8 @@ MESSAGE ("\tINFO: Compiling Heuristic Algorithm based on AGM")
 add_executable (agmheuristic agm_heuristic.cpp ${includes})
 target_link_libraries (agmheuristic graph sttalgo sttree myutil)
 
-add_executable (limite_agm 
-				limite.cpp 
-				limite.h 
-				${includes})
-target_link_libraries (limite_agm graph sttalgo sttree)
+add_executable (tabu_test tabusearch.h tabusearch.cpp ${includes})
+target_link_libraries (tabu_test graph sttree sttalgo myutil)
+
+#add_executable (limite_agm limite.cpp limite.h ${includes})
+#target_link_libraries (limite_agm graph sttalgo sttree)

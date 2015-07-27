@@ -1,7 +1,7 @@
 #include "limite.h"
 
 typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
-typedef typename rca::SteinerTreeObserver<CongestionHandle> STobserver;
+typedef typename rca::sttalgo::SteinerTreeObserver<CongestionHandle> STobserver;
 
 double kruskal_limits (std::vector<rca::Group> & m_groups, 
 					   rca::Network & m_network)

@@ -63,6 +63,9 @@ class AcoMPP {
 	
 public:
 	
+	~AcoMPP () {
+		delete m_network;
+	}
 	/**
 	 * This method is the initial point of the 
 	 * execution.
@@ -261,7 +264,7 @@ private:
 	void local_update (STTree & st);
 	
 	
-	void accept (MppVisitor * visitor) {
+	void accept (rca::sttalgo::MppVisitor * visitor) {
 		visitor->visit ();
 	}
 	

@@ -7,6 +7,10 @@
 #include "edgecontainer.h"
 #include "steiner_tree_observer.h"
 
+namespace rca {
+	
+namespace sttalgo {
+
 /**
  * Este método é um template, ele é usado
  * para fazer o prunning na árvore quando
@@ -54,12 +58,39 @@ std::vector<int> make_cut_visitor (std::vector<rca::Link> & st,
 			   int nodes);
 
 
+/**
+ * Este método é utilizado para remover as arestas da rede cujo o valor
+ * seja menor ou igual ao valor minimo ob.top() + res. 
+ * 
+ * Durante as remoções, verifica-se a conectividade entre os membros do 
+ * grupo multicast group.
+ * 
+ * @param Container edge container por exemplo
+ * @param rca::Network
+ * @param rca::Group
+ * @author Romerito Campos.
+ */
 template<class Container>
 void remove_top_edges (Container & ob, 
 					   rca::Network & m_network, 
 					   rca::Group & group, int res);
 
-
+/**
+ * This method create a new steiner tree based on AGM algorithm.
+ * First, the most congested edges on network object are removed.
+ * 
+ * Second, all edges are sorted by its cost and removed from the network
+ * if it is possible. 
+ * 
+ * Then, an AGM is built. After, we remove all non-terminal nodes. 
+ * 
+ * @param std::vector<STTree>
+ * @param rca::Network
+ * @param std::vector<rca::Group>
+ * @param rca::EdgeContainer<rca::Comparator,rca::HCell>
+ * @date 7/1/2015 
+ * @author Romerito Campos.
+ */
 void improve_cost (std::vector<STTree>& m_trees, 
 	rca::Network & network, 
 	std::vector<rca::Group>& m_groups, 
@@ -68,5 +99,57 @@ void improve_cost (std::vector<STTree>& m_trees,
 void cost_by_usage (std::vector<rca::Link>&, 
 					std::vector<STTree>&, 
 					rca::Network & network);
+
+/**
+ * Este método é utilizado para imprimir uma solução do MPP
+ * utilizando o formato xdot.
+ * 
+ * As informações são enviadas para std::cerr
+ * 
+ * @param std::vector<SteinerType> lista de árvores de steiner de um tipo genético
+ */
+template<class SteinerType>
+void print_solution (std::vector<SteinerType>& trees);
+
+/**
+ * Este método imprime uma solução na saída padrão.
+ * O formato da impressão é utilizado para fazer o teste
+ * do valor objetivo e do valor limite de orçamento.
+ * 
+ * @param std::vector<SteinerType> lista de árvores de steiner de um tipo genético
+ */
+template<class SteinerType>
+void print_solution2 (std::vector<SteinerType>& trees);
+
+template<class SteinerType, class Container, class NetworkType>
+void print_solutions_stats (std::vector<SteinerType>& trees, 
+							Container &cg, NetworkType& net);
+
+
+/**
+ * Este método é utilizado para retonar os links disponíveis para substituir
+ * um Link _link_ na árvore SteinerType considerando o valor de capacidade residual
+ * 
+ * @param SteinerType tipo que representa uma árvore de steiner
+ * @param Container tipo que represnta o container de arestas
+ * @param NetworkType tipo que representa uma árvore de steiner
+ */
+template<class SteinerType, class Container, class NetworkType>
+std::vector<rca::Link> 
+get_available_links (SteinerType &, 
+					Container&, 
+					NetworkType&,
+					rca::Group&,
+					rca::Link& );
+
+std::vector<rca::Link> sttreeToVector (STTree & st);
+
+void replace_edge (STTree &, 
+				   rca::Link &_old, 
+				   rca::Link & _new, 
+				   rca::Network&);
+
+}// end of namespace visitor
+}// end of namespace rca
 
 #endif

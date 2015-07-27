@@ -26,6 +26,8 @@ STTree::STTree (const STTree & ref) {
 		e = e->next;
 	}
 	
+	this->m_source = ref.m_source;
+	
 	//this->prunning ();
 }
 
@@ -49,6 +51,8 @@ STTree & STTree::operator= (const STTree & ref) {
 			this->add_edge (e->x, e->y, e->value);
 		e = e->next;
 	}
+	
+	this->m_source = ref.m_source;
 	
 	//this->prunning ();
 	

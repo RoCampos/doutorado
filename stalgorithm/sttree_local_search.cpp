@@ -1,6 +1,67 @@
 
 #include "sttree_local_search.h"
 
+using namespace rca::sttalgo;
+
+template<class NetworkType>
+void rca::sttalgo::depth_first_search<NetworkType>::execute (
+								std::vector<rca::Link>& links, 
+								rca::Group& g, 
+								rca::Link& link, 
+								rca::Network & network)
+{
+#define WHITE 0
+#define GREY 1
+#define BLACK 2
+	
+	this->x = link.getX();
+	this->y = link.getY();
+	
+	this->stop = false;
+	
+	int NODES = network.getNumberNodes ();
+	
+	NetworkType m_network(NODES, links);
+	
+	predecessor = std::vector<int> (NODES, -1);
+	color = std::vector<int>(NODES, WHITE);
+	
+	predecessor[x] = x;
+	color[x] = GREY;
+	dfs (x, g, m_network);
+	color[x] = BLACK;
+	
+}
+
+template<class NetworkType>
+void rca::sttalgo::depth_first_search<NetworkType>::dfs (
+								int x, 
+								rca::Group& g, 
+								NetworkType & network)
+{
+
+	
+	if (x == this->y) {
+		this->stop = true; //break condition
+	}
+	
+ 	std::vector<int> neighboor = network.outEdge (x);
+	
+	for (int i = 0; i < neighboor.size () && this->stop == false; i++) {			
+
+		if ( color [ neighboor[i] ] == WHITE ) {
+			predecessor[ neighboor[i] ] = x;
+			
+			color[ neighboor[i] ] = GREY;
+			this->dfs ( neighboor[i], g, network ); //apply dfs in neighboor of x
+			color[ neighboor[i] ] = BLACK;
+		}
+	}
+	
+	
+}
+
+/* -------------------- CYCLE LOCAL SEARCH ALGORITHMS ---------------------*/
 template<typename Container>
 void cycle_local_search<Container>::execute ( int tree, 
 											std::vector<STTree> & m_trees, 
@@ -61,7 +122,7 @@ void cycle_local_search<Container>::execute ( int tree,
 					
 					if (std::find(m_links.begin(), m_links.end(), link) 
 						== m_links.end()) {
-#ifdef DEBUG						
+#ifdef DEBUG1						
 						std::string s('-', 60);
 						std::cout << s << std::endl;
 						
@@ -75,7 +136,7 @@ void cycle_local_search<Container>::execute ( int tree,
 						//adding the links an remove others
 						rca::Group g = m_groups[tree];
 						for (auto l : toRemove) {
-#ifdef DEBUG				
+#ifdef DEBUG1				
 							std::cout <<"Removing "<<l << std::endl;
 #endif				
 							int source = g.getSource ();
@@ -95,11 +156,11 @@ void cycle_local_search<Container>::execute ( int tree,
 							steiner_tree.add_edge (link.getX(), link.getY(), cost);
 							
 							steiner_tree.prunning ();
-#ifdef DEBUG
+#ifdef DEBUG1
 							steiner_tree.xdotFormat ();
 #endif
 							
-#ifdef DEBUG
+#ifdef DEBUG1
 							std::cout << tcost << " ";
 							std::cout << steiner_tree.getCost () << std::endl;
 #endif			
@@ -107,12 +168,12 @@ void cycle_local_search<Container>::execute ( int tree,
 								m_trees[tree] = steiner_tree;
 								tcost = steiner_tree.getCost ();
 							}
-#ifdef DEBUG							
+#ifdef DEBUG1							
  							getchar ();
 #endif
 						}
 						
-#ifdef DEBUG
+#ifdef DEBUG1
 						std::cout << s << std::endl;					
 						std::cout << std::endl;
 #endif
@@ -124,7 +185,7 @@ void cycle_local_search<Container>::execute ( int tree,
 		}
 	}
 	
-#ifdef DEBUG
+#ifdef DEBUG1
 	std::cout << old <<" "<< m_trees[tree].getCost () << std::endl;
 #endif
 	
@@ -157,89 +218,35 @@ void cycle_local_search<Container>::execute ( int tree,
 
 template <class Container>
 std::vector<rca::Link> 
-cycle_local_search<Container>::get_circle (std::vector<rca::Link>& m_links, 
+cycle_local_search<Container>::get_circle (std::vector<rca::Link>& links, 
 				rca::Group& group, 
 				rca::Link& link, 
 				rca::Network & m_network)
 {
 
-	#define WHITE 0
-#define GREY 1
-#define BLACK 2
+	rca::sttalgo::depth_first_search<AdjacentNetwork> dfs;
+	dfs.execute (links, group, link, m_network);
 	
-	int x = link.getX();
-	int y = link.getY();
-	
-	int NODES = m_network.getNumberNodes ();
-	
-	std::vector<int> predecessor(NODES, -1);
-	std::vector<int> visited(NODES, 0);
-	std::vector<int> color(NODES, WHITE);
-	std::vector<int> time(NODES, 0);
-	
-	std::vector<int> stack;
-	
-	stack.push_back (x);
-	
-	int tempo = 0;
-	
-	while ( !stack.empty() ) {
-		
-		int current_node = stack[ stack.size() -1 ];
-		
-		if (current_node == y) break;
-		
-		tempo++;
-		time[current_node] = tempo;
-		color[current_node] = GREY;
-		
-		bool found = false;
-		for (auto link : m_links) {
-			
-			int xx = link.getX();
-			int yy = link.getY();
-			if (xx == current_node && color[yy] == WHITE) {
-			
-				predecessor [yy] = current_node;
-				stack.push_back (yy);
-				found = true;
-				break;
-			} 
-			
-			if (yy == current_node && color[xx] == WHITE) {
-			
-				predecessor [xx] = current_node;
-				stack.push_back (xx);
-				found = true;
-				break;
-			} 
-			
-		}
-		
-		if (found) {
-			continue;
-		}
-		
-		color[current_node] = BLACK;
-		tempo++;
-		time[current_node] = tempo;
-		
-		stack.erase ( stack.begin() + (stack.size () - 1) );
-		
-	}
+	int xx = link.getX();
+	int yy = link.getY();
 	
 	std::vector<rca::Link> toRemove;
 	
+	std::vector<int> prev = dfs.getPredecessorList ();
+	
 	int source = group.getSource ();
-	for (int i=stack.size () - 1; i >=1; i--) {
+	while ( yy != dfs.getStart()) {
 		
-		int x = stack[i];
-		int y = stack[i-1];
-		
-		rca::Link l(x,y,0);
-		
-		if ( !group.isMember(x) && !group.isMember(y) && source != x && source != y)
+		rca::Link l(yy,prev[yy],0);
+		if ( !group.isMember(l.getX()) && 
+			!group.isMember(l.getY()) 
+			&& source != l.getY() && source != l.getX()) {
+			
 			toRemove.push_back (l);
+ 			break;		
+		}
+		
+		yy = prev[yy];
 	}
 	
 	return toRemove;
@@ -273,3 +280,5 @@ void cycle_local_search<Container>::local_search (std::vector<STTree> & m_trees,
 
 //***********************************************************************/
 template class cycle_local_search<rca::EdgeContainer<rca::Comparator, rca::HCell>>;
+
+template class depth_first_search<rca::AdjacentNetwork>;

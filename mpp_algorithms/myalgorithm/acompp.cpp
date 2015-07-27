@@ -260,7 +260,7 @@ void AcoMPP::run (va_list & arglist) {
 	int tmp_cong = ec.top();
 	
 	std::vector<STTree> stts = solutions;
-	ChenReplaceVisitor c(&stts);
+	sttalgo::ChenReplaceVisitor c(&stts);
 	c.setNetwork (m_network);
 	c.setMulticastGroups (m_groups);
 	c.setEdgeContainer (ec);

@@ -472,3 +472,23 @@ std::vector<int> all_shortest_path (int source, int w, rca::Network & network)
 
 		
 }
+
+double min_bandwidth (rca::Network& network)
+{
+
+	int NODES = network.getNumberNodes ();
+	double min = INT_MAX;
+	for (int i = 0; i < NODES; i++) {
+		for (int j = 0; j < i; j++) {
+			
+			int cost = network.getCost (i,j);
+			if (cost > 0) {
+			
+				if (network.getBand (i,j) < min) {
+					min = network.getBand (i,j);
+				}
+			}
+		}
+	}
+	return min;
+}

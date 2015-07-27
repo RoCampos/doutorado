@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <algorithm>
+#include <functional>
 
 #include "network.h"
 #include "steinertree.h"

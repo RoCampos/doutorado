@@ -158,7 +158,7 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 		
 		for (int & d : members) {
 			
-			Path p = get_shortest_path (s, d, *m_network, previous);
+			rca::Path p = get_shortest_path (s, d, *m_network, previous);
 			
 			//TODO BUILDING A PATH			
  			std::reverse (p.begin (), p.end());
@@ -188,9 +188,10 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 		cost += stob.get_steiner_tree().getCost ();
 		//stob.get_steiner_tree().xdotFormat ();
 		
-		std::vector<rca::Path> tree = stree_to_path (stob.get_steiner_tree (), 
-													 s, 
-													NODES);
+		std::vector<rca::Path> tree = rca::sttalgo::stree_to_path (
+											stob.get_steiner_tree (), 
+											s, 
+											NODES);
 		tree_t t_s;
 		t_s.m_paths = tree;
 		t_s.m_source = s;
@@ -343,8 +344,9 @@ forest_t YuhChen::to_forest (int stream_id, std::vector<rca::Path> paths)
 		ob.prune (1, this->m_streams.size ());
 		//ob.get_steiner_tree ().xdotFormat ();
 		int source = this->m_streams[stream_id].m_sources[i];
-		std::vector<rca::Path> tree = stree_to_path (ob.get_steiner_tree(),
-													 source, NODES);
+		std::vector<rca::Path> tree = rca::sttalgo::stree_to_path (
+														ob.get_steiner_tree(),
+														source, NODES);
 		
 		if (tree.size () > 0) {
 			
@@ -537,7 +539,7 @@ void YuhChen::run (int param)
 			m_groups.push_back (g);
 		}
 		
-		ChenReplaceVisitor c(&improve);
+		rca::sttalgo::ChenReplaceVisitor c(&improve);
 		c.setNetwork (m_network);
 		c.setMulticastGroups (m_groups);
 		c.setEdgeContainer (m_cg);
