@@ -89,11 +89,14 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 					iter = best_iter - m_iter;
 					
 				}
-			} else if (m_population[i].m_cost < m_population[best].m_cost){
+			} else if (m_population[i].m_residual_capacity == max){
+				
+				if (m_population[i].m_cost < m_population[best].m_cost){
 					max = m_population[i].m_residual_capacity;
 					best = i;
 					
 					iter = best_iter - m_iter;
+				}
 			}
 		}
 
@@ -110,17 +113,19 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 //   	m_population[best].print_solution (m_network, m_groups);
 		
 	//deallocatin of resources;
-#ifdef DEBUG1
+// #ifdef DEBUG1
 	std::cout << "\n";
 	for (PathRepresentation & p : m_population) {
 		std::cout << p.m_cost << " ";
 		std::cout << p.m_residual_capacity << std::endl;
 	}
-#endif
+// #endif
 	
 	
 	delete m_network;
 }
+
+
 
 int GeneticAlgorithm::selection_operator (int i, int j)
 {
