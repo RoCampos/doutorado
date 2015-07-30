@@ -5,7 +5,7 @@ using namespace rca::sttalgo;
 
 void ChenReplaceVisitor::visit ()
 {
-#ifdef DEBUG1
+#ifdef DEBUG
 	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
 #endif
 	
@@ -15,12 +15,26 @@ void ChenReplaceVisitor::visit ()
 
 	int min_res = m_ec->top ();
 	
+	int size_of_list = this->m_replaced.size ();
+	
 	RUN:
 	auto it = m_ec->m_heap.ordered_begin ();
 	auto end= m_ec->m_heap.ordered_end ();
 	
- 	if (it->getValue () > min_res)
- 		goto UPDT;
+ 	if (it->getValue () > min_res) {
+		
+#ifdef DEBUG
+	std::cout << "Possible Loop" << std::endl;
+#endif
+		goto UPDT;
+	} else {
+		
+		if (size_of_list < this->m_replaced.size ()) {
+			size_of_list = this->m_replaced.size ();			
+		} else {
+			goto UPDT;
+		}
+	}
 	
 	for ( ; it != end; it++) {
 		
@@ -67,10 +81,18 @@ void ChenReplaceVisitor::visit ()
 	UPDT:
 	update_trees ();
 	
+#ifdef DEBUG
+	std::cout <<"-----endof "<<__FUNCTION__ <<"-------------"<< std::endl;
+#endif
+	
 }
 
 void ChenReplaceVisitor::visitByCost ()
 {
+#ifdef DEBUG1
+	std::cout <<"----------"<<__FUNCTION__ <<"-------------" << std::endl;
+#endif
+	
 	//passar árvores de steiner de SteinerTree para
 	//lista de arestas
 	prepare_trees ();
@@ -191,11 +213,14 @@ void ChenReplaceVisitor::visitByCost ()
 	}
 
 	update_trees ();
+	
 }
 
 std::vector<int> ChenReplaceVisitor::make_cut (int tree_id, const rca::Link & link)
 {
-	
+#ifdef DEBUG1
+	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
+#endif
 	std::vector<int> _int;
 	//union_find operations
 	int NODES = m_network->getNumberNodes ();
@@ -268,7 +293,9 @@ std::vector<int> ChenReplaceVisitor::make_cut (int tree_id, const rca::Link & li
 
 void ChenReplaceVisitor::replace (TupleEdgeRemove & tuple)
 {
-	
+#ifdef DEBUG
+	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
+#endif	
 	int st = std::get<0>(tuple); //getting st tree
 	int pos = std::get<1>(tuple);
 	rca::Link _old = std::get<2>(tuple);
@@ -318,7 +345,9 @@ void ChenReplaceVisitor::getAvailableEdges(std::vector<int> &cut_xy,
 											const rca::Link & _old,
 										   std::vector<rca::Link> & newedges)
 {
-	
+#ifdef DEBUG1
+	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
+#endif	
 	//guarda arestas que podem subustituir o Link link	
 	//árvore com nó x = link.getX
 	std::vector<int> Tx;
@@ -372,6 +401,9 @@ void ChenReplaceVisitor::getAvailableEdgesByCost (std::vector<int> &cut_xy,
 								  const rca::Link& _old,
 							   std::vector<rca::Link>& newedges)
 {
+#ifdef DEBUG1
+	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
+#endif
 	//guarda arestas que podem subustituir o Link link	
 	//árvore com nó x = link.getX
 	std::vector<int> Tx;
@@ -425,6 +457,9 @@ void ChenReplaceVisitor::getAvailableEdgesByCost (std::vector<int> &cut_xy,
 std::tuple<int,int,rca::Link,rca::Link> 
 ChenReplaceVisitor::get_tuple (int group_id, rca::Link& _old)
 {
+#ifdef DEBUG1
+	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
+#endif
 	std::tuple<int,int,rca::Link,rca::Link> tuple;
 	
 	auto link_it = std::find (this->m_temp_trees[group_id].begin (), 
@@ -460,6 +495,9 @@ ChenReplaceVisitor::get_tuple (int group_id, rca::Link& _old)
 
 void ChenReplaceVisitor::update_trees () 
 {
+#ifdef DEBUG1
+	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
+#endif
 	this->m_cost = 0;
 	
 	int BAND = m_groups.size ();
