@@ -23,10 +23,11 @@ do
 	#echo ${list[ ${idx} ]}
 
 	echo -e "CAP_R\tCUSTO\tITER\tTIME\tSEED" > ${output_dir}/${file}.result
-	for i in  $(seq 1 50)
+	for i in  $(seq 1 20)
 	do
 		#./build/acompp ${instance}/${inst} --iter 400 --alpha 2.34 --beta 1.31 --evo  0.34 --pheur 0.28 --local_upd 0.07 >> ${output_dir}/${file}.result ${list[ ${idx} ]}
-		./build/grasp ${instance}/${inst} --iter 100 --lrc 0.25 --heur 0.87 --budget ${list[ ${idx} ]}
+		#./build/grasp ${instance}/${inst} --iter 100 --lrc 0.25 --heur 0.87 --budget ${list[ ${idx} ]}
+		./build/tabu_test ${instance}/${inst} 60 0 0.49 6 
 		sleep 1
 	done
 

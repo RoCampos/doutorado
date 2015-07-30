@@ -561,7 +561,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	do {		
 		cost = tt;
 		c.visitByCost ();
-		tt = c.get_solution_cost ();			
+		tt = c.get_solution_cost ();
 	} while (tt < cost);
 
 #ifdef DEBUG1
@@ -725,7 +725,7 @@ typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 int main (int argv, char**argc) {
 
 	int r = time(NULL);
-   	std::cout << r << std::endl;
+//    	std::cout << r << " \n";
   	srand ( r );
 	
 	using namespace rca;

@@ -10,6 +10,10 @@ void rca::sttalgo::depth_first_search<NetworkType>::execute (
 								rca::Link& link, 
 								rca::Network & network)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
+	
 #define WHITE 0
 #define GREY 1
 #define BLACK 2
@@ -39,7 +43,9 @@ void rca::sttalgo::depth_first_search<NetworkType>::dfs (
 								rca::Group& g, 
 								NetworkType & network)
 {
-
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
 	
 	if (x == this->y) {
 		this->stop = true; //break condition
@@ -58,7 +64,6 @@ void rca::sttalgo::depth_first_search<NetworkType>::dfs (
 		}
 	}
 	
-	
 }
 
 /* -------------------- CYCLE LOCAL SEARCH ALGORITHMS ---------------------*/
@@ -69,6 +74,9 @@ void cycle_local_search<Container>::execute ( int tree,
 											std::vector<rca::Group>& m_groups, 
 											Container& cg)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
 	
 	int NODES = m_network.getNumberNodes ();
 	int GSIZE = m_groups.size ();
@@ -122,7 +130,7 @@ void cycle_local_search<Container>::execute ( int tree,
 					
 					if (std::find(m_links.begin(), m_links.end(), link) 
 						== m_links.end()) {
-#ifdef DEBUG1						
+#ifdef DEBUG11						
 						std::string s('-', 60);
 						std::cout << s << std::endl;
 						
@@ -136,7 +144,7 @@ void cycle_local_search<Container>::execute ( int tree,
 						//adding the links an remove others
 						rca::Group g = m_groups[tree];
 						for (auto l : toRemove) {
-#ifdef DEBUG1				
+#ifdef DEBUG11				
 							std::cout <<"Removing "<<l << std::endl;
 #endif				
 							int source = g.getSource ();
@@ -156,11 +164,11 @@ void cycle_local_search<Container>::execute ( int tree,
 							steiner_tree.add_edge (link.getX(), link.getY(), cost);
 							
 							steiner_tree.prunning ();
-#ifdef DEBUG1
+#ifdef DEBUG11
 							steiner_tree.xdotFormat ();
 #endif
 							
-#ifdef DEBUG1
+#ifdef DEBUG11
 							std::cout << tcost << " ";
 							std::cout << steiner_tree.getCost () << std::endl;
 #endif			
@@ -168,12 +176,12 @@ void cycle_local_search<Container>::execute ( int tree,
 								m_trees[tree] = steiner_tree;
 								tcost = steiner_tree.getCost ();
 							}
-#ifdef DEBUG1							
+#ifdef DEBUG11							
  							getchar ();
 #endif
 						}
 						
-#ifdef DEBUG1
+#ifdef DEBUG11
 						std::cout << s << std::endl;					
 						std::cout << std::endl;
 #endif
@@ -185,7 +193,7 @@ void cycle_local_search<Container>::execute ( int tree,
 		}
 	}
 	
-#ifdef DEBUG1
+#ifdef DEBUG11
 	std::cout << old <<" "<< m_trees[tree].getCost () << std::endl;
 #endif
 	
@@ -223,7 +231,9 @@ cycle_local_search<Container>::get_circle (std::vector<rca::Link>& links,
 				rca::Link& link, 
 				rca::Network & m_network)
 {
-
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
 	rca::sttalgo::depth_first_search<AdjacentNetwork> dfs;
 	dfs.execute (links, group, link, m_network);
 	
@@ -259,7 +269,10 @@ void cycle_local_search<Container>::local_search (std::vector<STTree> & m_trees,
 											Container& cg, 
 											int & cost)
 {
-
+#ifdef DEBUG
+	std::cout << __FUNCTION__ << std::endl;
+#endif
+	
 	std::vector<int> idx(m_groups.size(), 0);
 	std::iota(idx.begin(), idx.end(), 0);
 	
@@ -275,6 +288,10 @@ void cycle_local_search<Container>::local_search (std::vector<STTree> & m_trees,
 		}
 
 	}while (cost < improve);
+
+#ifdef DEBUG
+	std::cout << "endof " << __FUNCTION__ << std::endl;
+#endif
 	
 }
 
