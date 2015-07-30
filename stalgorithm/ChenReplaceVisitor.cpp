@@ -15,7 +15,7 @@ void ChenReplaceVisitor::visit ()
 
 	int min_res = m_ec->top ();
 	
-	int size_of_list = this->m_replaced.size ();
+	int size_of_list = 0;
 	
 	RUN:
 	auto it = m_ec->m_heap.ordered_begin ();
@@ -29,11 +29,11 @@ void ChenReplaceVisitor::visit ()
 		goto UPDT;
 	} else {
 		
-		if (size_of_list < this->m_replaced.size ()) {
-			size_of_list = this->m_replaced.size ();			
-		} else {
-			goto UPDT;
-		}
+ 		if (size_of_list < this->m_replaced.size ()) {
+ 			size_of_list = this->m_replaced.size ();			
+ 		} else {
+ 			goto UPDT;
+ 		}
 	}
 	
 	for ( ; it != end; it++) {
