@@ -526,8 +526,6 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 		tt = c.get_solution_cost ();
 	} while (tt < cost);
 	
-	c.clearReplaced ();
-	
 #ifdef DEBUG1
 	std::cout << "\t cycle_local_search\n";
 #endif	
@@ -552,7 +550,6 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 		c.visit ();
 	}
 	
-	c.clearReplaced ();
 	//updating cost of the solution after apply residual refinement
 	cost = c.get_solution_cost ();
 
@@ -566,8 +563,6 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 		c.visitByCost ();
 		tt = c.get_solution_cost ();
 	} while (tt < cost);
-
-	c.clearReplaced ();
 	
 #ifdef DEBUG1
 	std::cout << "\t cls\n";
@@ -730,8 +725,8 @@ typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 int main (int argv, char**argc) {
 
 	int r = time(NULL);
-//    	std::cout << r << " \n";
-  	srand ( 14382626815 );
+
+  	srand ( r );
 	
 	using namespace rca;
 	using namespace rca::metaalgo;

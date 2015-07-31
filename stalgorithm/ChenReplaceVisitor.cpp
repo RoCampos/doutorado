@@ -30,7 +30,7 @@ void ChenReplaceVisitor::visit ()
 	} else {
 		
  		if (size_of_list < this->m_replaced.size ()) {
- 			size_of_list = this->m_replaced.size ();			
+ 			size_of_list = this->m_replaced.size ();
  		} else {
  			goto UPDT;
  		}
