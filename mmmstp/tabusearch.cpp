@@ -75,7 +75,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 		count_iter++;
  		if (count_iter >= 5) {
  			cost_tabu_based (this->m_best_sol);
- 			count_iter = 0;
+ 			count_iter = 0;			
  		} else {
 			update_tabu ();
  		}
@@ -94,7 +94,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 		//updating a solution
  		if (this->update_best_solution (sol, rr, cc) ) 
 			best_iteration = iter;
-		
+				
 	} while (iter++ < this->m_iter);
 
 	_time_.finished ();
@@ -105,7 +105,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	std::cout << m_seed << " ";
 	std::cout << best_iteration << std::endl;
 	
-	
+// 	rca::sttalgo::print_solution<SolutionType> (this->m_best_sol);
 
 }
 
@@ -118,6 +118,8 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 #ifdef DEBUG1
 	std::cout << __FUNCTION__ << std::endl;
 #endif
+	
+	
 	
 	if (this->m_factory == NULL)
 		this->m_factory = new rca::sttalgo::ShortestPathSteinerTree<Container>();
@@ -198,6 +200,10 @@ rca::metaalgo::TabuSearch<V, X, Z>::update_best_solution
 								const Z res,
 								const Z cost)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
+	
 	
 	if (res > this->m_best && cost < this->m_budget) {
 		
@@ -251,13 +257,16 @@ void rca::metaalgo::TabuSearch<V, X, Z>::update_tabu ()
 	std::cout << __FUNCTION__ << std::endl;
 #endif
 	
-	int value = rand () % ( 2^m_groups.size () );
+	unsigned long int uli = pow( 2.0, (double)m_groups.size () );
+	unsigned long int value = rand () % uli;
 	
- 	std::string str = std::bitset< 32 >( value ).to_string();
+ 	std::bitset<32> str = std::bitset< 32 >( value );
 	
 	for (int i=0; i < m_tabu_list.size (); i++) {
-		if (str[i] == '1') {
+		if (str[i] == 1) {
 			m_tabu_list[i] = 1;
+		} else {
+			m_tabu_list[i] = 0;
 		}
 	}
 		
@@ -266,7 +275,10 @@ void rca::metaalgo::TabuSearch<V, X, Z>::update_tabu ()
 template <class V, class X, class Z>
 void rca::metaalgo::TabuSearch<V, X, Z>::cost_tabu_based(std::vector<V>& sol)
 {
-
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
+	
 	int tree_id = 0;
 	for (auto st: sol) {
 	
@@ -279,13 +291,19 @@ void rca::metaalgo::TabuSearch<V, X, Z>::cost_tabu_based(std::vector<V>& sol)
 		
 		tree_id++;
 	}
-	
+
 }
 
 template <class V, class X, class Z>
 std::vector<rca::Link> 
 rca::metaalgo::TabuSearch<V, X, Z>::tabu_list (std::vector<V>& trees)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+	
+	std::cout << trees.size () << std::endl;
+	
+#endif
 	std::vector<rca::Link> links_cost;
 	//calculating the cost accumalated
 	for (auto st : trees) {
@@ -322,7 +340,7 @@ rca::metaalgo::TabuSearch<V, X, Z>::tabu_list (std::vector<V>& trees)
 	std::sort (std::begin(links_cost), 
 			   std::end(links_cost), 
 			   std::greater<rca::Link>());
-	
+
 	return links_cost;
 }
 
@@ -332,6 +350,9 @@ Z rca::metaalgo::TabuSearch<V, X, Z>::update_container (SolutionType& tree,
 														rca::Group& g, 
 														rca::Network& net)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
 	ObjectiveType tree_cost = 0;
 	edge_t * e = tree.get_edge ();
 	while (e != NULL) {
@@ -370,6 +391,9 @@ void
 rca::metaalgo::TabuSearch<V, X, Z>::improvement (std::vector<V>& sol, 
 												 int& res, int &cos)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
 	int NODES = m_network.getNumberNodes ();
 // 	int GROUPS = m_groups.size();
 	Container cg;
@@ -471,6 +495,12 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 												  Z& res, Z& cos,
 												  Container& cg)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
+	
+	this->m_network.clearRemovedEdges();
+	
 	//creating the container to store the edges usage
 	int GROUPS = m_groups.size();
 	
@@ -482,18 +512,32 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	c.setNetwork (&m_network);
 	c.setMulticastGroups (m_groups);
 	c.setEdgeContainer (cg);
+
+#ifdef DEBUG1
+	std::cout << "\t visit by cost\n";
+#endif	
+	ObjectiveType cost = 0;
 	
-	ObjectiveType cost = cos;
+	for (auto & st: sol){
+		cost += (int)st.getCost ();
+	}
+	
 	//performing cost refinement
 	int tt = cost;
 	do {		
-		cost = tt;
+		cost = tt;		
 		c.visitByCost ();
-		tt = c.get_solution_cost ();			
+		tt = c.get_solution_cost ();
 	} while (tt < cost);
 	
+#ifdef DEBUG1
+	std::cout << "\t cycle_local_search\n";
+#endif	
 	//performing cycle local search
 	cls.local_search (sol, m_network, m_groups, cg, cost);
+	
+	//cleaning the network
+	this->m_network.clearRemovedEdges();
 	
 	//builing tabu list based on the most expensive edges	
  	auto tabu = this->tabu_list (sol);
@@ -502,6 +546,9 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
  		this->remove_tabu_links (i);
  	}
 		
+#ifdef DEBUG1
+	std::cout << "\t visit\n";
+#endif	
 	//applying ChenReplaceVisitor by cost
 	if(this->m_has_init) {
 		c.visit ();
@@ -510,20 +557,23 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	//updating cost of the solution after apply residual refinement
 	cost = c.get_solution_cost ();
 
+#ifdef DEBUG1
+	std::cout << "\t visit by cost\n";
+#endif	
  	//applying cost refinement based on
 	tt = cost;
 	do {		
 		cost = tt;
 		c.visitByCost ();
-		tt = c.get_solution_cost ();			
+		tt = c.get_solution_cost ();
 	} while (tt < cost);
 	
+#ifdef DEBUG1
+	std::cout << "\t cls\n";
+#endif	
 	//applying cycle local search after refine by cost
 	if (this->m_has_init)
 		cls.local_search (sol, m_network, m_groups, cg, cost);
-	
-	//cleaning the network
-	this->m_network.clearRemovedEdges();
 	
 	res = cg.top ();
 	cos = cost;
@@ -537,6 +587,9 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig (std::vector<V>& sol,
 												Z& res, 
 												Z& cos)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
 	typedef std::tuple<int,rca::Link, rca::Link> TupleRemove;
 	
 	
@@ -676,7 +729,7 @@ typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 int main (int argv, char**argc) {
 
 	int r = time(NULL);
-   	
+
   	srand ( r );
 	
 	using namespace rca;

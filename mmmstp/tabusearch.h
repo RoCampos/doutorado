@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <bitset>
+#include <cmath>
 
 #include "sttree.h"
 #include "network.h"
