@@ -753,7 +753,11 @@ int main (int argv, char**argc) {
 	
 	double list_perc = atof (argc[4]);
 	
-	int update = atoi (argc[5]);
+	double redo_tabu_perc = atof (argc[5]);
+	
+	int update = atoi (argc[6]);
+	
+	
 	
 	TabuSearch<STTree, CongestionHandle, int> tabueSearch (file);
 	tabueSearch.set_iterations ( iterations );
@@ -761,6 +765,7 @@ int main (int argv, char**argc) {
 	tabueSearch.set_tabu_links_size (list_perc);
 	tabueSearch.set_seed ( r );
 	tabueSearch.set_update_by_cost (update);
+	tabueSearch.set_redo_tabu_perc (redo_tabu_perc);
 		
  	tabueSearch.run ();	
 	

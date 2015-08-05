@@ -44,6 +44,8 @@ public:
 	inline void set_seed (int seed) {m_seed = seed;}
 	inline void set_update_by_cost (int value) {m_update = value;}
 	
+	inline void set_redo_tabu_perc (int value) { m_redo_tabu_perc = value;}
+	
 	void run ();
 	
 	void build_solution (std::vector<SolutionType>& ,
@@ -107,13 +109,13 @@ private:
 	 * Método utilizado para atualizar a lista tabu com
 	 * novas aretas.
 	 * 
-	 * 
-	 * 
+	 * Este método retonar uma nova lista de arestas tabu com
+	 * base nas arestas passadas como parâmetro.
 	 */
 	std::vector<rca::Link> redo_tabu_list (std::vector<rca::Link> & links_cost) {		
 		
 		std::vector<rca::Link> toReturn;
-		for (int i=0; i < links_cost.size ()*this->m_links_perc; i++) {
+		for (int i=0; i < links_cost.size ()*this->m_redo_tabu_perc; i++) {
 			toReturn.push_back (links_cost[i]);
 		}
 		return toReturn;
@@ -150,6 +152,9 @@ private:
 	//links used as tabu - based on cost
 	std::vector<rca::Link> m_links_tabu; 
 	double m_links_perc;
+	
+	//used on redo_tabu method
+	double m_redo_tabu_perc;
 	
 	/*--- Problem informations*/
 	rca::Network m_network;
