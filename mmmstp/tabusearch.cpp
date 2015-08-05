@@ -73,9 +73,9 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 		this->m_has_init = true;
 		
 		count_iter++;
- 		if (count_iter >= 5) {
+ 		if (count_iter >= this->m_update) {
  			cost_tabu_based (this->m_best_sol);
- 			count_iter = 0;			
+ 			count_iter = 0;	
  		} else {
 			update_tabu ();
  		}
@@ -744,11 +744,14 @@ int main (int argv, char**argc) {
 	
 	double list_perc = atof (argc[4]);
 	
+	int update = atoi (argc[5]);
+	
 	TabuSearch<STTree, CongestionHandle, int> tabueSearch (file);
 	tabueSearch.set_iterations ( iterations );
 	tabueSearch.set_budget ( budget );
 	tabueSearch.set_tabu_links_size (list_perc);
 	tabueSearch.set_seed ( r );
+	tabueSearch.set_update_by_cost (update);
 		
  	tabueSearch.run ();	
 	

@@ -42,6 +42,7 @@ public:
 	inline void set_has_init (bool value) {m_has_init = value;}
 	inline void set_tabu_links_size (double value){m_links_perc = value;}
 	inline void set_seed (int seed) {m_seed = seed;}
+	inline void set_update_by_cost (int value) {m_update = value;}
 	
 	void run ();
 	
@@ -149,6 +150,10 @@ private:
 	
 	//indicates if the firs solutions has been created
 	bool m_has_init;
+	
+	//this variable is used to control the number
+	//of iterations without update based on cost
+	int m_update;
 	
 	std::vector<int> m_tabu_list; //control each tree will be build
 	std::vector<int> m_best_cost; //used in cost_tabu_based
