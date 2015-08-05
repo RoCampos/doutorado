@@ -118,7 +118,8 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 #ifdef DEBUG1
 	std::cout << __FUNCTION__ << std::endl;
 #endif
-		
+	
+	
 	if (this->m_factory == NULL)
 		this->m_factory = new rca::sttalgo::ShortestPathSteinerTree<Container>();
 	
@@ -153,15 +154,20 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 
 		//se a primeira solução tiver sido criada
 		if (m_has_init) {
+			
+			//cria lista com base nos tabus 
+			std::vector<rca::Link> 
+				links = this->redo_tabu_list (m_links_tabu);
+			
 			//remove tabus com com base na melhor solução
-			this->remove_tabu_links (i);
+			this->remove_tabu_links (i, links);
 			
 		} else {
 		
 			//remove tabus com base na solução atual
 			auto links = tabu_list (sol);
 			this->redo_tabu_list (links);
-			this->remove_tabu_links (i);
+			this->remove_tabu_links (i, links);
 		}
 		
 		
@@ -540,10 +546,13 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	this->m_network.clearRemovedEdges();
 	
 	//builing tabu list based on the most expensive edges	
- 	auto tabu = this->tabu_list (sol);
- 	this->redo_tabu_list (tabu);
+	//from solution sol
+ 	auto tabu = this->tabu_list (sol);	
+	//getting the tabus 
+ 	auto links = this->redo_tabu_list (tabu);
+	//removing the tabus
  	for (int i=0;i < GROUPS; i++) {
- 		this->remove_tabu_links (i);
+ 		this->remove_tabu_links (i, links);
  	}
 		
 #ifdef DEBUG1
