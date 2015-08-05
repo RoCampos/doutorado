@@ -75,7 +75,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 		count_iter++;
  		if (count_iter >= 5) {
  			cost_tabu_based (this->m_best_sol);
- 			count_iter = 0;
+ 			count_iter = 0;			
  		} else {
 			update_tabu ();
  		}
@@ -105,7 +105,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	std::cout << m_seed << " ";
 	std::cout << best_iteration << std::endl;
 	
-	
+// 	rca::sttalgo::print_solution<SolutionType> (this->m_best_sol);
 
 }
 
@@ -257,13 +257,16 @@ void rca::metaalgo::TabuSearch<V, X, Z>::update_tabu ()
 	std::cout << __FUNCTION__ << std::endl;
 #endif
 	
-	int value = rand () % ( 2^m_groups.size () );
+	unsigned long int uli = pow( 2.0, (double)m_groups.size () );
+	unsigned long int value = rand () % uli;
 	
- 	std::string str = std::bitset< 32 >( value ).to_string();
+ 	std::bitset<32> str = std::bitset< 32 >( value );
 	
 	for (int i=0; i < m_tabu_list.size (); i++) {
-		if (str[i] == '1') {
+		if (str[i] == 1) {
 			m_tabu_list[i] = 1;
+		} else {
+			m_tabu_list[i] = 0;
 		}
 	}
 		
@@ -275,6 +278,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::cost_tabu_based(std::vector<V>& sol)
 #ifdef DEBUG1
 	std::cout << __FUNCTION__ << std::endl;
 #endif
+	
 	int tree_id = 0;
 	for (auto st: sol) {
 	
@@ -287,7 +291,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::cost_tabu_based(std::vector<V>& sol)
 		
 		tree_id++;
 	}
-	
+
 }
 
 template <class V, class X, class Z>
