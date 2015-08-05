@@ -90,6 +90,7 @@ private:
 	 * A remoção é realizada consisderando grupos individuais
 	 */
 	void remove_tabu_links (int g_id) {
+		
 		for (auto l : this->m_links_tabu) {
 			if (m_network.isRemoved(l)) continue;
 			
@@ -99,35 +100,22 @@ private:
 				m_network.undoRemoveEdge (l);
 			}
 		}
-	}
-	
-	/**
-	 * Remove todos as arestas que são tabu na iteração
-	 * 
-	 * 
-	 */
-	void remove_tabu_links () {
-		m_network.clearRemovedEdges();
-		for (auto l : this->m_links_tabu) {
-			m_network.removeEdge (l);
-		}
 		
 	}
 	
-	
-	//update tabu list based on 
 	/**
 	 * Método utilizado para atualizar a lista tabu com
 	 * novas aretas.
+	 * 
 	 * 
 	 * 
 	 */
 	void redo_tabu_list (std::vector<rca::Link> & links_cost) {		
 			
 		m_links_tabu.clear ();
-		for (int i=0; i < links_cost.size ()*0.1; i++) {
+		for (int i=0; i < links_cost.size ()*this->m_links_perc; i++) {
 			m_links_tabu.push_back (links_cost[i]);
-		}	
+		}
 	}
 		
 	

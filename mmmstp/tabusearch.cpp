@@ -118,9 +118,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 #ifdef DEBUG1
 	std::cout << __FUNCTION__ << std::endl;
 #endif
-	
-	
-	
+		
 	if (this->m_factory == NULL)
 		this->m_factory = new rca::sttalgo::ShortestPathSteinerTree<Container>();
 	
@@ -157,6 +155,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 		if (m_has_init) {
 			//remove tabus com com base na melhor solução
 			this->remove_tabu_links (i);
+			
 		} else {
 		
 			//remove tabus com base na solução atual
@@ -239,10 +238,11 @@ rca::metaalgo::TabuSearch<V, X, Z>::update_best_solution
 		links_cost = this->tabu_list (this->m_best_sol);
 		
 		m_links_tabu.clear ();
+		
 		for (int i=0; i < links_cost.size () * m_links_perc; i++) {
 			m_links_tabu.push_back (links_cost[i]);
 		}
-
+		
 		return true;
 		
 	} 
