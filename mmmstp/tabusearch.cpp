@@ -73,9 +73,9 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 		this->m_has_init = true;
 		
 		count_iter++;
- 		if (count_iter >= 5) {
+ 		if (count_iter >= this->m_update) {
  			cost_tabu_based (this->m_best_sol);
- 			count_iter = 0;			
+ 			count_iter = 0;	
  		} else {
 			update_tabu ();
  		}
@@ -120,7 +120,6 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 #endif
 	
 	
-	
 	if (this->m_factory == NULL)
 		this->m_factory = new rca::sttalgo::ShortestPathSteinerTree<Container>();
 	
@@ -155,14 +154,20 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 
 		//se a primeira solução tiver sido criada
 		if (m_has_init) {
+			
+			//cria lista com base nos tabus 
+			std::vector<rca::Link> 
+				links = this->redo_tabu_list (m_links_tabu);
+			
 			//remove tabus com com base na melhor solução
-			this->remove_tabu_links (i);
+			this->remove_tabu_links (i, links);
+			
 		} else {
 		
 			//remove tabus com base na solução atual
 			auto links = tabu_list (sol);
 			this->redo_tabu_list (links);
-			this->remove_tabu_links (i);
+			this->remove_tabu_links (i, links);
 		}
 		
 		
@@ -239,10 +244,11 @@ rca::metaalgo::TabuSearch<V, X, Z>::update_best_solution
 		links_cost = this->tabu_list (this->m_best_sol);
 		
 		m_links_tabu.clear ();
+		
 		for (int i=0; i < links_cost.size () * m_links_perc; i++) {
 			m_links_tabu.push_back (links_cost[i]);
 		}
-
+		
 		return true;
 		
 	} 
@@ -540,10 +546,13 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	this->m_network.clearRemovedEdges();
 	
 	//builing tabu list based on the most expensive edges	
- 	auto tabu = this->tabu_list (sol);
- 	this->redo_tabu_list (tabu);
+	//from solution sol
+ 	auto tabu = this->tabu_list (sol);	
+	//getting the tabus 
+ 	auto links = this->redo_tabu_list (tabu);
+	//removing the tabus
  	for (int i=0;i < GROUPS; i++) {
- 		this->remove_tabu_links (i);
+ 		this->remove_tabu_links (i, links);
  	}
 		
 #ifdef DEBUG1
@@ -744,11 +753,19 @@ int main (int argv, char**argc) {
 	
 	double list_perc = atof (argc[4]);
 	
+	double redo_tabu_perc = atof (argc[5]);
+	
+	int update = atoi (argc[6]);
+	
+	
+	
 	TabuSearch<STTree, CongestionHandle, int> tabueSearch (file);
 	tabueSearch.set_iterations ( iterations );
 	tabueSearch.set_budget ( budget );
 	tabueSearch.set_tabu_links_size (list_perc);
 	tabueSearch.set_seed ( r );
+	tabueSearch.set_update_by_cost (update);
+	tabueSearch.set_redo_tabu_perc (redo_tabu_perc);
 		
  	tabueSearch.run ();	
 	
