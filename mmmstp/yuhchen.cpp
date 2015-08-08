@@ -532,8 +532,7 @@ void YuhChen::run (int param)
 	if (this->m_improve_cost == 1) {
 		/*Improving solution cost*/
 		std::vector<rca::Group> m_groups;
-		for (auto stm : m_streams) {
-			
+		for (auto stm : m_streams) {			
 			rca::Group g= stm.m_group;
 			g.setSource (stm.m_sources[0]);
 			m_groups.push_back (g);
@@ -549,6 +548,10 @@ void YuhChen::run (int param)
 		for (auto st : improve) {
 			tt += (int)st.getCost ();
 		}
+		std::cout << tt << "\t";
+		CycleLocalSearch cls;
+		cls.local_search (improve, *m_network, 
+					m_groups, m_cg, tt);
 		std::cout << tt << "\t";
 	} 
 }

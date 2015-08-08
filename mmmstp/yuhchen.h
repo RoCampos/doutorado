@@ -15,6 +15,7 @@
 #include "mpp_visitor.h"
 
 #include "rcatime.h"
+#include "sttree_local_search.h"
 
 typedef int source_t;
 
@@ -119,6 +120,8 @@ typedef struct forest_t {
 typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestinoHandle;
 typedef rca::sttalgo::SteinerTreeObserver<rca::EdgeContainer<rca::Comparator, rca::HCell>> STObserver;
 typedef typename rca::sttalgo::SteinerTreeObserver<CongestinoHandle> STObserver;
+typedef rca::sttalgo::cycle_local_search<CongestionHandle> CycleLocalSearch;
+
 
 /**
  * This class contais the variables and 

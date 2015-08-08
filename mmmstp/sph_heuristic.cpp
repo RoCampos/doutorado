@@ -9,12 +9,18 @@
 #include "rcatime.h"
 #include "mpp_visitor.h"
 
+#include "sttree_local_search.h"
+
 using namespace rca;
 
 typedef std::vector<int> previous_t;
 typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 typedef typename rca::sttalgo::SteinerTreeObserver<CongestionHandle> STobserver;
 typedef typename rca::sttalgo::ChenReplaceVisitor ChenReplaceVisitor;
+
+typedef rca::sttalgo::cycle_local_search<CongestionHandle> CycleLocalSearch;
+
+typedef std::tuple<int,int> Result;
 
 previous_t shortest_path2 (int v, int w, rca::Network & network);
 
@@ -63,6 +69,35 @@ void remove_top_edges (CongestionHandle & ob, Network & m_network, Group & group
 	
 }
 
+void intensification (std::vector<STTree> & steiner_trees, 
+					  CongestionHandle & cg,
+					  Network& m_network, 
+					  std::vector<Group>& m_groups,
+					  Result & result)
+{
+	
+	int cost = 0;
+	int res = 0;
+ 	std::tie(res, cost) = result;
+	
+	ChenReplaceVisitor chen(&steiner_trees);	
+	chen.setEdgeContainer (cg);
+	chen.setMulticastGroups (m_groups);
+	chen.setNetwork (&m_network);
+	
+	double c = cost;
+	chen.visitByCost (c);
+
+	cost = c;
+	CycleLocalSearch cls;
+	cls.local_search (steiner_trees, m_network, 
+					m_groups, cg, cost);
+	
+	res = cg.top ();
+	
+	result = std::make_tuple<int,int> ((int)res, (int)cost);
+}
+
 int main (int argc, char** argv) 
 {
 	
@@ -72,6 +107,7 @@ int main (int argc, char** argv)
 	std::string file(argv[1]);
 	
 	int res = atoi(argv[2]);
+	int option = atoi(argv[3]);
 	
 	MultipleMulticastReader reader(file);
 	reader.configure_unit_values (&m_network, g);
@@ -92,8 +128,8 @@ int main (int argc, char** argv)
 	std::vector<STTree> steiner_trees;
 	double cost = 0.0;
  	
-	rca::elapsed_time time_elapsed;	
-	time_elapsed.started ();
+	rca::elapsed_time _time_;	
+	_time_.started ();
 	
 	int ii=0;
 	for (Group g : m_groups) {
@@ -136,24 +172,18 @@ int main (int argc, char** argv)
 		
 		cost += ob.get_steiner_tree ().getCost ();
 	}
- 	time_elapsed.finished ();
+ 	_time_.finished ();
+
+	Result result( std::make_tuple<int,int>(cg.top(), (int)cost) );
 	
-	std::cout << ob.get_container ().top () << " ";
-	std::cout << cost << " ";
- 	std::cout << time_elapsed.get_elapsed () << "\n";
+	if (option == 1)
+		intensification (steiner_trees, cg, m_network, m_groups, result);	
 	
-	int i =0;
-	for (auto st : steiner_trees) {
-		edge_t *e = st.get_edges ().begin;
-		while (e != NULL) {
-		
-			if (e->in)
-				std::cerr <<  e->x+1 << " - " << e->y+1 << ":" << i+1 << std::endl;
-			
-			e = e->next;
-		}
-		i++;
-	}
+	_time_.finished ();
+	
+	std::cout << get<0>(result) << " " << get<1>(result);
+	std::cout << " " << _time_.get_elapsed ()<< " \n";
+	
 	
 	return 0;
 }
