@@ -257,6 +257,9 @@ private:
  * Aqui eu considero o limite como sendo o custo da árvore
  * individual
  * 
+ * A classe herda de @MultipleMulticastCommodityLP e adiciona
+ * a restrição de Lee e Cho.
+ * 
  */
 class LeeAndChooModel : public MultipleMulticastCommodityLP {
 
@@ -265,7 +268,7 @@ public:
 	void generate (rca::Network *,
 				   std::vector<std::shared_ptr<rca::Group>>&);
 
-	static void set_alpha (int alpha) {
+	static void set_alpha (double alpha) {
 		m_alpha = alpha;
 	}
 	
@@ -284,7 +287,7 @@ public:
 		
 	}
 	
-	static int m_alpha;
+	static double m_alpha;
 	
 	static std::vector<int> m_opt;
 	

@@ -62,7 +62,7 @@ int main (int argv, char**argc)
 		case 3: {
 			
 			LeeAndChooModel dg;		
-			LeeAndChooModel::set_alpha (atoi (argc[3]));
+			LeeAndChooModel::set_alpha (atof (argc[3]));
 			LeeAndChooModel::set_opt (argc[4]);
 			
 			dg.generate (net, g);
