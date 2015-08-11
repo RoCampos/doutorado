@@ -94,11 +94,29 @@ public:
 	 */
 	virtual void visit ();
 	
+	void visitByCost ();
+	
+	/**
+	 * Método que realiza a operação de substituição de arestas
+	 * enquanto for possível melhorar.
+	 * 
+	 * INternatmente, faz-se chamadas ao método @visitByCost.
+	 * 
+	 * @param int & cost
+	 */
+	void visitByCost (double & cost) {
+		int tt = cost;		
+		do {			
+			cost = tt;
+			this->visitByCost ();
+			tt = this->get_solution_cost ();
+		} while (tt < cost);		
+	}
+	
+	
 	void setEdgeContainer (rca::EdgeContainer<Comparator, HCell> & ec) {
 		m_ec = &ec;
 	}
-	
-	void visitByCost ();
 	
 	std::vector<rca::Link> get_replaced () {return m_replaced;}
 	void clear_replaced () {

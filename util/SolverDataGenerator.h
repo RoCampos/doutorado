@@ -6,6 +6,8 @@
 #include <sstream>
 #include <memory>
 
+#include <fstream>
+
 #include "network.h"
 #include "group.h"
 
@@ -69,6 +71,9 @@ public:
  * dat para o problema da árvore de Steiner. Recebe um @Group e um objeto
  * representando a rede(@Network). Os arquivos dat pode ser utilizados em conjunto
  * com o modelo stp_multi.mod.
+ * 
+ * As árvores são armazenadas em arquivos e escritas no diretório local
+ * 
  */
 class MultiCommidityFormulation 
 {
@@ -76,6 +81,12 @@ class MultiCommidityFormulation
 public:
 	
 	void generate (rca::Network * network, rca::Group *g) ;
+	
+	/**
+	 * Esta variável controla as árvores que estão sendo criadas.
+	 * Inicia a contagem na árvore 0.
+	 */
+	static int m_tree;
 	
 };
 
@@ -227,6 +238,29 @@ private:
 	
 	int Z;
 	
+	
+};
+
+
+
+class LeeAndChooModel : public MultipleMulticastCommodityLP {
+
+public:
+	
+	void generate (rca::Network *,
+				   std::vector<std::shared_ptr<rca::Group>>&);
+
+	static void set_alpha (int alpha) {
+		m_alpha = alpha;
+	}
+	
+	static void set_opt (std::vector<int> opt) {
+		m_opt = opt;
+	}
+	
+	static int m_alpha;
+	
+	static std::vector<int> m_opt;
 	
 };
 
