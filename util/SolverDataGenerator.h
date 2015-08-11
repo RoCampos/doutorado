@@ -242,7 +242,22 @@ private:
 };
 
 
-
+/**
+ * Este modelo é uma implementação minha do modelo matemático
+ * proposto por Lee e Cho. 
+ * 
+ * Este modelo otimiza a capacidade residual sujeito ao crescimento
+ * das árvores multicast.
+ * 
+ * Para cada árvore multicast, estabelece-se um limite.
+ * 
+ * Este limite é o número de arestas da árvore sendo otimizada
+ * individualmente.
+ * 
+ * Aqui eu considero o limite como sendo o custo da árvore
+ * individual
+ * 
+ */
 class LeeAndChooModel : public MultipleMulticastCommodityLP {
 
 public:
@@ -254,8 +269,19 @@ public:
 		m_alpha = alpha;
 	}
 	
-	static void set_opt (std::vector<int> opt) {
-		m_opt = opt;
+	static void set_opt (std::string file) {
+		
+		std::ifstream in (file.c_str());
+		
+		if (in.good ()) {
+		
+			do {
+				int opt;
+				in >> opt;
+				m_opt.push_back (opt);
+			} while (!in.eof());
+		}
+		
 	}
 	
 	static int m_alpha;
