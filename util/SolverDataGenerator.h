@@ -241,4 +241,27 @@ private:
 	
 };
 
+
+
+class LeeAndChooModel : public MultipleMulticastCommodityLP {
+
+public:
+	
+	void generate (rca::Network *,
+				   std::vector<std::shared_ptr<rca::Group>>&);
+
+	static void set_alpha (int alpha) {
+		m_alpha = alpha;
+	}
+	
+	static void set_opt (std::vector<int> opt) {
+		m_opt = opt;
+	}
+	
+	static int m_alpha;
+	
+	static std::vector<int> m_opt;
+	
+};
+
 #endif

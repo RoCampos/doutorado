@@ -690,3 +690,46 @@ void MMSTPCostLP::generate(rca::Network *network,
 	
 }
 
+int LeeAndChooModel::m_alpha;
+std::vector<int> LeeAndChooModel::m_opt;
+void LeeAndChooModel::generate (rca::Network *network,
+				   std::vector<std::shared_ptr<rca::Group>>&groups) 
+{
+	std::cout << "Maximize\n objective: + Z\n\nSubject To\n";
+	
+	constraint1 (network, groups);
+	constraint2 (network, groups);
+	constraint3 (network, groups);
+	
+	constraint4 (network, groups);
+	out (network, groups);
+	
+	constraint5 (network, groups);
+	constraint7 (network, groups);
+	
+	//constraint of Choo and Lee 2004
+	
+	int NODES = network->getNumberNodes ();
+	for (size_t k=0; k < groups.size (); k++) {
+	
+			std::cout << "Lee("<<k+1<<"):";
+		
+			for (int i=0; i < NODES; i++) {
+				for (int j=0; j < i; j++) {
+					
+					int cost = network->getCost (i,j);
+					
+					if (cost > 0) {
+						std::cout << " + " << cost << " y(";
+						std::cout << i << "," << j << "," << k << ")";
+					}
+					
+				}
+			}
+			
+			std::cout << " <= " << m_opt[k] << std::endl;
+		
+	}
+	
+	bounds (network, groups);
+}
