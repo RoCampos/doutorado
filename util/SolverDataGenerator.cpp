@@ -1,53 +1,64 @@
 #include "SolverDataGenerator.h"
 
+int MultiCommidityFormulation::m_tree = 0;
+
 void MultiCommidityFormulation::generate (rca::Network * network, 
 										  rca::Group *g)
 {
 	
-	std::cout << "set V := ";
+	std::stringstream ss;
+	ss << "tree_" + std::to_string(m_tree) + ".stp";
+	
+	m_tree++;
+	
+	std::ofstream out( ss.str().c_str(), std::ofstream::out);
+	
+	out << "set V := ";
 	for (int i=0;i < network->getNumberNodes (); i++) {
-		std::cout << i + 1 << " ";
+		out << i + 1 << " ";
 	}
-	std::cout << ";\n";
+	out << ";\n";
 
-	std::cout << "\nset LINKS :=";
+	out << "\nset LINKS :=";
 	for (int i=0; i < network->getNumberNodes (); i++) {
 		for (int j=0; j < i; j++) {
 			
 			if (network->getCost (i,j) > 0.0) {
-				std::cout <<"\n\t(" <<  i+1 << "," << j+1 << ")";
-				std::cout <<"\n\t(" <<  j+1 << "," << i+1 << ")";
+				out <<"\n\t(" <<  i+1 << "," << j+1 << ")";
+				out <<"\n\t(" <<  j+1 << "," << i+1 << ")";
 			}
 			
 		}	
 	}
-	std::cout << " ;\n";
+	out << " ;\n";
 	
-	std::cout << "\nset T := ";
+	out << "\nset T := ";
 	for (int i=0; i < g->getSize (); i++) {
-		std::cout << " " << g->getMember (i) + 1;
+		out << " " << g->getMember (i) + 1;
 	}
-	std::cout << " ;\n";
+	out << " ;\n";
 	
-	std::cout << "param r := " << g->getSource ()+1 << ";\n";
+	out << "param r := " << g->getSource ()+1 << ";\n";
 	
-	std::cout << "param : cost delay:=";
+	out << "param : cost delay:=";
 	for (int i=0; i < network->getNumberNodes (); i++) {
 		for (int j=0; j < i; j++) {
 			
 			if (network->getCost (i,j) > 0.0) {
-				std::cout <<"\n\t" <<  i+1 << "\t" << j+1;
-				std::cout <<"\t" << (int)network->getCost (i,j);
-				std::cout <<"\t" << (int)network->getBand (i,j);
+				out <<"\n\t" <<  i+1 << "\t" << j+1;
+				out <<"\t" << (int)network->getCost (i,j);
+				out <<"\t" << (int)network->getBand (i,j);
 				
-				std::cout <<"\n\t" <<  j+1 << "\t" << i+1;
-				std::cout <<"\t" << (int)network->getCost (i,j);
-				std::cout <<"\t" << (int)network->getBand (i,j);
+				out <<"\n\t" <<  j+1 << "\t" << i+1;
+				out <<"\t" << (int)network->getCost (i,j);
+				out <<"\t" << (int)network->getBand (i,j);
 			}			
 
 		}	
 	}
-	std::cout << ";\n";
+	out << ";\n";
+	
+	out.close ();
 }
 
 void MultipleMulticastCommodityFormulation::generate (rca::Network * network, 
