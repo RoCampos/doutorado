@@ -597,7 +597,7 @@ void MMSTPBudgetLP::generate(rca::Network *network,
 	//constraint8 (network, groups);
 	
 	//budget_constraint
-// 	constraint6 (network, groups);
+ 	constraint6 (network, groups);
 	
 	bounds (network, groups);
 	
@@ -690,7 +690,7 @@ void MMSTPCostLP::generate(rca::Network *network,
 	
 }
 
-int LeeAndChooModel::m_alpha;
+double LeeAndChooModel::m_alpha;
 std::vector<int> LeeAndChooModel::m_opt;
 void LeeAndChooModel::generate (rca::Network *network,
 				   std::vector<std::shared_ptr<rca::Group>>&groups) 
@@ -712,22 +712,22 @@ void LeeAndChooModel::generate (rca::Network *network,
 	int NODES = network->getNumberNodes ();
 	for (size_t k=0; k < groups.size (); k++) {
 	
-			std::cout << "Lee("<<k+1<<"):";
+			std::cout << " Lee("<<k+1<<"):";
 		
 			for (int i=0; i < NODES; i++) {
-				for (int j=0; j < i; j++) {
+				for (int j=0; j < NODES; j++) {
 					
 					int cost = network->getCost (i,j);
 					
 					if (cost > 0) {
 						std::cout << " + " << cost << " y(";
-						std::cout << i << "," << j << "," << k << ")";
+						std::cout << i+1 << "," << j+1 << "," << k+1 << ")";
 					}
 					
 				}
 			}
 			
-			std::cout << " <= " << m_opt[k] << std::endl;
+			std::cout << " <= " << (int)(m_alpha * m_opt[k]) << std::endl;
 		
 	}
 	
