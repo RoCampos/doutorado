@@ -62,16 +62,55 @@ if (CMAKE_BUILD_TYPE MATCHES "[Pp][Rr][Oo][Ff][Ii][Ll][Ee]")
     
 endif()
 
-#installation of boost libs
+# ------------------------ FIND_BOOST ------------------------- #
 find_package (Boost)
 if (Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIR})
   add_definitions ("-DHASBOOT")
 endif()
 
+# ---------------------- END OF BOOST SEARC ------------------- #
+
+#------------------------ FIND_GUROBI_LIB --------------------- #
+if (GUROBI_INCLUDE_DIR)
+
+    set (GUROBI_FOUND TRUE)
+    set (GUROBI_INCLUDE_DIRS "${GUROBI_INCLUDE_DIR}")
+    set (GUROBI_LIBRARIES "${GUROBI_LIBRARY};${GUROBI_CXX_LIBRARY}")
+
+else (GUROBI_INCLUDE_DIRS)
+    find_path (GUROBI_INCLUDE_DIR
+        NAMES "gurobi_c++.h" "gurobi_c.h"
+        PATHS "$ENV{GUROBI_HOME}/include"
+        )
+
+    find_library (GUROBI_LIBRARY
+        NAMES gurobi gurobi60
+        PATHS "$ENV{GUROBI_HOME}/lib"
+        )
+
+    find_library (GUROBI_CXX_LIBRARY
+        NAMES gurobi_c++ gurobi_c
+        PATHS "$ENV{GUROBI_HOME}/lib"
+        )
+
+    set(GUROBI_INCLUDE_DIRS "${GUROBI_INCLUDE_DIR}")
+    set(GUROBI_LIBRARIES "${GUROBI_LIBRARY};${GUROBI_CXX_LIBRARY}")
+
+    include_directories (${GUROBI_INCLUDE_DIR})
+    include_directories (${GUROBI_LIBRARIES})
+
+    # testing if the variables were found
+    include(FindPackageHandleStandardArgs)
+    find_package_handle_standard_args(GUROBI  DEFAULT_MSG
+        GUROBI_LIBRARY GUROBI_CXX_LIBRARY GUROBI_INCLUDE_DIR)
+
+endif (GUROBI_INCLUDE_DIR)
+#------------------------ ENDOFGUROBI ------------------------- #
+
+
 set (EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/build")
 set (LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
-
 
 #GLOBAL SETTING OF HOW TO READ THE NETWORK
 set (REAL OFF)
