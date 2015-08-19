@@ -9,11 +9,12 @@ CMakeCache*;
 
 FILE(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE(GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+FILE(GLOB INCLUDE "${PROJECT_SOURCE_DIR}/include/*.h")
 
-add_library (sttree STATIC ${SRC})
+IF (REAL)
+	add_definitions (-DMODEL_REAL)	
+ELSE()
+	add_definitions (-DMODEL_UNIT)
+ENDIF()
 
-INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION sttree)
-
-#install (TARGETS sttree
-#	DESTINATION lib
-#	PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+add_executable (multi_test main.cpp)

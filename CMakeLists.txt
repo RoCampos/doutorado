@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.7)
+cmake_minimum_required (VERSION 2.8.12.2)
 
 SET (CPACK_PACKAGE_CONTACT romerito.campos@gmail.com)
 SET (CPACK_PACKAGE_VERSION_MAJOR 0)
@@ -92,6 +92,7 @@ add_subdirectory (mpp_algorithms)
 add_subdirectory (util)
 add_subdirectory (stalgorithm)
 add_subdirectory (mmmstp)
+add_subdirectory (multi)
 
 #directory for test of libraries and some mpp_algorithms
 add_subdirectory (testes)

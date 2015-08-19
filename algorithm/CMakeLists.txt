@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 2.8.12.2)
 
 SET(CPACK_SOURCE_IGNORE_FILES 
 CMakeFiles;
