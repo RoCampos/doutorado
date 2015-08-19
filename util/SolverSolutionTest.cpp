@@ -24,7 +24,10 @@ bool MMMSTPGurobiResult::do_test (std::string instance, std::string result, int 
 	int obj = objective_test (net, groups, result);
 	int cost2 = 0;
 	for (int i=0; i < (int)groups.size (); i++) {
-		cost2 += steiner_tree_test (net, groups[i].get(), result);
+		int c = steiner_tree_test (net, groups[i].get(), result);
+		if (m_verbose)
+			std::cout << "\tCost = " << c << std::endl; 
+		cost2 += c;
 	}
 	
 	std::cout << result << " ";

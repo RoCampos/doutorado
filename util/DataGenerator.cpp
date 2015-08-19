@@ -82,7 +82,6 @@ void budget_by_sttree (std::string file, std::string dir_output)
 		DataGenerator<MultiCommidityFormulation> dg;
 		dg.run (net, g[i].get ());
 		
-		std::cout << "\n\n";
 	}
 	
 }

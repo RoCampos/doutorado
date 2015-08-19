@@ -256,8 +256,8 @@ void AcoMPP::run (va_list & arglist) {
 		
 
 /*-------------------------------------------------------*/			
-	bool improve = true;
-	int tmp_cong = ec.top();
+// 	bool improve = true;
+// 	int tmp_cong = ec.top();
 	
 	std::vector<STTree> stts = solutions;
 	sttalgo::ChenReplaceVisitor c(&stts);
@@ -290,13 +290,31 @@ void AcoMPP::run (va_list & arglist) {
 	double r = (double) (rand() % 100 +1)/100.0;
 	
 	if (r < this->m_ref) {
-		c.visitByCost ();
-		int tt = 0.0;
-		for (auto st : stts) {
-			tt += (int)st.getCost ();
-		}
+	
+		rca::sttalgo::cycle_local_search<EdgeContainer<Comparator,HCell>> cls;
+		
+		int tt = cost;
+		do {
+			
+			cost = tt;
+			c.visitByCost ();		
+			tt = c.get_solution_cost ();
+			
+		} while (tt < cost);
+		
 		solutions = stts;
 		cost = tt;
+		
+		std::vector<rca::Group> g;
+		for (auto gg : m_groups) {
+			g.push_back (*gg);
+		}
+		
+		int c = cost;
+		cls.local_search (solutions, *m_network, g, ec, c);
+		
+		
+		
 	}
 /*-------------------------------------------------------*/
 	
@@ -334,7 +352,7 @@ void AcoMPP::run (va_list & arglist) {
 			bestNLinks.clear ();
 			
 			bestNLinks = solutions;
-// 			update_pheromone_matrix (ec);
+ 			update_pheromone_matrix (ec);
  			X (bestNLinks, m_best_trees, ec, upd1);
 			
 		} else if (upd_cg) {
@@ -369,11 +387,12 @@ void AcoMPP::run (va_list & arglist) {
 	std::cout << "------------------------------" << std::endl;
 #endif
 	
-   	std::cout << m_bcongestion << "\t";
- 	std::cout << m_bcost << "\t";
-  	std::cout << m_best_iter << "\t";
-  	std::cout << time_elapsed.get_elapsed () << "\t";
-  	std::cout << m_seed << "\n";
+   	std::cout << m_bcongestion << " ";
+ 	std::cout << m_bcost << " ";  	
+  	std::cout << time_elapsed.get_elapsed () << " ";
+	std::cout << m_seed << " ";
+	std::cout << m_best_iter << "\n";
+  	
 	
 	int g=0;	
 	auto it = bestNLinks.begin ();

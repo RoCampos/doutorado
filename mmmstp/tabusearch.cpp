@@ -66,15 +66,16 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
 	update_tabu (); //for groups	
 	
 	int count_iter = 0;
+	int best_iteration = 0;
 	
 	do {
 		
 		this->m_has_init = true;
 		
 		count_iter++;
- 		if (count_iter >= 5) {
+ 		if (count_iter >= this->m_update) {
  			cost_tabu_based (this->m_best_sol);
- 			count_iter = 0;
+ 			count_iter = 0;	
  		} else {
 			update_tabu ();
  		}
@@ -91,15 +92,20 @@ void rca::metaalgo::TabuSearch<V, X, Z>::run ()
    		this->zig_zag (sol, rr, cc, cg);
 		
 		//updating a solution
- 		this->update_best_solution (sol, rr, cc);
-		
+ 		if (this->update_best_solution (sol, rr, cc) ) 
+			best_iteration = iter;
+				
 	} while (iter++ < this->m_iter);
 
 	_time_.finished ();
 
   	std::cout << this->m_best << " ";
 	std::cout << this->m_cost << " ";
-	std::cout << _time_.get_elapsed() << std::endl;
+	std::cout << _time_.get_elapsed() << " ";
+	std::cout << m_seed << " ";
+	std::cout << best_iteration << std::endl;
+	
+// 	rca::sttalgo::print_solution<SolutionType> (this->m_best_sol);
 
 }
 
@@ -112,6 +118,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 #ifdef DEBUG1
 	std::cout << __FUNCTION__ << std::endl;
 #endif
+	
 	
 	if (this->m_factory == NULL)
 		this->m_factory = new rca::sttalgo::ShortestPathSteinerTree<Container>();
@@ -147,14 +154,20 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 
 		//se a primeira solução tiver sido criada
 		if (m_has_init) {
+			
+			//cria lista com base nos tabus 
+			std::vector<rca::Link> 
+				links = this->redo_tabu_list (m_links_tabu);
+			
 			//remove tabus com com base na melhor solução
-			this->remove_tabu_links (i);
+			this->remove_tabu_links (i, links);
+			
 		} else {
 		
 			//remove tabus com base na solução atual
 			auto links = tabu_list (sol);
 			this->redo_tabu_list (links);
-			this->remove_tabu_links (i);
+			this->remove_tabu_links (i, links);
 		}
 		
 		
@@ -192,6 +205,10 @@ rca::metaalgo::TabuSearch<V, X, Z>::update_best_solution
 								const Z res,
 								const Z cost)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
+	
 	
 	if (res > this->m_best && cost < this->m_budget) {
 		
@@ -227,10 +244,11 @@ rca::metaalgo::TabuSearch<V, X, Z>::update_best_solution
 		links_cost = this->tabu_list (this->m_best_sol);
 		
 		m_links_tabu.clear ();
+		
 		for (int i=0; i < links_cost.size () * m_links_perc; i++) {
 			m_links_tabu.push_back (links_cost[i]);
 		}
-
+		
 		return true;
 		
 	} 
@@ -245,13 +263,16 @@ void rca::metaalgo::TabuSearch<V, X, Z>::update_tabu ()
 	std::cout << __FUNCTION__ << std::endl;
 #endif
 	
-	int value = rand () % ( 2^m_groups.size () );
+	unsigned long int uli = pow( 2.0, (double)m_groups.size () );
+	unsigned long int value = rand () % uli;
 	
- 	std::string str = std::bitset< 32 >( value ).to_string();
+ 	std::bitset<32> str = std::bitset< 32 >( value );
 	
 	for (int i=0; i < m_tabu_list.size (); i++) {
-		if (str[i] == '1') {
+		if (str[i] == 1) {
 			m_tabu_list[i] = 1;
+		} else {
+			m_tabu_list[i] = 0;
 		}
 	}
 		
@@ -260,7 +281,10 @@ void rca::metaalgo::TabuSearch<V, X, Z>::update_tabu ()
 template <class V, class X, class Z>
 void rca::metaalgo::TabuSearch<V, X, Z>::cost_tabu_based(std::vector<V>& sol)
 {
-
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
+	
 	int tree_id = 0;
 	for (auto st: sol) {
 	
@@ -273,13 +297,19 @@ void rca::metaalgo::TabuSearch<V, X, Z>::cost_tabu_based(std::vector<V>& sol)
 		
 		tree_id++;
 	}
-	
+
 }
 
 template <class V, class X, class Z>
 std::vector<rca::Link> 
 rca::metaalgo::TabuSearch<V, X, Z>::tabu_list (std::vector<V>& trees)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+	
+	std::cout << trees.size () << std::endl;
+	
+#endif
 	std::vector<rca::Link> links_cost;
 	//calculating the cost accumalated
 	for (auto st : trees) {
@@ -316,7 +346,7 @@ rca::metaalgo::TabuSearch<V, X, Z>::tabu_list (std::vector<V>& trees)
 	std::sort (std::begin(links_cost), 
 			   std::end(links_cost), 
 			   std::greater<rca::Link>());
-	
+
 	return links_cost;
 }
 
@@ -326,6 +356,9 @@ Z rca::metaalgo::TabuSearch<V, X, Z>::update_container (SolutionType& tree,
 														rca::Group& g, 
 														rca::Network& net)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
 	ObjectiveType tree_cost = 0;
 	edge_t * e = tree.get_edge ();
 	while (e != NULL) {
@@ -364,6 +397,9 @@ void
 rca::metaalgo::TabuSearch<V, X, Z>::improvement (std::vector<V>& sol, 
 												 int& res, int &cos)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
 	int NODES = m_network.getNumberNodes ();
 // 	int GROUPS = m_groups.size();
 	Container cg;
@@ -465,6 +501,12 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 												  Z& res, Z& cos,
 												  Container& cg)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
+	
+	this->m_network.clearRemovedEdges();
+	
 	//creating the container to store the edges usage
 	int GROUPS = m_groups.size();
 	
@@ -476,26 +518,46 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	c.setNetwork (&m_network);
 	c.setMulticastGroups (m_groups);
 	c.setEdgeContainer (cg);
+
+#ifdef DEBUG1
+	std::cout << "\t visit by cost\n";
+#endif	
+	ObjectiveType cost = 0;
 	
-	ObjectiveType cost = cos;
+	for (auto & st: sol){
+		cost += (int)st.getCost ();
+	}
+	
 	//performing cost refinement
 	int tt = cost;
 	do {		
-		cost = tt;
+		cost = tt;		
 		c.visitByCost ();
-		tt = c.get_solution_cost ();			
+		tt = c.get_solution_cost ();
 	} while (tt < cost);
 	
+#ifdef DEBUG1
+	std::cout << "\t cycle_local_search\n";
+#endif	
 	//performing cycle local search
 	cls.local_search (sol, m_network, m_groups, cg, cost);
 	
+	//cleaning the network
+	this->m_network.clearRemovedEdges();
+	
 	//builing tabu list based on the most expensive edges	
- 	auto tabu = this->tabu_list (sol);
- 	this->redo_tabu_list (tabu);
+	//from solution sol
+ 	auto tabu = this->tabu_list (sol);	
+	//getting the tabus 
+ 	auto links = this->redo_tabu_list (tabu);
+	//removing the tabus
  	for (int i=0;i < GROUPS; i++) {
- 		this->remove_tabu_links (i);
+ 		this->remove_tabu_links (i, links);
  	}
 		
+#ifdef DEBUG1
+	std::cout << "\t visit\n";
+#endif	
 	//applying ChenReplaceVisitor by cost
 	if(this->m_has_init) {
 		c.visit ();
@@ -504,20 +566,23 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	//updating cost of the solution after apply residual refinement
 	cost = c.get_solution_cost ();
 
+#ifdef DEBUG1
+	std::cout << "\t visit by cost\n";
+#endif	
  	//applying cost refinement based on
 	tt = cost;
 	do {		
 		cost = tt;
 		c.visitByCost ();
-		tt = c.get_solution_cost ();			
+		tt = c.get_solution_cost ();
 	} while (tt < cost);
 	
+#ifdef DEBUG1
+	std::cout << "\t cls\n";
+#endif	
 	//applying cycle local search after refine by cost
 	if (this->m_has_init)
 		cls.local_search (sol, m_network, m_groups, cg, cost);
-	
-	//cleaning the network
-	this->m_network.clearRemovedEdges();
 	
 	res = cg.top ();
 	cos = cost;
@@ -531,6 +596,9 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig (std::vector<V>& sol,
 												Z& res, 
 												Z& cos)
 {
+#ifdef DEBUG1
+	std::cout << __FUNCTION__ << std::endl;
+#endif
 	typedef std::tuple<int,rca::Link, rca::Link> TupleRemove;
 	
 	
@@ -670,8 +738,7 @@ typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 int main (int argv, char**argc) {
 
 	int r = time(NULL);
-// 	std::cout << r << std::endl;
-   	
+
   	srand ( r );
 	
 	using namespace rca;
@@ -686,10 +753,19 @@ int main (int argv, char**argc) {
 	
 	double list_perc = atof (argc[4]);
 	
+	double redo_tabu_perc = atof (argc[5]);
+	
+	int update = atoi (argc[6]);
+	
+	
+	
 	TabuSearch<STTree, CongestionHandle, int> tabueSearch (file);
 	tabueSearch.set_iterations ( iterations );
 	tabueSearch.set_budget ( budget );
 	tabueSearch.set_tabu_links_size (list_perc);
+	tabueSearch.set_seed ( r );
+	tabueSearch.set_update_by_cost (update);
+	tabueSearch.set_redo_tabu_perc (redo_tabu_perc);
 		
  	tabueSearch.run ();	
 	

@@ -1,0 +1,15 @@
+
+#Filtro aplicado em arquivo de saído do gurobi
+#para filtrar apenas a variável y
+grep 'y([0-9]*,[0-9]*,[0-9]*) [1]' sol.sol > solution.opt
+
+
+#transforma 'y(1,3,1) 1' ----> '1 -- 3;1;'
+cat solution.opt | sed -e 's/y//g;s/[\(]//g;s/[\)]//g;0,/RE/s/,/ - /;s/,/:/g;s/ [1]$/;/'
+#matchs
+	- remove y da linha
+	- remove )
+	- remove (
+	- substitui a primeira ',' por  ' -- '
+	- substitui a segunda ',' por ':'
+	- remove o ' 1 '

@@ -1,0 +1,32 @@
+{
+	"folders":
+	[
+		{
+			"path": "/home/romeritocampos/Documentos/workspace/Doutorado/projeto",			
+			"file_exclude_patterns": [
+				"*.cmake",
+				"*.o",
+				"*~",
+				"Makefile",
+				"*.txt",
+				".gitignore",
+				"*cmake*",
+				"*.log",
+				"*.out",
+				"*.deb"
+			],
+			"folders_exclude_patterns": [
+				"build",
+				"_CPack_Packages",
+				"CMakeFiles",
+				"diagrams",
+				"include",
+				"lib",
+				"statistics",
+				"impro-testes",
+				"Testing"
+			]
+
+		}
+	]
+}

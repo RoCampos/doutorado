@@ -32,19 +32,14 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	/*orçamento*/
 	m_budget = budget;
 	
-// 	std::cout << m_pop << std::endl;
-// 	std::cout << m_cross << std::endl;
-// 	std::cout << m_mut << std::endl;
-// 	std::cout << m_iter << std::endl;
-// 	std::cout << m_init << std::endl;
-// 	std::cout << m_local_search << std::endl;
-// 	
 	rca::elapsed_time time_elapsed;	
 	time_elapsed.started ();
 	/*init population*/
 	init_population ();
 	
 	int best = 0;
+	
+	int best_iter = m_iter, iter = m_iter;
 	
 	while ( --m_iter > 0) {
 		
@@ -90,10 +85,18 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 				if (m_population[i].m_cost < m_budget) {
 					max = m_population[i].m_residual_capacity;
 					best = i;
+					
+					iter = best_iter - m_iter;
+					
 				}
-			} else if (m_population[i].m_cost < m_population[best].m_cost){
+			} else if (m_population[i].m_residual_capacity == max){
+				
+				if (m_population[i].m_cost < m_population[best].m_cost){
 					max = m_population[i].m_residual_capacity;
 					best = i;
+					
+					iter = best_iter - m_iter;
+				}
 			}
 		}
 
@@ -102,23 +105,27 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	
 	time_elapsed.finished ();
 	
- 	std::cout << m_population[best].m_cost << " ";
  	std::cout << m_population[best].m_residual_capacity << " ";
- 	std::cout << time_elapsed.get_elapsed () << std::endl;
+ 	std::cout << m_population[best].m_cost << " ";
+ 	std::cout << time_elapsed.get_elapsed () << " ";
+	std::cout << m_seed << " ";
+	std::cout << iter << std::endl;
 //   	m_population[best].print_solution (m_network, m_groups);
 		
 	//deallocatin of resources;
-#ifdef DEBUG1
+// #ifdef DEBUG1
 	std::cout << "\n";
 	for (PathRepresentation & p : m_population) {
 		std::cout << p.m_cost << " ";
 		std::cout << p.m_residual_capacity << std::endl;
 	}
-#endif
+// #endif
 	
 	
 	delete m_network;
 }
+
+
 
 int GeneticAlgorithm::selection_operator (int i, int j)
 {
@@ -429,20 +436,22 @@ void GeneticAlgorithm::local_search (int i)
 	
 	int tt = 0.0;
 	int imp = 0;
+ 	for (auto st : trees) {
+ 		tt += (int)st.getCost ();
+ 	}	
 	do {
 		imp = tt;
 		tt = 0.0;
 		c.visitByCost ();
-		for (auto st : trees) {
-			tt += (int)st.getCost ();
-		}
+		tt = c.get_solution_cost ();
+		
 	} while (tt < imp);
 
-	cost = tt;
+ 	cost = tt;
 	
-// 	rca::sttalgo::cycle_local_search<CongestionHandle> cls;
-// 	cls.local_search (trees, *m_network, m_groups, ec, cost);
-	
+	rca::sttalgo::cycle_local_search<CongestionHandle> cls;
+	cls.local_search (trees, *m_network, m_groups, ec, cost);
+
 #ifdef DEBUG1
  	std::cout << congestion << std::endl;
  	std::cout << cost << std::endl;
@@ -455,7 +464,7 @@ void GeneticAlgorithm::local_search (int i)
 	int pos_path = 0;
 	
 	g = 0; //control the access to a group
-	for (auto st: trees) {
+	for (auto & st: trees) {
 		//configuring stObserver
 		_stOb.set_steiner_tree (st, NODES);
 		
@@ -521,6 +530,7 @@ void PathRepresentation::setPath (int init_pos,
 	printf (" ------------ %s ------------ \n", __FUNCTION__);
 #endif
 
+	
 	std::vector<rca::Path> paths;
 	paths = rca::sttalgo::stree_to_path (st, g.getSource (), nodes);
 	
@@ -1017,7 +1027,7 @@ void PathRepresentation::operator1 (rca::Network *net,
 	cost += stObserver.get_steiner_tree ().getCost ();
 	tree_as_links.push_back( stObserver.getTreeAsLinks () );
 	
-	for (int i=0; i < trees.size (); i++) {
+	for (size_t i=0; i < trees.size (); i++) {
 		delete trees[i];
 	}
 	

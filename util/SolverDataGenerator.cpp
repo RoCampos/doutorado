@@ -1,53 +1,64 @@
 #include "SolverDataGenerator.h"
 
+int MultiCommidityFormulation::m_tree = 0;
+
 void MultiCommidityFormulation::generate (rca::Network * network, 
 										  rca::Group *g)
 {
 	
-	std::cout << "set V := ";
+	std::stringstream ss;
+	ss << "tree_" + std::to_string(m_tree) + ".stp";
+	
+	m_tree++;
+	
+	std::ofstream out( ss.str().c_str(), std::ofstream::out);
+	
+	out << "set V := ";
 	for (int i=0;i < network->getNumberNodes (); i++) {
-		std::cout << i + 1 << " ";
+		out << i + 1 << " ";
 	}
-	std::cout << ";\n";
+	out << ";\n";
 
-	std::cout << "\nset LINKS :=";
+	out << "\nset LINKS :=";
 	for (int i=0; i < network->getNumberNodes (); i++) {
 		for (int j=0; j < i; j++) {
 			
 			if (network->getCost (i,j) > 0.0) {
-				std::cout <<"\n\t(" <<  i+1 << "," << j+1 << ")";
-				std::cout <<"\n\t(" <<  j+1 << "," << i+1 << ")";
+				out <<"\n\t(" <<  i+1 << "," << j+1 << ")";
+				out <<"\n\t(" <<  j+1 << "," << i+1 << ")";
 			}
 			
 		}	
 	}
-	std::cout << " ;\n";
+	out << " ;\n";
 	
-	std::cout << "\nset T := ";
+	out << "\nset T := ";
 	for (int i=0; i < g->getSize (); i++) {
-		std::cout << " " << g->getMember (i) + 1;
+		out << " " << g->getMember (i) + 1;
 	}
-	std::cout << " ;\n";
+	out << " ;\n";
 	
-	std::cout << "param r := " << g->getSource ()+1 << ";\n";
+	out << "param r := " << g->getSource ()+1 << ";\n";
 	
-	std::cout << "param : cost delay:=";
+	out << "param : cost delay:=";
 	for (int i=0; i < network->getNumberNodes (); i++) {
 		for (int j=0; j < i; j++) {
 			
 			if (network->getCost (i,j) > 0.0) {
-				std::cout <<"\n\t" <<  i+1 << "\t" << j+1;
-				std::cout <<"\t" << (int)network->getCost (i,j);
-				std::cout <<"\t" << (int)network->getBand (i,j);
+				out <<"\n\t" <<  i+1 << "\t" << j+1;
+				out <<"\t" << (int)network->getCost (i,j);
+				out <<"\t" << (int)network->getBand (i,j);
 				
-				std::cout <<"\n\t" <<  j+1 << "\t" << i+1;
-				std::cout <<"\t" << (int)network->getCost (i,j);
-				std::cout <<"\t" << (int)network->getBand (i,j);
+				out <<"\n\t" <<  j+1 << "\t" << i+1;
+				out <<"\t" << (int)network->getCost (i,j);
+				out <<"\t" << (int)network->getBand (i,j);
 			}			
 
 		}	
 	}
-	std::cout << ";\n";
+	out << ";\n";
+	
+	out.close ();
 }
 
 void MultipleMulticastCommodityFormulation::generate (rca::Network * network, 
@@ -586,7 +597,7 @@ void MMSTPBudgetLP::generate(rca::Network *network,
 	//constraint8 (network, groups);
 	
 	//budget_constraint
-// 	constraint6 (network, groups);
+ 	constraint6 (network, groups);
 	
 	bounds (network, groups);
 	
@@ -679,3 +690,46 @@ void MMSTPCostLP::generate(rca::Network *network,
 	
 }
 
+double LeeAndChooModel::m_alpha;
+std::vector<int> LeeAndChooModel::m_opt;
+void LeeAndChooModel::generate (rca::Network *network,
+				   std::vector<std::shared_ptr<rca::Group>>&groups) 
+{
+	std::cout << "Maximize\n objective: + Z\n\nSubject To\n";
+	
+	constraint1 (network, groups);
+	constraint2 (network, groups);
+	constraint3 (network, groups);
+	
+	constraint4 (network, groups);
+	out (network, groups);
+	
+	constraint5 (network, groups);
+	constraint7 (network, groups);
+	
+	//constraint of Choo and Lee 2004
+	
+	int NODES = network->getNumberNodes ();
+	for (size_t k=0; k < groups.size (); k++) {
+	
+			std::cout << " Lee("<<k+1<<"):";
+		
+			for (int i=0; i < NODES; i++) {
+				for (int j=0; j < NODES; j++) {
+					
+					int cost = network->getCost (i,j);
+					
+					if (cost > 0) {
+						std::cout << " + " << cost << " y(";
+						std::cout << i+1 << "," << j+1 << "," << k+1 << ")";
+					}
+					
+				}
+			}
+			
+			std::cout << " <= " << (int)(m_alpha * m_opt[k]) << std::endl;
+		
+	}
+	
+	bounds (network, groups);
+}
