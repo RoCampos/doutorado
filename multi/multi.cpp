@@ -9,11 +9,7 @@ int main(int argc, char const *argv[])
 	try {
 
 		GRBEnv env = GRBEnv ();
-		GRBModel model = GRBModel (evn);
-
-		GRBEnv env = GRBEnv();
-
-	    GRBModel model = GRBModel(env);
+		GRBModel model = GRBModel (env);
 
 	    // Create variables
 
@@ -51,8 +47,9 @@ int main(int argc, char const *argv[])
 	    cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
 
 
-	}catch (GRBExecption e) {
+	} catch (GRBException e) {
 
+		cout << "nothing" << endl;
 
 	}
 

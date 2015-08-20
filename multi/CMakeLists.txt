@@ -11,10 +11,17 @@ FILE(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE(GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 FILE(GLOB INCLUDE "${PROJECT_SOURCE_DIR}/include/*.h")
 
+
+
 IF (REAL)
 	add_definitions (-DMODEL_REAL)	
 ELSE()
 	add_definitions (-DMODEL_UNIT)
 ENDIF()
 
-add_executable (multi_test main.cpp)
+
+include_directories (${GUROBI_INCLUDE_DIRS})
+FILE(GLOB GRB "${GUROBI_INCLUDE_DIRS}/*.h")
+
+add_executable (multi_test multi.cpp ${GRB})
+target_link_libraries (multi_test ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARIES})
