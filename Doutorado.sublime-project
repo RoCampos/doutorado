@@ -28,5 +28,411 @@
 			]
 
 		}
+	],
+	"build_systems":
+	[
+		{
+			"name": "Doutorado - all",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "all"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - clean",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "clean"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - install",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "install"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - install/local",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "install/local"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - list_install_components",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "list_install_components"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - package",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "package"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - package_source",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "package_source"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - rebuild_cache",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "rebuild_cache"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - test",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "test"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - graph",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "graph"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - graph/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "graph/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - sttree",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "sttree"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - sttree/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "sttree/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - leitor",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "leitor"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - leitor/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "leitor/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - media",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "media"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - media/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "media/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - mediana",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "mediana"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - mediana/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "mediana/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - min",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "min"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - min/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "min/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - statistical",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "statistical"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - statistical/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "statistical/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - chentest",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "chentest"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - chentest/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "chentest/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - datagen",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "datagen"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - datagen/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "datagen/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - filter_sol",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "filter_sol"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - filter_sol/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "filter_sol/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - kmbopt",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "kmbopt"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - kmbopt/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "kmbopt/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - lowerbound",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "lowerbound"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - lowerbound/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "lowerbound/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - optimalmpp",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "optimalmpp"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - optimalmpp/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "optimalmpp/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - parser",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "parser"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - parser/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "parser/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - acompp",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "acompp"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - acompp/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "acompp/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - instance",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "instance"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - instance/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "instance/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - lpGenerator",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "lpGenerator"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - lpGenerator/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "lpGenerator/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - myutil",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "myutil"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - myutil/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "myutil/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - solutionTest",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "solutionTest"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - solutionTest/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "solutionTest/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - unitModelData",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "unitModelData"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - unitModelData/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "unitModelData/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - sttalgo",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "sttalgo"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - sttalgo/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "sttalgo/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - agmheuristic",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "agmheuristic"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - agmheuristic/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "agmheuristic/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - genetic_mmmstp",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "genetic_mmmstp"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - genetic_mmmstp/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "genetic_mmmstp/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - grasp",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "grasp"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - grasp/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "grasp/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - spheuristic",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "spheuristic"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - spheuristic/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "spheuristic/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - tabu_test",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "tabu_test"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - tabu_test/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "tabu_test/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - yuhchen",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "yuhchen"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - yuhchen/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "yuhchen/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - multi_test",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "multi_test"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - multi_test/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "multi_test/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - matrix_teste",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "matrix_teste"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "Doutorado - matrix_teste/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "matrix_teste/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		}
 	]
+	
 }

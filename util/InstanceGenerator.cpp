@@ -115,6 +115,22 @@ void InstanceGenerator::generate_members ( std::ostream & out,
 	out << "\n\n";
 }
 
+
+
+// Este arquivo é utilizado para criar instâncias do 
+// tipo brite.
+
+// O binário recebe como entrada 
+// - usage ./script <isntance dir> file.dsc binary
+
+// Group mode: 0	--> fixed or percentual
+// Traffic mode: 1	--> fized or percentual
+// Cap mode: 0		--> fixed or percentual
+// NumGroups: 10 | NumNodes: 200	--> fixed
+// tk_max: 5 | tk_min: 1	
+// g_max: 10 | g_min: 10
+// c_max: 10 | c_min: 1
+
 int main (int argc, char**argv) {
 
  	std::string file (argv[1]);
