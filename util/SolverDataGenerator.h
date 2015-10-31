@@ -150,6 +150,9 @@ protected:
 	
 	void bounds (rca::Network *,
 				   std::vector<std::shared_ptr<rca::Group>>&);
+
+	void delay (rca::Network *, 
+					std::vector<std::shared_ptr<rca::Group>>&);
 	
 };
 
