@@ -42,9 +42,9 @@ struct EdgeRemoved {
  * de links de uma rede. Isto é útil quando se está testando
  * algoritmos que removem links para computar diferentes caminhos.
  *
- * @date 27/07/2014
+ * @date 11/04/2015
  * @author Romerito Campos
- * @version 0.2
+ * @version 1.0
  */
 class Network {
 public:
@@ -104,6 +104,12 @@ public:
 		return m_costMatrix.at (row, col);
 	}
 	
+	/**
+	* Método utilizado para retonar o custo de uma aresta.
+	* 
+	* @param rca::Link
+	* @return double
+	*/
 	double getCost (rca::Link l) {
 		return this->getCost (l.getX(), l.getY());
 	}
@@ -129,6 +135,8 @@ public:
 
 	/**
 	 * Método para retornar o número de arestas de uma rede.
+	 *
+	 * @return int
 	 */
 	int getNumberEdges () {
 		return m_edges;
@@ -222,7 +230,10 @@ public:
 	 * Recebe dois parâmetros: unsigned nodes que define o
 	 * tamanho da matriz de nós e matriz de arestas. O segundo
 	 * parâmetro informa o número de arestas.
-	 *
+	 * 
+	 * @param int nodes
+	 * @param int edges
+	 * 
 	 */
 	void init (unsigned nodes, unsigned edges);
 
@@ -284,14 +295,20 @@ public:
 	inline bool isVertexRemoved (int pos) {return m_vertex[pos];}
 	
 	/**
-	 * Return true if a vertex is temporary removed from the 
-	 * network.
+	 * Método utilizado para remover um vértice da rede.
+	 * Recebe como entrada a posição do vértice (id)
+	 * Os vértices são numerados de 0 a n-1.
+     *
+	 * Remover o vértices 10, basta passar 10 com parâmetro
+	 *
+	 * @param int 
 	 */
 	void removeVertex (int pos) {m_vertex[pos] = true;}
 	
 	/**
-	 * Restaura status de não removido do vértice pos.
+	 * Restaura status de removido do vértice pos.
 	 * 
+	 * @param int
 	 */
 	void unremoveVertex (int pos) {m_vertex[pos] = false;}
 	
@@ -329,8 +346,27 @@ public:
 				 m_adjacent_vertex[vertex].end());
 	}
 	
+	/**
+	* Método utilizado para retonar o vizinho imediato do
+	* vértice passado como parâmetro considerando o menor
+	* custo da aresta que os liga.
+	* 
+	* @param int vertex
+	* @return int 
+	*/
 	const int get_adjacent_by_minimun_cost (const int & vertex) ;
 	
+	/**
+	* Método retorna o vértice mais próximo do vértice
+	* passado como parâmetro. A métrica é o custo da areata.
+	*
+	* Considera um conjunto de areastas removidas do grafo
+	* que são passadas como parâmetro.
+	*
+	* @param int
+	* @param std::vector<rca::Link>
+	* @return int
+	*/
 	const int get_adjacent_by_minimun_cost (const int & vertex, 
 											std::vector<rca::Link>&) ;
 	
