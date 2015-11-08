@@ -19,23 +19,79 @@ namespace rca {
 	
 namespace sttalgo {
 
+/**
+* Esta classe representa um visitor abstrato para ser aplicado
+* a uma solução do problema de roteamento multicast com múltiplas (PRMM)
+* sessões.
+*
+* Esta classe define um método visit como virtual. As subclasses
+* devem implementá-lo para fornecer a ação a ser aplicada a solução (PRMM)
+*
+* 
+* @author Romerito C. Andrade
+*
+*/
 class MppVisitor {
 	
 public:
+
+	/**
+	* Construtur da classe MPPVisitor recebe como entrada
+	* uma solução do PRMM. 
+	*
+	* A solução consistem em uma lista de árvores multicast representadas
+	* como @see STTree. Esta lista é armazenada em um std::vector.
+	* 
+	* @param MPPSolution ponteiro para vector de STTree's
+	*/
 	MppVisitor (MPPSolution * tree){
 		m_trees = tree;
 	}
 	
+	/**
+	* Método virtual que deve ser implementado.
+	* 
+	*
+	*/
 	virtual void visit () = 0;
 	
+	/**
+	* Método que permite definir a instância da rede sob
+	* a qual a solução foi construída. Isto permite que 
+	* manipulações realizadas sob a solução que precisem 
+	* acessar informações do grafo sejam realizadas de forma
+	* eficiente.
+	*
+	* @param rca::Network ponteiro para uma isntância de Network
+	*
+	*/
 	void setNetwork (rca::Network * net) {
 		m_network = net;
 	}
 	
+	/**
+	* Método que permite definir os grupos multicast associados
+	* a solução que será visitada.
+	*
+	* Ele recebe como parâmetro uma lista de @see rca::Group.
+	*
+	* @param MulticastGroup vector de rca::Group's multicast
+	*/
 	void setMulticastGroups (MulticastGroup & groups) {
 		m_groups = groups;
 	}
 	
+
+	/**
+	* Método que permite definir os grupos multicast associados
+	* a solução que será visitada.
+	*
+	* Ele recebe como parâmetro uma lista de @see rca::Group.
+	*
+	* Os grupos são passadas utilizados shared_ptr's.
+	*
+	* @param MulticastGroup vector de rca::Group's multicast
+	*/
 	void setMulticastGroups (std::vector<std::shared_ptr<rca::Group>> & groups) {
 		for (std::shared_ptr<rca::Group> g : groups) {
 			m_groups.push_back (*g);
@@ -44,6 +100,12 @@ public:
 	
 protected:
 	
+	/**
+	* método utilizado para tranformar uma STTree em uma lista de 
+	* arestas para processsamento pelo visitor.
+	* 
+	*
+	*/
 	void prepare_trees () {
 	
 		m_temp_trees.clear ();
@@ -85,15 +147,37 @@ class ChenReplaceVisitor : public MppVisitor
 {
 
 public:
+
+	/**
+	* Construtor da classe.
+	*
+	* Recebe como parâmetro uma vector de STRee's e repassa
+	* para o construtor da classe base - MppVisitor.
+	*
+	* @param MPPSolutino ponteiro para vector de STTree's
+	*/
 	ChenReplaceVisitor (MPPSolution* tree) : MppVisitor (tree) {}
 	
 	/*
 	 * Pega a menor capacidade residual (link)
 	 * para todo link com aquela capacidade
 	 * tenta-se substituí-lo por outro
+	 * 
+	 *
+	 *
 	 */
 	virtual void visit ();
 	
+	/**
+	* Método utilizad para fazer as substiuiçoes de arestas
+	* com base na melhoria do custo da solução.
+	* 
+	* Inicialmente, aplica-se o método @see prepare_trees. Em seguida
+	* para cada aresta, é verificado se há uma aresta que pode ser
+	* sua substituta na solução. Caso afirmativo, então é feita a troca.
+	*
+	* 
+	*/
 	void visitByCost ();
 	
 	/**
@@ -113,21 +197,51 @@ public:
 		} while (tt < cost);		
 	}
 	
-	
+	/**
+	* Método utilizado para definir o container de arestas que será
+	* utilizado para controlar as alterações nas arestas.
+	*
+	* @param rca::EdgeContainer<Comparator, HCell>
+	*/
 	void setEdgeContainer (rca::EdgeContainer<Comparator, HCell> & ec) {
 		m_ec = &ec;
 	}
 	
+	/**
+	* Método utilizado para retonar as arestas que foram removidas
+	*
+	* @return std::vector<rca::Link> lista de arestas removidas
+	*/
 	std::vector<rca::Link> get_replaced () {return m_replaced;}
+
+	/**
+	* método utilizado para limpar a lista de arestas removidas
+	*
+	*/
 	void clear_replaced () {
 		m_replaced.clear ();
 	}
 	
+
+	/**
+	* Método utilizado para retornar o custo de uma solução.
+	* 
+	* O custo da solução é atualizado a medida que as modificações 
+	* são realizadas. Isto permite acessar o custo de forma eficiente.
+	*
+	* @return double custo atualizado da solução
+	*/
 	double get_solution_cost () 
 	{
 		return m_cost;
 	}
 	
+	/**
+	* Retorna o número de arestas que possui valor de capacidade residual
+	* igual ao valor máximo da soluçaõ.
+	*
+	* @return int número de arestas com valor de capacidade residual máximo.
+	*/
 	int get_number_top_nodes () {
 	
 		const auto & heap = m_ec->get_heap ();

@@ -142,8 +142,24 @@ get_available_links (SteinerType &,
 					rca::Group&,
 					rca::Link& );
 
+/**
+* Função utilizada para converter um STTree para um 
+* lista de arestas.
+*
+* @param STTree árvore
+* @return std::vector<rca::Link> lista de arestas
+*/
 std::vector<rca::Link> sttreeToVector (STTree & st);
 
+/**
+* Método utilizado para substituir uma aresta por outra.
+* 
+*
+* @param STTree árvore a ser modificada
+* @param rca::Link aresta que será substituída
+* @param rca::LInk aresta nova
+* @param rca::Network grafo onde a solução é construída.
+*/
 void replace_edge (STTree &, 
 				   rca::Link &_old, 
 				   rca::Link & _new, 
