@@ -10,8 +10,10 @@
 #include "edge.h"
 
 /**
+ * @deprecated
  * Esta classe representa uma árvore de Steiner.
  * 
+ *
  * @author Romerito Campos
  * @date 07/25/2014
  * @version 0.2 

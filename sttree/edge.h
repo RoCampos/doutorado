@@ -5,9 +5,12 @@
 #include "def.h"
 
 /**
+ * @deprecated 
+ *
  * Definição de Aresta de árvore
  * Representa uma aresta da árvore com 
  * um ponteiro para a próxima aresta.
+ * 
  * 
  * @author Romerito Campos
  * @date 04/20/2013
