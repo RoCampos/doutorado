@@ -1,5 +1,41 @@
+<h2>
+New Version (0.5.0) - Improvements, bug fixed and new procedures (11/10/2015) 
+=====================================================================
+</h2>
+
+<dl>
+	<dt>Documentação</dt>
+	<dd>
+		Praticamente todo o código fonte usado, direta ou indiretamente, foi documentado para facilitar distribuição, utilização
+	</dd>
+
+	<dt>
+		GUROBI_SOLVER
+	</dt>	
+	<dd>
+		Suporte a api do solver gurobi foi adicionada.
+	</dd>
+
+	<dt>
+		Gerador de LPS
+	</dt>
+	<dd>
+		O modelo base para formulação de outros modelos envolvendo múltiplas árvores de steiner recebeu método para adição de restrições.
+	</dd>
+
+	<dt>
+		BUGS
+	</dt>
+	<dd>
+		Modelo de LEE, gerador de arquivos dat's usados no glpsol por árvore.
+	</dd>
+
+</dl>
+
+<h2>
 New Version - Improvements, bug fixed and new procedures (07/27/2015)
 =====================================================================
+</h2>
 =SteinerTreeFactory
 	- implementa uma fábrica de objectos do tipo árvore de Steiner.
 	Utiliza uma classe template para definir que tipo de objeto será gerado.
@@ -38,11 +74,11 @@ New Version - Improvements, bug fixed and new procedures (07/27/2015)
 	e outro nos links que podem ser utilizados.
 
 
-	
-
-
+<h2>
 New Version - Improvements and Bug Fixed (06/30/2015)
 =====================================================
+</h2>
+
 =STTreeLocalSearch
 	- cycle_local_search struct: usado para melhorar valor de
 	custo de uma solução. Cria cíclos e depois remove as arestas que possuem 
@@ -71,8 +107,11 @@ New Version - Improvements and Bug Fixed (06/30/2015)
 	residual.
 
 
+<h2>
 New Version - Improvements and Bug Fixed (05/25/2015)
 ========================================================
+</h2>
+
 =ChenReplaceMethod
 	- o método foi modificado para aumentar a velocidade.
 	- É possível não obter o melhor custo, mas a velocidade
@@ -88,18 +127,25 @@ New Version - Improvements and Bug Fixed (05/25/2015)
 	o grafo conectado para a próxima árvore.
 
 
+<h2>
 New Version - Improvements and Bug Fixed (04/26/2015)
 ========================================================
+</h2>	
+
 =ChenReplaceMethod by cost
 	- Adicioonado ao visitor
 
+<h2>
 New Version - Improvements and Bug Fixed (04/20/2015)
 ========================================================
+</h2>
 =Youh-ChenAlgorithm
 	- implementação do algotimo de youh-chen
 
+<h2>
 New Version - Improvements and Bug Fixed (04/20/2015)
 =========================================================
+</h2>
 =sttree_to_path:
 	- algoritmo que recebe uma árvore de Steiner(STTree)
 	e retorna uma lista de caminhos para atualizar
@@ -121,14 +167,18 @@ New Version - Improvements and Bug Fixed (04/20/2015)
 	- interface redefinda.
 	- incorporado no genetic e acommpp
 
+<h2>
 New Version - Improvements and Bug Fixed (04/20/2015)
 =========================================================
+</h2>
 =LocalSearch
 	- Busca local baseada no ChenReplaceMethod added
 	to GeneticAlgorithm
 
+<h2>
 New Version - Improvements and Bug Fixed (04/14/2015)
 =========================================================
+</h2>
 =ShortestPath
 	- a efficient shortest path algorithm was implemented
 	this algorithm improve the runtime of routines like GA
@@ -144,9 +194,10 @@ New Version - Improvements and Bug Fixed (04/14/2015)
 	- the genetic algorithm now uses STTree to represent a steiner tree
 	- The Steiner Tree observer was refactored and now is more efficient
 
-
+<h2>
 New Version - Improvements and Bug Fixed (04/10/2015)
 ==========================================================
+</h2>
 =EdgeContainer
         - É agora uma classe template, pode implementar um heap min ou max.
 
@@ -176,8 +227,10 @@ New Version - Improvements and Bug Fixed (04/10/2015)
         EdgeContainer e atulizar o uso das arestas de forma eficiente.
 
 
+<h2>
 New Version - Improvements and Bug Fixed (03/25/2014)
 ===========================================================
+</h2>
 =Acompp
 	- bug removido do método update_congestion () nos casos
 	onde se controi uma solução sem usar arestas que foram utilizadas
@@ -196,8 +249,10 @@ New Version - Improvements and Bug Fixed (03/25/2014)
 
 
 
+<h2>
 New Version - Impromevents and Bug Fixed 03/22/2015 
 ============================================================
+</h2>
 Esta versão contém as seguintes adições
 =GeneticAlgorithm
 	-Parâmetro local_upd é considerando na otimização(deve ser afinado)
@@ -238,8 +293,11 @@ Esta versão contém as seguintes adições
 	speed up.
 
 
+<h2>
 Romerito PHD-1.
-=======
+============================================================
+</h2>
+
 
 This version is the initial point of my investigation
 about the problem: Multicast packing problem(MPP).

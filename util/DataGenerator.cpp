@@ -7,6 +7,13 @@
 #include "reader.h"
 #include "steinerReader.h"
 
+/**
+* Função que gera um arquivo para uma árvore de Steiner.
+* 
+* A geração do aquivo .dat considera o problema da árvore de Steiner
+* em grupo.
+* 
+*/
 void steiner_tree (std::string file);
 
 /*
@@ -17,6 +24,12 @@ void steiner_tree (std::string file);
  */
 void budget_multicast (std::string file);
 
+/**
+* Método que utiliza o gerador MultiCommidityFormulation
+* 
+* Este método gera árvores individualmente. 
+* Um arquivo para cada árvore dos grupos multicast é gerado.
+*/
 void budget_by_sttree (std::string file, std::string dir_output);
 
 

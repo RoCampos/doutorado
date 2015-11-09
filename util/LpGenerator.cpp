@@ -86,9 +86,11 @@ void help ()
 	
 	msg += "Option:\n";
 	
-	msg += "\t1\n";
+	msg += "\t1 -MMSTPBudgetLP: Gera lp considerando um limite minimo de capacidade residual\n";
+	msg += "\t\t Paramêtros: option, instance, BUDGET\n"; 	
 	
-	msg += "\t2\n";
+	msg += "\t2 -MMSTPCostLP: Gera lp considerando um limite minimo de capacidade residual\n";
+	msg += "\t\t Paramêtros: option, instance, Z\n"; 	
 	
 	msg += "\t3 - Lee and Cho Moodel: this model maximize residual capacity subject\n";
 	msg += "\t\tto alpha*OPT_k on each multicast tree where\n";

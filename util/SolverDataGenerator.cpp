@@ -577,6 +577,41 @@ void MMSTPBudgetLP::constraint6 (rca::Network *net,
 	
 }
 
+void MultipleMulticastCommodityLP::delay (rca::Network * net, 
+					std::vector<std::shared_ptr<rca::Group>>& groups)
+{
+
+	int GROUPS = groups.size ();
+	int NODES = net->getNumberNodes ();
+	int delay = 5;
+	
+	//{k in groups,
+	for (int k=0; k < GROUPS; k++) {	
+		
+		std::vector<int> g_i = groups[k]->getMembers ();		
+		std::sort (g_i.begin (), g_i.end());
+		//int source = groups[k]->getSource ();
+		// d in MGROUPS[K]}
+		for (int i=0; i < (int)g_i.size (); i++) {
+			
+			printf (" delay(%d,%d): ", k+1, g_i[i] +1);
+			
+			for (int v = 0; v < NODES; v++) {
+				for (int w = 0; w < v; w++) {					
+					if (net->getCost (w,v) > 0.0) {						
+						printf (" + x(%d,%d,%d,%d) ",v+1, w+1, k+1, g_i[i]+1);
+						printf (" + x(%d,%d,%d,%d) ",w+1, v+1, k+1, g_i[i]+1);						
+					}					
+				}				
+			}	
+
+			printf (" <= %d\n", delay);
+		}
+
+	}
+
+}
+
 void MMSTPBudgetLP::generate(rca::Network *network,
 							 std::vector<std::shared_ptr<rca::Group>>&groups)
 {
@@ -599,8 +634,10 @@ void MMSTPBudgetLP::generate(rca::Network *network,
 	//budget_constraint
  	constraint6 (network, groups);
 	
+ 	//delay (network, groups);
+
 	bounds (network, groups);
-	
+
 	
 }
 
@@ -685,7 +722,11 @@ void MMSTPCostLP::generate(rca::Network *network,
 	
 	constraint6 (network, groups);
 	
+	//delay (network, groups);
+
 	bounds (network, groups);
+
+
 	
 	
 }

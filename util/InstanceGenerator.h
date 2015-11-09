@@ -25,7 +25,23 @@ typedef rca::myrandom<std::mt19937, std::uniform_int_distribution<float>, float>
  * Classe usada para gerar informações de grupos multicast em instâncias.
  * É possível gerar instâncias levando em consideração a variação no tamanho
  * dos grupos multicast. Assim como, no valor de traffic request.
+ *
+ * O método set_mode permite definir se os valores passados aos métodos
+ * set_capacity, set_traffic, set_num_groups são valores fixos ou percentuais.
+ *
+ *
+ * É possível ter diferentes combinações dos parâmetros que são utilizados
+ * para gerar as características dos grupos multicast e colocá-las em uma
+ * instância.
+ * Por exemplo: 
+ * 	- Número de grupos
+ * 	- Número de nós por grupos
+ * 	- Capacidade máxima e mínima das arestas 
+ * 	- Tráfego requerido por cada grupo multicast
  * 
+ * O gerador utiliza a api rca::myrandom para geração de valores aleatórios.
+ * Esta api utiliza o gerador mersenne twister.
+ *
  * @author Romerito Campos.
  * @date 06/08/2015 - junho
  */
@@ -33,6 +49,14 @@ class InstanceGenerator {
 
 public:
 	
+	/**
+	* Construtor da classe.
+	*
+	* O consstrutor da classe recebe como entrada uma string indicando
+	* o aquivo de entrada. Este arquivo é uma topologia BRITE.
+	*
+	* @param std::string arquivo de entrada
+	*/
 	InstanceGenerator (std::string file) {
 		
 		this->m_file_name = file;
@@ -41,6 +65,10 @@ public:
 		
 	};
 	
+	/**
+	* Método que executa a geração das características da instância.
+	*
+	*/
 	void generator ();
 	
 	/**
@@ -50,32 +78,64 @@ public:
 	 * 
 	 * Quando um parâmetro recebe 1, significa que os valores
 	 * de tk e tamanho de grupo serão fixos.
+	 *
+	 * @param bool g_mode - true(1) indica valores fixos, o contrário valores pecentuais
+	 * @param bool cap_mode - true(1) indica valores fixos, o contrário valores pecentuais
+	 * @param bool tk_mode - true(1) indica valores fixos, o contrário valores pecentuais
 	 * 
 	 */
 	void set_mode (bool g_mode, bool cap_mode, bool tk_mode);
 	
+	/**
+	* Método para definir o número de grupos.
+	* @param int número de grupos.
+	*/
 	void set_num_groups (int num)
 	{
 		this->m_num_groups = num;
 	}
 	
+	/**
+	* Método para definir o número de nós da rede
+	* @param int número de nós
+	*/
 	void set_num_nodes (int V)
 	{
 		this->m_num_nodes = V;
 	}
 	
+	/**
+	* Método que define o tamanho dos grupos
+	* @param double tamanho mínimo do grupo
+	* @param double tamanho máximo do grupo
+	*/
 	void set_group_size (double perc_min, double perc_max)
 	{
 		this->m_g_min = perc_min;
 		this->m_g_max = perc_max;
 	}
 	
+	/**
+	* Método que define a capacidade das arestas 
+	* 
+	* @param double capacidade mínima.
+	* @param double capacidade máxima.
+	*/
 	void set_capacity (double perc_min, double perc_max)
 	{
 		this->m_c_min = perc_min;
 		this->m_c_max = perc_max;
 	}
 	
+	/**
+	* Método utilizado para definir o consumo máximo e mínimo
+	* por cada grupo multicast.
+	* 
+	* 
+	*
+	* @param double consumo mínimo.
+	* @param double consumo máximo.
+	*/
 	void set_traffic (double perc_min, double perc_max)
 	{
 		this->m_tk_min = perc_min;

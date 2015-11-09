@@ -17,11 +17,26 @@ namespace rca {
 	
 namespace sttalgo {
 
+/**
+* Classe que representa uma fábrica de árvores de Steiner
+*  
+* Tem como base o padrão factory method.
+*
+* A classe é um template que tem um argumento. Este argumento
+* é o container de arestas que permite controlar o uso das arestas
+*
+* @author Romerito C. Andrade
+*/
 template<class Container>
 class SteinerTreeFactory {
 
 public:
 	
+	/**
+	*
+	* Destrutor 
+	*
+	*/
 	virtual ~SteinerTreeFactory (){}
 	
 	/**
@@ -36,8 +51,7 @@ public:
 	 * @param STTree
 	 * @param rca::Network
 	 * @param rca::Group
-	 * @param Container
-	 * @author Romerito Campos.
+	 * @param Container	 
 	 */
 	virtual void build (SteinerTreeObserver<Container> & sttree, 
 					rca::Network & network, 
@@ -50,8 +64,11 @@ public:
  * Classe AGMZSteinerTree é uma classe que implementa a construção
  * de árvores de Steiner utilizando a ideia de contruir a árvore utilizando
  * o mínimo possível de arestas congestionadas.
+ *
+ * A construção é realizada considerando uma árvore geradora. 
+ * O algoritmo tenta reduzir ao máximo o custo de criação da árvore.
  * 
- * 
+ * @author Romerito C. Andrade
  */
 template <class Container>
 class AGMZSteinerTree : public SteinerTreeFactory<Container>
@@ -68,8 +85,7 @@ public:
 	 * @param STTree
 	 * @param rca::Network
 	 * @param rca::Group
-	 * @param Container
-	 * @author Romerito Campos. 
+	 * @param Container 
 	 */
 	void build (SteinerTreeObserver<Container> & sttree, 
 				rca::Network & network, 
@@ -113,12 +129,33 @@ private:
 	
 };
 
+/**
+* Classe que implementa a construção de árvores de steiner
+* com base na construção de caminho mais curto.
+*
+* A construção utiliza o algoritmo de dijkstra e constrói caminho
+* mais curto da fonte para todos os outros nós do grupo multicast.
+*
+*/
 template <class Container>
 class ShortestPathSteinerTree : public SteinerTreeFactory<Container>
 {
 
 public:
 	
+	/**
+	 * Esta implementação do método build faz utilização do algoritmo
+	 * de dijsktra para construção de árvores multicast para um grupo
+	 * multicast especifico.
+	 *
+	 * O algoritmo considera a restrição sobre a utilização de arestas
+	 * tendo como base as informações contidas no Container de arestas.
+	 * 
+	 * @param STTree
+	 * @param rca::Network
+	 * @param rca::Group
+	 * @param Container	 
+	 */
 	void build (SteinerTreeObserver<Container> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
@@ -132,6 +169,16 @@ class WildestSteinerTree : public SteinerTreeFactory<Container>
 {
 
 public:
+
+	/**
+	* Método utilizado construir árvores com base no algoritmo
+	* de caminho aumentado.
+	* 
+	* @param STTree
+	* @param rca::Network
+	* @param rca::Group
+	* @param Container
+	*/
 	void build (SteinerTreeObserver<Container> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,

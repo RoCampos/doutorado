@@ -87,21 +87,29 @@ void cycle_local_search<Container>::execute ( int tree,
 	std::set<int> vertex;	
 	std::vector<rca::Link> m_links;
 	
+	// Criando uma lista de arestas e removendo-as do container.
+	// Estas arestas correspondem a árvore multicast tree.
+
 	edge_t * e = m_trees[tree].get_edge ();
 	while (e != NULL) {
 		if (e->in) {
 			
 			rca::Link link (e->x, e->y, 0);
 			
+			// Se a aresta é utilizada apenas uma vez
+			//remove-a do grafo
 			if (cg.value (link) == (GSIZE-1) ) {
 				cg.erase (link);
 			} else {
+
+				// Se ele é utilizada por mais de uma árvore
+				// Então, desconta um valor de unidade
 				int value = cg.value (link) + 1;
 				cg.erase (link);
 				link.setValue (value);
 				cg.push (link);
 			}
-			
+
 			vertex.insert (link.getX());
 			vertex.insert (link.getY());
 			
@@ -111,23 +119,30 @@ void cycle_local_search<Container>::execute ( int tree,
 		e = e->next;
 	}
 	
+
+	//inicia busca por links que formem ciclos
 	for (auto v : vertex) {
 		for (auto w: vertex) {
-			
+
 			if (v < w) {
 				
+				//verificar se o par de vértices forma um lik
 				if (m_network.getCost (v,w) > 0) {
 					
-					
+					//cria o link para incluir um ciclos
 					rca::Link link (v,w, (int) m_network.getCost (v,w));
 					
+
+					//verifica se a utilização do link 
+					//vai não vai piorar a qualidade da solução
 					if (cg.is_used(link)) {
 						
 						if (cg.value (link) <= cg.top ()) continue;
 						
 					}
 					
-					
+					//verifica se o link estava na árvore
+					//onde ele será inserido
 					if (std::find(m_links.begin(), m_links.end(), link) 
 						== m_links.end()) {
 #ifdef DEBUG11						
@@ -136,17 +151,31 @@ void cycle_local_search<Container>::execute ( int tree,
 						
 						std::cout << "Circle Induced by : " << link << std::endl;
 #endif
+
+						
+						// Obtém as arestas que formam o ciclo
 						std::vector<rca::Link> toRemove;
 						toRemove = get_circle (m_links, 
 										m_groups[tree], 
 										link, m_network);
 						
 						//adding the links an remove others
+						// Os links presentes em 'toRemove' são 
+						// os links que possuem x,y coomo não terminais
+						// Assim força a remoção de mais links considerando
+						// que os links que ligados x,y serão também removidos
+
 						rca::Group g = m_groups[tree];
 						for (auto l : toRemove) {
 #ifdef DEBUG11				
 							std::cout <<"Removing "<<l << std::endl;
 #endif				
+							// Adiciona a árvore apenas os links da árvore
+							// sem o link que 'x,y' 
+							// devidos suas caracterísicas, ou seja 
+							// não possui nehum vértices terminal
+							// então vai permitir que mais links sejam 
+							// removidos
 							int source = g.getSource ();
 							STTree steiner_tree(NODES, source, g.getMembers ());
 							for (auto ll : m_links) {
@@ -196,6 +225,11 @@ void cycle_local_search<Container>::execute ( int tree,
 #ifdef DEBUG11
 	std::cout << old <<" "<< m_trees[tree].getCost () << std::endl;
 #endif
+	
+	//atualiza container com a nova árvore
+	// é necesário, pois nenhum observer está sendo
+	// utilizado aqui
+	// apenas a estrutura que representa a árvore de steiner
 	
 	e = m_trees[tree].get_edge ();
 	while ( e != NULL) {

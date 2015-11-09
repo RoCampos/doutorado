@@ -13,3 +13,8 @@ cat solution.opt | sed -e 's/y//g;s/[\(]//g;s/[\)]//g;0,/RE/s/,/ - /;s/,/:/g;s/ 
 	- substitui a primeira ',' por  ' -- '
 	- substitui a segunda ',' por ':'
 	- remove o ' 1 '
+
+
+# utilizando para filtrar a linha com o valor objetivo obtida pelo gurobi
+	
+	sed 's/[a-z]*//g;s/[A-Z]*//g;s/\,//g;s/[0-9]*\.[0-9]*\%//'
