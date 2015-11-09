@@ -1,9 +1,14 @@
 cmake_minimum_required (VERSION 2.8.12.2)
 
+set(VERSION_MAJOR   0   CACHE STRING "Project major version number.")
+set(VERSION_MINOR   5   CACHE STRING "Project minor version number.")
+set(VERSION_PATCH   0   CACHE STRING "Project patch version number.")
+mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
+
 SET (CPACK_PACKAGE_CONTACT romerito.campos@gmail.com)
-SET (CPACK_PACKAGE_VERSION_MAJOR 0)
-SET (CPACK_PACKAGE_VERSION_MINOR 4)
-SET (CPACK_PACKAGE_VERSION_PATCH 5)
+SET (CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
+SET (CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
+SET (CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
 SET (CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
 SET (CPACK_PACKAGE_NAME doutorado)
 SET (CPACK_PACKAGE_VENDOR "romerito campos")
@@ -107,6 +112,31 @@ else (GUROBI_INCLUDE_DIRS)
 endif (GUROBI_INCLUDE_DIR)
 #------------------------ ENDOFGUROBI ------------------------- #
 
+
+
+# ----------------------- FIND DOXYGEM ------------------------ # 
+find_package (Doxygen)
+option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+
+if (BUILD_DOCUMENTATION)
+	
+	if(NOT DOXYGEN_FOUND)
+		message (FATAL_ERROR "Doxygen is need to build docs")
+	endif()
+
+	set (doxyfile ${PROJECT_SOURCE_DIR}/scripts/Doxyfile)
+
+	add_custom_target (doc
+		COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/docs
+		COMMENT "Generating API documentation with Doxigen"
+		VERBATIM)
+
+	install (DIRECTORY docs/html DESTINATION ./share/doc)
+
+endif()
+
+# ----------------------- ENDOFDOXYGEN ------------------------ #
 
 set (EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/build")
 set (LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
