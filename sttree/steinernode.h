@@ -6,7 +6,9 @@
 #include "edge.h"
 
 /**
+ * @deprecated
  * Esta classe representa um nó de Steiner.
+ * 
  * 
  * @author Romerito Campos
  * @date 04/20/2014

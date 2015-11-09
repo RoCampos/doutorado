@@ -11,6 +11,8 @@
 
 namespace rca {
 	
+/*! \cond PRIVATE */
+
 class TreeBuildViewer {
 
 public:
@@ -123,5 +125,7 @@ private:
 	int m_last_window;
 	
 };
+
+/*! \endcond */
 
 }

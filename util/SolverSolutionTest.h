@@ -12,6 +12,18 @@
 #include "reader.h"
 #include "group.h"
 
+/**
+* Classe template utilizada para implentar o policy design pattern
+* para teste dos resultados obtidos por um solver.
+*
+* O argumento do template é uma implementação de fato de uma classe
+* que interprete e teste o resultado do solver específico.
+* 
+* Para tanto, a classe Solver deve implementar o método @see do_test
+* @see MMMSTPGurobiResult
+*
+* @author Romerito C. Andrade
+*/
 template <typename Solver>
 class SolverSolution : private Solver
 {
@@ -20,8 +32,17 @@ class SolverSolution : private Solver
 	
 public:
 	
-	bool test (std::string instance, std::string result, int objective) {		
-		return do_test (instance, result,  objective);
+	/**
+	* Método utilizar para executar o método do_test da classe Solver que é
+	* argumento do classe template.
+	* 
+	* @param std::string instância cujo resultado será testado
+	* @param std::string arquivo com resultado
+	* @param int indica se será verboso(1) ou não(0).
+	* @param bool 
+	*/
+	bool test (std::string instance, std::string result, int verb) {		
+		return do_test (instance, result,  verb);
 	}
 	
 };
@@ -56,6 +77,17 @@ typedef std::vector<std::shared_ptr<rca::Group> >  list_groups;
 class MMMSTPGurobiResult {
 
 public:
+
+	/**
+	* Método utilizado para realizar os testes.
+	* Ele faz chamadas a métodos auxiliares para fazer testes 
+	* nas árvores, para verificar valores de custo e capacidade residual.
+	*
+	* @param std::string instância cujo resultado será testado
+	* @param std::string arquivo com resultado
+	* @param int indica se será verboso(1) ou não(0).
+	* @param bool 	
+	*/
 	bool do_test (std::string instance, std::string result, int);
 	
 private:

@@ -1,10 +1,3 @@
-/*
- * link.h
- *
- *  Created on: 13/09/2012
- *      Author: romerito
- */
-
 #ifndef LINK_H_
 #define LINK_H_
 

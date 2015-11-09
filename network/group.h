@@ -50,6 +50,10 @@ public:
 	 * @param int requisição de tráfego
 	 */
 	Group(int id,int source,double trequest);
+
+	/**
+	* Destrutor.
+	*/
 	~Group();
 
 	/**
@@ -80,29 +84,31 @@ public:
 
 	/**
 	 * Método para definir um tamanho de um grupo.
-	 * @param int
+	 * @param int número de membros do grupo excluíndo nó fonte.
 	 */
 	void setSize(int size);
 
 	/**
 	 * Método para retornar o nó fonte de um grupo.
-	 * @return int
+	 * @return int nó fonte.
 	 */
 	int getSource() const;
 
 	/**
 	 * Método para definir o nó fonte de um grupo.
+	 * @param int nó fonte.
 	 */
 	void setSource(int source);
 
 	/**
 	 * Método para retornar o valor de requisição de tráfego.
-	 * @return int
+	 * @return double consumo de banda do grupo
 	 */
 	double getTrequest() const;
 
 	/**
 	 * Método para definir um valor de requisição de tráfego
+	 * @param double consumo de banda do grupo
 	 */
 	void setTrequest(double trequest);
 
@@ -115,14 +121,17 @@ public:
 	void addMember (int member);
 
 	/**
-	 *
+	 * Retorna o membro que está na posição poss.
+	 * Os membros do grupo multicast são armazendo em um std::vector
+	 * @param int posição do nó no vector
+	 * @param int valor identificador do nó
 	 */
 	int getMember (int poss);
 
 	/**
 	 * Retorna um vector com todos os nós membros.
 	 *
-	 * @return vector<int>
+	 * @return vector<int> membros do grupo multicast
 	 */
 	const std::vector<int> & getMembers () const {return m_members;}
 	
@@ -130,6 +139,8 @@ public:
 	 * Retornar um const_iterator para os mebros do grupo.
 	 * O const_iterator corresponde ao primeiro elemento da
 	 * lista.
+	 *
+	 * @return std::vector<int>::const_iterator begin iterator
 	 */
 	const std::vector<int>::const_iterator begin() {
 	  return m_members.begin();
@@ -139,6 +150,8 @@ public:
 	 * Retorna um const_iterator para os membros do grupo.
 	 * O const_iterator corresponde ao último elemento da
 	 * lista.
+	 *
+	 * return std::vector<int>::const_iterator ende iterator
 	 */
 	const std::vector<int>::const_iterator end() {
 	  return m_members.end();

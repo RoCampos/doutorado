@@ -6,6 +6,18 @@
 #include <cstdlib>
 #include "node.h"
 
+/**
+ * @deprecated
+ *
+ * Lista ligada para armazenar nós.
+ * Está lista de por objetivo controlar de forma
+ * dinâmica os nós que entram e saem da árvore.
+ * 
+ * @deprecated
+ * @author Romerito Campos.
+ * @date 04/20/2013
+ * 
+ */
 class LinkedList {
 	
 public:

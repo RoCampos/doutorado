@@ -13,7 +13,12 @@
 				"*cmake*",
 				"*.log",
 				"*.out",
-				"*.deb"
+				"*.deb",
+				"*.html",
+				"*.js",
+				"*.map",
+				"*.tex",
+				"*.md5"
 			],
 			"folders_exclude_patterns": [
 				"build",
@@ -24,7 +29,8 @@
 				"lib",
 				"statistics",
 				"impro-testes",
-				"Testing"
+				"Testing",
+				"docs"
 			]
 
 		}

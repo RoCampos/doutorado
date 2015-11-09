@@ -5,9 +5,15 @@
 #include "def.h"
 
 /**
+ * @deprecated 
+ *
  * Definição de Aresta de árvore
+ * Representa uma aresta da árvore com 
+ * um ponteiro para a próxima aresta.
  * 
  * 
+ * @author Romerito Campos
+ * @date 04/20/2013
  */
 struct Edge {
 	
@@ -29,7 +35,8 @@ struct Edge {
 /**
  * Lista de Aresta da Árvore
  * 
- * 
+ * @author Romerito Campos
+ * @date 04/20/2013
  */
 struct LisfOfEdge {
 	
@@ -46,6 +53,8 @@ struct LisfOfEdge {
 	Edge * head;
 	Edge * tail;
 	int size;
+	
+	bool exist (int i, int j);
 	
 };
 
