@@ -4,11 +4,13 @@
 #include <iostream>
 #include <vector>
 #include <utility>
+#include <typeinfo>
 
 #include "edgecontainer.h"
 #include "network.h"
 #include "steiner.h"
 #include "link.h"
+#include "group.h"
 
 enum EdgeType{
 	IN = 0,
@@ -17,7 +19,7 @@ enum EdgeType{
 
 class LocalSearch {
 
-typedef typename rca::EdgeContainer<rca::ComparatorReverse, rca::HCellRev> Container;
+typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> Container;
 typedef typename rca::Network Network;
 typedef typename std::vector<rca::Group> VGroups;
 typedef typename std::vector<steiner> Solution;
@@ -25,7 +27,7 @@ typedef typename std::vector<steiner> Solution;
 typedef typename std::vector<rca::Link> VEdge;
 
 public:
-	LocalSearch (Network & net, VGroups & groups);
+	LocalSearch (Network & net, std::vector<rca::Group> & groups);
 	
 	void apply (Solution &, int& cost, int& res);
 
@@ -63,7 +65,7 @@ private:
 		m_cg->init_handle_matrix ( m_network->getNumberNodes () );
 
 		for (auto & tree : solution) {
-			auto edges = tree.get_edges ();			
+			auto edges = tree.get_all_edges ();			
 			for (const std::pair<int,int> & e : edges) {
 				int cost = m_network->getCost (e.first, e.second);
 				rca::Link l (e.first, e.second, cost);
@@ -85,7 +87,7 @@ private:
 		int LINKS = solution.size ();
 
 		for (auto & tree : solution) {
-			auto edges = tree.get_edges ();			
+			auto edges = tree.get_all_edges ();			
 			for (const std::pair<int,int> & e : edges) {
 				int cost = m_network->getCost (e.first, e.second);
 				rca::Link l (e.first, e.second, cost);
@@ -110,12 +112,12 @@ private:
 
 	}
 
-	void inline_update (rca::Link&, EdgeType&, int tree_id);
+	void inline_update (rca::Link&, EdgeType, int tree_id);
 
 private:
 	Container * m_cg;
 	Network * m_network;
-	VGroups * m_groups;
+	std::vector<rca::Group> * m_groups;
 
 	VEdge to_replace;
 	VEdge m_removed;

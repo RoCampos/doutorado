@@ -608,6 +608,19 @@ public:
 	*
 	*/
 	void xdot_format ();
+
+	std::vector<std::pair<int,int>> get_all_edges () {
+		std::vector<std::pair<int,int>>	edges;
+		edge_t * perc = this->get_edge ();
+		while (perc != NULL) {					
+			std::pair<int,int> par = std::make_pair (perc->x, perc->y);
+			if (perc->in)
+				edges.push_back ( par );
+			perc = perc->next;		
+		}	
+
+		return edges;
+	}
 	
 private:
 	void _init_nodes(int nnodes) {

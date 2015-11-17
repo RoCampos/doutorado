@@ -170,7 +170,7 @@ void steiner::print () {
 		cout << m << "[color=red];\n";
 	}
 
-	auto ptr = this->get_edges ();
+	auto ptr = this->get_all_edges ();
 	for (std::pair<int,int> edge : ptr) {
 		cout << edge.first << "--" << edge.second << endl;
 	}
@@ -178,7 +178,7 @@ void steiner::print () {
 
 }
 
-std::vector<std::pair<int,int>> steiner::get_edges () {
+std::vector<std::pair<int,int>> steiner::get_all_edges () {
 
 	int NODES = this->get_num_nodes ();
 

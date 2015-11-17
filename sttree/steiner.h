@@ -50,7 +50,7 @@ public:
 
 	int get_degree (int x);
 
-	std::vector<std::pair<int,int>> get_edges ();
+	std::vector<std::pair<int,int>> get_all_edges ();
 
 	void print ();
 

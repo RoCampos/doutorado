@@ -65,7 +65,7 @@ private:
 		m_cg->init_handle_matrix ( m_network->getNumberNodes () );
 
 		for (auto & tree : solution) {
-			auto edges = tree.get_edges ();			
+			auto edges = tree.get_all_edges ();			
 			for (const std::pair<int,int> & e : edges) {
 				int cost = m_network->getCost (e.first, e.second);
 				rca::Link l (e.first, e.second, cost);
@@ -87,7 +87,7 @@ private:
 		int LINKS = solution.size ();
 
 		for (auto & tree : solution) {
-			auto edges = tree.get_edges ();			
+			auto edges = tree.get_all_edges ();			
 			for (const std::pair<int,int> & e : edges) {
 				int cost = m_network->getCost (e.first, e.second);
 				rca::Link l (e.first, e.second, cost);
