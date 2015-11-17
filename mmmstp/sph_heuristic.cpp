@@ -170,7 +170,7 @@ int main (int argc, char** argv)
 		
 		steiner_trees.push_back (ob.get_steiner_tree());
 		
-		cost += ob.get_steiner_tree ().getCost ();
+		cost += ob.get_steiner_tree ().get_cost ();
 	}
  	_time_.finished ();
 

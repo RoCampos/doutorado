@@ -81,7 +81,7 @@ void cycle_local_search<Container>::execute ( int tree,
 	int NODES = m_network.getNumberNodes ();
 	int GSIZE = m_groups.size ();
 	
-	int tcost = m_trees[tree].getCost ();
+	int tcost = m_trees[tree].get_cost ();
 	int old = tcost;
 	
 	std::set<int> vertex;	
@@ -199,11 +199,11 @@ void cycle_local_search<Container>::execute ( int tree,
 							
 #ifdef DEBUG11
 							std::cout << tcost << " ";
-							std::cout << steiner_tree.getCost () << std::endl;
+							std::cout << steiner_tree.get_cost () << std::endl;
 #endif			
-							if (tcost > steiner_tree.getCost ()) {
+							if (tcost > steiner_tree.get_cost ()) {
 								m_trees[tree] = steiner_tree;
-								tcost = steiner_tree.getCost ();
+								tcost = steiner_tree.get_cost ();
 							}
 #ifdef DEBUG11							
  							getchar ();
@@ -223,7 +223,7 @@ void cycle_local_search<Container>::execute ( int tree,
 	}
 	
 #ifdef DEBUG11
-	std::cout << old <<" "<< m_trees[tree].getCost () << std::endl;
+	std::cout << old <<" "<< m_trees[tree].get_cost () << std::endl;
 #endif
 	
 	//atualiza container com a nova árvore
@@ -318,7 +318,7 @@ void cycle_local_search<Container>::local_search (std::vector<STTree> & m_trees,
 		for (int i: idx) {
 			this->execute (i, m_trees, m_network, 
  			   m_groups, cg);		
-			cost += m_trees[i].getCost ();
+			cost += m_trees[i].get_cost ();
 		}
 
 	}while (cost < improve);

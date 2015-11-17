@@ -504,19 +504,19 @@ public:
 	* Método que retoarn o núermo de nós
 	* @return int número de nós
 	*/
-	inline int getNodes () {return m_nodes.size();}
+	inline int get_num_nodes () {return m_nodes.size();}
 
 	/**
 	* Método que retorna a fonte do grupo multicast
 	* @return int nó fonte do grupo multicast
 	*/
-	inline int getSource () {return m_source;}
+	inline int get_source () {return m_source;}
 
 	/**
 	* Método que retorna os nós terminais
 	* @return std::vector<int> nós terminais
 	*/
-	std::vector<int> getTerminals () {
+	std::vector<int> get_terminals () {
 		std::vector<int> term;
 		for (size_t i=0;i < m_nodes.size (); i++) {
 			if (m_nodes[i].terminal)
@@ -560,7 +560,7 @@ public:
 	* Método que retorna o custo da árvore
 	* @return double custo 
 	*/
-	inline double getCost () {
+	inline double get_cost () {
 		return m_cost;
 	}
 	
@@ -568,7 +568,7 @@ public:
 	* Método que define o custo de uma árvore
 	* @param double	
 	*/
-	inline void setCost (double cost) {
+	inline void set_cost (double cost) {
 		m_cost = cost;
 	}
 	
@@ -607,7 +607,7 @@ public:
 	* Método para imprimir a árvore no formato do GraphViz.
 	*
 	*/
-	void xdotFormat ();
+	void xdot_format ();
 	
 private:
 	void _init_nodes(int nnodes) {

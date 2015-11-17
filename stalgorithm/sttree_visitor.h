@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "sttree.h"
+#include "steiner.h"
 #include "edgecontainer.h"
 #include "steiner_tree_observer.h"
 
@@ -29,6 +30,9 @@ namespace sttalgo {
  */
 template<class Container>
 void prunning (STTree & st, Container & cont, int, int);
+
+template<class Container>
+void prunning (steiner & st, Container & cont, int,int);
 
 /**
  * Este método tempo por objetivo retorna uma lista

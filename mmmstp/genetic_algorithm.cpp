@@ -281,7 +281,7 @@ void GeneticAlgorithm::crossover (int i, int j)
 		tree_as_links.push_back (stObserver.getTreeAsLinks());
 		
 		//updating tree cost
-		sol.m_cost += stObserver.get_steiner_tree ().getCost ();
+		sol.m_cost += stObserver.get_steiner_tree ().get_cost ();
 	}
 	
 	//updating congestion
@@ -437,7 +437,7 @@ void GeneticAlgorithm::local_search (int i)
 	int tt = 0.0;
 	int imp = 0;
  	for (auto st : trees) {
- 		tt += (int)st.getCost ();
+ 		tt += (int)st.get_cost ();
  	}	
 	do {
 		imp = tt;
@@ -610,7 +610,7 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 		STTree st (NODES, source, 
 					groups[i].getMembers());
 		//set the cost of steiner tree
-		st.setCost (0.0);
+		st.set_cost (0.0);
 		
 		//configuring observer
 		stObserver.set_steiner_tree (st, NODES);
@@ -689,7 +689,7 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 		tree_as_links [i] = stObserver.getTreeAsLinks ();
 		
 		//updating the cost
-		this->m_cost += stObserver.get_steiner_tree ().getCost ();
+		this->m_cost += stObserver.get_steiner_tree ().get_cost ();
 		
 #ifdef DEBUG1
 		st.xdotFormat ();
@@ -837,7 +837,7 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 		
 		pos_path += groups[i].getSize ();
 		//updating cost
-		m_cost += st.get_steiner_tree().getCost ();
+		m_cost += st.get_steiner_tree().get_cost ();
 		
 		//getting the tree as linsk
 		this->m_tree_links.push_back (st.getTreeAsLinks ());
@@ -990,7 +990,7 @@ void PathRepresentation::operator1 (rca::Network *net,
 			
 			//updating cost
 			stObserver.prune (1, group[k].getSize() );
-			cost += stObserver.get_steiner_tree ().getCost ();
+			cost += stObserver.get_steiner_tree ().get_cost ();
 			tree_as_links.push_back( stObserver.getTreeAsLinks () );
 			
 			
@@ -1002,7 +1002,7 @@ void PathRepresentation::operator1 (rca::Network *net,
 			
 			trees.push_back (_st);
 			
-			_st->setCost (0.0);
+			_st->set_cost (0.0);
 			stObserver.set_steiner_tree (*trees[k], NODES);
 			
 			//adding the path to group k
@@ -1024,7 +1024,7 @@ void PathRepresentation::operator1 (rca::Network *net,
 	}
 	
 	stObserver.prune (1, group[k].getSize() );
-	cost += stObserver.get_steiner_tree ().getCost ();
+	cost += stObserver.get_steiner_tree ().get_cost ();
 	tree_as_links.push_back( stObserver.getTreeAsLinks () );
 	
 	for (size_t i=0; i < trees.size (); i++) {

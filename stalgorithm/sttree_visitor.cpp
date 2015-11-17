@@ -29,8 +29,8 @@ void rca::sttalgo::prunning (STTree & st, Container & cont, int trequest, int ba
 			//remove aresta
 			if (edge != NULL) {
 				edge->in = false;
-				double m_cost = st.getCost () - edge->value;
-				st.setCost (m_cost);
+				double m_cost = st.get_cost () - edge->value;
+				st.set_cost (m_cost);
 				
 				rca::Link l (edge->x, edge->y, -1);
 				if (cont.is_used (l)){
@@ -71,6 +71,12 @@ void rca::sttalgo::prunning (STTree & st, Container & cont, int trequest, int ba
 	}
 	
 	aux = NULL;
+}
+
+template<class Container>
+void rca::sttalgo::prunning (steiner & st, Container & cont, int trequest, int band)
+{
+	//TO DO 
 }
 
 std::vector<rca::Path> rca::sttalgo::stree_to_path (STTree & st, int source, int nodes)
@@ -244,7 +250,7 @@ void rca::sttalgo::replace_edge (STTree & st,
 	res->setX(_new.getX());
 	res->setY(_new.getY());
 	
-	STTree new_st (st.getNodes(), st.getSource (), st.getTerminals());
+	STTree new_st (st.get_num_nodes(), st.get_source (), st.get_terminals());
 	for (auto l : links) {
 		int cost = net.getCost (l.getX(), l.getY());
 		new_st.add_edge (l.getX(), l.getY(), cost);
@@ -395,7 +401,7 @@ void rca::sttalgo::print_solution (std::vector<SteinerType>& trees)
 {
 
 	for (auto steiner_tree : trees) {
-		steiner_tree.xdotFormat ();
+		steiner_tree.xdot_format ();
 	}
 	
 }

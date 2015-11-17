@@ -101,7 +101,7 @@ sttree_t Grasp::build_solution () {
 		ob.prune (1, SIZE);
 		
 		//computing the cost and store the tree
-		m_cost += ob.get_steiner_tree ().getCost ();
+		m_cost += ob.get_steiner_tree ().get_cost ();
 		sol.m_trees[g_idx] = ob.get_steiner_tree ();
 		
 		this->update_usage (ob.get_steiner_tree());
@@ -203,7 +203,7 @@ void Grasp::cost_refinament (sttree_t * sol, ChenReplaceVisitor & c)
 		c.visitByCost ();
 		tt = 0.0;
 		for (auto st : sol->m_trees) {
-			tt += (int)st.getCost ();		
+			tt += (int)st.get_cost ();		
 		}
 	
 #ifdef DEBUG
@@ -240,7 +240,7 @@ void Grasp::residual_refinament (sttree_t * sol, ChenReplaceVisitor& c)
 				
 		int temp_cost = 0;
 		for (auto st : sol->m_trees) {
-			temp_cost += (int)st.getCost ();
+			temp_cost += (int)st.get_cost ();
 		}
 		
 		if (sol->cg.top () > tmp_cong && cost <= m_budget) {
