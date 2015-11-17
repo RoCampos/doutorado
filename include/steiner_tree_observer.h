@@ -49,6 +49,8 @@ public:
 	* @param int número de nós da rede
 	*/
 	SteinerTreeObserver(ContainerType & ec, SteinerRepr & st, int);
+
+	SteinerTreeObserver(ContainerType & ec, SteinerRepr & st, rca::Network&,int);
 	
 	/**
 	* Método utilizado para definir uma estrutura de árvore de 
@@ -121,6 +123,7 @@ private:
 	ContainerType * m_ec;
 	SteinerRepr * m_st;	
 	DisjointSet2 * dset;
+	rca::Network * m_network;
 	
 };
 

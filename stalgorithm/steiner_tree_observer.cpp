@@ -19,6 +19,17 @@ SteinerTreeObserver<ContainerType, SteinerRepr>::SteinerTreeObserver(ContainerTy
 }
 
 template<typename ContainerType, typename SteinerRepr>
+SteinerTreeObserver<ContainerType, SteinerRepr>::SteinerTreeObserver(ContainerType & ec, 
+									SteinerRepr & st, rca::Network& net,int){
+
+	m_ec = &ec;
+	m_network = &net;
+	this->set_steiner_tree (st, nodes);
+
+
+}
+
+template<typename ContainerType, typename SteinerRepr>
 void SteinerTreeObserver<ContainerType, SteinerRepr>::set_steiner_tree (SteinerRepr & st, int nodes)
 {
 	m_st = NULL;
@@ -107,4 +118,4 @@ void SteinerTreeObserver<ContainerType, SteinerRepr>::prune (int rest, int band)
 }
 
 template class rca::sttalgo::SteinerTreeObserver<EdgeContainer<Comparator, HCell>, STTree>;
-//template class rca::sttalgo::SteinerTreeObserver<EdgeContainer<Comparator, HCell>, steiner>;
+template class rca::sttalgo::SteinerTreeObserver<EdgeContainer<Comparator, HCell>, steiner>;
