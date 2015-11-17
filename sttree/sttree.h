@@ -609,6 +609,16 @@ public:
 	*/
 	void xdot_format ();
 
+
+	/**
+	* Método que retorna todas as arestas presentes na árvore
+	* 
+	* Este método foi criado para manter compatibilidade com a representação 'steiner'
+	*
+	* As arestas são retornadas como um vector de std::pair
+	*
+	* @return std::vector<std::pair<int,int>> lista de arestas.
+	*/	
 	std::vector<std::pair<int,int>> get_all_edges () {
 		std::vector<std::pair<int,int>>	edges;
 		edge_t * perc = this->get_edge ();

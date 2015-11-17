@@ -50,6 +50,20 @@ public:
 	*/
 	SteinerTreeObserver(ContainerType & ec, SteinerRepr & st, int);
 
+	/**
+	* 
+	* Construtor que recebe um container de arestas, uma
+	* estrutura para armazenar árvores de steiner e um 
+	* inteiro representando o número de arestas.
+	*
+	* Além disso, o construtor recebe uma referência para o grafo no 
+	* qual as soluções estão sendo construídas.
+	*
+	* @param ContainerType container de arestas
+	* @param STTree estrutura para armazenar árvore
+	* @param rca::Network referência para um objeto rca::Network
+	* @param int número de nós da rede
+	*/
 	SteinerTreeObserver(ContainerType & ec, SteinerRepr & st, rca::Network&,int);
 	
 	/**
