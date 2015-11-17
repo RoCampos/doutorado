@@ -15,7 +15,7 @@ using namespace rca;
 
 typedef std::vector<int> previous_t;
 typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
-typedef typename rca::sttalgo::SteinerTreeObserver<CongestionHandle> STobserver;
+typedef typename rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> STobserver;
 typedef typename rca::sttalgo::ChenReplaceVisitor ChenReplaceVisitor;
 
 typedef rca::sttalgo::cycle_local_search<CongestionHandle> CycleLocalSearch;

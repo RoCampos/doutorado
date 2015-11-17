@@ -27,7 +27,7 @@ namespace sttalgo {
 *
 * @author Romerito C. Andrade
 */
-template<class Container>
+template<class Container, class SteinerRepr>
 class SteinerTreeFactory {
 
 public:
@@ -53,7 +53,7 @@ public:
 	 * @param rca::Group
 	 * @param Container	 
 	 */
-	virtual void build (SteinerTreeObserver<Container> & sttree, 
+	virtual void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 					rca::Network & network, 
 					rca::Group & g,
 					Container& cg) = 0;
@@ -70,8 +70,8 @@ public:
  * 
  * @author Romerito C. Andrade
  */
-template <class Container>
-class AGMZSteinerTree : public SteinerTreeFactory<Container>
+template <class Container, class SteinerRepr>
+class AGMZSteinerTree : public SteinerTreeFactory<Container, SteinerRepr>
 {
 
 public:
@@ -87,7 +87,7 @@ public:
 	 * @param rca::Group
 	 * @param Container 
 	 */
-	void build (SteinerTreeObserver<Container> & sttree, 
+	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg);
@@ -137,8 +137,8 @@ private:
 * mais curto da fonte para todos os outros nós do grupo multicast.
 *
 */
-template <class Container>
-class ShortestPathSteinerTree : public SteinerTreeFactory<Container>
+template <class Container, class SteinerRepr>
+class ShortestPathSteinerTree : public SteinerTreeFactory<Container, SteinerRepr>
 {
 
 public:
@@ -156,7 +156,7 @@ public:
 	 * @param rca::Group
 	 * @param Container	 
 	 */
-	void build (SteinerTreeObserver<Container> & sttree, 
+	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg);
@@ -164,8 +164,8 @@ public:
 };
 
 
-template <class Container>
-class WildestSteinerTree : public SteinerTreeFactory<Container>
+template <class Container, class SteinerRepr>
+class WildestSteinerTree : public SteinerTreeFactory<Container, SteinerRepr>
 {
 
 public:
@@ -179,7 +179,7 @@ public:
 	* @param rca::Group
 	* @param Container
 	*/
-	void build (SteinerTreeObserver<Container> & sttree, 
+	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg);

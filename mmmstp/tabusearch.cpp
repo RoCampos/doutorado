@@ -121,12 +121,12 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 	
 	
 	if (this->m_factory == NULL)
-		this->m_factory = new rca::sttalgo::ShortestPathSteinerTree<Container>();
+		this->m_factory = new rca::sttalgo::ShortestPathSteinerTree<Container, SolutionType>();
 	
 	int NODES = this->m_network.getNumberNodes();
 	int GROUPS= this->m_groups.size ();
 
-	rca::sttalgo::SteinerTreeObserver<Container> ob;
+	rca::sttalgo::SteinerTreeObserver<CongestionHandle, SolutionType> ob;
 	ob.set_container (cg);
 	
 	std::vector<int> index(GROUPS, 0);

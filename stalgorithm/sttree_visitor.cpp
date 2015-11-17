@@ -310,7 +310,7 @@ void rca::sttalgo::improve_cost (std::vector<STTree>& m_trees,
 	rca::EdgeContainer<rca::Comparator, rca::HCell> & cg, int best)
 {
 	typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
-	typedef typename rca::sttalgo::SteinerTreeObserver<CongestionHandle> STobserver;
+	typedef typename rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> STobserver;
 	
 	network.clearRemovedEdges ();
 	

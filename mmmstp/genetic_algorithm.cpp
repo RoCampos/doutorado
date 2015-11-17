@@ -237,7 +237,7 @@ void GeneticAlgorithm::crossover (int i, int j)
 	CongestionHandle cg;
 	cg.init_congestion_matrix (m_network->getNumberNodes ());
 	cg.init_handle_matrix (m_network->getNumberNodes ());
-	rca::sttalgo::SteinerTreeObserver<CongestionHandle> stObserver;
+	rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> stObserver;
 	stObserver.set_container(cg);
 	
 	TreeAsLinks tree_as_links;
@@ -360,7 +360,7 @@ void GeneticAlgorithm::local_search (int i)
 	CongestionHandle ec;
 	ec.init_congestion_matrix (NODES);
 	ec.init_handle_matrix (NODES);
-	rca::sttalgo::SteinerTreeObserver<CongestionHandle> stOb;
+	rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> stOb;
 	stOb.set_container (ec);
 	
 	//getting the trees of individual is
@@ -457,7 +457,7 @@ void GeneticAlgorithm::local_search (int i)
  	std::cout << cost << std::endl;
 #endif
 	
-	rca::sttalgo::SteinerTreeObserver<CongestionHandle> _stOb;
+	rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> _stOb;
 	tree_as_links.clear ();
 	
 	//varible passed to setPath delimitador de árvore no genótipo
@@ -574,7 +574,7 @@ void PathRepresentation::init_rand_solution1 (rca::Network * net,
 	this->setCongestionHandle(cg);
 	
 	//SteinerTreeObserver object, publish new changes
-	rca::sttalgo::SteinerTreeObserver<CongestionHandle> stObserver;					
+	rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> stObserver;					
 	stObserver.set_container ( this->getCongestionHandle () );
 	
 	//variable control the position used in setPath
@@ -719,7 +719,7 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 	int NODES = net->getNumberNodes ();
 
 	//creating observer: one for each tree
-	std::vector<rca::sttalgo::SteinerTreeObserver<CongestionHandle>> treesObserver;
+	std::vector<rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree>> treesObserver;
 	
 	//congestino handle
 	CongestionHandle cg;
@@ -744,7 +744,7 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 					  g.getSource(), g.getMembers());
 		
 		//setting observer for each tree
-		rca::sttalgo::SteinerTreeObserver<CongestionHandle> ob;
+		rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> ob;
 		ob.set_container (this->getCongestionHandle () );
 		
 		//setting the trees to observer
@@ -824,7 +824,7 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 	m_cost = 0; //store the cost of solution
 	int pos_path = 0;
 	//making prunning and updating the solution
-	for (rca::sttalgo::SteinerTreeObserver<CongestionHandle> & st : treesObserver) {
+	for (rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> & st : treesObserver) {
 		
 		//prune
 		st.prune (1, groups[i].getSize() );
@@ -899,7 +899,7 @@ void PathRepresentation::operator1 (rca::Network *net,
 	cg.init_congestion_matrix (NODES);
 	cg.init_handle_matrix (NODES);
 	
-	rca::sttalgo::SteinerTreeObserver<CongestionHandle> stObserver;//(NULL, &cg);
+	rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> stObserver;//(NULL, &cg);
 	stObserver.set_container (cg);
 	
 	int end = group[0].getSize ();

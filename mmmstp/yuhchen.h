@@ -118,8 +118,8 @@ typedef struct forest_t {
 
 
 typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestinoHandle;
-typedef rca::sttalgo::SteinerTreeObserver<rca::EdgeContainer<rca::Comparator, rca::HCell>> STObserver;
-typedef typename rca::sttalgo::SteinerTreeObserver<CongestinoHandle> STObserver;
+typedef rca::sttalgo::SteinerTreeObserver<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree> STObserver;
+typedef typename rca::sttalgo::SteinerTreeObserver<CongestinoHandle, STTree> STObserver;
 typedef rca::sttalgo::cycle_local_search<CongestionHandle> CycleLocalSearch;
 
 

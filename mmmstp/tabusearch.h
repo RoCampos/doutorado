@@ -164,7 +164,7 @@ private:
 	ObjectiveType m_budget;
 	
 	//multicast tree factory
-	rca::sttalgo::SteinerTreeFactory<Container> * m_factory;
+	rca::sttalgo::SteinerTreeFactory<Container, SolutionType> * m_factory;
 	
 	
 };
