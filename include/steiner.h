@@ -29,6 +29,7 @@ public:
 	steiner ();
 	steiner (int numvertex);
 	steiner (int numvertex, const std::vector<int> & terminals);
+	steiner (int numvertex, int source, const std::vector<int> & terminals);
 	steiner (const steiner &);
 	steiner & operator=(const steiner &);
 	~steiner();

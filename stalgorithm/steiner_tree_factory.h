@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "sttree.h"
+#include "steiner.h"
 #include "network.h"
 #include "group.h"
 #include "link.h"

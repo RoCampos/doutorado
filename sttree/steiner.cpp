@@ -24,6 +24,18 @@ steiner::steiner (int numvertices, const std::vector<int> & terminals)
 
 }
 
+
+steiner::steiner (int numvertices, int source, const std::vector<int> & terminals) 
+: m_edges(0), m_nodes(numvertices), m_cost (0) {
+
+	std::vector<int> v(0);
+
+	this->m_adjacentList.resize (numvertices);
+	this->m_terminals = std::vector<int> (terminals);
+	this->m_terminals.push_back (source);
+
+}
+
 steiner::steiner (const steiner & ref)
 : m_edges(ref.m_edges), m_nodes(ref.m_nodes), m_cost (ref.m_cost) {
 	
