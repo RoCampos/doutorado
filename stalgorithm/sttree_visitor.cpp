@@ -3,9 +3,83 @@
 using namespace rca::sttalgo;
 using namespace rca;
 
-template<class Container>
-void rca::sttalgo::prunning (STTree & st, Container & cont, int trequest, int band)
+template<class Container, class SteinerType>
+void rca::sttalgo::prunning (SteinerType & st, Container & cont, int trequest, int band)
 {
+
+	rca::sttalgo::prunning(st, cont, trequest, band);
+	
+
+// 	list_leafs_t& list = st.get_leafs (); 
+// 	leaf_t * aux = list.begin;
+
+// 	while ( aux != NULL) {
+		
+// 		leaf_t * tmp = aux->next;
+		
+// 		int id = aux->id;
+// 		st.get_node(id).decrease_degree ();
+		
+// 		if (st.get_node(id).get_degree () == 0) {
+			
+// 			edge_t * edge = st.get_node(id).remove_adjacent_vertex ();
+			
+// 			int _other = (edge->x == id ? edge->y : edge->x);
+			
+// 			//removing leaf
+// 			list.remove ( st.get_node(id).leaf );
+			
+// 			//printf ("Removing (%d - %d)\n",edge->x, edge->y);
+// 			//remove aresta
+// 			if (edge != NULL) {
+// 				edge->in = false;
+// 				double m_cost = st.get_cost () - edge->value;
+// 				st.set_cost (m_cost);
+				
+// 				rca::Link l (edge->x, edge->y, -1);
+// 				if (cont.is_used (l)){
+// 					l.setValue ( cont.value (l));
+// 				} else {
+// 					std::cout << l <<":"<<l.getValue() << " not removed\n";
+// 				}
+				
+// 				if (l.getValue () + 1 == band) {
+// 					cont.erase (l);
+// 				} else if (l.getValue() > -1){
+// 					cont.erase (l);
+// 					l.setValue ( l.getValue () + 1 );
+// 					cont.push  (l);
+// 				}
+// 			}
+			
+// 			edge = NULL;
+			
+// 			//considera o outro vertex
+// 			st.get_node(_other).decrease_degree ();
+// 			if (st.get_node(_other).get_degree () == 1 && !st.get_node(_other).is_terminal ()) {
+				
+// 				leaf_t *leaf = new leaf_t ( _other );
+// 				list.add (leaf);
+				
+// 				st.get_node(_other).add_leaf_node (leaf);
+				
+// 				aux = list.first ();
+				
+// 				continue;
+// 			}
+			
+// 		}
+		
+// 		aux = tmp;
+// 		tmp = NULL;
+// 	}
+	
+// 	aux = NULL;
+}
+
+void rca::sttalgo::prunning (STTree & st, 
+	rca::EdgeContainer<rca::Comparator, rca::HCell> & cont, int trequest, int band) {
+	
 	list_leafs_t& list = st.get_leafs (); 
 	leaf_t * aux = list.begin;
 
@@ -73,8 +147,8 @@ void rca::sttalgo::prunning (STTree & st, Container & cont, int trequest, int ba
 	aux = NULL;
 }
 
-template<class Container>
-void rca::sttalgo::prunning (steiner & st, Container & cont, int trequest, int band)
+void rca::sttalgo::prunning (steiner & st, 
+	rca::EdgeContainer<rca::Comparator, rca::HCell> & cont, int trequest, int band)
 {
 	//TO DO 
 }
@@ -536,11 +610,30 @@ template void rca::sttalgo::remove_top_edges<rca::EdgeContainer<rca::Comparator,
 			rca::Group & group, 
 			int res);
 
-template void rca::sttalgo::prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>>
+template void rca::sttalgo::prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree>
 		(STTree& st, 
 		rca::EdgeContainer<rca::Comparator, rca::HCell>& cont, 
 		int treq, 
 		int band);
+
+template void rca::sttalgo::prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner>
+		(steiner& st, 
+		rca::EdgeContainer<rca::Comparator, rca::HCell>& cont, 
+		int treq, 
+		int band);
+
+// template void rca::sttalgo::prunning_sttree<rca::EdgeContainer<rca::Comparator, rca::HCell>>
+// 		(STTree& st, 
+// 		rca::EdgeContainer<rca::Comparator, rca::HCell>& cont, 
+// 		int treq, 
+// 		int band);
+
+// template void rca::sttalgo::prunning_steiner<rca::EdgeContainer<rca::Comparator, rca::HCell>>
+// 		(steiner& st, 
+// 		rca::EdgeContainer<rca::Comparator, rca::HCell>& cont, 
+// 		int treq, 
+// 		int band);
+
 		
 template void rca::sttalgo::print_solution<STTree> (std::vector<STTree> &st);
 template void rca::sttalgo::print_solution2<STTree> (std::vector<STTree> &st);

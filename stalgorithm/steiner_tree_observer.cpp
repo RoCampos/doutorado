@@ -20,7 +20,9 @@ SteinerTreeObserver<ContainerType, SteinerRepr>::SteinerTreeObserver(ContainerTy
 
 template<typename ContainerType, typename SteinerRepr>
 SteinerTreeObserver<ContainerType, SteinerRepr>::SteinerTreeObserver(ContainerType & ec, 
-									SteinerRepr & st, rca::Network& net,int){
+									SteinerRepr & st, 
+									rca::Network& net, 
+									int nodes){
 
 	m_ec = &ec;
 	m_network = &net;
@@ -98,15 +100,22 @@ std::vector<rca::Link> SteinerTreeObserver<ContainerType, SteinerRepr>::getTreeA
 {
 	std::vector<rca::Link> links;
 	
-	edge_t * perc = m_st->get_edge ();
-	while (perc != NULL) {
+	// edge_t * perc = m_st->get_edge ();
+	// while (perc != NULL) {
 		
-		rca::Link l(perc->x, perc->y, perc->value);		
-		if (perc->in)
-			links.push_back ( l );
-		perc = perc->next;
+	// 	rca::Link l(perc->x, perc->y, perc->value);		
+	// 	if (perc->in)
+	// 		links.push_back ( l );
+	// 	perc = perc->next;
 		
-	}	
+	// }	
+
+	for (auto e : m_st->get_all_edges ()) {
+		int cost = m_network->getCost (e.first, e.second);
+		rca::Link l(e.first, e.second, cost);		
+		links.push_back (l);
+	}
+
 	
 	return links;
 }
@@ -114,7 +123,9 @@ std::vector<rca::Link> SteinerTreeObserver<ContainerType, SteinerRepr>::getTreeA
 template<typename ContainerType, typename SteinerRepr>
 void SteinerTreeObserver<ContainerType, SteinerRepr>::prune (int rest, int band)
 {
-	prunning<ContainerType>(*m_st, *m_ec, rest, band); 
+	
+	prunning<ContainerType>(*m_st, *m_ec, rest, band);	
+
 }
 
 template class rca::sttalgo::SteinerTreeObserver<EdgeContainer<Comparator, HCell>, STTree>;
