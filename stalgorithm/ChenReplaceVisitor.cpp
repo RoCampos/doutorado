@@ -519,9 +519,9 @@ void ChenReplaceVisitor::update_trees ()
 		}
 		
 		//_st.prunning ();
-		prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>>(_st, *m_ec, 1, BAND);
+		prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree>(_st, *m_ec, 1, BAND);
 		
-		this->m_cost += _st.getCost ();
+		this->m_cost += _st.get_cost ();
 		
 		m_trees->push_back (_st);
 		g++;

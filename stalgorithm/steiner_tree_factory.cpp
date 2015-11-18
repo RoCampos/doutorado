@@ -3,8 +3,8 @@
 using namespace rca::sttalgo;
 using namespace rca;
 
-template <class Container>
-void AGMZSteinerTree<Container>::create_list (rca::Network& network)
+template <class Container, class SteinerRepr>
+void AGMZSteinerTree<Container, SteinerRepr>::create_list (rca::Network& network)
 {
 	auto iter = network.getLinks ().begin();
 	auto end = network.getLinks ().end();
@@ -17,8 +17,8 @@ void AGMZSteinerTree<Container>::create_list (rca::Network& network)
 	}	
 }
 
-template <class Container>
-void AGMZSteinerTree<Container>::build (SteinerTreeObserver<Container> & sttree, 
+template <class Container, class SteinerRepr>
+void AGMZSteinerTree<Container, SteinerRepr>::build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 							rca::Network & network, 
 							rca::Group & g,
 							Container& cg)
@@ -47,8 +47,8 @@ void AGMZSteinerTree<Container>::build (SteinerTreeObserver<Container> & sttree,
 	
 }
 
-template <class Container>
-void AGMZSteinerTree<Container>::update_usage (	rca::Group& g,
+template <class Container, class SteinerRepr>
+void AGMZSteinerTree<Container, SteinerRepr>::update_usage (	rca::Group& g,
 						rca::Network & m_network,
 						STTree & st)
 {
@@ -73,9 +73,9 @@ void AGMZSteinerTree<Container>::update_usage (	rca::Group& g,
 
 /********* ------------ Shortest Path Class ------------ *********/
 
-template <class Container>
-void ShortestPathSteinerTree<Container>::build (
-				SteinerTreeObserver<Container> & sttree, 
+template <class Container, class SteinerRepr>
+void ShortestPathSteinerTree<Container, SteinerRepr>::build (
+				SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg)
@@ -106,9 +106,9 @@ void ShortestPathSteinerTree<Container>::build (
 }
 
 /** ------------------------ WildestSteinerTree ------------------- **/
-template <class Container>
-void WildestSteinerTree<Container>::build (
-				SteinerTreeObserver<Container> & sttree, 
+template <class Container, class SteinerRepr>
+void WildestSteinerTree<Container, SteinerRepr>::build (
+				SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg)
@@ -140,8 +140,8 @@ void WildestSteinerTree<Container>::build (
 	
 }
 
-template <class Container>
-void WildestSteinerTree<Container>::update_band (rca::Group & g, 
+template <class Container, class SteinerRepr>
+void WildestSteinerTree<Container, SteinerRepr>::update_band (rca::Group & g, 
 												rca::Network& network,
 												STTree & st)
 {
@@ -162,7 +162,10 @@ void WildestSteinerTree<Container>::update_band (rca::Group & g,
 	
 }
 
-template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell> >; 
-template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell> >;
-template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell> >;
-template class rca::sttalgo::WildestSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell> >;
+template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >; 
+template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >;
+template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >;
+template class rca::sttalgo::WildestSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >;
+
+template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >;
+template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >; 

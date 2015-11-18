@@ -185,7 +185,7 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 		
 		this->update_usage (stob.get_steiner_tree ());
 		
-		cost += stob.get_steiner_tree().getCost ();
+		cost += stob.get_steiner_tree().get_cost ();
 		//stob.get_steiner_tree().xdotFormat ();
 		
 		std::vector<rca::Path> tree = rca::sttalgo::stree_to_path (
@@ -359,7 +359,7 @@ forest_t YuhChen::to_forest (int stream_id, std::vector<rca::Path> paths)
 			t.m_tree = ob.get_steiner_tree ();
 			
 			out_solution.m_trees.push_back ( t );
-			out_solution.m_cost += ob.get_steiner_tree ().getCost ();
+			out_solution.m_cost += ob.get_steiner_tree ().get_cost ();
 		}
 		i++;
 	}
@@ -546,7 +546,7 @@ void YuhChen::run (int param)
 		c.visitByCost ();
 		int tt = 0.0;
 		for (auto st : improve) {
-			tt += (int)st.getCost ();
+			tt += (int)st.get_cost ();
 		}
 		std::cout << tt << "\t";
 		CycleLocalSearch cls;

@@ -121,12 +121,12 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 	
 	
 	if (this->m_factory == NULL)
-		this->m_factory = new rca::sttalgo::ShortestPathSteinerTree<Container>();
+		this->m_factory = new rca::sttalgo::ShortestPathSteinerTree<Container, SolutionType>();
 	
 	int NODES = this->m_network.getNumberNodes();
 	int GROUPS= this->m_groups.size ();
 
-	rca::sttalgo::SteinerTreeObserver<Container> ob;
+	rca::sttalgo::SteinerTreeObserver<CongestionHandle, SolutionType> ob;
 	ob.set_container (cg);
 	
 	std::vector<int> index(GROUPS, 0);
@@ -186,7 +186,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::build_solution (std::vector<V>& sol,
 		ob.prune (1,GROUPS);
 		
 		//updating the cost
-		cost += ob.get_steiner_tree ().getCost ();
+		cost += ob.get_steiner_tree ().get_cost ();
 		
  		m_network.clearRemovedEdges ();
 		
@@ -288,8 +288,8 @@ void rca::metaalgo::TabuSearch<V, X, Z>::cost_tabu_based(std::vector<V>& sol)
 	int tree_id = 0;
 	for (auto st: sol) {
 	
-		if (st.getCost () < m_best_cost[tree_id]) {			
-			m_best_cost[tree_id] = st.getCost();
+		if (st.get_cost () < m_best_cost[tree_id]) {			
+			m_best_cost[tree_id] = st.get_cost();
 			m_tabu_list[tree_id] = 1;			
 		} else {
 			m_tabu_list[tree_id] = 0;
@@ -487,7 +487,7 @@ rca::metaalgo::TabuSearch<V, X, Z>::improvement (std::vector<V>& sol,
 	sol.clear ();
 	cost = 0;
 	for (auto st : copy) {
-		cost += (int)st.getCost ();
+		cost += (int)st.get_cost ();
 		sol.push_back (st);
 	}
 	
@@ -525,7 +525,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	ObjectiveType cost = 0;
 	
 	for (auto & st: sol){
-		cost += (int)st.getCost ();
+		cost += (int)st.get_cost ();
 	}
 	
 	//performing cost refinement

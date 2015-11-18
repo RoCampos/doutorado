@@ -164,7 +164,7 @@ void STTree::prunning () {
 		
 }
 
-void STTree::xdotFormat () {
+void STTree::xdot_format () {
 	
 	std::cout << "Graph {\n";
 	for (unsigned int i = 0; i < m_nodes.size (); i++) {
