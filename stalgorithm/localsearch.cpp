@@ -12,16 +12,12 @@ LocalSearch::LocalSearch (Network & net, std::vector<rca::Group> & groups)  {
 
 void LocalSearch::apply (Solution & solution, int & cost, int & res) {	
 
-	this->update_container2 (solution);
+	this->update_container (solution);
 
 	auto begin = to_replace.begin ();
 	auto end = to_replace.end ();
 
-	for (; begin != end; begin++) {
-
-		if (this->find(*begin, EdgeType::IN ) 
-		|| this->find(*begin, EdgeType::OUT )) 
-		continue;		
+	for (; begin != end; begin++) {		
 
 		int id = 0;
 		bool hasFound = false;
@@ -76,70 +72,6 @@ void LocalSearch::inline_replace (steiner & solution,
 	solution.set_cost (solution.get_cost () - removedcost);
 	
 	cost += solution.get_cost ();
-
-}
-
-void LocalSearch::do_replace (Solution & solution, int& cost) {
-
-	// cout << __FILE__ << ":" << __FUNCTION__ << endl;
-	// cout << "Nº Changes: " << m_id.size () << endl;
-
-	int LINKS = m_id.size ();	
-
-	
-	int count = 0;
-	for (int i=0; i < LINKS; i++) {
-
-		int tree_id = m_id[i];
-		int x = m_out[i].getX();
-		int y = m_out[i].getY();
-
-		if ( !solution[tree_id].find_edge (x,y) ) {
-			// cout << "NotFound: " << m_out[i] << endl;
-			continue;
-		}
-
-		// cout << m_out[i] << " " << m_out[i].getValue() <<" | ";
-		// cout << m_in[i] << " " << m_in[i].getValue() << " -- ";
-		// cout << m_id[i] << endl;
-
-		// count += ( (int)m_out[i].getValue() - (int)m_in[i].getValue());
-
-		cost -= solution[tree_id].get_cost ();
-		
-		//removendo e atualizando custo
-		solution[tree_id].remove_edge (x, y);
-
-		int tree_cost = solution[tree_id].get_cost () - (int) m_out[i].getValue ();
-
-		solution[tree_id].set_cost (tree_cost);
-
-		x = m_in[i].getX();
-		y = m_in[i].getY();
-		solution[tree_id].add_edge ( x, y, (int) m_in[i].getValue ());
-
-		//make prunning and getting cost of removed edges
-		Prune p;
-		p.prunning (solution[tree_id]);
-		int removedcost = 0;
-		for (auto e = p.begin(); e != p.end(); e++) {
-			// cout << "\t" << e->first << "--" << e->second << " ";
-			// cout << (int) m_network->getCost (e->first, e->second) << endl;
-			removedcost += (int)m_network->getCost (e->first, e->second);													
-		}
-
-		count += removedcost;
-
-		//updating cost
-		tree_cost = solution[tree_id].get_cost () - removedcost;
-		solution[tree_id].set_cost (tree_cost);
-
-		cost += solution[tree_id].get_cost ();
-	}
-
-	// this->m_id.clear ();
-	// this->m_out.clear ();
-	// this->m_in.clear ();
 
 }
 
@@ -255,5 +187,37 @@ void LocalSearch::inline_update (rca::Link& out, EdgeType type, int tree_id) {
 	//atualizando a banda
 	
 
+}
+
+void LocalSearch::update_container (Solution & solution) {
+
+	m_cg = new Container;
+	m_cg->init_handle_matrix ( m_network->getNumberNodes () );
+
+	int LINKS = solution.size ();
+
+	for (auto & tree : solution) {
+		auto edges = tree.get_all_edges ();			
+		for (const std::pair<int,int> & e : edges) {
+			int cost = m_network->getCost (e.first, e.second);
+			rca::Link l (e.first, e.second, cost);
+
+			if ( !m_cg->is_used (l) ) {					
+
+				to_replace.push_back (l);
+
+				l.setValue (LINKS-1);
+				m_cg->push (l);
+
+			} else {
+				int value = m_cg->value (l);
+				m_cg->erase (l);
+				l.setValue (value - 1);
+				m_cg->push (l);
+			}
+		}
+	}
+
+	std::sort (to_replace.begin(), to_replace.end(), std::greater<rca::Link>());
 }
 
