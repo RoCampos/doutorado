@@ -35,6 +35,14 @@ public:
 		delete m_cg;
 	}
 
+	void clear_removed () {
+		this->m_removed.clear ();
+	}
+
+	std::vector<rca::Link> get_removed () {
+		return this->m_removed;
+	}
+
 private:
 
 	bool cut_replace (int, int, int id,  steiner & tree, int&);
