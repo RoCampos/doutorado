@@ -286,9 +286,13 @@ void rca::sttalgo::remove_top_edges (Container & ob, rca::Network & m_network,
 	
 	auto it = ob.get_heap ().ordered_begin ();
 	auto end = ob.get_heap ().ordered_end ();
+
+	int top;
+	if (ob.m_heap.size () > 0)
+		top = ob.top ();
 	
 	for ( ; it != end; it++) {
- 		if (it->getValue () <= ob.top()+res) {
+ 		if (it->getValue () <= top+res) {
 			m_network.removeEdge (*it);
  			if ( !is_connected (m_network, group) )
  				m_network.undoRemoveEdge (*it);
