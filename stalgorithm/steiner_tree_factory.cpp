@@ -81,8 +81,14 @@ void ShortestPathSteinerTree<Container, SteinerRepr>::build (
 				Container& cg)
 {
 	
-	int source = g.getSource ();
+	// int source = g.getSource ();
 	std::vector<int> members = g.getMembers ();
+	members.push_back (g.getSource ());
+	
+	int pos = rand () % members.size ();
+	int source = members[pos];
+	members.erase (members.begin () + pos);
+
 	std::vector<int> prev = all_shortest_path (source, members[0] , network);
 		
 	for (int m : members) {
