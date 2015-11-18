@@ -53,19 +53,30 @@ void AGMZSteinerTree<Container, SteinerRepr>::update_usage (	rca::Group& g,
 						STTree & st)
 {
 
-	edge_t * e = st.get_edges ().begin;
-	while (e != NULL) {
+	// edge_t * e = st.get_edges ().begin;
+	// while (e != NULL) {
 	
-		if (e->in) { 
+	// 	if (e->in) { 
 		
-			rca::Link l(e->x, e->y,0);
-			auto link = std::find( this->m_links.begin (), this->m_links.end(), l);
-			link->setValue ( link->getValue () + 1);
+	// 		rca::Link l(e->x, e->y,0);
+	// 		auto link = std::find( this->m_links.begin (), this->m_links.end(), l);
+	// 		link->setValue ( link->getValue () + 1);
 			
-		}
+	// 	}
 		
-		e = e->next;
+	// 	e = e->next;
+	// }
+
+	for (std::pair<int,int> e : st.get_all_edges()) {		
+		rca::Link l (e.first, e.second, 0);
+		int cost = m_network.getCost (l.getX(), l.getY());
+		l.setValue (cost);
+
+		auto link = std::find( this->m_links.begin (), this->m_links.end(), l);
+		link->setValue ( link->getValue () + 1);
+		
 	}
+
 	
 	std::sort(m_links.begin(), m_links.end());
 	
@@ -174,4 +185,5 @@ template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Com
 template class rca::sttalgo::WildestSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >;
 
 template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >;
+template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >;
 template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >; 
