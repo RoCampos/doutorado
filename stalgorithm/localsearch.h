@@ -11,11 +11,17 @@
 #include "steiner.h"
 #include "link.h"
 #include "group.h"
+#include "algorithm.h" //get_shortest_path
 
 enum EdgeType{
 	IN = 0,
 	OUT = 1
 };
+
+namespace rca {
+
+	namespace sttalgo {
+
 
 class LocalSearch {
 
@@ -23,7 +29,6 @@ typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> Container;
 typedef typename rca::Network Network;
 typedef typename std::vector<rca::Group> VGroups;
 typedef typename std::vector<steiner> Solution;
-// typedef typename std::vector<std::pair<int,int>> ListEdge;
 typedef typename std::vector<rca::Link> VEdge;
 
 public:
@@ -35,82 +40,30 @@ public:
 		delete m_cg;
 	}
 
+	void clear_removed () {
+		this->m_removed.clear ();
+	}
+
+	std::vector<rca::Link> get_removed () {
+		return this->m_removed;
+	}
+
 private:
 
-	bool cut_replace (int, int, int id,  steiner & tree, int&);
-
-	void do_replace (Solution & solution, int & cost);
+	/**
+	*	
+	* @param int tree_id
+	* @param steiner árvore a ser modificada
+	* @param int custo da árvore
+	*/
+	bool cut_replace (int x, int y, int id, steiner & tree, int& solcost);
 
 	void inline_replace (steiner &, int&, 
 		rca::Link& out, 
 		rca::Link& in, 
 		int tree_id);
 
-	bool find (rca::Link e, EdgeType type ) {
-
-		VEdge::iterator res, end;
-		if (type == EdgeType::IN) {
-			res = std::find (m_in.begin(), m_in.end(), e);				
-			end = m_in.end();
-		} else if (type == EdgeType::OUT) {
-			res = std::find (m_out.begin(), m_out.end(), e);	
-			end = m_out.end();
-		}
-
-		return res != end;
-	}
-
-	void update_container (Solution & solution) {
-		m_cg = new Container;
-		m_cg->init_handle_matrix ( m_network->getNumberNodes () );
-
-		for (auto & tree : solution) {
-			auto edges = tree.get_all_edges ();			
-			for (const std::pair<int,int> & e : edges) {
-				int cost = m_network->getCost (e.first, e.second);
-				rca::Link l (e.first, e.second, cost);
-				if (!m_cg->is_used (l)) {
-					m_cg->push (l);
-				}
-			}
-		}
-	}
-
-	void update_container2 (Solution & solution) {
-		
-		//atualizar Z e custo enquanto modifica solução.
-		//remover update_sol de teste2
-
-		m_cg = new Container;
-		m_cg->init_handle_matrix ( m_network->getNumberNodes () );
-
-		int LINKS = solution.size ();
-
-		for (auto & tree : solution) {
-			auto edges = tree.get_all_edges ();			
-			for (const std::pair<int,int> & e : edges) {
-				int cost = m_network->getCost (e.first, e.second);
-				rca::Link l (e.first, e.second, cost);
-				
-				if ( !m_cg->is_used (l) ) {					
-					
-					to_replace.push_back (l);
-
-					l.setValue (LINKS-1);
-					m_cg->push (l);
-
-				} else {
-					int value = m_cg->value (l);
-					m_cg->erase (l);
-					l.setValue (value - 1);
-					m_cg->push (l);
-				}
-			}
-		}
-
-		std::sort (to_replace.begin(), to_replace.end(), std::greater<rca::Link>());
-
-	}
+	void update_container (Solution & solution);
 
 	void inline_update (rca::Link&, EdgeType, int tree_id);
 
@@ -128,6 +81,94 @@ private:
 	std::vector<int> m_id;
 
 };
+
+
+class CycleLocalSearch {
+
+typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> Container;
+typedef typename rca::Network Network;
+typedef typename std::vector<rca::Group> VGroups;
+typedef typename std::vector<steiner> Solution;
+typedef typename std::vector<rca::Link> VEdge;
+
+public:
+
+	CycleLocalSearch (Network & net, std::vector<rca::Group> & groups);
+
+	void apply (Solution & solution, int & cost, int & res);
+
+	~CycleLocalSearch ();
+
+private:
+
+	void update_container (Solution &);
+	void get_vertex (std::vector<int> &, steiner &);
+
+	bool cut_replace (int , std::vector<int>& , steiner & st, int& );
+	
+	void inline_replace (steiner &, int&, 
+		rca::Link& out, 
+		rca::Link& in, 
+		int tree_id);
+
+	void inline_update (rca::Link&, EdgeType, int tree_id);
+
+	rca::Link get_out_link (rca::Path&, steiner &);
+
+	rca::Path get_path (int x, int y, steiner & st) {
+
+		path.clear ();
+		m_marked.clear ();		
+
+		rca::Link l (x,y,0);
+
+		m_finished = false;		
+		path = std::vector<int> (m_network->getNumberNodes (), -1);
+		m_marked = std::vector<bool> (m_network->getNumberNodes ());
+		m_marked[l.getX()] = true;
+
+		dfs (l.getX(), l.getY(), st);
+
+		return get_shortest_path (l.getX(), l.getY(), *m_network, this->path);
+
+	}
+	void dfs (int x, int y, steiner& st) {
+		if (x == y) {			
+			m_finished = true;
+			return;
+		}
+		m_marked[x] = true;
+		for (int adj : st.get_adjacent_vertices(x)) {
+			if (!m_marked[adj] && !m_finished ) {				
+				path[adj] = x;
+				dfs (adj, y, st);
+			}
+		}
+
+	}
+
+private:
+
+	// ----- for local search ---- 
+	std::vector<bool> m_marked;
+	bool m_finished = false;
+	std::vector<int> path;
+
+	Container * m_cg;
+	Network * m_network;
+	std::vector<rca::Group> * m_groups;
+
+	VEdge to_replace;
+
+	VEdge m_removed;
+
+
+};
+
+
+} // sttalgo
+
+} // rca
 
 #endif // LOCALSEARCH_H
 
