@@ -97,20 +97,14 @@ public:
 
 	void apply (Solution & solution, int & cost, int & res);
 
-	~CycleLocalSearch () {
-		delete m_cg;
-	}
-
+	~CycleLocalSearch ();
 
 private:
 
 	void update_container (Solution &);
 	void get_vertex (std::vector<int> &, steiner &);
 
-	void cut_replace (int id, 
-		std::vector<int>& vertex, 
-		steiner & st, 
-		int& solcost);
+	bool cut_replace (int , std::vector<int>& , steiner & st, int& );
 	
 	void inline_replace (steiner &, int&, 
 		rca::Link& out, 
@@ -165,6 +159,8 @@ private:
 	std::vector<rca::Group> * m_groups;
 
 	VEdge to_replace;
+
+	VEdge m_removed;
 
 
 };

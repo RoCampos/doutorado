@@ -14,6 +14,10 @@ LocalSearch::LocalSearch (Network & net, std::vector<rca::Group> & groups)  {
 
 void LocalSearch::apply (Solution & solution, int & cost, int & res) {	
 
+#ifdef DEBUG
+	cout << "LocalSearch:" <<__FUNCTION__ << endl;
+#endif
+
 	this->update_container (solution);
 
 	auto begin = to_replace.begin ();
@@ -215,8 +219,26 @@ void LocalSearch::update_container (Solution & solution) {
 // --------------------------- CycleLocalSearch ---------------------------------- 
 
 CycleLocalSearch::CycleLocalSearch (Network & net, std::vector<rca::Group> & groups) {
+
+// #ifdef DEBUG
+// 	cout << __FUNCTION__ << endl;
+// #endif
+
 	m_network = &net;
 	m_groups = &groups;
+}
+
+CycleLocalSearch::~CycleLocalSearch () {
+
+// #ifdef DEBUG1
+// 	cout << __FUNCTION__ << endl;
+// 	cout << "Size:" << m_cg->m_heap.size () << endl;
+// #endif
+
+
+
+	delete m_cg;
+
 }
 
 void CycleLocalSearch::update_container (Solution & solution) {
@@ -252,6 +274,10 @@ void CycleLocalSearch::update_container (Solution & solution) {
 }
 
 void CycleLocalSearch::apply (Solution & solution, int & cost, int & res) {
+
+#ifdef DEBUG
+	cout << "CycleLocalSearch:" <<__FUNCTION__ << endl;
+#endif
 
 	this->update_container (solution);
 
@@ -319,19 +345,21 @@ bool CycleLocalSearch::cut_replace (int id, std::vector<int>& vertex, steiner & 
 						inline_replace (st_copy, solcost_copy ,out, in, id);
 						
 						if (solcost_copy < solcost) {
+							
 							solcost = solcost_copy;
 							st = st_copy;
 							inline_update (out, EdgeType::OUT, id);
 							inline_update (in, EdgeType::IN, id);
 
 							//remover arestas do prunning
+							// std::cout << "\ttoremove\n";
 							for (auto & e : this->m_removed) {
+								// cout << e << endl;
 								inline_update (e, EdgeType::OUT, id);
 							}
-
-							this->m_removed.clear ();
-
 						}
+
+						this->m_removed.clear ();
 
 					}
 
@@ -387,12 +415,8 @@ void CycleLocalSearch::inline_replace (steiner & solution,
 		removedcost += (int)m_network->getCost (e->first, e->second);
 		//atualizando capacidade residual
 		rca::Link l (e->first, e->second, 0);
-		this->m_removed.push_back (l);
-
-		// this->inline_update (l, EdgeType::OUT, tree_id);
-
-	}
-	this->m_removed.push_back (out);
+		this->m_removed.push_back (l);		
+	}	
 
 	//remove custo das arestas prunneds
 	solution.set_cost (solution.get_cost () - removedcost);

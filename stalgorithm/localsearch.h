@@ -97,10 +97,7 @@ public:
 
 	void apply (Solution & solution, int & cost, int & res);
 
-	~CycleLocalSearch () {
-		delete m_cg;
-	}
-
+	~CycleLocalSearch ();
 
 private:
 
