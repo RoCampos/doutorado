@@ -540,3 +540,6 @@ void ChenReplaceVisitor<SolutionType>::update_trees ()
 
 template class ChenReplaceVisitor<STTree>;
 template class MppVisitor<STTree>;
+template class ChenReplaceVisitor<steiner>;
+template class MppVisitor<steiner>;
+
