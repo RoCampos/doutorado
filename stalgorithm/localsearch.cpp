@@ -27,11 +27,18 @@ void LocalSearch::apply (Solution & solution, int & cost, int & res) {
 
 		int id = 0;
 		// bool hasFound = false;
-		for (steiner & tree : solution) {						
-			if ( this->cut_replace (begin->getX(), begin->getY(), id, tree, cost) ) {					
+
+		std::vector<int> gindex (m_groups->size ());
+		std::iota (gindex.begin(), gindex.end(), 0);
+		std::random_shuffle (gindex.begin(), gindex.end());
+
+		// for (steiner & tree : solution) {						
+		for (auto id : gindex) {
+			// if ( this->cut_replace (begin->getX(), begin->getY(), id, tree, cost) ) {					
+			if ( this->cut_replace (begin->getX(), begin->getY(), id, solution[id], cost) ) {					
 				break;
 			}
-			id++;
+			// id++;
 		}		
 	}
 	
@@ -124,7 +131,7 @@ bool LocalSearch::cut_replace (int x, int y, int id, steiner & tree, int& solcos
 
 							int tk = m_groups->at (id).getTrequest ();
 
-							if ( (value - tk) > 0 && (value-tk) > TOP ) {
+							if ( (value - tk) > 0 && (value-tk) >= TOP ) {
 								
 								inline_replace (tree, solcost ,old, in, id);
 
