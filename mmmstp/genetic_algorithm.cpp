@@ -400,7 +400,7 @@ void GeneticAlgorithm::local_search (int i)
 	
 	//starting local search
 	
-	rca::sttalgo::ChenReplaceVisitor c(&trees);
+	rca::sttalgo::ChenReplaceVisitor<> c(&trees);
 	c.setNetwork (m_network);
 	c.setMulticastGroups (m_groups);
 	c.setEdgeContainer (ec);

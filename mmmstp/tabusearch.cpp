@@ -411,7 +411,7 @@ rca::metaalgo::TabuSearch<V, X, Z>::improvement (std::vector<V>& sol,
 		cost += update_container (sol[i], cg, m_groups[i], m_network);
 	}
 	
-	rca::sttalgo::ChenReplaceVisitor c(&sol);
+	rca::sttalgo::ChenReplaceVisitor<> c(&sol);
 	c.setNetwork (&m_network);
 	c.setMulticastGroups (m_groups);
 	c.setEdgeContainer (cg);
@@ -514,7 +514,7 @@ void rca::metaalgo::TabuSearch<V, X, Z>::zig_zag (std::vector<SolutionType>& sol
 	rca::sttalgo::cycle_local_search<Container> cls;
 	
 	//creatig ChenReplaceVisitor to perform cost and residual refinement
-	rca::sttalgo::ChenReplaceVisitor c(&sol);
+	rca::sttalgo::ChenReplaceVisitor<> c(&sol);
 	c.setNetwork (&m_network);
 	c.setMulticastGroups (m_groups);
 	c.setEdgeContainer (cg);

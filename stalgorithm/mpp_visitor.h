@@ -31,6 +31,7 @@ namespace sttalgo {
 * @author Romerito C. Andrade
 *
 */
+template <class SolutionType = STTree>
 class MppVisitor {
 	
 public:
@@ -44,7 +45,7 @@ public:
 	* 
 	* @param MPPSolution ponteiro para vector de STTree's
 	*/
-	MppVisitor (MPPSolution * tree){
+	MppVisitor (std::vector<SolutionType> * tree){
 		m_trees = tree;
 	}
 	
@@ -143,8 +144,14 @@ protected:
 	
 };
 
-class ChenReplaceVisitor : public MppVisitor
+template <class SolutionType = STTree>
+class ChenReplaceVisitor : public MppVisitor<SolutionType>
 {
+
+// using m_network;
+// using m_trees;
+// using m_groups;
+// using m_temp_trees;
 
 public:
 
@@ -156,7 +163,7 @@ public:
 	*
 	* @param MPPSolutino ponteiro para vector de STTree's
 	*/
-	ChenReplaceVisitor (MPPSolution* tree) : MppVisitor (tree) {}
+	ChenReplaceVisitor (std::vector<SolutionType>* tree) : MppVisitor<SolutionType> (tree) {}
 	
 	/*
 	 * Pega a menor capacidade residual (link)
