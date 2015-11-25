@@ -10,6 +10,7 @@
 #include "group.h"
 #include "edgecontainer.h"
 #include "sttree.h"
+#include "steiner.h"
 
 namespace rca {
 	

@@ -24,12 +24,14 @@ namespace rca{
 	
 	namespace metaalgo {
 
-template <class V, class Z, class X>
+template <class SolutionType, class Container, class ObjectiveType>
 class TabuSearch {
 	
-	typedef V SolutionType;
-	typedef Z Container;
-	typedef X ObjectiveType;
+	// typedef V SolutionType;
+	// typedef Z Container;
+	// typedef X ObjectiveType;
+	typedef rca::sttalgo::ChenReplaceVisitor<SolutionType> ChenReplaceVisitor;
+	typedef rca::sttalgo::cycle_local_search<Container, SolutionType> CycleLocalSearch;
 	
 public:
 	TabuSearch (std::string& );

@@ -310,5 +310,6 @@ void cycle_local_search<Container, SolutionType>::local_search (std::vector<Solu
 
 //***********************************************************************/
 template class cycle_local_search<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree>;
+template class cycle_local_search<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner>;
 
 template class depth_first_search<rca::AdjacentNetwork>;

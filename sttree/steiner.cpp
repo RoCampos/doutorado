@@ -221,6 +221,13 @@ std::vector<std::pair<int,int>> steiner::get_all_edges () {
 	return edges;
 }
 
+void steiner::prunning () {
+	Prune prunner;
+	prunner.prunning ( *this);
+}
+
+// ----------------------------------- PRUNE CLASS --------------------------------- //
+
 void Prune::prunning (steiner & tree) {
 
 	//cout << "Prunning\n";
