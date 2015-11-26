@@ -12,17 +12,33 @@ LocalSearch::LocalSearch (Network & net, std::vector<rca::Group> & groups)  {
 
 }
 
+LocalSearch::LocalSearch (Network & net, std::vector<rca::Group> & groups, Container & cont) {
+
+	m_network = &net;
+	m_groups = &groups;
+	m_cg = &cont;
+
+}
+
 void LocalSearch::apply (Solution & solution, int & cost, int & res) {	
 
-#ifdef DEBUG
+#ifdef debug1
 	cout << "LocalSearch:" <<__FUNCTION__ << endl;
 #endif
 
-	this->update_container (solution);
+	// this->update_container (solution);
+
+	std::vector<rca::Link> list;
+	for (auto b = this->m_cg->m_heap.ordered_begin(); 
+		b != this->m_cg->m_heap.ordered_end(); b++) {
+		int bcost = (int) m_network->getCost (b->getX(), b->getY());
+		rca::Link l (b->getX(), b->getY(), bcost);
+		list.push_back (l);
+	}
 
 	auto begin = to_replace.begin ();
 	auto end = to_replace.end ();
-
+	
 	for (; begin != end; begin++) {		
 
 		int id = 0;
@@ -227,25 +243,22 @@ void LocalSearch::update_container (Solution & solution) {
 
 CycleLocalSearch::CycleLocalSearch (Network & net, std::vector<rca::Group> & groups) {
 
-// #ifdef DEBUG
-// 	cout << __FUNCTION__ << endl;
-// #endif
-
 	m_network = &net;
 	m_groups = &groups;
+	m_cg = NULL;
+}
+
+CycleLocalSearch::CycleLocalSearch (Network & net, std::vector<rca::Group> & groups, Container& cont) {
+	m_network = &net;
+	m_groups = &groups;
+	m_cg = &cont;
 }
 
 CycleLocalSearch::~CycleLocalSearch () {
-
-// #ifdef DEBUG1
-// 	cout << __FUNCTION__ << endl;
-// 	cout << "Size:" << m_cg->m_heap.size () << endl;
-// #endif
-
-
-
-	delete m_cg;
-
+	// delete m_cg;
+	m_cg = NULL;
+	m_network = NULL;
+	m_groups = NULL;
 }
 
 void CycleLocalSearch::update_container (Solution & solution) {
@@ -282,11 +295,11 @@ void CycleLocalSearch::update_container (Solution & solution) {
 
 void CycleLocalSearch::apply (Solution & solution, int & cost, int & res) {
 
-#ifdef DEBUG
+#ifdef debug1
 	cout << "CycleLocalSearch:" <<__FUNCTION__ << endl;
 #endif
 
-	this->update_container (solution);
+	// this->update_container (solution);
 
 	int tree_id = 0;
 	for (steiner & st : solution) { //O(K)
