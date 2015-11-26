@@ -10,6 +10,7 @@
 #include "group.h"
 #include "edgecontainer.h"
 #include "sttree.h"
+#include "steiner.h"
 
 namespace rca {
 	
@@ -110,7 +111,7 @@ private:
  * 
  * @author Romerito C. Andrade
  */
-template<typename Container>
+template<typename Container, typename SolutionType = STTree>
 struct cycle_local_search {
 
 	/**	 
@@ -128,7 +129,7 @@ struct cycle_local_search {
 	 * @param Container template parameter: @see rca::EdgetContainer
 	 */
 	void execute ( int tree_id, 
-				std::vector<STTree> &, 
+				std::vector<SolutionType> &, 
 				rca::Network& m_network, 
 				std::vector<rca::Group>&, 
 				Container&);
@@ -174,7 +175,7 @@ struct cycle_local_search {
 	 * @param Container template parameter: @see rca::EdgetContainer
 	 * @param int O custo da solução antes da melhoria
 	 */
-	void local_search (std::vector<STTree> &, 
+	void local_search (std::vector<SolutionType> &, 
 				rca::Network& m_network, 
 				std::vector<rca::Group>&, 
 				Container&, 

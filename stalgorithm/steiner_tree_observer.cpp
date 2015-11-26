@@ -124,7 +124,7 @@ template<typename ContainerType, typename SteinerRepr>
 void SteinerTreeObserver<ContainerType, SteinerRepr>::prune (int rest, int band)
 {
 	
-	prunning<ContainerType>(*m_st, *m_ec, rest, band);	
+	prunning<ContainerType, SteinerRepr>(*m_st, *m_ec, rest, band, *m_network);	
 
 }
 

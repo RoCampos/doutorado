@@ -221,7 +221,7 @@ void Grasp::cost_refinament (sttree_t * sol, ChenReplaceVisitor & c)
 	
 }
 
-void Grasp::residual_refinament (sttree_t * sol, ChenReplaceVisitor& c)
+void Grasp::residual_refinament (sttree_t * sol, ChenReplaceVisitor & c)
 {
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);

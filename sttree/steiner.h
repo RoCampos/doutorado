@@ -57,6 +57,9 @@ public:
 
 	void print_test ();
 
+	void prunning ();
+	
+
 private:
 	void get_edges (int node, 
 		std::vector<std::pair<int,int>>& edges, 
@@ -83,6 +86,8 @@ private:
 
 
 };
+
+
 
 /**
 * Class que encapsula o método prunning para remoção de arestas 

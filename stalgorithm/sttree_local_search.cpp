@@ -67,9 +67,9 @@ void rca::sttalgo::depth_first_search<NetworkType>::dfs (
 }
 
 /* -------------------- CYCLE LOCAL SEARCH ALGORITHMS ---------------------*/
-template<typename Container>
-void cycle_local_search<Container>::execute ( int tree, 
-											std::vector<STTree> & m_trees, 
+template<typename Container, typename SolutionType>
+void cycle_local_search<Container, SolutionType>::execute ( int tree, 
+											std::vector<SolutionType> & m_trees, 
 											rca::Network& m_network, 
 											std::vector<rca::Group>& m_groups, 
 											Container& cg)
@@ -81,8 +81,7 @@ void cycle_local_search<Container>::execute ( int tree,
 	int NODES = m_network.getNumberNodes ();
 	int GSIZE = m_groups.size ();
 	
-	int tcost = m_trees[tree].get_cost ();
-	int old = tcost;
+	int tcost = m_trees[tree].get_cost ();	
 	
 	std::set<int> vertex;	
 	std::vector<rca::Link> m_links;
@@ -90,18 +89,14 @@ void cycle_local_search<Container>::execute ( int tree,
 	// Criando uma lista de arestas e removendo-as do container.
 	// Estas arestas correspondem a árvore multicast tree.
 
-	edge_t * e = m_trees[tree].get_edge ();
-	while (e != NULL) {
-		if (e->in) {
-			
-			rca::Link link (e->x, e->y, 0);
-			
+	
+	for (auto & e : m_trees[tree].get_all_edges ()) {			
+			rca::Link link (e.first, e.second, 0);			
 			// Se a aresta é utilizada apenas uma vez
 			//remove-a do grafo
 			if (cg.value (link) == (GSIZE-1) ) {
 				cg.erase (link);
 			} else {
-
 				// Se ele é utilizada por mais de uma árvore
 				// Então, desconta um valor de unidade
 				int value = cg.value (link) + 1;
@@ -109,14 +104,9 @@ void cycle_local_search<Container>::execute ( int tree,
 				link.setValue (value);
 				cg.push (link);
 			}
-
 			vertex.insert (link.getX());
-			vertex.insert (link.getY());
-			
-			m_links.push_back (link);
-			
-		}
-		e = e->next;
+			vertex.insert (link.getY());			
+			m_links.push_back (link);			
 	}
 	
 
@@ -177,7 +167,7 @@ void cycle_local_search<Container>::execute ( int tree,
 							// então vai permitir que mais links sejam 
 							// removidos
 							int source = g.getSource ();
-							STTree steiner_tree(NODES, source, g.getMembers ());
+							SolutionType steiner_tree(NODES, source, g.getMembers ());
 							for (auto ll : m_links) {
 							
 								if (ll != l) {
@@ -192,7 +182,9 @@ void cycle_local_search<Container>::execute ( int tree,
 							int cost = m_network.getCost(link.getX(), link.getY());
 							steiner_tree.add_edge (link.getX(), link.getY(), cost);
 							
-							steiner_tree.prunning ();
+							rca::sttalgo::make_prunning<rca::Network, SolutionType> (m_network, steiner_tree);
+							
+
 #ifdef DEBUG11
 							steiner_tree.xdotFormat ();
 #endif
@@ -229,38 +221,25 @@ void cycle_local_search<Container>::execute ( int tree,
 	//atualiza container com a nova árvore
 	// é necesário, pois nenhum observer está sendo
 	// utilizado aqui
-	// apenas a estrutura que representa a árvore de steiner
-	
-	e = m_trees[tree].get_edge ();
-	while ( e != NULL) {
-			
-		if (e->in) {
-			
-			rca::Link link (e->x, e->y, 0);
-			
-			if (cg.is_used (link)) {
-				
-				int value = cg.value (link) - 1;
-				
+	// apenas a estrutura que representa a árvore de steiner	
+	for (auto & e : m_trees[tree].get_all_edges ()) { 			
+			rca::Link link (e.first, e.second, 0);			
+			if (cg.is_used (link)) {				
+				int value = cg.value (link) - 1;				
 				cg.erase (link);
 				link.setValue (value);
-				cg.push (link);
-				
+				cg.push (link);				
 			} else {
 				link.setValue (GSIZE - 1); 
 				cg.push (link);
 			}
-		}
-		
-		e = e->next;
 	}
-	
-	
+
 }
 
-template <class Container>
+template<typename Container, typename SolutionType>
 std::vector<rca::Link> 
-cycle_local_search<Container>::get_circle (std::vector<rca::Link>& links, 
+cycle_local_search<Container, SolutionType>::get_circle (std::vector<rca::Link>& links, 
 				rca::Group& group, 
 				rca::Link& link, 
 				rca::Network & m_network)
@@ -271,7 +250,6 @@ cycle_local_search<Container>::get_circle (std::vector<rca::Link>& links,
 	rca::sttalgo::depth_first_search<AdjacentNetwork> dfs;
 	dfs.execute (links, group, link, m_network);
 	
-	int xx = link.getX();
 	int yy = link.getY();
 	
 	std::vector<rca::Link> toRemove;
@@ -296,8 +274,9 @@ cycle_local_search<Container>::get_circle (std::vector<rca::Link>& links,
 	return toRemove;
 	
 }
-template <class Container>
-void cycle_local_search<Container>::local_search (std::vector<STTree> & m_trees, 
+
+template<typename Container, typename SolutionType>
+void cycle_local_search<Container, SolutionType>::local_search (std::vector<SolutionType> & m_trees, 
 											rca::Network& m_network, 
 											std::vector<rca::Group>& m_groups, 
 											Container& cg, 
@@ -330,6 +309,7 @@ void cycle_local_search<Container>::local_search (std::vector<STTree> & m_trees,
 }
 
 //***********************************************************************/
-template class cycle_local_search<rca::EdgeContainer<rca::Comparator, rca::HCell>>;
+template class cycle_local_search<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree>;
+template class cycle_local_search<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner>;
 
 template class depth_first_search<rca::AdjacentNetwork>;

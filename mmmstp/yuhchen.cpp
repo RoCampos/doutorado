@@ -538,7 +538,7 @@ void YuhChen::run (int param)
 			m_groups.push_back (g);
 		}
 		
-		rca::sttalgo::ChenReplaceVisitor c(&improve);
+		rca::sttalgo::ChenReplaceVisitor<> c(&improve);
 		c.setNetwork (m_network);
 		c.setMulticastGroups (m_groups);
 		c.setEdgeContainer (m_cg);
