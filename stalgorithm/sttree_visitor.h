@@ -28,8 +28,8 @@ namespace sttalgo {
  * @author Romerito Campos
  * @date 04/12/2015
  */
-template<class Container, class SteinerType>
-void prunning (SteinerType & st, Container & cont, int, int);
+template<class Container, class SteinerType, class NetworkType = rca::Network>
+void prunning (SteinerType & st, Container & cont, int, int, NetworkType &);
 
 /**
 * Especialização do método prunning.
@@ -42,7 +42,7 @@ void prunning (SteinerType & st, Container & cont, int, int);
 * @date 11/17/2015
 */
 void prunning (STTree & st, 
-	rca::EdgeContainer<rca::Comparator, rca::HCell> & cont, int, int);
+	rca::EdgeContainer<rca::Comparator, rca::HCell> & cont, int, int, rca::Network & net);
 
 /**
 * Especialização do método prunning.
@@ -55,7 +55,7 @@ void prunning (STTree & st,
 * @date 11/17/2015
 */
 void prunning (steiner & st, 
-	rca::EdgeContainer<rca::Comparator, rca::HCell> & cont, int, int);
+	rca::EdgeContainer<rca::Comparator, rca::HCell> & cont, int, int, rca::Network & net);
 
 
 

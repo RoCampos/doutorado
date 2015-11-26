@@ -3,16 +3,19 @@
 using namespace rca::sttalgo;
 using namespace rca;
 
-template<class Container, class SteinerType>
-void rca::sttalgo::prunning (SteinerType & st, Container & cont, int trequest, int band)
+template<class Container, class SteinerType, class NetworkType>
+void rca::sttalgo::prunning (SteinerType & st, Container & cont, int trequest, int band, NetworkType & net)
 {
 
-	rca::sttalgo::prunning(st, cont, trequest, band);
+	rca::sttalgo::prunning(st, cont, trequest, band, net);
 
 }
 
 void rca::sttalgo::prunning (STTree & st, 
-	rca::EdgeContainer<rca::Comparator, rca::HCell> & cont, int trequest, int band) {
+	rca::EdgeContainer<rca::Comparator, rca::HCell> & cont, 
+	int trequest, 
+	int band, 
+	rca::Network & net) {
 	
 	list_leafs_t& list = st.get_leafs (); 
 	leaf_t * aux = list.begin;
@@ -82,9 +85,21 @@ void rca::sttalgo::prunning (STTree & st,
 }
 
 void rca::sttalgo::prunning (steiner & st, 
-	rca::EdgeContainer<rca::Comparator, rca::HCell> & cont, int trequest, int band)
+	rca::EdgeContainer<rca::Comparator, rca::HCell> & cont, 
+	int trequest, 
+	int band, 
+	rca::Network & net )
 {
-	//TO DO 
+	
+	Prune prun;
+	prun.prunning (st);
+
+	int cost = 0;
+	for (auto e = prun.begin(); e != prun.end(); e++) {
+		cost += (int) net.getCost (e->first, e->second);
+	}
+	st.set_cost (st.get_cost () - cost);
+
 }
 
 template<class NetworkType, class SteinerType>
@@ -568,17 +583,19 @@ template void rca::sttalgo::remove_top_edges<rca::EdgeContainer<rca::Comparator,
 			rca::Group & group, 
 			int res);
 
-template void rca::sttalgo::prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree>
+template void rca::sttalgo::prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree, rca::Network>
 		(STTree& st, 
 		rca::EdgeContainer<rca::Comparator, rca::HCell>& cont, 
 		int treq, 
-		int band);
+		int band,
+		rca::Network& net);
 
-template void rca::sttalgo::prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner>
+template void rca::sttalgo::prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner, rca::Network>
 		(steiner& st, 
 		rca::EdgeContainer<rca::Comparator, rca::HCell>& cont, 
 		int treq, 
-		int band);
+		int band,
+		rca::Network& net);
 
 template void rca::sttalgo::make_prunning<rca::Network, steiner>(rca::Network& network, steiner& tree);
 template void rca::sttalgo::make_prunning<rca::Network, STTree>(rca::Network& network, STTree& tree);

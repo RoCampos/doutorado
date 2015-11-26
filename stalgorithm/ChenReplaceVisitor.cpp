@@ -527,7 +527,7 @@ void ChenReplaceVisitor<SolutionType>::update_trees ()
 		}
 		
 		//_st.prunning ();
-		prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>, SolutionType>(_st, *m_ec, 1, BAND);
+		prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>, SolutionType>(_st, *m_ec, 1, BAND, *this->m_network);
 		
 		this->m_cost += _st.get_cost ();
 		
