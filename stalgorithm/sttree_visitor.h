@@ -58,6 +58,38 @@ void prunning (steiner & st,
 	rca::EdgeContainer<rca::Comparator, rca::HCell> & cont, int, int);
 
 
+
+/**
+* Função template para fazer prunning individual sem alterar um container 
+* de arestas.
+*
+* @param NetworkType um tipo de Network
+* @param SteinerType um tipo de representação de árvore de steiner.
+*/
+template<class NetworkType, class SteinerType>
+void make_prunning (NetworkType & network, SteinerType & tree);
+
+/**
+* Especialização da função make_prunning para uma representação de 
+* árvore de steiner usand steiner.
+*
+* @param NetworkType um tipo de Network
+* @param steiner um tipo de representação de árvore de steiner.
+*/
+void make_prunning (rca::Network & network, steiner & tree); 
+
+/**
+* Especialização da função make_prunning para uma representação de
+* árvore de steiner usando STTree
+*
+*
+* @param NetworkType um tipo de Network
+* @param STTree um tipo de representação de árvore de steiner.
+*/
+void make_prunning (rca::Network & network, STTree & tree);
+
+
+
 /**
  * Este método tempo por objetivo retorna uma lista
  * de caminhos que corresponde a representação de uma

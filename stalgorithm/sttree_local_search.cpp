@@ -81,8 +81,7 @@ void cycle_local_search<Container, SolutionType>::execute ( int tree,
 	int NODES = m_network.getNumberNodes ();
 	int GSIZE = m_groups.size ();
 	
-	int tcost = m_trees[tree].get_cost ();
-	int old = tcost;
+	int tcost = m_trees[tree].get_cost ();	
 	
 	std::set<int> vertex;	
 	std::vector<rca::Link> m_links;
@@ -183,7 +182,9 @@ void cycle_local_search<Container, SolutionType>::execute ( int tree,
 							int cost = m_network.getCost(link.getX(), link.getY());
 							steiner_tree.add_edge (link.getX(), link.getY(), cost);
 							
-							steiner_tree.prunning ();
+							rca::sttalgo::make_prunning<rca::Network, SolutionType> (m_network, steiner_tree);
+							
+
 #ifdef DEBUG11
 							steiner_tree.xdotFormat ();
 #endif
@@ -249,7 +250,6 @@ cycle_local_search<Container, SolutionType>::get_circle (std::vector<rca::Link>&
 	rca::sttalgo::depth_first_search<AdjacentNetwork> dfs;
 	dfs.execute (links, group, link, m_network);
 	
-	int xx = link.getX();
 	int yy = link.getY();
 	
 	std::vector<rca::Link> toRemove;

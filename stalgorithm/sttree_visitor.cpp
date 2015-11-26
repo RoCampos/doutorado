@@ -87,6 +87,25 @@ void rca::sttalgo::prunning (steiner & st,
 	//TO DO 
 }
 
+template<class NetworkType, class SteinerType>
+void rca::sttalgo::make_prunning (NetworkType& network, SteinerType& tree) {
+	rca::sttalgo::make_prunning (network, tree);
+}
+
+void rca::sttalgo::make_prunning (rca::Network & network, steiner& tree) {
+	Prune prun;
+	prun.prunning (tree);
+	int cost = 0;
+	for (auto e = prun.begin(); e != prun.end(); e++) {
+		cost += (int) network.getCost (e->first, e->second);
+	}
+	tree.set_cost (tree.get_cost () - cost);
+}
+
+void rca::sttalgo::make_prunning (rca::Network & network, STTree & tree) {
+	tree.prunning ();
+}
+
 std::vector<rca::Path> rca::sttalgo::stree_to_path (STTree & st, int source, int nodes)
 {
 // 	st.xdotFormat ();
@@ -561,17 +580,8 @@ template void rca::sttalgo::prunning<rca::EdgeContainer<rca::Comparator, rca::HC
 		int treq, 
 		int band);
 
-// template void rca::sttalgo::prunning_sttree<rca::EdgeContainer<rca::Comparator, rca::HCell>>
-// 		(STTree& st, 
-// 		rca::EdgeContainer<rca::Comparator, rca::HCell>& cont, 
-// 		int treq, 
-// 		int band);
-
-// template void rca::sttalgo::prunning_steiner<rca::EdgeContainer<rca::Comparator, rca::HCell>>
-// 		(steiner& st, 
-// 		rca::EdgeContainer<rca::Comparator, rca::HCell>& cont, 
-// 		int treq, 
-// 		int band);
+template void rca::sttalgo::make_prunning<rca::Network, steiner>(rca::Network& network, steiner& tree);
+template void rca::sttalgo::make_prunning<rca::Network, STTree>(rca::Network& network, STTree& tree);
 
 		
 template void rca::sttalgo::print_solution<STTree> (std::vector<STTree> &st);

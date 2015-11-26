@@ -11,6 +11,7 @@
 #include "edgecontainer.h"
 #include "sttree.h"
 #include "steiner.h"
+#include "sttree_visitor.h"
 
 namespace rca {
 	

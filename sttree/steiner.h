@@ -199,19 +199,4 @@ private:
 
 };
 
-template<typename Network, typename SolutionType> 
-void make_prunning (Network & net, SolutionType & st) {
-
-	Prune prun;
-	prun.prunning (st);
-
-	int cost = 0;
-	for (auto e = prun.begin(); e != prun.end(); e++) {
-		cost += (int) net.getCost (e->first, e->second);
-	}
-
-	st.set_cost (st.get_cost () - cost);
-
-}
-
 #endif // STEINER_H
