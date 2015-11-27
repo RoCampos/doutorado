@@ -36,8 +36,10 @@ void LocalSearch::apply (Solution & solution, int & cost, int & res) {
 		list.push_back (l);
 	}
 
-	auto begin = to_replace.begin ();
-	auto end = to_replace.end ();
+	std::sort (list.begin(), list.end(), std::greater<rca::Link>());
+
+	auto begin = list.begin ();
+	auto end = list.end ();
 	
 	for (; begin != end; begin++) {		
 
