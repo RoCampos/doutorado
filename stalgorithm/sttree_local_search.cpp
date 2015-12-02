@@ -109,6 +109,7 @@ void cycle_local_search<Container, SolutionType>::execute ( int tree,
 			m_links.push_back (link);			
 	}
 	
+	int TOP = cg.top ();
 
 	//inicia busca por links que formem ciclos
 	for (auto v : vertex) {
@@ -127,7 +128,7 @@ void cycle_local_search<Container, SolutionType>::execute ( int tree,
 					//vai não vai piorar a qualidade da solução
 					if (cg.is_used(link)) {
 						
-						if (cg.value (link) <= cg.top ()) continue;
+						if (cg.value (link) <= TOP) continue;
 						
 					}
 					
