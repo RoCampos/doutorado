@@ -32,12 +32,13 @@ typedef typename std::vector<steiner> Solution;
 typedef typename std::vector<rca::Link> VEdge;
 
 public:
-	LocalSearch (Network & net, std::vector<rca::Group> & groups);
+	LocalSearch (Network & net, std::vector<rca::Group> & groups);	
+	LocalSearch (Network & net, std::vector<rca::Group> & groups, Container &);	
 	
 	void apply (Solution &, int& cost, int& res);
 
 	~LocalSearch () {
-		delete m_cg;
+		m_cg = NULL;
 	}
 
 	void clear_removed () {
@@ -80,6 +81,8 @@ private:
 	VEdge m_in;
 	std::vector<int> m_id;
 
+	int m_top;
+
 };
 
 
@@ -94,6 +97,7 @@ typedef typename std::vector<rca::Link> VEdge;
 public:
 
 	CycleLocalSearch (Network & net, std::vector<rca::Group> & groups);
+	CycleLocalSearch (Network & net, std::vector<rca::Group> & groups, Container &);
 
 	void apply (Solution & solution, int & cost, int & res);
 
@@ -162,6 +166,7 @@ private:
 
 	VEdge m_removed;
 
+	int m_top;
 
 };
 

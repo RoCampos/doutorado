@@ -12,17 +12,39 @@ LocalSearch::LocalSearch (Network & net, std::vector<rca::Group> & groups)  {
 
 }
 
+LocalSearch::LocalSearch (Network & net, std::vector<rca::Group> & groups, Container & cont) {
+
+	m_network = &net;
+	m_groups = &groups;
+	m_cg = &cont;
+
+	this->m_top = m_cg->top ();
+
+}
+
 void LocalSearch::apply (Solution & solution, int & cost, int & res) {	
 
-#ifdef DEBUG
+#ifdef debug1
 	cout << "LocalSearch:" <<__FUNCTION__ << endl;
 #endif
 
-	this->update_container (solution);
+	// this->update_container (solution);
 
-	auto begin = to_replace.begin ();
-	auto end = to_replace.end ();
 
+
+	std::vector<rca::Link> list;
+	for (auto b = this->m_cg->m_heap.ordered_begin(); 
+		b != this->m_cg->m_heap.ordered_end(); b++) {
+		int bcost = (int) m_network->getCost (b->getX(), b->getY());
+		rca::Link l (b->getX(), b->getY(), bcost);
+		list.push_back (l);
+	}
+
+	std::sort (list.begin(), list.end(), std::greater<rca::Link>());
+
+	auto begin = list.begin ();
+	auto end = list.end ();
+	
 	for (; begin != end; begin++) {		
 
 		int id = 0;
@@ -111,8 +133,6 @@ bool LocalSearch::cut_replace (int x, int y, int id, steiner & tree, int& solcos
 		//adicionando o link novamente
 		tree.add_edge (x, y, 0);
 
-		int TOP = m_cg->top ();
-		
 		for (auto i : ccs[0]) {
 			for (auto j : ccs[1]) {
 				int cost = (int)this->m_network->getCost(i,j);
@@ -131,7 +151,7 @@ bool LocalSearch::cut_replace (int x, int y, int id, steiner & tree, int& solcos
 
 							int tk = m_groups->at (id).getTrequest ();
 
-							if ( (value - tk) > 0 && (value-tk) >= TOP ) {
+							if ( (value - tk) > 0 && (value-tk) >= this->m_top ) {
 								
 								inline_replace (tree, solcost ,old, in, id);
 
@@ -227,25 +247,24 @@ void LocalSearch::update_container (Solution & solution) {
 
 CycleLocalSearch::CycleLocalSearch (Network & net, std::vector<rca::Group> & groups) {
 
-// #ifdef DEBUG
-// 	cout << __FUNCTION__ << endl;
-// #endif
-
 	m_network = &net;
 	m_groups = &groups;
+	m_cg = NULL;
+}
+
+CycleLocalSearch::CycleLocalSearch (Network & net, std::vector<rca::Group> & groups, Container& cont) {
+	m_network = &net;
+	m_groups = &groups;
+	m_cg = &cont;
+
+	this->m_top = m_cg->top ();
 }
 
 CycleLocalSearch::~CycleLocalSearch () {
-
-// #ifdef DEBUG1
-// 	cout << __FUNCTION__ << endl;
-// 	cout << "Size:" << m_cg->m_heap.size () << endl;
-// #endif
-
-
-
-	delete m_cg;
-
+	// delete m_cg;
+	m_cg = NULL;
+	m_network = NULL;
+	m_groups = NULL;
 }
 
 void CycleLocalSearch::update_container (Solution & solution) {
@@ -282,11 +301,11 @@ void CycleLocalSearch::update_container (Solution & solution) {
 
 void CycleLocalSearch::apply (Solution & solution, int & cost, int & res) {
 
-#ifdef DEBUG
+#ifdef debug1
 	cout << "CycleLocalSearch:" <<__FUNCTION__ << endl;
 #endif
 
-	this->update_container (solution);
+	// this->update_container (solution);
 
 	int tree_id = 0;
 	for (steiner & st : solution) { //O(K)
@@ -318,8 +337,6 @@ void CycleLocalSearch::get_vertex (std::vector<int> & vertex,
 bool CycleLocalSearch::cut_replace (int id, std::vector<int>& vertex, steiner & st, int& solcost) {
 
 
-	int top = m_cg->top ();
-
 	//V*V*O(V+E) --> O(V³ + E) 
 	for (auto x : vertex) {
 		for (auto y : vertex) {
@@ -333,7 +350,7 @@ bool CycleLocalSearch::cut_replace (int id, std::vector<int>& vertex, steiner & 
 				if ( in_cost > 0 && !st.find_edge (x,y) ) {
 
 					//avitar piorar solução
-					if (m_cg->is_used (in) && m_cg->value (in) <= top) {
+					if (m_cg->is_used (in) && m_cg->value (in) <= this->m_top) {
 						continue;
 					}
 

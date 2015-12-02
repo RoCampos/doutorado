@@ -18,6 +18,8 @@
 
 #include "mpp_visitor.h"
 
+#include "localsearch.h"
+
 #include "rcatime.h"
 
 namespace rca{
@@ -27,11 +29,9 @@ namespace rca{
 template <class SolutionType, class Container, class ObjectiveType>
 class TabuSearch {
 	
-	// typedef V SolutionType;
-	// typedef Z Container;
-	// typedef X ObjectiveType;
 	typedef rca::sttalgo::ChenReplaceVisitor<SolutionType> ChenReplaceVisitor;
-	typedef rca::sttalgo::cycle_local_search<Container, SolutionType> CycleLocalSearch;
+	typedef rca::sttalgo::cycle_local_search<Container, SolutionType> OCycleLocalSearch;	
+
 	
 public:
 	TabuSearch (std::string& );
