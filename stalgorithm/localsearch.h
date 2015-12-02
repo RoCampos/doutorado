@@ -81,6 +81,8 @@ private:
 	VEdge m_in;
 	std::vector<int> m_id;
 
+	int m_top;
+
 };
 
 
@@ -164,6 +166,7 @@ private:
 
 	VEdge m_removed;
 
+	int m_top;
 
 };
 
