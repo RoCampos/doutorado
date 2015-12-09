@@ -15,8 +15,8 @@ using namespace rca;
 
 typedef std::vector<int> previous_t;
 typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
-typedef typename rca::sttalgo::SteinerTreeObserver<CongestionHandle> STobserver;
-typedef typename rca::sttalgo::ChenReplaceVisitor ChenReplaceVisitor;
+typedef typename rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> STobserver;
+typedef typename rca::sttalgo::ChenReplaceVisitor<> ChenReplaceVisitor;
 
 typedef rca::sttalgo::cycle_local_search<CongestionHandle> CycleLocalSearch;
 
@@ -170,7 +170,7 @@ int main (int argc, char** argv)
 		
 		steiner_trees.push_back (ob.get_steiner_tree());
 		
-		cost += ob.get_steiner_tree ().getCost ();
+		cost += ob.get_steiner_tree ().get_cost ();
 	}
  	_time_.finished ();
 

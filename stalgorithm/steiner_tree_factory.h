@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "sttree.h"
+#include "steiner.h"
 #include "network.h"
 #include "group.h"
 #include "link.h"
@@ -27,7 +28,7 @@ namespace sttalgo {
 *
 * @author Romerito C. Andrade
 */
-template<class Container>
+template<class Container, class SteinerRepr>
 class SteinerTreeFactory {
 
 public:
@@ -53,7 +54,7 @@ public:
 	 * @param rca::Group
 	 * @param Container	 
 	 */
-	virtual void build (SteinerTreeObserver<Container> & sttree, 
+	virtual void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 					rca::Network & network, 
 					rca::Group & g,
 					Container& cg) = 0;
@@ -68,10 +69,17 @@ public:
  * A construção é realizada considerando uma árvore geradora. 
  * O algoritmo tenta reduzir ao máximo o custo de criação da árvore.
  * 
+ * A classe implementa o método build de SteinerTreeFactory e adiciona dois
+ * métodos: update_usage e create_list.
+ *
+ * Para usar este algoritmo é necessário usar o método create_list para cirar um
+ * vector e apartir dele criar uma árvore geradora.
+ * O método update_usage é utilizado para controlar as arestas mais utilizadas.
+ *
  * @author Romerito C. Andrade
  */
-template <class Container>
-class AGMZSteinerTree : public SteinerTreeFactory<Container>
+template <class Container, class SteinerRepr>
+class AGMZSteinerTree : public SteinerTreeFactory<Container, SteinerRepr>
 {
 
 public:
@@ -87,7 +95,7 @@ public:
 	 * @param rca::Group
 	 * @param Container 
 	 */
-	void build (SteinerTreeObserver<Container> & sttree, 
+	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg);
@@ -137,8 +145,8 @@ private:
 * mais curto da fonte para todos os outros nós do grupo multicast.
 *
 */
-template <class Container>
-class ShortestPathSteinerTree : public SteinerTreeFactory<Container>
+template <class Container, class SteinerRepr>
+class ShortestPathSteinerTree : public SteinerTreeFactory<Container, SteinerRepr>
 {
 
 public:
@@ -156,7 +164,7 @@ public:
 	 * @param rca::Group
 	 * @param Container	 
 	 */
-	void build (SteinerTreeObserver<Container> & sttree, 
+	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg);
@@ -164,8 +172,8 @@ public:
 };
 
 
-template <class Container>
-class WildestSteinerTree : public SteinerTreeFactory<Container>
+template <class Container, class SteinerRepr>
+class WildestSteinerTree : public SteinerTreeFactory<Container, SteinerRepr>
 {
 
 public:
@@ -179,7 +187,7 @@ public:
 	* @param rca::Group
 	* @param Container
 	*/
-	void build (SteinerTreeObserver<Container> & sttree, 
+	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg);

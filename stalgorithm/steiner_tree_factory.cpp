@@ -3,8 +3,8 @@
 using namespace rca::sttalgo;
 using namespace rca;
 
-template <class Container>
-void AGMZSteinerTree<Container>::create_list (rca::Network& network)
+template <class Container, class SteinerRepr>
+void AGMZSteinerTree<Container, SteinerRepr>::create_list (rca::Network& network)
 {
 	auto iter = network.getLinks ().begin();
 	auto end = network.getLinks ().end();
@@ -17,8 +17,8 @@ void AGMZSteinerTree<Container>::create_list (rca::Network& network)
 	}	
 }
 
-template <class Container>
-void AGMZSteinerTree<Container>::build (SteinerTreeObserver<Container> & sttree, 
+template <class Container, class SteinerRepr>
+void AGMZSteinerTree<Container, SteinerRepr>::build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 							rca::Network & network, 
 							rca::Group & g,
 							Container& cg)
@@ -47,25 +47,36 @@ void AGMZSteinerTree<Container>::build (SteinerTreeObserver<Container> & sttree,
 	
 }
 
-template <class Container>
-void AGMZSteinerTree<Container>::update_usage (	rca::Group& g,
+template <class Container, class SteinerRepr>
+void AGMZSteinerTree<Container, SteinerRepr>::update_usage (	rca::Group& g,
 						rca::Network & m_network,
 						STTree & st)
 {
 
-	edge_t * e = st.get_edges ().begin;
-	while (e != NULL) {
+	// edge_t * e = st.get_edges ().begin;
+	// while (e != NULL) {
 	
-		if (e->in) { 
+	// 	if (e->in) { 
 		
-			rca::Link l(e->x, e->y,0);
-			auto link = std::find( this->m_links.begin (), this->m_links.end(), l);
-			link->setValue ( link->getValue () + 1);
+	// 		rca::Link l(e->x, e->y,0);
+	// 		auto link = std::find( this->m_links.begin (), this->m_links.end(), l);
+	// 		link->setValue ( link->getValue () + 1);
 			
-		}
+	// 	}
 		
-		e = e->next;
+	// 	e = e->next;
+	// }
+
+	for (std::pair<int,int> e : st.get_all_edges()) {		
+		rca::Link l (e.first, e.second, 0);
+		int cost = m_network.getCost (l.getX(), l.getY());
+		l.setValue (cost);
+
+		auto link = std::find( this->m_links.begin (), this->m_links.end(), l);
+		link->setValue ( link->getValue () + 1);
+		
 	}
+
 	
 	std::sort(m_links.begin(), m_links.end());
 	
@@ -73,16 +84,22 @@ void AGMZSteinerTree<Container>::update_usage (	rca::Group& g,
 
 /********* ------------ Shortest Path Class ------------ *********/
 
-template <class Container>
-void ShortestPathSteinerTree<Container>::build (
-				SteinerTreeObserver<Container> & sttree, 
+template <class Container, class SteinerRepr>
+void ShortestPathSteinerTree<Container, SteinerRepr>::build (
+				SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg)
 {
 	
-	int source = g.getSource ();
+	// int source = g.getSource ();
 	std::vector<int> members = g.getMembers ();
+	members.push_back (g.getSource ());
+	
+	int pos = rand () % members.size ();
+	int source = members[pos];
+	members.erase (members.begin () + pos);
+
 	std::vector<int> prev = all_shortest_path (source, members[0] , network);
 		
 	for (int m : members) {
@@ -106,9 +123,9 @@ void ShortestPathSteinerTree<Container>::build (
 }
 
 /** ------------------------ WildestSteinerTree ------------------- **/
-template <class Container>
-void WildestSteinerTree<Container>::build (
-				SteinerTreeObserver<Container> & sttree, 
+template <class Container, class SteinerRepr>
+void WildestSteinerTree<Container, SteinerRepr>::build (
+				SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg)
@@ -140,8 +157,8 @@ void WildestSteinerTree<Container>::build (
 	
 }
 
-template <class Container>
-void WildestSteinerTree<Container>::update_band (rca::Group & g, 
+template <class Container, class SteinerRepr>
+void WildestSteinerTree<Container, SteinerRepr>::update_band (rca::Group & g, 
 												rca::Network& network,
 												STTree & st)
 {
@@ -162,7 +179,11 @@ void WildestSteinerTree<Container>::update_band (rca::Group & g,
 	
 }
 
-template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell> >; 
-template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell> >;
-template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell> >;
-template class rca::sttalgo::WildestSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell> >;
+template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >; 
+template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >;
+template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >;
+template class rca::sttalgo::WildestSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >;
+
+template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >;
+template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >;
+template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >; 

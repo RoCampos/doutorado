@@ -1,4 +1,60 @@
 <h2>
+New Version (0.6.0) - Nova representação de árvore e novos algoritmos (09/12/2015)
+=====================================================================
+</h2>
+
+<dl>
+	<dt>steiner.h</dt>
+	<dd>
+		Nova represetação de árvore de Steiner baseada em grafo com lita de adjacência.
+		steiner.h define a mesma interface que é definida em sttree.h, assim a compatilibidade
+		é mantida.
+	</dd>
+
+	<dt>localsearch.h</dt>
+	<dd>
+		Algoritmos de busca local aplicados a solução com estrutura de árvore no modelo steiner.h
+
+		Busca local baseada em Ciclo e na troca de arestas.
+	</dd>
+
+	<dt>mpp_visitor.h</dt>
+	<dd>
+		Classe MppVisitor e ChenReplaceVisitor são classes templates. Suportam diferentes tipo de 
+		representação de árvore de Steiner: steiner.h ou sttree.h		
+	</dd>
+
+	<dt>sttree_visitor.h</dt>
+	<dd>
+		Vários funções foram modificados para funções templates.
+
+		Otimização na função remove_top_edges ()
+
+		Função prunning () é agora template.
+	</dd>
+
+	<dt>steiner_tree_factory.h</dt>
+	<dd>
+		Método shortest_path_tree foi modificado para criar árvore enraizadas em terminal ou na fonte, 
+		isto é escolhido de forma aleatória.
+	</dd>
+
+	<dt>sttree_local_search.h</dt>
+	<dd>
+		CycleLocalSearch é agora uma classe template.
+	</dd>
+
+	<dt>Classes Templates</dt>
+	<dd>
+		Todos os algoritmos foram modificados para suportarem classes templates.
+	</dd>
+
+	
+
+</dl>
+
+
+<h2>
 New Version (0.5.0) - Improvements, bug fixed and new procedures (11/10/2015) 
 =====================================================================
 </h2>

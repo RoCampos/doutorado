@@ -1,6 +1,7 @@
 #include <iostream>
 #include "edgecontainer.h"
 #include "sttree.h"
+#include "steiner.h"
 #include "disjointset2.h"
 #include "sttree_visitor.h"
 #include "link.h"
@@ -28,7 +29,7 @@ namespace sttalgo {
 *
 * @author Romerito C. Andrade
 */
-template<typename ContainerType>
+template<typename ContainerType, typename SteinerRepr>
 class SteinerTreeObserver {
 
 public:
@@ -47,7 +48,9 @@ public:
 	* @param STTree estrutura para armazenar árvore
 	* @param int número de nós da rede
 	*/
-	SteinerTreeObserver(ContainerType & ec, STTree & st, int);
+	SteinerTreeObserver(ContainerType & ec, SteinerRepr & st, int);
+
+	SteinerTreeObserver(ContainerType & ec, SteinerRepr & st, rca::Network&,int);
 	
 	/**
 	* Método utilizado para definir uma estrutura de árvore de 
@@ -56,13 +59,13 @@ public:
 	* @param STTree estrutura para armazenar árvore 
 	* @param int número de nós da rede
 	*/
-	void set_steiner_tree (STTree &st, int);
+	void set_steiner_tree (SteinerRepr &st, int);
 
 	/**
 	* Método para acessar o árvore de steiner mantida pelo observer
 	* @return STTree estrutura que armazena árvore de steiner
 	*/
-	STTree & get_steiner_tree ();
+	SteinerRepr & get_steiner_tree ();
 	
 	/**
 	* Método para definir container a ser utilizado pelo obsever
@@ -118,8 +121,9 @@ public:
 
 private:
 	ContainerType * m_ec;
-	STTree * m_st;	
+	SteinerRepr * m_st;	
 	DisjointSet2 * dset;
+	rca::Network * m_network;
 	
 };
 

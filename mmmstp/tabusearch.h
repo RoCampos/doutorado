@@ -18,18 +18,20 @@
 
 #include "mpp_visitor.h"
 
+#include "localsearch.h"
+
 #include "rcatime.h"
 
 namespace rca{
 	
 	namespace metaalgo {
 
-template <class V, class Z, class X>
+template <class SolutionType, class Container, class ObjectiveType>
 class TabuSearch {
 	
-	typedef V SolutionType;
-	typedef Z Container;
-	typedef X ObjectiveType;
+	typedef rca::sttalgo::ChenReplaceVisitor<SolutionType> ChenReplaceVisitor;
+	typedef rca::sttalgo::cycle_local_search<Container, SolutionType> OCycleLocalSearch;	
+
 	
 public:
 	TabuSearch (std::string& );
@@ -164,7 +166,7 @@ private:
 	ObjectiveType m_budget;
 	
 	//multicast tree factory
-	rca::sttalgo::SteinerTreeFactory<Container> * m_factory;
+	rca::sttalgo::SteinerTreeFactory<Container, SolutionType> * m_factory;
 	
 	
 };

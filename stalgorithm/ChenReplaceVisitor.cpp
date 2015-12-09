@@ -3,7 +3,8 @@
 using namespace rca;
 using namespace rca::sttalgo;
 
-void ChenReplaceVisitor::visit ()
+template<class SolutionType>
+void ChenReplaceVisitor<SolutionType>::visit ()
 {
 #ifdef DEBUG
 	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
@@ -11,7 +12,7 @@ void ChenReplaceVisitor::visit ()
 	
 	//passar árvores de steiner de SteinerTree para
 	//lista de arestas
-	prepare_trees ();
+	this->prepare_trees ();
 
 	int min_res = m_ec->top ();
 	
@@ -41,7 +42,7 @@ void ChenReplaceVisitor::visit ()
 		if (it->getValue () != min_res) continue;
 		
 		int group_id = 0;
-		for (std::vector<rca::Link> st : m_temp_trees) {
+		for (std::vector<rca::Link> st : this->m_temp_trees) {
 		
 			auto link_it = std::find (st.begin (), st.end(), *it);
 			
@@ -87,7 +88,8 @@ void ChenReplaceVisitor::visit ()
 	
 }
 
-void ChenReplaceVisitor::visitByCost ()
+template<class SolutionType>
+void ChenReplaceVisitor<SolutionType>::visitByCost ()
 {
 #ifdef DEBUG1
 	std::cout <<"----------"<<__FUNCTION__ <<"-------------" << std::endl;
@@ -95,7 +97,7 @@ void ChenReplaceVisitor::visitByCost ()
 	
 	//passar árvores de steiner de SteinerTree para
 	//lista de arestas
-	prepare_trees ();
+	this->prepare_trees ();
 
 	int min_res = m_ec->top ();
 
@@ -105,7 +107,7 @@ void ChenReplaceVisitor::visitByCost ()
 	std::vector<rca::Link> tree;
 	for ( ; it_h != end_h; it_h++) {
 		rca::Link l = *it_h;
-		l.setValue ( m_network->getCost (it_h->getX(), it_h->getY()) );
+		l.setValue ( this->m_network->getCost (it_h->getX(), it_h->getY()) );
 		tree.push_back (l);
 	}
 	
@@ -216,14 +218,15 @@ void ChenReplaceVisitor::visitByCost ()
 	
 }
 
-std::vector<int> ChenReplaceVisitor::make_cut (int tree_id, const rca::Link & link)
+template<class SolutionType>
+std::vector<int> ChenReplaceVisitor<SolutionType>::make_cut (int tree_id, const rca::Link & link)
 {
 #ifdef DEBUG1
 	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
 #endif
 	std::vector<int> _int;
 	//union_find operations
-	int NODES = m_network->getNumberNodes ();
+	int NODES = this->m_network->getNumberNodes ();
 	//marca as duas subárvores geradas
 	std::vector<int> nodes_mark = std::vector<int> (NODES,-1);
 	
@@ -249,7 +252,7 @@ std::vector<int> ChenReplaceVisitor::make_cut (int tree_id, const rca::Link & li
 			y = nodes_y.front ();
 		
 		//while (it != NULL) {
-		for (const rca::Link & it : m_temp_trees[tree_id]) {
+		for (const rca::Link & it : this->m_temp_trees[tree_id]) {
 			//se it.getX() é igula a x, então verifca se a outra
 			//aresta foi processada
 			if (!nodes_x.empty()) {
@@ -291,7 +294,8 @@ std::vector<int> ChenReplaceVisitor::make_cut (int tree_id, const rca::Link & li
 	return nodes_mark;
 }
 
-void ChenReplaceVisitor::replace (TupleEdgeRemove & tuple)
+template<class SolutionType>
+void ChenReplaceVisitor<SolutionType>::replace (TupleEdgeRemove & tuple)
 {
 #ifdef DEBUG
 	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
@@ -306,7 +310,7 @@ void ChenReplaceVisitor::replace (TupleEdgeRemove & tuple)
 #endif 
 	
 	//updating the tree
-	m_temp_trees[st][pos] = _new;
+	this->m_temp_trees[st][pos] = _new;
 	
 	//m_ec->increase (_old,1);
 	int value = m_ec->value (_old) + 1;
@@ -320,11 +324,11 @@ void ChenReplaceVisitor::replace (TupleEdgeRemove & tuple)
 		_new.setValue (v - 1);
 		m_ec->push (_new);
 	} else {
-		_new.setValue ( m_network->getBand(_new.getX(), _new.getY()) -1 );
+		_new.setValue ( this->m_network->getBand(_new.getX(), _new.getY()) -1 );
 		m_ec->push (_new);
 	}
 	
-	if (value == m_groups.size ()) {
+	if (value == this->m_groups.size ()) {
 		m_ec->erase (_old);
 	} else {
 		m_ec->erase (_old);
@@ -341,7 +345,8 @@ void ChenReplaceVisitor::replace (TupleEdgeRemove & tuple)
 	this->push_replaced (_old);
 }
 
-void ChenReplaceVisitor::getAvailableEdges(std::vector<int> &cut_xy, 
+template<class SolutionType>
+void ChenReplaceVisitor<SolutionType>::getAvailableEdges(std::vector<int> &cut_xy, 
 											const rca::Link & _old,
 										   std::vector<rca::Link> & newedges)
 {
@@ -373,7 +378,7 @@ void ChenReplaceVisitor::getAvailableEdges(std::vector<int> &cut_xy,
 			rca::Link l ( Tx[i], Ty[j], 0);
 			
 			//testa se a aresta existe
-			if ( m_network->getCost ( l.getX() , l.getY() ) > 0 && !m_network->isRemoved(l) ) {
+			if ( this->m_network->getCost ( l.getX() , l.getY() ) > 0 && !this->m_network->isRemoved(l) ) {
 				
 				//pegar o valor de uso atual
 				if ( m_ec->is_used(l) ) {
@@ -397,7 +402,8 @@ void ChenReplaceVisitor::getAvailableEdges(std::vector<int> &cut_xy,
 	
 }
 
-void ChenReplaceVisitor::getAvailableEdgesByCost (std::vector<int> &cut_xy, 
+template<class SolutionType>
+void ChenReplaceVisitor<SolutionType>::getAvailableEdgesByCost (std::vector<int> &cut_xy, 
 								  const rca::Link& _old,
 							   std::vector<rca::Link>& newedges)
 {
@@ -429,9 +435,9 @@ void ChenReplaceVisitor::getAvailableEdgesByCost (std::vector<int> &cut_xy,
 			rca::Link l ( Tx[i], Ty[j], 0);
 			
 			//testa se a aresta existe e se o custo pe menor
-			int new_cost = m_network->getCost ( l.getX() , l.getY() );
-			int old_cost = m_network->getCost ( _old.getX() , _old.getY() );
-			if ( new_cost > 0 && new_cost < old_cost && !m_network->isRemoved(l)) {
+			int new_cost = this->m_network->getCost ( l.getX() , l.getY() );
+			int old_cost = this->m_network->getCost ( _old.getX() , _old.getY() );
+			if ( new_cost > 0 && new_cost < old_cost && !this->m_network->isRemoved(l)) {
 				
 				//pegar o valor de uso atual
 				if ( m_ec->is_used(l) ) {
@@ -454,8 +460,9 @@ void ChenReplaceVisitor::getAvailableEdgesByCost (std::vector<int> &cut_xy,
 	}
 }
 
+template<class SolutionType>
 std::tuple<int,int,rca::Link,rca::Link> 
-ChenReplaceVisitor::get_tuple (int group_id, rca::Link& _old)
+ChenReplaceVisitor<SolutionType>::get_tuple (int group_id, rca::Link& _old)
 {
 #ifdef DEBUG1
 	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
@@ -493,38 +500,46 @@ ChenReplaceVisitor::get_tuple (int group_id, rca::Link& _old)
 	return tuple;
 }
 
-void ChenReplaceVisitor::update_trees () 
+template<class SolutionType>
+void ChenReplaceVisitor<SolutionType>::update_trees () 
 {
 #ifdef DEBUG1
 	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
 #endif
 	this->m_cost = 0;
 	
-	int BAND = m_groups.size ();
+	int BAND = this->m_groups.size ();
 	int g = 0;
-	m_trees->clear ();
-	for (auto st : m_temp_trees) {
+	this->m_trees->clear ();
+	for (auto st : this->m_temp_trees) {
 	
-		STTree _st (m_network->getNumberNodes (), 
-						m_groups[g].getSource(), 
-						m_groups[g].getMembers ());
+		SolutionType _st (this->m_network->getNumberNodes (), 
+						this->m_groups[g].getSource(), 
+						this->m_groups[g].getMembers ());
 		
 		
 		for (auto link : st) {
 			
 			int x = link.getX();
 			int y = link.getY();
-			_st.add_edge (x, y, (int)m_network->getCost (x,y));
+			_st.add_edge (x, y, (int)this->m_network->getCost (x,y));
 			
 		}
 		
 		//_st.prunning ();
-		prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>>(_st, *m_ec, 1, BAND);
+		prunning<rca::EdgeContainer<rca::Comparator, rca::HCell>, SolutionType>(_st, *m_ec, 1, BAND, *this->m_network);
 		
-		this->m_cost += _st.getCost ();
+		this->m_cost += _st.get_cost ();
 		
-		m_trees->push_back (_st);
+		this->m_trees->push_back (_st);
 		g++;
 	}
 	
 }
+
+
+template class ChenReplaceVisitor<STTree>;
+template class MppVisitor<STTree>;
+template class ChenReplaceVisitor<steiner>;
+template class MppVisitor<steiner>;
+

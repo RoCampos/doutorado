@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.8.12.2)
 
 set(VERSION_MAJOR   0   CACHE STRING "Project major version number.")
-set(VERSION_MINOR   5   CACHE STRING "Project minor version number.")
+set(VERSION_MINOR   6   CACHE STRING "Project minor version number.")
 set(VERSION_PATCH   0   CACHE STRING "Project patch version number.")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
@@ -142,7 +142,7 @@ set (EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/build")
 set (LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/lib")
 
 #GLOBAL SETTING OF HOW TO READ THE NETWORK
-set (REAL ON)
+set (REAL OFF)
 IF (REAL)
 	message ("\nINFO: REAL=${REAL} means Reader uses real values of instance")
 ELSE()
@@ -156,7 +156,7 @@ include_directories (include lib)
 add_subdirectory (network)
 add_subdirectory (sttree)
 add_subdirectory (statistics)
-add_subdirectory (mpp_algorithms)
+#add_subdirectory (mpp_algorithms)
 add_subdirectory (util)
 add_subdirectory (stalgorithm)
 add_subdirectory (mmmstp)

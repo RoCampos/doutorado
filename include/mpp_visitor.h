@@ -31,6 +31,7 @@ namespace sttalgo {
 * @author Romerito C. Andrade
 *
 */
+template <class SolutionType = STTree>
 class MppVisitor {
 	
 public:
@@ -44,7 +45,7 @@ public:
 	* 
 	* @param MPPSolution ponteiro para vector de STTree's
 	*/
-	MppVisitor (MPPSolution * tree){
+	MppVisitor (std::vector<SolutionType> * tree){
 		m_trees = tree;
 	}
 	
@@ -115,20 +116,29 @@ protected:
 		//for (SteinerTree * st : m_trees) {
 		for (; st != m_trees->end(); st++) {
 			
-			edge_t * perc = st->get_edge ();
+			// edge_t * perc = st->get_edge ();
+			// std::vector<rca::Link> links;
+			// while (perc !=NULL) {
+			// 	rca::Link link (perc->x, perc->y, 0);
+			// 	*
+			// 	 * Se na iteração passada do visitor a aresta foi removida
+			// 	 * então, não a adiciona na solução que será processada
+			// 	 * após o prepare_trees()
+				 
+			// 	if (perc->in) { 
+			// 		links.push_back (link);
+			// 	}
+			// 	perc = perc->next;
+			// }
+
 			std::vector<rca::Link> links;
-			while (perc !=NULL) {
-				rca::Link link (perc->x, perc->y, 0);
-				/**
-				 * Se na iteração passada do visitor a aresta foi removida
-				 * então, não a adiciona na solução que será processada
-				 * após o prepare_trees()
-				 */
-				if (perc->in) { 
-					links.push_back (link);
-				}
-				perc = perc->next;
+			for (auto & edge : st->get_all_edges ()) {
+				int cost = (int) this->m_network->getCost (edge.first, edge.second);
+				rca::Link l (edge.first, edge.second, cost);
+				links.push_back (l);
 			}
+
+
 			m_temp_trees.push_back ( links );
 			
 			i++;
@@ -137,14 +147,20 @@ protected:
 
 protected:
 	rca::Network * m_network;
-	MPPSolution * m_trees;
+	std::vector<SolutionType> * m_trees;
 	MulticastGroup m_groups;
 	std::vector<std::vector<rca::Link>> m_temp_trees;
 	
 };
 
-class ChenReplaceVisitor : public MppVisitor
+template <class SolutionType = STTree>
+class ChenReplaceVisitor : public MppVisitor<SolutionType>
 {
+
+// using m_network;
+// using m_trees;
+// using m_groups;
+// using m_temp_trees;
 
 public:
 
@@ -156,7 +172,7 @@ public:
 	*
 	* @param MPPSolutino ponteiro para vector de STTree's
 	*/
-	ChenReplaceVisitor (MPPSolution* tree) : MppVisitor (tree) {}
+	ChenReplaceVisitor (std::vector<SolutionType>* tree) : MppVisitor<SolutionType> (tree) {}
 	
 	/*
 	 * Pega a menor capacidade residual (link)

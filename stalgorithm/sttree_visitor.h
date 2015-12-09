@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "sttree.h"
+#include "steiner.h"
 #include "edgecontainer.h"
 #include "steiner_tree_observer.h"
 
@@ -19,7 +20,7 @@ namespace sttalgo {
  * Este container de arestas pode ser utilizado
  * para monitorar o uso das arestas.
  * 
- * @param STTree 
+ * @param SteinerType STTree ou steiner 
  * @param Container could be @EdgeContainer por exemplo
  * @param int representa o carga que será liberada para cada aresta podada
  * @param int bandwidth(max) da aresta para quando for necessário removê-las,
@@ -27,8 +28,67 @@ namespace sttalgo {
  * @author Romerito Campos
  * @date 04/12/2015
  */
-template<class Container>
-void prunning (STTree & st, Container & cont, int, int);
+template<class Container, class SteinerType, class NetworkType = rca::Network>
+void prunning (SteinerType & st, Container & cont, int, int, NetworkType &);
+
+/**
+* Especialização do método prunning.
+* 
+* @param STTree tipo de representação de árvore 
+* @param rca::EdgeContainer container de arestas
+* @param int representa o carga que será liberada para cada aresta podada
+* @param int bandwidth(max) da aresta para quando for necessário removê-las
+* @author Romerito Campos
+* @date 11/17/2015
+*/
+void prunning (STTree & st, 
+	rca::EdgeContainer<rca::Comparator, rca::HCell> & cont, int, int, rca::Network & net);
+
+/**
+* Especialização do método prunning.
+* 
+* @param steiner tipo de representação de árvore 
+* @param rca::EdgeContainer container de arestas
+* @param int representa o carga que será liberada para cada aresta podada
+* @param int bandwidth(max) da aresta para quando for necessário removê-las
+* @author Romerito Campos
+* @date 11/17/2015
+*/
+void prunning (steiner & st, 
+	rca::EdgeContainer<rca::Comparator, rca::HCell> & cont, int, int, rca::Network & net);
+
+
+
+/**
+* Função template para fazer prunning individual sem alterar um container 
+* de arestas.
+*
+* @param NetworkType um tipo de Network
+* @param SteinerType um tipo de representação de árvore de steiner.
+*/
+template<class NetworkType, class SteinerType>
+void make_prunning (NetworkType & network, SteinerType & tree);
+
+/**
+* Especialização da função make_prunning para uma representação de 
+* árvore de steiner usand steiner.
+*
+* @param NetworkType um tipo de Network
+* @param steiner um tipo de representação de árvore de steiner.
+*/
+void make_prunning (rca::Network & network, steiner & tree); 
+
+/**
+* Especialização da função make_prunning para uma representação de
+* árvore de steiner usando STTree
+*
+*
+* @param NetworkType um tipo de Network
+* @param STTree um tipo de representação de árvore de steiner.
+*/
+void make_prunning (rca::Network & network, STTree & tree);
+
+
 
 /**
  * Este método tempo por objetivo retorna uma lista

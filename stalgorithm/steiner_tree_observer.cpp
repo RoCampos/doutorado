@@ -3,14 +3,14 @@
 using namespace rca::sttalgo;
 using namespace rca;
 
-template<typename ContainerType>
-SteinerTreeObserver<ContainerType>::SteinerTreeObserver(){
+template<typename ContainerType, typename SteinerRepr>
+SteinerTreeObserver<ContainerType, SteinerRepr>::SteinerTreeObserver(){
 	dset = NULL;
 }
 
-template<typename ContainerType>
-SteinerTreeObserver<ContainerType>::SteinerTreeObserver(ContainerType & ec,
-														STTree & st,
+template<typename ContainerType, typename SteinerRepr>
+SteinerTreeObserver<ContainerType, SteinerRepr>::SteinerTreeObserver(ContainerType & ec,
+														SteinerRepr & st,
 														int nodes)
 {
 	m_ec = &ec;
@@ -18,8 +18,21 @@ SteinerTreeObserver<ContainerType>::SteinerTreeObserver(ContainerType & ec,
 	
 }
 
-template<typename ContainerType>
-void SteinerTreeObserver<ContainerType>::set_steiner_tree (STTree & st, int nodes)
+template<typename ContainerType, typename SteinerRepr>
+SteinerTreeObserver<ContainerType, SteinerRepr>::SteinerTreeObserver(ContainerType & ec, 
+									SteinerRepr & st, 
+									rca::Network& net, 
+									int nodes){
+
+	m_ec = &ec;
+	m_network = &net;
+	this->set_steiner_tree (st, nodes);
+
+
+}
+
+template<typename ContainerType, typename SteinerRepr>
+void SteinerTreeObserver<ContainerType, SteinerRepr>::set_steiner_tree (SteinerRepr & st, int nodes)
 {
 	m_st = NULL;
 	m_st = &st;
@@ -30,26 +43,26 @@ void SteinerTreeObserver<ContainerType>::set_steiner_tree (STTree & st, int node
 	dset = new DisjointSet2 (nodes);
 }
 
-template<typename ContainerType>
-STTree & SteinerTreeObserver<ContainerType>::get_steiner_tree ()
+template<typename ContainerType, typename SteinerRepr>
+SteinerRepr & SteinerTreeObserver<ContainerType, SteinerRepr>::get_steiner_tree ()
 {
 	return *m_st;
 }
 
-template<typename ContainerType>
-void SteinerTreeObserver<ContainerType>::set_container (ContainerType & ec) 
+template<typename ContainerType, typename SteinerRepr>
+void SteinerTreeObserver<ContainerType, SteinerRepr>::set_container (ContainerType & ec) 
 {
 	m_ec = &ec;
 }
 
-template<typename ContainerType>
-ContainerType & SteinerTreeObserver<ContainerType>::get_container () 
+template<typename ContainerType, typename SteinerRepr>
+ContainerType & SteinerTreeObserver<ContainerType, SteinerRepr>::get_container () 
 {
 	return *m_ec;
 }
 
-template<typename ContainerType>
-bool SteinerTreeObserver<ContainerType>::add_edge (int x, 
+template<typename ContainerType, typename SteinerRepr>
+bool SteinerTreeObserver<ContainerType, SteinerRepr>::add_edge (int x, 
 												   int y, 
 												   int cost, 
 												   int band_usage)
@@ -82,28 +95,38 @@ bool SteinerTreeObserver<ContainerType>::add_edge (int x,
 	return false;	
 }
 
-template<typename ContainerType>
-std::vector<rca::Link> SteinerTreeObserver<ContainerType>::getTreeAsLinks () const
+template<typename ContainerType, typename SteinerRepr>
+std::vector<rca::Link> SteinerTreeObserver<ContainerType, SteinerRepr>::getTreeAsLinks () const
 {
 	std::vector<rca::Link> links;
 	
-	edge_t * perc = m_st->get_edge ();
-	while (perc != NULL) {
+	// edge_t * perc = m_st->get_edge ();
+	// while (perc != NULL) {
 		
-		rca::Link l(perc->x, perc->y, perc->value);		
-		if (perc->in)
-			links.push_back ( l );
-		perc = perc->next;
+	// 	rca::Link l(perc->x, perc->y, perc->value);		
+	// 	if (perc->in)
+	// 		links.push_back ( l );
+	// 	perc = perc->next;
 		
-	}	
+	// }	
+
+	for (auto e : m_st->get_all_edges ()) {
+		int cost = m_network->getCost (e.first, e.second);
+		rca::Link l(e.first, e.second, cost);		
+		links.push_back (l);
+	}
+
 	
 	return links;
 }
 
-template<typename ContainerType>
-void SteinerTreeObserver<ContainerType>::prune (int rest, int band)
+template<typename ContainerType, typename SteinerRepr>
+void SteinerTreeObserver<ContainerType, SteinerRepr>::prune (int rest, int band)
 {
-	prunning<ContainerType>(*m_st, *m_ec, rest, band); 
+	
+	prunning<ContainerType, SteinerRepr>(*m_st, *m_ec, rest, band, *m_network);	
+
 }
 
-template class rca::sttalgo::SteinerTreeObserver<EdgeContainer<Comparator, HCell>>;
+template class rca::sttalgo::SteinerTreeObserver<EdgeContainer<Comparator, HCell>, STTree>;
+template class rca::sttalgo::SteinerTreeObserver<EdgeContainer<Comparator, HCell>, steiner>;
