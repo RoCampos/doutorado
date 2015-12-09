@@ -494,7 +494,7 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::zig_zag 
 	int GROUPS = m_groups.size();
 	
 	//object to perform cycle local search
-	OCycleLocalSearch cls;
+	// OCycleLocalSearch cls;
 	
 	//creatig ChenReplaceVisitor to perform cost and residual refinement
 	ChenReplaceVisitor c(&sol);
@@ -512,43 +512,43 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::zig_zag 
 	}
 
 	//old local search
-	int tt = cost;
-	do {		
-		cost = tt;		
-		c.visitByCost ();
-		tt = c.get_solution_cost ();
-	} while (tt < cost);
+	// int tt = cost;
+	// do {		
+	// 	cost = tt;		
+	// 	c.visitByCost ();
+	// 	tt = c.get_solution_cost ();
+	// } while (tt < cost);
 	
 	//performing cost refinement
-	// rca::sttalgo::LocalSearch ls(m_network, m_groups, cg);	
-	// int ocost = cost;
-	// int z = cg.top ();
-	// do {				
-	// 	ocost = cost;
-	// 	ls.apply (sol, cost, z);	
-	// } while (cost < ocost);	
+	rca::sttalgo::LocalSearch ls(m_network, m_groups, cg);	
+	int ocost = cost;
+	int z = cg.top ();
+	do {				
+		ocost = cost;
+		ls.apply (sol, cost, z);	
+	} while (cost < ocost);	
 	
 	
 #ifdef DEBUG1
 	std::cout << "\t cycle_local_search\n";
 #endif	
 
-	tt = cost;
-	do {		
-		cost = tt;
-		c.visitByCost ();
-		tt = c.get_solution_cost ();
-	} while (tt < cost);
+	// tt = cost;
+	// do {		
+	// 	cost = tt;
+	// 	c.visitByCost ();
+	// 	tt = c.get_solution_cost ();
+	// } while (tt < cost);
 
 
 	//performing cycle local search
-	// CycleLocalSearch cls(m_network, m_groups, cg);	
-	// z = cg.top ();	
-	// ocost = cost;
-	// do {
-	// 	ocost = cost;
-	// 	cls.apply (sol, cost, z);	 	
-	// } while (cost < ocost);
+	CycleLocalSearch cls(m_network, m_groups, cg);	
+	z = cg.top ();	
+	ocost = cost;
+	do {
+		ocost = cost;
+		cls.apply (sol, cost, z);	 	
+	} while (cost < ocost);
 	
 	//cleaning the network
 	this->m_network.clearRemovedEdges();
@@ -582,42 +582,42 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::zig_zag 
 	std::cout << "\t visit by cost\n";
 #endif	
 
-	tt = cost;
-	do {		
-		cost = tt;
-		c.visitByCost ();
-		tt = c.get_solution_cost ();
-	} while (tt < cost);
+	// tt = cost;
+	// do {		
+	// 	cost = tt;
+	// 	c.visitByCost ();
+	// 	tt = c.get_solution_cost ();
+	// } while (tt < cost);
 
 
  	// applying cost refinement based on
- 	// rca::sttalgo::LocalSearch lss(m_network, m_groups, cg); 	
-	// ocost = cost;
-	// z = cg.top ();
-	// do {				
-	// 	ocost = cost;
-	// 	lss.apply (sol, cost, z);		
-	// } while (cost < ocost);
+ 	rca::sttalgo::LocalSearch lss(m_network, m_groups, cg); 	
+	ocost = cost;
+	z = cg.top ();
+	do {				
+		ocost = cost;
+		lss.apply (sol, cost, z);		
+	} while (cost < ocost);
 
 #ifdef DEBUG1
 	std::cout << "\t cls\n";
 #endif	
 
-	if (this->m_has_init)
-	 	cls.local_search (sol, m_network, m_groups, cg, cost);
+	// if (this->m_has_init)
+	//  	cls.local_search (sol, m_network, m_groups, cg, cost);
 
 
 
 	//applying cycle local search after refine by cost
-	// CycleLocalSearch cls2(m_network, m_groups, cg);	
-	// if (this->m_has_init) {	 	
-	//  	z = cg.top ();
-	//  	ocost = cost;
-	//  	do {
-	// 		ocost = cost;
-	// 		cls2.apply (sol, cost, z);	 	
-	//  	} while (cost < ocost);
-	// }	
+	CycleLocalSearch cls2(m_network, m_groups, cg);	
+	if (this->m_has_init) {	 	
+	 	z = cg.top ();
+	 	ocost = cost;
+	 	do {
+			ocost = cost;
+			cls2.apply (sol, cost, z);	 	
+	 	} while (cost < ocost);
+	}	
 
 
 	res = cg.top ();
