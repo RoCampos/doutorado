@@ -199,7 +199,7 @@ void BaseModel::set_edge_as_used (GRBModel &grbmodel,
 				std::string const var_x1 = get_var_name (x,y, k, d);
 				std::string const var_y1 = get_y_var_name (x, y, k);
 				std::stringstream ss1;	
-				ss1 << "mark("<< x << "," << y <<",";
+				ss1 << "mark("<< x+1 << "," << y+1 <<",";
 				ss1 << k+1 << "," << d+1 << ")";
 				
 				GRBVar x1 = grbmodel.getVarByName (var_x1);
@@ -209,7 +209,7 @@ void BaseModel::set_edge_as_used (GRBModel &grbmodel,
 				std::string const var_x2 = get_var_name (y,	x, k, d);
 				std::string const var_y2 = get_y_var_name (y, x, k);
 				std::stringstream ss2;	
-				ss2 << "mark("<< y << "," << x <<",";
+				ss2 << "mark("<< y+1 << "," << x+1 <<",";
 				ss2 << k+1 << "," << d+1 << ")";
 
 				GRBVar x2 = grbmodel.getVarByName (var_x2);
@@ -238,12 +238,12 @@ void BaseModel::avoid_leafs (GRBModel &grbmodel,
 			int y = link.getY();
 
 			std::stringstream ss1;
-			ss1 << "avoid(" << x << ",";
-			ss1 << y << "," << k << ")";
+			ss1 << "avoid(" << x+1 << ",";
+			ss1 << y << "," << k+1 << ")";
 			
 			std::stringstream ss2;
-			ss2 << "avoid(" << y << ",";
-			ss2 << x << "," << k << ")";
+			ss2 << "avoid(" << y+1 << ",";
+			ss2 << x+1 << "," << k+1 << ")";
 
 		
 			GRBLinExpr sum1 = 0, sum2 = 0;
@@ -270,6 +270,42 @@ void BaseModel::avoid_leafs (GRBModel &grbmodel,
 			grbmodel.addConstr (sum2 - y2 >= 0, ss2.str());
 
 		}
+	}
+
+	grbmodel.update ();
+}
+
+void BaseModel::capacity (GRBModel &grbmodel, 
+	rca::Network& net, vgroup_t& groups) {
+
+	size_t GROUPS = groups.size ();
+
+	for (rca::Link const& link : net.getLinks ()) {
+
+		int x = link.getX();
+		int y = link.getY();
+
+		GRBLinExpr sum = 0;
+		std::stringstream ss;
+		ss << "capacity(" << x+1 <<","<< y+1 << ")";
+
+		for (size_t k = 0; k < GROUPS; ++k)
+		{
+			std::string const& vname1 = get_y_var_name (x,y,k);
+			std::string const& vname2 = get_y_var_name (y,x,k);
+
+			int tk = groups[k].getTrequest ();
+
+			GRBVar y1 = grbmodel.getVarByName (vname1);
+			GRBVar y2 = grbmodel.getVarByName (vname2);
+
+			sum += (y1 + y2)*tk;
+		}
+
+		int capacity = net.getBand (x,y);
+
+		grbmodel.addConstr ( capacity - sum >= 0, ss.str ());
+
 	}
 
 	grbmodel.update ();
