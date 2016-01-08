@@ -35,8 +35,9 @@ public:
 		flow3 (grbmodel,net, groups);
 
 		set_edge_as_used (grbmodel, net, groups);
-		capacity (grbmodel);
-		avoid_leafs (grbmodel);		
+		avoid_leafs (grbmodel, net, groups);		
+		capacity (grbmodel, net, groups);
+		
 	}
 	
 	~BaseModel() {}
@@ -52,11 +53,11 @@ private:
 	//x_ij^kd <= y_ij^k
 	void set_edge_as_used (GRBModel &, rca::Network&, vgroup_t&);
 
-	//b_ij <= sum(y_ij^k)
-	void capacity (GRBModel &) {};
-
 	//sum(x_ij^kd) - y_ij^k >= 0 
-	void avoid_leafs (GRBModel &) {};
+	void avoid_leafs (GRBModel &, rca::Network&, vgroup_t&);
+
+	//b_ij <= sum(y_ij^k)
+	void capacity (GRBModel &, rca::Network&, vgroup_t&);
 
 
 	void hop_limite (GRBModel &){};
