@@ -23,5 +23,5 @@ ENDIF()
 include_directories (${GUROBI_INCLUDE_DIRS})
 FILE(GLOB GRB "${GUROBI_INCLUDE_DIRS}/*.h")
 
-add_executable (multi_test multi.cpp ${GRB})
-target_link_libraries (multi_test ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARIES})
+add_executable (multi_test multi.cpp models.h models.cpp ${INCLUDE} ${GRB})
+target_link_libraries (multi_test graph ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARIES})
