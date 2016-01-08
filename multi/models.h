@@ -34,7 +34,7 @@ public:
 		flow2 (grbmodel,net, groups);
 		flow3 (grbmodel,net, groups);
 
-		set_edge_as_used (grbmodel);
+		set_edge_as_used (grbmodel, net, groups);
 		capacity (grbmodel);
 		avoid_leafs (grbmodel);		
 	}
@@ -50,7 +50,7 @@ private:
 	void flow3 (GRBModel &, rca::Network&,vgroup_t&);
 
 	//x_ij^kd <= y_ij^k
-	void set_edge_as_used (GRBModel &) {};
+	void set_edge_as_used (GRBModel &, rca::Network&, vgroup_t&);
 
 	//b_ij <= sum(y_ij^k)
 	void capacity (GRBModel &) {};
@@ -82,5 +82,13 @@ private:
 };
 
 std::string const get_var_name (int x, int y, int k, int d);
+
+std::string const get_y_var_name (int x, int y, int k);
+
+/**
+* função que busca variável e a adiciona a uma expressão (Sumatório)
+*
+*/
+void add_term_expr (int,int,int,int, GRBLinExpr&);
 
 #endif // MODELS_H

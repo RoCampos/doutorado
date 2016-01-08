@@ -26,12 +26,12 @@ void BaseModel::create_variables(GRBModel & grbmodel,
 
 			}
 
-			std::stringstream ss;
-			ss << "y(";
-			ss << link.getX()+1 << ",";
-			ss << link.getY()+1 << ",";
-			ss << k+1 << ")";
-			grbmodel.addVar (0,1,1, GRB_BINARY,ss.str());
+			std::string const& var_y1 = 
+				get_y_var_name (link.getX(), link.getY(), k);
+			grbmodel.addVar (0,1,1, GRB_BINARY,var_y1);
+			std::string const& var_y2 = 
+				get_y_var_name (link.getY(), link.getX(), k);
+			grbmodel.addVar (0,1,1, GRB_BINARY,var_y2);
 
 		}
 	}
@@ -183,6 +183,49 @@ void BaseModel::flow3 (GRBModel &grbmodel,
 	grbmodel.update ();
 }
 
+void BaseModel::set_edge_as_used (GRBModel &grbmodel,
+	rca::Network& net, vgroup_t& groups) {
+
+	size_t GROUPS = groups.size ();
+	for (size_t k = 0; k < GROUPS; ++k)
+	{
+		for (int d : groups[k].getMembers ())
+		{
+			
+			for (rca::Link const& link : net.getLinks()) {
+
+				int x = link.getX();
+				int y = link.getY();
+				std::string const var_x1 = get_var_name (x,y, k, d);
+				std::string const var_y1 = get_y_var_name (x, y, k);
+				std::stringstream ss1;	
+				ss1 << "mark("<< x << "," << y <<",";
+				ss1 << k+1 << "," << d+1 << ")";
+				
+				GRBVar x1 = grbmodel.getVarByName (var_x1);
+				GRBVar y1 = grbmodel.getVarByName (var_y1);
+				grbmodel.addConstr ( x1 <= y1, ss1.str());
+
+				std::string const var_x2 = get_var_name (y,	x, k, d);
+				std::string const var_y2 = get_y_var_name (y, x, k);
+				std::stringstream ss2;	
+				ss2 << "mark("<< y << "," << x <<",";
+				ss2 << k+1 << "," << d+1 << ")";
+
+				GRBVar x2 = grbmodel.getVarByName (var_x2);
+				GRBVar y2 = grbmodel.getVarByName (var_y2);
+				grbmodel.addConstr ( x2 <= y2, ss2.str());
+
+				
+			}
+
+		}
+	}
+
+	grbmodel.update ();
+
+}
+
 std::string const get_var_name (int x, int y, int k, int d) {
 
 	std::stringstream ss;
@@ -193,4 +236,15 @@ std::string const get_var_name (int x, int y, int k, int d) {
 
 	return ss.str();
 
+}
+
+std::string const get_y_var_name (int x, int y, int k) {
+
+	std::stringstream ss;
+	ss<<"y(";
+	ss << x+1 << ",";
+	ss << y+1 << ",";
+	ss << k+1 << ")";
+
+	return ss.str();
 }
