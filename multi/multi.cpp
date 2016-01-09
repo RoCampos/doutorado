@@ -75,7 +75,7 @@ int main(int argc, char const *argv[])
 	GRBEnv env = GRBEnv();
 	GRBModel m = GRBModel(env);
 	
-	BaseModel bm(m, net, v);
+	BaseModel bm(m, net, v, 5);
 
 	m.update ();
 	m.write ("teste.lp");

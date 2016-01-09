@@ -25,7 +25,9 @@ class BaseModel
 {
 
 public:
-	BaseModel(GRBModel & grbmodel, rca::Network& net, vgroup_t& groups){
+	BaseModel(GRBModel & grbmodel, 
+		rca::Network& net, 
+		vgroup_t& groups, int limite){
 
 		create_variables (grbmodel, net, groups);
 
@@ -37,18 +39,20 @@ public:
 		set_edge_as_used (grbmodel, net, groups);
 		avoid_leafs (grbmodel, net, groups);		
 		capacity (grbmodel, net, groups);
+
+		hop_limite (grbmodel, net, groups, limite);
 		
 	}
 	
 	~BaseModel() {}
-
-	void create_variables (GRBModel &, rca::Network&, vgroup_t&);
 
 private:
 
 	void flow1 (GRBModel &, rca::Network&, vgroup_t&);
 	void flow2 (GRBModel &, rca::Network&, vgroup_t&);
 	void flow3 (GRBModel &, rca::Network&,vgroup_t&);
+
+	void create_variables (GRBModel &, rca::Network&, vgroup_t&);
 
 	//x_ij^kd <= y_ij^k
 	void set_edge_as_used (GRBModel &, rca::Network&, vgroup_t&);
@@ -60,7 +64,7 @@ private:
 	void capacity (GRBModel &, rca::Network&, vgroup_t&);
 
 
-	void hop_limite (GRBModel &){};
+	void hop_limite (GRBModel &, rca::Network&, vgroup_t&, int);
 
 	
 };
@@ -70,8 +74,10 @@ class CostModel : public BaseModel
 
 
 public:
-	CostModel(GRBModel & grbmodel, rca::Network& net, vgroup_t& groups) :
-		BaseModel(grbmodel, net, groups){
+	CostModel(GRBModel & grbmodel, 
+		rca::Network& net, 
+		vgroup_t& groups, int limite) :	
+		BaseModel(grbmodel, net, groups, limite){
 
 	}
 

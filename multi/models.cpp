@@ -311,6 +311,39 @@ void BaseModel::capacity (GRBModel &grbmodel,
 	grbmodel.update ();
 }
 
+void BaseModel::hop_limite (GRBModel& grbmodel, 
+	rca::Network& net, vgroup_t& groups, int limite) {
+
+	size_t GROUPS = groups.size ();
+
+	for (size_t k = 0; k < GROUPS; ++k)
+	{
+		for (int d : groups[k].getMembers ()) {
+			std::stringstream ss;
+			ss << "hop(" << k+1 << "," << d+1 << ")";
+
+			GRBLinExpr sum = 0;
+			for (rca::Link const& link : net.getLinks ()) {
+				std::string const& varname1 = 
+					get_var_name (link.getX(), link.getY(),k,d);
+				std::string const& varname2 = 
+					get_var_name (link.getY(), link.getX(),k,d);
+
+				GRBVar var1 = grbmodel.getVarByName (varname1);
+				GRBVar var2 = grbmodel.getVarByName (varname2);
+
+				sum += var1;
+				sum += var2;
+			}
+
+			grbmodel.addConstr (sum <= limite, ss.str ());
+
+		}
+	}
+
+	grbmodel.update ();
+}
+
 std::string const get_var_name (int x, int y, int k, int d) {
 
 	std::stringstream ss;
