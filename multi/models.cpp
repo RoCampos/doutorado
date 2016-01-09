@@ -127,7 +127,7 @@ void BaseModel::flow2 (GRBModel & grbmodel,
 				}
 
 				//adding the constraint to model
-				grbmodel.addConstr (sum1 - sum2 == 1, ss.str());
+				grbmodel.addConstr (sum1 - sum2 == 0, ss.str());
 
 			}
 
@@ -239,7 +239,7 @@ void BaseModel::avoid_leafs (GRBModel &grbmodel,
 
 			std::stringstream ss1;
 			ss1 << "avoid(" << x+1 << ",";
-			ss1 << y << "," << k+1 << ")";
+			ss1 << y+1 << "," << k+1 << ")";
 			
 			std::stringstream ss2;
 			ss2 << "avoid(" << y+1 << ",";
@@ -304,7 +304,11 @@ void BaseModel::capacity (GRBModel &grbmodel,
 
 		int capacity = net.getBand (x,y);
 
+		std::stringstream ss1;
+		ss1 << "capacity(" << y+1 <<","<< x+1 << ")";
+
 		grbmodel.addConstr ( capacity - sum >= 0, ss.str ());
+		grbmodel.addConstr ( capacity - sum >= 0, ss1.str ());
 
 	}
 
