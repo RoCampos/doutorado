@@ -304,11 +304,11 @@ void BaseModel::capacity (GRBModel &grbmodel,
 
 		int capacity = net.getBand (x,y);
 
-		std::stringstream ss1;
-		ss1 << "capacity(" << y+1 <<","<< x+1 << ")";
+		// std::stringstream ss1;
+		// ss1 << "capacity(" << y+1 <<","<< x+1 << ")";
 
 		grbmodel.addConstr ( capacity - sum >= 0, ss.str ());
-		grbmodel.addConstr ( capacity - sum >= 0, ss1.str ());
+		// grbmodel.addConstr ( capacity - sum >= 0, ss1.str ());
 
 	}
 
@@ -347,6 +347,65 @@ void BaseModel::hop_limite (GRBModel& grbmodel,
 
 	grbmodel.update ();
 }
+
+void CostModel::add_objective_function (GRBModel& grbmodel, 
+	rca::Network& net, vgroup_t& groups) {
+
+	GRBLinExpr sum = 0;
+	size_t GROUPS = groups.size ();
+	for (size_t k = 0; k < GROUPS; ++k)
+	{
+
+		for (rca::Link const& l : net.getLinks ()) {
+			
+			int cost = net.getCost (l.getX(), l.getY()); 
+
+			std::string const& var = 
+				get_y_var_name (l.getX(), l.getY(), k);
+
+			GRBVar y = grbmodel.getVarByName (var);
+			sum += y * cost;
+
+			std::string const& var2 = 
+				get_y_var_name (l.getY(), l.getX(), k);
+
+			GRBVar y2 = grbmodel.getVarByName (var2);
+			sum += y2 * cost;
+		}
+	}
+
+	grbmodel.setObjective (sum, GRB_MINIMIZE);
+
+}
+
+void CostModel::set_residual_capacity (GRBModel& grbmodel, 
+	rca::Network& net, vgroup_t& groups, int Z) {
+
+	GRBConstr * array = grbmodel.getConstrs ();
+	int length = grbmodel.get (GRB_IntAttr_NumConstrs);
+
+	for (int i = 0; i < length; ++i)
+	{
+		std::string varname = 
+			array[i].get (GRB_StringAttr_ConstrName);
+
+		if (varname.find ("capacity") != std::string::npos) {
+			try {
+				double value = array[i].get (GRB_DoubleAttr_RHS);				
+				array[i].set (GRB_DoubleAttr_RHS, value+Z);	
+			}
+			catch(const GRBException& e) {
+				cout << e.getMessage () << endl;
+			}
+			
+		}
+
+	}
+
+	//grbmodel.update ();
+
+}
+
 
 std::string const get_var_name (int x, int y, int k, int d) {
 

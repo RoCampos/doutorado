@@ -10,56 +10,6 @@ using namespace std;
 int main(int argc, char const *argv[])
 {
 
-	// try {
-
-	// 	GRBEnv env = GRBEnv ();
-	// 	GRBModel model = GRBModel (env);
-
-	//     // Create variables
-
-	//     GRBVar x = model.addVar(0.0, 1.0, 0.0, GRB_BINARY, "x");
-	//     GRBVar y = model.addVar(0.0, 1.0, 0.0, GRB_BINARY, "y");
-	//     GRBVar z = model.addVar(0.0, 1.0, 0.0, GRB_BINARY, "z");
-
-	//     // Integrate new variables
-
-	//     model.update();
-
-	//     // Set objective: maximize x + y + 2 z
-
-	//     model.setObjective(x + y + 2 * z, GRB_MAXIMIZE);
-
-	//     // Add constraint: x + 2 y + 3 z <= 4
-
-	//     model.addConstr(x + 2 * y + 3 * z <= 4, "c0");
-
-	//     // Add constraint: x + y >= 1
-
-	//     model.addConstr(x + y >= 1, "c1");
-
-	//     // Optimize model
-
-	//     model.optimize();
-
-	//     cout << x.get(GRB_StringAttr_VarName) << " "
-	//          << x.get(GRB_DoubleAttr_X) << endl;
-	//     cout << y.get(GRB_StringAttr_VarName) << " "
-	//          << y.get(GRB_DoubleAttr_X) << endl;
-	//     cout << z.get(GRB_StringAttr_VarName) << " "
-	//          << z.get(GRB_DoubleAttr_X) << endl;
-
-	//     cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
-
-
-	// } catch (GRBException e) {
-
-	// 	cout << "nothing" << endl;
-
-	// }
-
-
-	/* code */
-
 	rca::Network net;
 	std::vector<rca::Group> v;
 
@@ -72,13 +22,36 @@ int main(int argc, char const *argv[])
 		v.push_back (*g);
 	}
 
-	GRBEnv env = GRBEnv();
+	GRBEnv env = GRBEnv();	
+	env.set(GRB_IntParam_OutputFlag, 0);
 	GRBModel m = GRBModel(env);
 	
-	BaseModel bm(m, net, v, 5);
+	// BaseModel bm(m, net, v, 5);
+	// m.update ();
+	// m.write ("teste.lp");
 
-	m.update ();
+	CostModel costmodel (m, net, v, 6);
+
+	int Z = 1;
+
 	m.write ("teste.lp");
+
+	m.optimize ();
+
+	int count = Z-1;
+	do {
+
+		cout << "Objetivo (" << count++ << "): ";
+		cout << m.get (GRB_DoubleAttr_ObjVal) << " ";
+		cout << m.get (GRB_DoubleAttr_Runtime) << endl;
+		m.reset ();
+		// Z++;
+		costmodel.set_residual_capacity (m, net, v, Z);
+
+		m.optimize ();		
+
+	} while (m.get(GRB_IntAttr_Status) == GRB_OPTIMAL);
+
 
 	return 0;
 }

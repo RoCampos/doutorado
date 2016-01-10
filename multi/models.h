@@ -60,7 +60,7 @@ private:
 	//sum(x_ij^kd) - y_ij^k >= 0 
 	void avoid_leafs (GRBModel &, rca::Network&, vgroup_t&);
 
-	//b_ij <= sum(y_ij^k)
+	//b_ij - sum(y_ij^k) >= 0
 	void capacity (GRBModel &, rca::Network&, vgroup_t&);
 
 
@@ -76,15 +76,23 @@ class CostModel : public BaseModel
 public:
 	CostModel(GRBModel & grbmodel, 
 		rca::Network& net, 
-		vgroup_t& groups, int limite) :	
-		BaseModel(grbmodel, net, groups, limite){
+		vgroup_t& groups, int hoplimit) :	
+		BaseModel(grbmodel, net, groups, hoplimit){
+
+		add_objective_function (grbmodel, net, groups);
 
 	}
 
-	~CostModel();
+	~CostModel() {}
+
+	//utilizado para alterar o valor rhs da restrição de capacidade
+	void set_residual_capacity (GRBModel&, rca::Network&, vgroup_t&, int);
+
 
 private:
-	void  t();
+	
+	void add_objective_function (GRBModel&, rca::Network&, vgroup_t&);
+
 	
 };
 
