@@ -41,7 +41,7 @@ public:
 		capacity (grbmodel, net, groups);
 
 		// hop_limite (grbmodel, net, groups, limite);
-		
+				
 	}
 	
 	~BaseModel() {}
@@ -79,7 +79,7 @@ public:
 		vgroup_t& groups, int hoplimit) :	
 		BaseModel(grbmodel, net, groups, hoplimit){
 
-		add_objective_function (grbmodel, net, groups);
+		this->add_objective_function (grbmodel, net, groups);
 
 	}
 

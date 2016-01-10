@@ -169,8 +169,14 @@ void BaseModel::flow3 (GRBModel &grbmodel,
 				GRBVar v2 = grbmodel.getVarByName (var2);
 
 				//updateing the GRBLinExpr terms
-				sum1 += v1;
-				sum2 += v2;
+				if (link.getX() == d) {
+					sum1 += v1;
+					sum2 += v2;	
+				} else {
+					sum1 += v2;
+					sum2 += v1;
+				}
+				
 
 			}
 
@@ -303,12 +309,12 @@ void BaseModel::capacity (GRBModel &grbmodel,
 		}
 
 		int capacity = net.getBand (x,y);
-
+		
 		// std::stringstream ss1;
 		// ss1 << "capacity(" << y+1 <<","<< x+1 << ")";
 
-		grbmodel.addConstr ( capacity - sum >= 0, ss.str ());
-		// grbmodel.addConstr ( capacity - sum >= 0, ss1.str ());
+		grbmodel.addConstr ( capacity - sum >= 32, ss.str ());
+		// grbmodel.addConstr ( capacity - sum >= 32, ss1.str ());
 
 	}
 
@@ -364,17 +370,19 @@ void CostModel::add_objective_function (GRBModel& grbmodel,
 				get_y_var_name (l.getX(), l.getY(), k);
 
 			GRBVar y = grbmodel.getVarByName (var);
-			sum += y * cost;
+			sum += (y * cost);
 
 			std::string const& var2 = 
 				get_y_var_name (l.getY(), l.getX(), k);
 
 			GRBVar y2 = grbmodel.getVarByName (var2);
-			sum += y2 * cost;
+			sum += (y2 * cost);
 		}
 	}
 
 	grbmodel.setObjective (sum, GRB_MINIMIZE);
+
+	grbmodel.update ();
 
 }
 
