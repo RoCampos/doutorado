@@ -70,8 +70,14 @@ void BaseModel::flow1 (GRBModel & grbmodel,
 				GRBVar v2 = grbmodel.getVarByName (var2);
 
 				//creating the summation
-				sum1 += v1;
-				sum2 += v2;
+				if (link.getY() == source) {
+					sum1 += v1;
+					sum2 += v2;
+				} else {
+					sum1 += v2;
+					sum2 += v1;
+				}
+				
 
 			}
 			//adding the constraint (expression, name)
@@ -170,11 +176,11 @@ void BaseModel::flow3 (GRBModel &grbmodel,
 
 				//updateing the GRBLinExpr terms
 				if (link.getX() == d) {
-					sum1 += v1;
-					sum2 += v2;	
-				} else {
 					sum1 += v2;
-					sum2 += v1;
+					sum2 += v1;	
+				} else {
+					sum1 += v1;
+					sum2 += v2;
 				}
 				
 
@@ -313,7 +319,7 @@ void BaseModel::capacity (GRBModel &grbmodel,
 		// std::stringstream ss1;
 		// ss1 << "capacity(" << y+1 <<","<< x+1 << ")";
 
-		grbmodel.addConstr ( capacity - sum >= 32, ss.str ());
+		grbmodel.addConstr ( capacity - sum >= 0, ss.str ());
 		// grbmodel.addConstr ( capacity - sum >= 32, ss1.str ());
 
 	}
@@ -362,6 +368,7 @@ void CostModel::add_objective_function (GRBModel& grbmodel,
 	for (size_t k = 0; k < GROUPS; ++k)
 	{
 
+		GRBLinExpr part = 0;
 		for (rca::Link const& l : net.getLinks ()) {
 			
 			int cost = net.getCost (l.getX(), l.getY()); 
@@ -370,14 +377,16 @@ void CostModel::add_objective_function (GRBModel& grbmodel,
 				get_y_var_name (l.getX(), l.getY(), k);
 
 			GRBVar y = grbmodel.getVarByName (var);
-			sum += (y * cost);
+			part += (y * cost);
 
 			std::string const& var2 = 
 				get_y_var_name (l.getY(), l.getX(), k);
 
 			GRBVar y2 = grbmodel.getVarByName (var2);
-			sum += (y2 * cost);
+			part += (y2 * cost);
 		}
+
+		sum += part;
 	}
 
 	grbmodel.setObjective (sum, GRB_MINIMIZE);

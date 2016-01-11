@@ -23,34 +23,52 @@ int main(int argc, char const *argv[])
 	}
 
 	GRBEnv env = GRBEnv();	
-	env.set(GRB_IntParam_OutputFlag, 0);
+	// env.set(GRB_IntParam_OutputFlag, 0);
 	GRBModel m = GRBModel(env);
 	
 	// BaseModel bm(m, net, v, 5);
 	// m.update ();
 	// m.write ("teste.lp");
 
-	CostModel costmodel (m, net, v, 6);
+	CostModel costmodel (m, net, v, 5);
 
 	int Z = 1;
-
 	m.write ("teste.lp");
-
 	m.optimize ();
 
-	int count = Z-1;
-	do {
 
-		cout << "Objetivo (" << count++ << "): ";
-		cout << m.get (GRB_DoubleAttr_ObjVal) << " ";
-		cout << m.get (GRB_DoubleAttr_Runtime) << endl;
-		m.reset ();
-		// Z++;
-		costmodel.set_residual_capacity (m, net, v, Z);
+	// int count = Z-1;
+	// do {
 
-		m.optimize ();		
+	// 	cout << "Objetivo (" << count++ << "): ";
+	// 	cout << m.get (GRB_DoubleAttr_ObjVal) << " ";
+	// 	cout << m.get (GRB_DoubleAttr_Runtime) << endl;
+	// 	m.reset ();
+	// 	// Z++;
+	// 	costmodel.set_residual_capacity (m, net, v, Z);
 
-	} while (m.get(GRB_IntAttr_Status) == GRB_OPTIMAL);
+	// 	m.optimize ();		
+
+	// } while (m.get(GRB_IntAttr_Status) == GRB_OPTIMAL);
+
+
+	// GRBVar * array = m.getVars ();
+	// int VAR = m.get (GRB_IntAttr_NumVars);
+
+	// int count = 0;
+	// for (int i = 0; i < VAR; ++i)
+	// {
+	// 	std::string const& var = array[i].get(GRB_StringAttr_VarName);
+	// 	if (var.find ("y") != std::string::npos) {
+	// 		if (array[i].get (GRB_DoubleAttr_X) == 1) {
+	// 			cout << var << " : ";
+	// 			cout << array[i].get (GRB_DoubleAttr_X) << endl;	
+	// 			count++;
+	// 		}			
+	// 	} 
+	// }
+
+	// cout << "NumVars = " << count << endl;
 
 
 	return 0;
