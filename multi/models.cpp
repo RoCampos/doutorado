@@ -70,14 +70,14 @@ void BaseModel::flow1 (GRBModel & grbmodel,
 				GRBVar v2 = grbmodel.getVarByName (var2);
 
 				//creating the summation
-				if (link.getY() == source) {
-					sum1 += v1;
-					sum2 += v2;
-				} else {
+				//entrando em Source
+				if (link.getX() == source) {
+					sum1 += v2;
+					sum2 += v1;
+				} else { //saindo de X --- > Y
 					sum1 += v2;
 					sum2 += v1;
 				}
-				
 
 			}
 			//adding the constraint (expression, name)
@@ -94,6 +94,7 @@ void BaseModel::flow2 (GRBModel & grbmodel,
 	size_t GROUPS = groups.size ();
 	size_t NODES = net.getNumberNodes ();
 
+	int C = 0;
 
 	for (size_t k = 0; k < GROUPS; ++k)
 	{
@@ -130,10 +131,12 @@ void BaseModel::flow2 (GRBModel & grbmodel,
 
 					}
 
+					//adding the constraint to model
+					grbmodel.addConstr (sum1 - sum2 == 0, ss.str());
+					
+				} else {
+					grbmodel.addConstr (sum1 == 0, ss.str ());
 				}
-
-				//adding the constraint to model
-				grbmodel.addConstr (sum1 - sum2 == 0, ss.str());
 
 			}
 
@@ -208,7 +211,7 @@ void BaseModel::set_edge_as_used (GRBModel &grbmodel,
 
 				int x = link.getX();
 				int y = link.getY();
-				std::string const var_x1 = get_var_name (x,y, k, d);
+				std::string const var_x1 = get_var_name (x, y, k, d);
 				std::string const var_y1 = get_y_var_name (x, y, k);
 				std::stringstream ss1;	
 				ss1 << "mark("<< x+1 << "," << y+1 <<",";
@@ -320,7 +323,7 @@ void BaseModel::capacity (GRBModel &grbmodel,
 		// ss1 << "capacity(" << y+1 <<","<< x+1 << ")";
 
 		grbmodel.addConstr ( capacity - sum >= 0, ss.str ());
-		// grbmodel.addConstr ( capacity - sum >= 32, ss1.str ());
+		// grbmodel.addConstr ( capacity - sum >= 0, ss1.str ());
 
 	}
 

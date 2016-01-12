@@ -12,6 +12,7 @@ CPack*
 testes/
 docs/
 Testing/
+tmp/
 
 gmon.out
 

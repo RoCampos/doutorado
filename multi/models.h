@@ -32,7 +32,6 @@ public:
 		create_variables (grbmodel, net, groups);
 
 		flow1 (grbmodel,net, groups);
-
 		flow2 (grbmodel,net, groups);
 		flow3 (grbmodel,net, groups);
 
