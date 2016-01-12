@@ -6,7 +6,6 @@ using std::endl;
 void BaseModel::create_variables(GRBModel & grbmodel, 
 	rca::Network& net, vgroup_t & groups) {
 
-	size_t NODES = net.getNumberNodes ();
 	size_t GROUPS = groups.size ();
 
 	for (auto link : net.getLinks()) {
@@ -369,7 +368,7 @@ void BaseModel::r7 (GRBModel &grbmodel,
 	size_t GROUPS = groups.size ();
 	int NODES = net.getNumberNodes ();
 
-	for (int k = 0; k < GROUPS; ++k)
+	for (size_t k = 0; k < GROUPS; ++k)
 	{
 
 		for (int j = 0; j < NODES; ++j)
@@ -387,12 +386,11 @@ void BaseModel::r7 (GRBModel &grbmodel,
 				int y = l.getY();
 				if (x == j) {
 					int aux = y;
-					x = y;
-					y = j;
+					y = x;
+					x = aux;					
 				}
 
-				std::string const& varname = get_y_var_name (x,y,k);
-				cout << varname << endl;
+				std::string const& varname = get_y_var_name (x,y,k);				
 				GRBVar var = grbmodel.getVarByName (varname);
 				sum += var;
 
