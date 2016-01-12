@@ -39,6 +39,8 @@ public:
 		avoid_leafs (grbmodel, net, groups);		
 		capacity (grbmodel, net, groups);
 
+		r7 (grbmodel, net, groups);
+
 		// hop_limite (grbmodel, net, groups, limite);
 				
 	}
@@ -61,6 +63,8 @@ private:
 
 	//b_ij - sum(y_ij^k) >= 0
 	void capacity (GRBModel &, rca::Network&, vgroup_t&);
+
+	void r7 (GRBModel &, rca::Network&, vgroup_t&);
 
 
 	void hop_limite (GRBModel &, rca::Network&, vgroup_t&, int);
