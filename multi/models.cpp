@@ -74,8 +74,8 @@ void BaseModel::flow1 (GRBModel & grbmodel,
 					sum1 += v2;
 					sum2 += v1;
 				} else { //saindo de X --- > Y
-					sum1 += v2;
-					sum2 += v1;
+					sum1 += v1;
+					sum2 += v2;
 				}
 
 			}
@@ -125,8 +125,13 @@ void BaseModel::flow2 (GRBModel & grbmodel,
 						GRBVar v2 = grbmodel.getVarByName (var2);
 
 						//updateing the GRBLinExpr terms
-						sum1 += v1;
-						sum2 += v2;
+						if (link.getX() == j) {
+							sum1 += v1;
+							sum2 += v2;	
+						} else {
+							sum1 += v2;
+							sum2 += v1;	
+						}
 
 					}
 
@@ -464,7 +469,7 @@ void CostModel::set_residual_capacity (GRBModel& grbmodel,
 
 	}
 
-	//grbmodel.update ();
+	grbmodel.update ();
 
 }
 

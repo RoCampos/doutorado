@@ -39,9 +39,9 @@ public:
 		avoid_leafs (grbmodel, net, groups);		
 		capacity (grbmodel, net, groups);
 
-		r7 (grbmodel, net, groups);
+		//r7 (grbmodel, net, groups);
 
-		// hop_limite (grbmodel, net, groups, limite);
+		hop_limite (grbmodel, net, groups, limite);
 				
 	}
 	
