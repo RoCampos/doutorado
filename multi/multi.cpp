@@ -13,7 +13,9 @@ void to_dot (GRBModel const& model,
 	vgroup_t const& multicast_group, int G);
 
 void multiple_runs (GRBModel & model, 
-	rca::Network const&, vgroup_t const&, CostModel&);
+	rca::Network &, vgroup_t &, CostModel&);
+
+void print_x_var (int x, int y, int k, int d, GRBModel const&);
 
 int main(int argc, char const *argv[])
 {
@@ -31,23 +33,21 @@ int main(int argc, char const *argv[])
 	}
 
 	GRBEnv env = GRBEnv();	
-	// env.set(GRB_IntParam_OutputFlag, 0);
+	env.set(GRB_IntParam_OutputFlag, 0);
 	GRBModel m = GRBModel(env);
-	
-	// BaseModel bm(m, net, v, 5);
-	// m.update ();
-	// m.write ("teste.lp");
 
 	CostModel costmodel (m, net, multicast_group, 5);
 
 	m.write ("teste.lp");
-	m.optimize ();
+	// m.optimize ();
+	multiple_runs (m, net, multicast_group, costmodel);
 
+	// print_x_var (16,9,3,-1,m);
+	// print_x_var (9,16,3,-1,m);
 
 	// for (rca::Group const& G : multicast_group) {
 	// 	to_dot (m, multicast_group, G.getId());
 	// }
-
 
 	return 0;
 }
@@ -64,7 +64,7 @@ void multiple_runs (GRBModel & m,
 		//cout << "Objetivo (" << count++ << "): ";
 		cout << m.get (GRB_DoubleAttr_ObjVal) << " ";
 		cout << m.get (GRB_DoubleAttr_Runtime) << endl;
-		m.reset ();
+		// m.reset ();
 		// Z++;
 		costmodel.set_residual_capacity (m, net, v, Z);
 
@@ -87,7 +87,7 @@ void to_dot ( GRBModel const& m,
 
 	cout << "Saving on: " << fname.str () << endl;
 
-	out << "Graph {\n";
+	out << "digraph {\n";
 	out << multicast_group[G].getSource ();
 	out << " [style=filled fillcolor=blue] ;\n";
 	for (auto d : multicast_group[G].getMembers ()) {
@@ -113,7 +113,7 @@ void to_dot ( GRBModel const& m,
 				boost::sregex_iterator rit ( var.begin(), var.end(), ptn );
   				boost::sregex_iterator rend;
   				
-  				out << atoi (rit->str ().c_str ()) - 1 << " -- ";
+  				out << atoi (rit->str ().c_str ()) - 1 << " -> ";
   				rit++;
   				out << atoi (rit->str ().c_str ()) - 1 << " ;\n";
   				rit++;
@@ -125,5 +125,51 @@ void to_dot ( GRBModel const& m,
 	out << "}\n";
 
 	out.close ();
+
+}
+
+void print_x_var (int x, int y, int k, int d, GRBModel const& m) {
+
+	int comp = 0;
+	if (x != -1) comp++;
+	if (k != -1) comp++;
+	if (d != -1) comp++;
+	if (y != -1) comp++;
+
+	GRBVar * vars = m.getVars ();
+	int VAR = m.get (GRB_IntAttr_NumVars);
+
+	boost::regex expr ("\\d+");
+
+	for (int x_id = 0; x_id < VAR; ++x_id)
+	{
+		GRBVar var = vars[x_id];
+
+		std::string const& varname = var.get(GRB_StringAttr_VarName);
+
+		boost::sregex_iterator rit ( varname.begin(), varname.end(), expr);
+  		boost::sregex_iterator rend;
+
+  		if (std::distance (rit, rend) == 3) continue;
+
+  		int xx = atoi (rit->str().c_str());
+  		rit++;
+  		int yy = atoi (rit->str().c_str());
+  		rit++;
+  		int kk = atoi (rit->str().c_str());
+  		rit++;
+  		int dd = atoi (rit->str().c_str());
+
+  		int count = 0;
+  		if (xx == x) count++;
+  		if (yy == y) count++;
+  		if (kk == k) count++;
+  		if (dd == d) count++;
+
+  		if (count == comp) {
+  			cout << varname << ":" << var.get (GRB_DoubleAttr_X) << endl;
+  		}
+
+	}
 
 }
