@@ -93,8 +93,6 @@ void BaseModel::flow2 (GRBModel & grbmodel,
 	size_t GROUPS = groups.size ();
 	size_t NODES = net.getNumberNodes ();
 
-	int C = 0;
-
 	for (size_t k = 0; k < GROUPS; ++k)
 	{
 		
@@ -125,7 +123,7 @@ void BaseModel::flow2 (GRBModel & grbmodel,
 						GRBVar v2 = grbmodel.getVarByName (var2);
 
 						//updateing the GRBLinExpr terms
-						if (link.getX() == j) {
+						if ((size_t)link.getX() == j) {
 							sum1 += v1;
 							sum2 += v2;	
 						} else {
