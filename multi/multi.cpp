@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
 
 	CostModel costmodel (m, net, multicast_group, 5);
 
-	m.write ("teste.lp");
+	// m.write ("teste.lp");
 	// m.optimize ();
 	multiple_runs (m, net, multicast_group, costmodel);
 
@@ -53,12 +53,20 @@ int main(int argc, char const *argv[])
 }
 
 void multiple_runs (GRBModel & m, 
+	
 	rca::Network & net, 
 	vgroup_t & v, CostModel& costmodel) {
 
+	int Z = 1;
+
+	std::stringstream name;
+	name << "pareto" << (Z < 10 ? "0" : "") << Z << ".log";
+
+	m.getEnv().set (GRB_StringParam_LogFile, name.str ());
+
 	m.optimize ();
 
-	int Z = 1;
+
 	do {
 
 		//cout << "Objetivo (" << count++ << "): ";
@@ -67,7 +75,6 @@ void multiple_runs (GRBModel & m,
 		// m.reset ();
 		// Z++;
 		costmodel.set_residual_capacity (m, net, v, Z);
-
 		m.optimize ();		
 
 	} while (m.get(GRB_IntAttr_Status) == GRB_OPTIMAL);
