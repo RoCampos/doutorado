@@ -33,21 +33,12 @@ int main(int argc, char const *argv[])
 	}
 
 	GRBEnv env = GRBEnv();	
-	env.set(GRB_IntParam_OutputFlag, 0);
+	env.set(GRB_IntParam_LogToConsole, 0);
 	GRBModel m = GRBModel(env);
 
 	CostModel costmodel (m, net, multicast_group, 5);
 
-	// m.write ("teste.lp");
-	// m.optimize ();
 	multiple_runs (m, net, multicast_group, costmodel);
-
-	// print_x_var (16,9,3,-1,m);
-	// print_x_var (9,16,3,-1,m);
-
-	// for (rca::Group const& G : multicast_group) {
-	// 	to_dot (m, multicast_group, G.getId());
-	// }
 
 	return 0;
 }
@@ -60,21 +51,36 @@ void multiple_runs (GRBModel & m,
 	int Z = 1;
 
 	std::stringstream name;
-	name << "pareto" << (Z < 10 ? "0" : "") << Z << ".log";
+	name << "pareto_" << (Z < 10 ? "0" : "") << Z << ".log";
+
+	std::stringstream modelname;
+	modelname << "CostModel_" << (Z < 10 ? "0" : ":") << Z << ".lp";
 
 	m.getEnv().set (GRB_StringParam_LogFile, name.str ());
-
+	m.write (modelname.str ());
 	m.optimize ();
 
-
+	int count = 0;
 	do {
 
-		//cout << "Objetivo (" << count++ << "): ";
 		cout << m.get (GRB_DoubleAttr_ObjVal) << " ";
 		cout << m.get (GRB_DoubleAttr_Runtime) << endl;
-		// m.reset ();
-		// Z++;
+		// m.reset ();		
 		costmodel.set_residual_capacity (m, net, v, Z);
+
+		name.clear ();
+		name.str ("");
+		modelname.clear ();
+		modelname.str ("");
+
+		count += 1;		
+		
+		name << "pareto_" << (count < 10 ? "0" : "") << count << ".log";
+		modelname << "CostModel_" << (count < 10 ? "0" : "") << count << ".lp";
+
+		m.getEnv().set (GRB_StringParam_LogFile, name.str ());
+		m.write (modelname.str ());
+
 		m.optimize ();		
 
 	} while (m.get(GRB_IntAttr_Status) == GRB_OPTIMAL);
@@ -86,7 +92,6 @@ void to_dot ( GRBModel const& m,
 
 	GRBVar * array = m.getVars ();
 	int VAR = m.get (GRB_IntAttr_NumVars);
-	int count = 0;
 
 	std::stringstream fname;
 	fname << "tmp/" << G << ".dot";
