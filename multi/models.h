@@ -27,7 +27,7 @@ class BaseModel
 public:
 	BaseModel(GRBModel & grbmodel, 
 		rca::Network& net, 
-		vgroup_t& groups, int limite){
+		vgroup_t& groups, int limite, int Z = 0){
 
 		create_variables (grbmodel, net, groups);
 
@@ -37,7 +37,7 @@ public:
 
 		set_edge_as_used (grbmodel, net, groups);
 		avoid_leafs (grbmodel, net, groups);		
-		capacity (grbmodel, net, groups);
+		capacity (grbmodel, net, groups, Z);
 
 		hop_limite (grbmodel, net, groups, limite);
 				
@@ -60,7 +60,7 @@ private:
 	void avoid_leafs (GRBModel &, rca::Network&, vgroup_t&);
 
 	//b_ij - sum(y_ij^k) >= 0
-	void capacity (GRBModel &, rca::Network&, vgroup_t&);
+	void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z = 0);
 
 	void r7 (GRBModel &, rca::Network&, vgroup_t&);
 
@@ -76,8 +76,8 @@ class CostModel : public BaseModel
 public:
 	CostModel(GRBModel & grbmodel, 
 		rca::Network& net, 
-		vgroup_t& groups, int hoplimit) :	
-		BaseModel(grbmodel, net, groups, hoplimit){
+		vgroup_t& groups, int hoplimit, int Z = 0) :	
+		BaseModel(grbmodel, net, groups, hoplimit, Z){
 
 		this->add_objective_function (grbmodel, net, groups);
 

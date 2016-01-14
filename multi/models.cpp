@@ -293,7 +293,7 @@ void BaseModel::avoid_leafs (GRBModel &grbmodel,
 }
 
 void BaseModel::capacity (GRBModel &grbmodel, 
-	rca::Network& net, vgroup_t& groups) {
+	rca::Network& net, vgroup_t& groups, int Z) {
 
 	size_t GROUPS = groups.size ();
 
@@ -324,7 +324,7 @@ void BaseModel::capacity (GRBModel &grbmodel,
 		// std::stringstream ss1;
 		// ss1 << "capacity(" << y+1 <<","<< x+1 << ")";
 
-		grbmodel.addConstr ( capacity - sum >= 0, ss.str ());
+		grbmodel.addConstr ( capacity - sum >= Z, ss.str ());
 		// grbmodel.addConstr ( capacity - sum >= 0, ss1.str ());
 
 	}
