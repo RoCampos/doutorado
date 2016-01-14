@@ -60,12 +60,14 @@ void multiple_runs (GRBModel & m,
 	m.write (modelname.str ());
 	m.optimize ();
 
-	int count = 0;
+	int count = Z;
 	do {
 
 		cout << m.get (GRB_DoubleAttr_ObjVal) << " ";
+
+		//time is wall-clock, reported in seconds
 		cout << m.get (GRB_DoubleAttr_Runtime) << endl;
-		// m.reset ();		
+		// m.reset ();
 		costmodel.set_residual_capacity (m, net, v, Z);
 
 		name.clear ();
