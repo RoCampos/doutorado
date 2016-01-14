@@ -60,15 +60,18 @@ void multiple_runs (GRBModel & m,
 	m.write (modelname.str ());
 	m.optimize ();
 
+	std::fstream pareto ("pareto.txt", std::fstream::out );
+	std::fstream ftime ("time.txt", std::fstream::out);
+
 	int count = 0;
 	double _time_ = 0.0;
 	do {
 
-		cout << m.get (GRB_DoubleAttr_ObjVal) << " ";
+		pareto << m.get (GRB_DoubleAttr_ObjVal) << " ";
 
 		//time is wall-clock, reported in seconds
 		_time_ += m.get (GRB_DoubleAttr_Runtime);
-		cout << m.get (GRB_DoubleAttr_Runtime) << endl;
+		pareto << m.get (GRB_DoubleAttr_Runtime) << endl;
 		// m.reset ();
 		costmodel.set_residual_capacity (m, net, v, Z);
 
@@ -90,7 +93,10 @@ void multiple_runs (GRBModel & m,
 	} while (m.get(GRB_IntAttr_Status) == GRB_OPTIMAL);
 
 
-	cout << _time_ << endl;
+	ftime << _time_ << endl;
+
+	ftime.close ();
+	pareto.close ();
 }
 
 void to_dot ( GRBModel const& m, 
