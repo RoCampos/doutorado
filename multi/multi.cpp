@@ -51,21 +51,23 @@ void multiple_runs (GRBModel & m,
 	int Z = 1;
 
 	std::stringstream name;
-	name << "pareto_" << (Z < 10 ? "0" : "") << Z << ".log";
+	name << "pareto_" << ( 0 < 10 ? "0" : "") << Z-1 << ".log";
 
 	std::stringstream modelname;
-	modelname << "CostModel_" << (Z < 10 ? "0" : ":") << Z << ".lp";
+	modelname << "CostModel_" << ( 0 < 10 ? "0" : ":") << Z-1 << ".lp";
 
 	m.getEnv().set (GRB_StringParam_LogFile, name.str ());
 	m.write (modelname.str ());
 	m.optimize ();
 
-	int count = Z;
+	int count = 0;
+	double _time_ = 0.0;
 	do {
 
 		cout << m.get (GRB_DoubleAttr_ObjVal) << " ";
 
 		//time is wall-clock, reported in seconds
+		_time_ += m.get (GRB_DoubleAttr_Runtime);
 		cout << m.get (GRB_DoubleAttr_Runtime) << endl;
 		// m.reset ();
 		costmodel.set_residual_capacity (m, net, v, Z);
@@ -87,6 +89,8 @@ void multiple_runs (GRBModel & m,
 
 	} while (m.get(GRB_IntAttr_Status) == GRB_OPTIMAL);
 
+
+	cout << _time_ << endl;
 }
 
 void to_dot ( GRBModel const& m, 
