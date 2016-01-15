@@ -71,8 +71,8 @@ void multiple_runs (GRBModel & m,
 	double _time_ = 0.0;
 	do {
 
+		pareto << count << " ";
 		pareto << m.get (GRB_DoubleAttr_ObjVal) << " ";
-
 		//time is wall-clock, reported in seconds
 		_time_ += m.get (GRB_DoubleAttr_Runtime);
 		pareto << m.get (GRB_DoubleAttr_Runtime) << endl;
