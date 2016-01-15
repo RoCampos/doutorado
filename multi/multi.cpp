@@ -13,7 +13,7 @@ void to_dot (GRBModel const& model,
 	vgroup_t const& multicast_group, int G);
 
 void multiple_runs (GRBModel & model, 
-	rca::Network &, vgroup_t &, CostModel&);
+	rca::Network &, vgroup_t &, CostModel&, int);
 
 void print_x_var (int x, int y, int k, int d, GRBModel const&);
 
@@ -32,43 +32,52 @@ int main(int argc, char const *argv[])
 		multicast_group.push_back (*g);
 	}
 
+	//getting the parameter Z that was the last
+	//case of optimizationg
+	int Z = 0;
+	if (argc > 2) {
+		Z = atoi (argv[2]);
+	}
+
 	GRBEnv env = GRBEnv();	
 	env.set(GRB_IntParam_LogToConsole, 0);
 	GRBModel m = GRBModel(env);
 
-	CostModel costmodel (m, net, multicast_group, 5);
+	CostModel costmodel (m, net, multicast_group, 5, Z);
 
-	multiple_runs (m, net, multicast_group, costmodel);
+	multiple_runs (m, net, multicast_group, costmodel, Z);
 
 	return 0;
 }
 
-void multiple_runs (GRBModel & m, 
-	
+void multiple_runs (GRBModel & m, 	
 	rca::Network & net, 
-	vgroup_t & v, CostModel& costmodel) {
-
-	int Z = 1;
+	vgroup_t & v, CostModel& costmodel, int Z) {
 
 	std::stringstream name;
-	name << "pareto_" << (Z < 10 ? "0" : "") << Z << ".log";
+	name << "pareto_" << ( Z < 10 ? "0" : "") << Z << ".log";
 
 	std::stringstream modelname;
-	modelname << "CostModel_" << (Z < 10 ? "0" : ":") << Z << ".lp";
+	modelname << "CostModel_" << ( Z < 10 ? "0" : "") << Z << ".lp";
 
 	m.getEnv().set (GRB_StringParam_LogFile, name.str ());
 	m.write (modelname.str ());
 	m.optimize ();
 
+	std::fstream pareto ("pareto.txt", std::fstream::out );
+	std::fstream ftime ("time.txt", std::fstream::out);
+
 	int count = Z;
+	double _time_ = 0.0;
 	do {
 
-		cout << m.get (GRB_DoubleAttr_ObjVal) << " ";
-
+		pareto << count << " ";
+		pareto << m.get (GRB_DoubleAttr_ObjVal) << " ";
 		//time is wall-clock, reported in seconds
-		cout << m.get (GRB_DoubleAttr_Runtime) << endl;
+		_time_ += m.get (GRB_DoubleAttr_Runtime);
+		pareto << m.get (GRB_DoubleAttr_Runtime) << endl;
 		// m.reset ();
-		costmodel.set_residual_capacity (m, net, v, Z);
+		costmodel.set_residual_capacity (m, net, v, 1);
 
 		name.clear ();
 		name.str ("");
@@ -87,6 +96,11 @@ void multiple_runs (GRBModel & m,
 
 	} while (m.get(GRB_IntAttr_Status) == GRB_OPTIMAL);
 
+
+	ftime << _time_ << endl;
+
+	ftime.close ();
+	pareto.close ();
 }
 
 void to_dot ( GRBModel const& m, 
