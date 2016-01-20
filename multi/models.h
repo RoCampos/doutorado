@@ -11,6 +11,17 @@
 
 typedef typename std::vector<rca::Group> vgroup_t;
 
+std::string const get_var_name (int x, int y, int k, int d);
+
+std::string const get_y_var_name (int x, int y, int k);
+
+/**
+* função que busca variável e a adiciona a uma expressão (Sumatório)
+*
+*/
+void add_term_expr (int,int,int,int, GRBLinExpr&);
+
+
 class BaseModel;
 class HopCostModel;
 class LeeModel;
@@ -27,7 +38,7 @@ class BaseModel
 public:
 	BaseModel(GRBModel & grbmodel, 
 		rca::Network& net, 
-		vgroup_t& groups, int limite, int Z = 0){
+		vgroup_t& groups, int Z = 0){
 
 		create_variables (grbmodel, net, groups);
 
@@ -35,17 +46,12 @@ public:
 		flow2 (grbmodel,net, groups);
 		flow3 (grbmodel,net, groups);
 
-		set_edge_as_used (grbmodel, net, groups);
-		avoid_leafs (grbmodel, net, groups);		
+		set_edge_as_used (grbmodel, net, groups);			
 		capacity (grbmodel, net, groups, Z);
 				
 	}
 	
-	~BaseModel() {}
-
-protected:
-	virtual void hop_limite (GRBModel &grbmodel, 
-		rca::Network& net, vgroup_t& groups, int limite) {}
+	virtual ~BaseModel() {}
 
 private:
 
@@ -59,7 +65,7 @@ private:
 	void set_edge_as_used (GRBModel &, rca::Network&, vgroup_t&);
 
 	//sum(x_ij^kd) - y_ij^k >= 0 
-	virtual void avoid_leafs (GRBModel &, rca::Network&, vgroup_t&);
+	virtual void avoid_leafs (GRBModel &, rca::Network&, vgroup_t&) {}
 
 	//b_ij - sum(y_ij^k) >= 0
 	void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z = 0);
@@ -75,7 +81,7 @@ public:
 	HopCostModel(GRBModel & grbmodel, 
 		rca::Network& net, 
 		vgroup_t& groups, int hoplimit, int Z = 0) :	
-		BaseModel(grbmodel, net, groups, hoplimit, Z){
+		BaseModel(grbmodel, net, groups, Z){
 
 		this->add_objective_function (grbmodel, net, groups);
 		this->hop_limite (grbmodel, net, groups, hoplimit);
@@ -91,18 +97,35 @@ private:
 
 	void hop_limite (GRBModel &, rca::Network&, vgroup_t&, int);	
 	void add_objective_function (GRBModel&, rca::Network&, vgroup_t&);
+	void avoid_leafs (GRBModel &, rca::Network&, vgroup_t&);
 
 	
 };
 
-std::string const get_var_name (int x, int y, int k, int d);
 
-std::string const get_y_var_name (int x, int y, int k);
+class LeeModel : public BaseModel
+{
+public:
+	LeeModel(GRBModel & grbmodel, rca::Network& net, 
+		vgroup_t& groups, std::vector<double>& limits, int Z = 0) 
+	: BaseModel (grbmodel, net, groups){
 
-/**
-* função que busca variável e a adiciona a uma expressão (Sumatório)
-*
-*/
-void add_term_expr (int,int,int,int, GRBLinExpr&);
+		this->set_tree_limits (grbmodel, limits);
+		this->add_objective_function ();
+	}
+
+	~LeeModel() {}
+
+	void set_tree_limits (GRBModel & grbmodel, 
+		std::vector<double>& limits);
+
+private:
+
+	void avoid_leafs (GRBModel & grbmodel, 
+		rca::Network& net, vgroup_t& groups) {}
+	
+
+	void add_objective_function () {}
+};
 
 #endif // MODELS_H
