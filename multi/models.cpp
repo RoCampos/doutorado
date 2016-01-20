@@ -243,7 +243,7 @@ void BaseModel::set_edge_as_used (GRBModel &grbmodel,
 
 }
 
-void BaseModel::capacity (GRBModel &grbmodel, 
+void HopCostModel::capacity (GRBModel &grbmodel, 
 	rca::Network& net, vgroup_t& groups, int Z) {
 
 	size_t GROUPS = groups.size ();
@@ -463,9 +463,69 @@ void LeeModel::set_tree_limits (GRBModel & grbmodel,
 
 }
 
-void LeeModel::add_objective_function () {
-	
+void LeeModel::capacity (GRBModel & grbmodel, 
+	rca::Network& net, vgroup_t& groups, int Z = 0) {
+
+	// AQUI O LIMITE É O VALOR DE Z
+	size_t GROUPS = groups.size ();
+
+	GRBVar var_z = grbmodel.getVarByName ("Z");
+
+	for (rca::Link const& link : net.getLinks ()) {
+
+		int x = link.getX();
+		int y = link.getY();
+
+		GRBLinExpr sum = 0;
+		std::stringstream ss;
+		ss << "capacity(" << x+1 <<","<< y+1 << ")";
+
+		for (size_t k = 0; k < GROUPS; ++k)
+		{
+			std::string const& vname1 = get_y_var_name (x,y,k);
+			std::string const& vname2 = get_y_var_name (y,x,k);
+
+			int tk = groups[k].getTrequest ();
+
+			GRBVar y1 = grbmodel.getVarByName (vname1);
+			GRBVar y2 = grbmodel.getVarByName (vname2);
+
+			sum += (y1 + y2)*tk;
+		}
+
+		int capacity = net.getBand (x,y);
+		
+		// std::stringstream ss1;
+		// ss1 << "capacity(" << y+1 <<","<< x+1 << ")";
+
+		grbmodel.addConstr ( capacity - sum >= var_z, ss.str ());
+		// grbmodel.addConstr ( capacity - sum >= 0, ss1.str ());
+
+	}
+
+	grbmodel.update ();
+
 }
+
+void LeeModel::add_objective_function (GRBModel &grbmodel) {
+
+	double up = std::numeric_limits<double>::max();
+	GRBVar Z = grbmodel.addVar (0,up,1, GRB_INTEGER, "Z");
+	grbmodel.update ();
+
+	GRBLinExpr sum;
+	sum += Z;
+
+	try {
+		grbmodel.setObjective (sum, GRB_MAXIMIZE);
+	}
+	catch(const GRBException& e) {
+		std::cerr << e.getMessage() << '\n';
+	}
+	grbmodel.update ();	
+
+}
+
 
 
 std::string const get_var_name (int x, int y, int k, int d) {

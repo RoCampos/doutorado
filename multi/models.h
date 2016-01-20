@@ -47,7 +47,6 @@ public:
 		flow3 (grbmodel,net, groups);
 
 		set_edge_as_used (grbmodel, net, groups);			
-		capacity (grbmodel, net, groups, Z);
 				
 	}
 	
@@ -68,7 +67,7 @@ private:
 	virtual void avoid_leafs (GRBModel &, rca::Network&, vgroup_t&) {}
 
 	//b_ij - sum(y_ij^k) >= 0
-	void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z = 0);
+	virtual void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z = 0) {}
 
 	
 };
@@ -86,6 +85,8 @@ public:
 		this->add_objective_function (grbmodel, net, groups);
 		this->hop_limite (grbmodel, net, groups, hoplimit);
 
+		this->capacity (grbmodel, net, groups, Z);
+
 	}
 
 	~HopCostModel() {}
@@ -98,6 +99,7 @@ private:
 	void hop_limite (GRBModel &, rca::Network&, vgroup_t&, int);	
 	void add_objective_function (GRBModel&, rca::Network&, vgroup_t&);
 	void avoid_leafs (GRBModel &, rca::Network&, vgroup_t&);
+	void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z = 0);
 
 	
 };
@@ -111,7 +113,8 @@ public:
 	: BaseModel (grbmodel, net, groups){
 
 		this->set_tree_limits (grbmodel, net, limits);
-		this->add_objective_function ();
+		this->add_objective_function (grbmodel);
+		this->capacity (grbmodel, net, groups, Z);
 	}
 
 	~LeeModel() {}
@@ -120,13 +123,15 @@ public:
 		rca::Network &net,
 		std::vector<double>& limits);
 
+	void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z);
+
 private:
 
 	void avoid_leafs (GRBModel & grbmodel, 
 		rca::Network& net, vgroup_t& groups) {}
 	
 
-	void add_objective_function () {}
+	void add_objective_function (GRBModel&);
 };
 
 #endif // MODELS_H
