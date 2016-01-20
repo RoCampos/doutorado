@@ -332,7 +332,7 @@ void BaseModel::capacity (GRBModel &grbmodel,
 	grbmodel.update ();
 }
 
-void BaseModel::hop_limite (GRBModel& grbmodel, 
+void HopCostModel::hop_limite (GRBModel& grbmodel, 
 	rca::Network& net, vgroup_t& groups, int limite) {
 
 	size_t GROUPS = groups.size ();
@@ -365,50 +365,7 @@ void BaseModel::hop_limite (GRBModel& grbmodel,
 	grbmodel.update ();
 }
 
-void BaseModel::r7 (GRBModel &grbmodel, 
-	rca::Network& net, vgroup_t& groups) {
-
-	size_t GROUPS = groups.size ();
-	int NODES = net.getNumberNodes ();
-
-	for (size_t k = 0; k < GROUPS; ++k)
-	{
-
-		for (int j = 0; j < NODES; ++j)
-		{
-
-			if (j == groups[k].getSource ()) continue;
-
-			std::stringstream ss;
-			ss << "r7(" << k+1 << ",j=" << j+1 << ")";
-
-			GRBLinExpr sum = 0;
-			for (rca::Link const& l : net.getEdges(j))
-			{
-				int x = l.getX();
-				int y = l.getY();
-				if (x == j) {
-					int aux = y;
-					y = x;
-					x = aux;					
-				}
-
-				std::string const& varname = get_y_var_name (x,y,k);				
-				GRBVar var = grbmodel.getVarByName (varname);
-				sum += var;
-
-			}
-
-			grbmodel.addConstr (sum <= 1, ss.str ());
- 
-		}
-
-	}
-	grbmodel.update ();
-
-}
-
-void CostModel::add_objective_function (GRBModel& grbmodel, 
+void HopCostModel::add_objective_function (GRBModel& grbmodel, 
 	rca::Network& net, vgroup_t& groups) {
 
 	GRBLinExpr sum = 0;
@@ -443,7 +400,7 @@ void CostModel::add_objective_function (GRBModel& grbmodel,
 
 }
 
-void CostModel::set_residual_capacity (GRBModel& grbmodel, 
+void HopCostModel::set_residual_capacity (GRBModel& grbmodel, 
 	rca::Network& net, vgroup_t& groups, int Z) {
 
 	GRBConstr * array = grbmodel.getConstrs ();

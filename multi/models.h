@@ -12,8 +12,8 @@
 typedef typename std::vector<rca::Group> vgroup_t;
 
 class BaseModel;
-class CostModel;
-class CapacityModel;
+class HopCostModel;
+class LeeModel;
 
 
 /**
@@ -38,12 +38,14 @@ public:
 		set_edge_as_used (grbmodel, net, groups);
 		avoid_leafs (grbmodel, net, groups);		
 		capacity (grbmodel, net, groups, Z);
-
-		hop_limite (grbmodel, net, groups, limite);
 				
 	}
 	
 	~BaseModel() {}
+
+protected:
+	virtual void hop_limite (GRBModel &grbmodel, 
+		rca::Network& net, vgroup_t& groups, int limite) {}
 
 private:
 
@@ -57,40 +59,37 @@ private:
 	void set_edge_as_used (GRBModel &, rca::Network&, vgroup_t&);
 
 	//sum(x_ij^kd) - y_ij^k >= 0 
-	void avoid_leafs (GRBModel &, rca::Network&, vgroup_t&);
+	virtual void avoid_leafs (GRBModel &, rca::Network&, vgroup_t&);
 
 	//b_ij - sum(y_ij^k) >= 0
 	void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z = 0);
 
-	void r7 (GRBModel &, rca::Network&, vgroup_t&);
-
-	void hop_limite (GRBModel &, rca::Network&, vgroup_t&, int);
-
 	
 };
 
-class CostModel : public BaseModel
+class HopCostModel : public BaseModel
 {
 
 
 public:
-	CostModel(GRBModel & grbmodel, 
+	HopCostModel(GRBModel & grbmodel, 
 		rca::Network& net, 
 		vgroup_t& groups, int hoplimit, int Z = 0) :	
 		BaseModel(grbmodel, net, groups, hoplimit, Z){
 
 		this->add_objective_function (grbmodel, net, groups);
+		this->hop_limite (grbmodel, net, groups, hoplimit);
 
 	}
 
-	~CostModel() {}
+	~HopCostModel() {}
 
 	//utilizado para alterar o valor rhs da restrição de capacidade
 	void set_residual_capacity (GRBModel&, rca::Network&, vgroup_t&, int);
 
-
 private:
-	
+
+	void hop_limite (GRBModel &, rca::Network&, vgroup_t&, int);	
 	void add_objective_function (GRBModel&, rca::Network&, vgroup_t&);
 
 	

@@ -13,7 +13,7 @@ void to_dot (GRBModel const& model,
 	vgroup_t const& multicast_group, int G);
 
 void multiple_runs (GRBModel & model, 
-	rca::Network &, vgroup_t &, CostModel&, int);
+	rca::Network &, vgroup_t &, HopCostModel&, int);
 
 void print_x_var (int x, int y, int k, int d, GRBModel const&);
 
@@ -43,7 +43,7 @@ int main(int argc, char const *argv[])
 	env.set(GRB_IntParam_LogToConsole, 0);
 	GRBModel m = GRBModel(env);
 
-	CostModel costmodel (m, net, multicast_group, 5, Z);
+	HopCostModel costmodel(m, net, multicast_group, 5, Z);
 
 	multiple_runs (m, net, multicast_group, costmodel, Z);
 
@@ -52,7 +52,7 @@ int main(int argc, char const *argv[])
 
 void multiple_runs (GRBModel & m, 	
 	rca::Network & net, 
-	vgroup_t & v, CostModel& costmodel, int Z) {
+	vgroup_t & v, HopCostModel& costmodel, int Z) {
 
 	std::stringstream name;
 	name << "pareto_" << ( Z < 10 ? "0" : "") << Z << ".log";
