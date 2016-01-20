@@ -110,13 +110,14 @@ public:
 		vgroup_t& groups, std::vector<double>& limits, int Z = 0) 
 	: BaseModel (grbmodel, net, groups){
 
-		this->set_tree_limits (grbmodel, limits);
+		this->set_tree_limits (grbmodel, net, limits);
 		this->add_objective_function ();
 	}
 
 	~LeeModel() {}
 
 	void set_tree_limits (GRBModel & grbmodel, 
+		rca::Network &net,
 		std::vector<double>& limits);
 
 private:

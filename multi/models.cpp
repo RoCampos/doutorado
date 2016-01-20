@@ -429,10 +429,42 @@ void HopCostModel::set_residual_capacity (GRBModel& grbmodel,
 }
 
 void LeeModel::set_tree_limits (GRBModel & grbmodel, 
+	rca::Network& net,
 	std::vector<double>& limits) {
 
+	size_t GROUPS = limits.size ();
 
+	for (size_t k = 0; k < GROUPS; ++k)
+	{
+		
+		GRBLinExpr sum = 0;
+		std::stringstream ss;
+		ss << "opt(k=" << k + 1 << ")";
+		for (rca::Link const& l : net.getLinks () ) {
 
+			std::string const& varname1 =
+				get_y_var_name (l.getX(), l.getY(), k);			
+			GRBVar var1 = grbmodel.getVarByName (varname1);
+
+			std::string const& varname2 =
+				get_y_var_name (l.getY(), l.getX(), k);			
+			GRBVar var2 = grbmodel.getVarByName (varname2);
+
+			int cost = net.getCost ( l.getX(), l.getY());
+			
+			sum += ((var1 + var2)*cost);			
+
+		}
+
+		grbmodel.addConstr (sum <= limits[k], ss.str ());
+	}
+
+	grbmodel.update ();
+
+}
+
+void LeeModel::add_objective_function () {
+	
 }
 
 
