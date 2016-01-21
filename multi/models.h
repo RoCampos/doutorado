@@ -36,6 +36,8 @@ class BaseModel
 {
 
 public:
+	BaseModel() {}
+
 	BaseModel(GRBModel & grbmodel, 
 		rca::Network& net, 
 		vgroup_t& groups, int Z = 0){
@@ -54,9 +56,9 @@ public:
 
 private:
 
-	void flow1 (GRBModel &, rca::Network&, vgroup_t&);
-	void flow2 (GRBModel &, rca::Network&, vgroup_t&);
-	void flow3 (GRBModel &, rca::Network&,vgroup_t&);
+	virtual void flow1 (GRBModel &, rca::Network&, vgroup_t&) final;
+	virtual void flow2 (GRBModel &, rca::Network&, vgroup_t&) final;
+	virtual void flow3 (GRBModel &, rca::Network&,vgroup_t&) final;
 
 	void create_variables (GRBModel &, rca::Network&, vgroup_t&);
 
@@ -108,11 +110,14 @@ private:
 class LeeModel : public BaseModel
 {
 public:
+
+	LeeModel (){}
+
 	LeeModel(GRBModel & grbmodel, rca::Network& net, 
 		vgroup_t& groups, std::vector<double>& limits, int Z = 0) 
 	: BaseModel (grbmodel, net, groups){
 
-		this->set_tree_limits (grbmodel, net, limits);
+		this->set_tree_limits (grbmodel, net, limits);	
 		this->add_objective_function (grbmodel);
 		this->capacity (grbmodel, net, groups, Z);
 	}
@@ -124,9 +129,9 @@ public:
 
 	void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z);
 
-private:
+protected:
 
-	void set_tree_limits (GRBModel & grbmodel, 
+	virtual void set_tree_limits (GRBModel & grbmodel, 
 		rca::Network &net,
 		std::vector<double>& limits);
 
@@ -135,6 +140,26 @@ private:
 	
 
 	void add_objective_function (GRBModel&);
+};
+
+
+class LeeModifiedModel : public LeeModel, BaseModel {
+
+public:
+	LeeModifiedModel(GRBModel & grbmodel, rca::Network& net, 
+		vgroup_t& groups, std::vector<double>& limits, int Z = 0) 	
+	: BaseModel (grbmodel, net, groups) {
+
+		this->set_tree_limits (grbmodel, net, limits);
+		this->add_objective_function (grbmodel);
+		LeeModel::capacity (grbmodel, net, groups, Z);
+	}
+
+private:
+	virtual void set_tree_limits (GRBModel & grbmodel, 
+		rca::Network &net,
+		std::vector<double>& limits) override;
+
 };
 
 #endif // MODELS_H
