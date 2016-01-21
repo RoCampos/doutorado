@@ -120,12 +120,15 @@ public:
 	~LeeModel() {}
 
 	void set_tree_limits (GRBModel & grbmodel, 
-		rca::Network &net,
-		std::vector<double>& limits);
+		double);
 
 	void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z);
 
 private:
+
+	void set_tree_limits (GRBModel & grbmodel, 
+		rca::Network &net,
+		std::vector<double>& limits);
 
 	void avoid_leafs (GRBModel & grbmodel, 
 		rca::Network& net, vgroup_t& groups) {}

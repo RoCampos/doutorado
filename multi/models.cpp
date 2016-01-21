@@ -507,6 +507,33 @@ void LeeModel::capacity (GRBModel & grbmodel,
 
 }
 
+void LeeModel::set_tree_limits (GRBModel & grbmodel, 
+		double factor) {
+
+	GRBConstr * array = grbmodel.getConstrs ();
+	int length = grbmodel.get (GRB_IntAttr_NumConstrs);
+
+	for (int i = 0; i < length; ++i)
+	{
+		std::string constr = 
+			array[i].get (GRB_StringAttr_ConstrName);
+
+		if (constr.find ("opt") != std::string::npos) {
+
+			try {
+				double value = array[i].get (GRB_DoubleAttr_RHS);							
+				array[i].set (GRB_DoubleAttr_RHS, value*factor);		
+			}
+			catch(const GRBException& e) {
+				std::cerr << e.getMessage() << '\n';
+			}
+
+		}
+
+	}
+	grbmodel.update ();
+}
+
 void LeeModel::add_objective_function (GRBModel &grbmodel) {
 
 	double up = std::numeric_limits<double>::max();
