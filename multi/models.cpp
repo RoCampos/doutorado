@@ -463,8 +463,8 @@ void LeeModel::set_tree_limits (GRBModel & grbmodel,
 
 }
 
-void LeeModel::capacity (GRBModel & grbmodel, 
-	rca::Network& net, vgroup_t& groups, int Z = 0) {
+void ResidualModel::capacity (GRBModel & grbmodel, 
+	rca::Network& net, vgroup_t& groups, int Z) {
 
 	// AQUI O LIMITE É O VALOR DE Z
 	size_t GROUPS = groups.size ();
@@ -534,7 +534,7 @@ void LeeModel::set_tree_limits (GRBModel & grbmodel,
 	grbmodel.update ();
 }
 
-void LeeModel::add_objective_function (GRBModel &grbmodel) {
+void ResidualModel::add_objective_function (GRBModel &grbmodel) {
 
 	double up = std::numeric_limits<double>::max();
 	GRBVar Z = grbmodel.addVar (0,up,1, GRB_INTEGER, "Z");
@@ -586,6 +586,38 @@ void LeeModifiedModel::set_tree_limits (GRBModel & grbmodel,
 
 }
 
+void BudgetModel::budget (GRBModel& grbmodel, 
+	rca::Network& net, vgroup_t& groups, int budget) {
+
+	GRBLinExpr sum = 0;
+	size_t GROUPS = groups.size ();
+	for (size_t k = 0; k < GROUPS; ++k)
+	{
+
+		GRBLinExpr part = 0;
+		for (rca::Link const& l : net.getLinks ()) {
+			
+			int cost = net.getCost (l.getX(), l.getY()); 
+
+			std::string const& var = 
+				get_y_var_name (l.getX(), l.getY(), k);
+
+			GRBVar y = grbmodel.getVarByName (var);
+			part += (y * cost);
+
+			std::string const& var2 = 
+				get_y_var_name (l.getY(), l.getX(), k);
+
+			GRBVar y2 = grbmodel.getVarByName (var2);
+			part += (y2 * cost);
+		}
+
+		sum += part;
+	}
+
+	grbmodel.addConstr (sum <= budget, "Budget");
+	grbmodel.update ();
+}
 
 
 std::string const get_var_name (int x, int y, int k, int d) {
