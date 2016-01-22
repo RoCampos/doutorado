@@ -25,6 +25,8 @@ void add_term_expr (int,int,int,int, GRBLinExpr&);
 class BaseModel;
 class HopCostModel;
 class LeeModel;
+class LeeModifiedModel;
+class ResidualModel;
 
 
 /**
