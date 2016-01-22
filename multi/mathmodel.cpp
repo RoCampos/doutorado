@@ -8,7 +8,6 @@
 
 void cost_model (GRBModel & grbmodel, 
 	rca::Network& net, vgroup_t& group);
-
 void lee_model ();
 void lee_modified_model ();
 void capacity_model ();
@@ -23,10 +22,18 @@ int main(int argc, char const *argv[])
 	
 	std::vector<shared_ptr<rca::Group>> temp;	
 	MultipleMulticastReader r (file);		
-	r.configure_real_values (&net,temp);
+	r.configure_unit_values (&net,temp);
 	for (auto g : temp) {
 		multicast_group.push_back (*g);
 	}
+
+
+	GRBEnv env = GRBEnv ();
+	GRBModel mm = GRBModel (env);
+	BudgetModel (mm, net, multicast_group, 16000);
+
+	mm.write ("BudgetModel.lp");
+
 
 	return 0;
 }
