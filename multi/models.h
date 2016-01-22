@@ -26,7 +26,7 @@ class BaseModel;
 class HopCostModel;
 class LeeModel;
 class LeeModifiedModel;
-class ResidualModel;
+class BudgetModel;
 
 
 /**
