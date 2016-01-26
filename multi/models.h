@@ -123,20 +123,20 @@ class LeeModel : public BaseModel, ResidualModel
 public:
 
 	LeeModel (GRBModel & grbmodel, rca::Network& net, 
-		vgroup_t& groups, int Z = 0)
+		vgroup_t& groups)
 	: BaseModel (grbmodel, net, groups)
 	{
 		ResidualModel::add_objective_function (grbmodel);
-		ResidualModel::capacity (grbmodel, net, groups, Z);
+		ResidualModel::capacity (grbmodel, net, groups, 0);
 	}
 
 	LeeModel(GRBModel & grbmodel, rca::Network& net, 
-		vgroup_t& groups, std::vector<double>& limits, int Z = 0) 
+		vgroup_t& groups, std::vector<double>& limits) 
 	: BaseModel (grbmodel, net, groups){
 
 		this->set_tree_limits (grbmodel, net, limits);	
 		ResidualModel::add_objective_function (grbmodel);
-		ResidualModel::capacity (grbmodel, net, groups, Z);
+		ResidualModel::capacity (grbmodel, net, groups, 0);
 	}
 
 	~LeeModel() {}
