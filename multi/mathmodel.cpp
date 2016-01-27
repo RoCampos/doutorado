@@ -19,11 +19,22 @@ void RunLeeModel (rca::Network & net,
 
 }
 
-void RunBudgetModel ();
+void RunBudgetModel (rca::Network &net, 
+	std::vector<rca::Group> & groups,
+	int budget) {
+
+
+	GRBEnv env = GRBEnv ();
+	GRBModel modelo = GRBModel (env);
+	
+	BudgetModel (modelo, net, groups, budget);
+
+	modelo.optimize ();
+
+}
 
 void help () {
 	cout << "Help under construction!" << endl;
-
 	exit (1);
 }
 
@@ -126,6 +137,17 @@ int main(int argc, char const *argv[])
 		}break;
 
 		case Option::BUDGET_MODEL : {
+
+			std::string opt_budget = argv[5];
+			int budget = -1;
+			if (opt_budget.compare ("--budget") == 0) {
+				budget = atoi (argv[6]);
+			} else {
+				help ();
+			}
+
+			RunBudgetModel (net, multicast_group, budget);
+
 
 		}break;
 		default: {
