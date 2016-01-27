@@ -160,7 +160,7 @@ class LeeModifiedModel : public LeeModel {
 
 public:
 	LeeModifiedModel(GRBModel & grbmodel, rca::Network& net, 
-		vgroup_t& groups, std::vector<double>& limits, int Z = 0) 	
+		vgroup_t& groups, std::vector<double>& limits) 	
 	: LeeModel (grbmodel, net, groups) {
 
 		this->set_tree_limits (grbmodel, net, limits);		
