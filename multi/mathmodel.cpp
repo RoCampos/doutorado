@@ -7,6 +7,14 @@
 
 #include "command.h"
 
+
+/* Enum that defines the options to choose Gurobi Models*/
+enum Option {
+	LEE_MODEL = 0,
+	LEE_MODEL_MODIFIED = 1,
+	BUDGET_MODEL = 2
+};
+
 void RunLeeModel (rca::Network & net, 
 	std::vector<rca::Group> &  groups,
 	std::vector<double> & opt, int alpha) {
@@ -33,17 +41,22 @@ void RunBudgetModel (rca::Network &net,
 
 }
 
+void RunLeeModifiedModel (rca::Network & net, 
+	std::vector<rca::Group> &  groups,
+	std::vector<double> & opt, int alpha) {
+
+	GRBEnv env = GRBEnv ();
+	GRBModel modelo = GRBModel (env);
+	LeeModifiedModel (modelo, net, groups, opt);
+
+	modelo.optimize ();
+
+}
+
 void help () {
 	cout << "Help under construction!" << endl;
 	exit (1);
 }
-
-enum Option {
-
-	LEE_MODEL = 0,
-	LEE_MODEL_MODIFIED = 1,
-	BUDGET_MODEL = 2
-};
 
 int get_option (std::string & opt) {
 	
@@ -133,6 +146,22 @@ int main(int argc, char const *argv[])
 		}break;
 
 		case Option::LEE_MODEL_MODIFIED : {
+
+			std::vector<double> opt;
+			std::string opt_file = argv[5];
+			if (opt_file.compare ("--opt") == 0) {
+				opt_file = argv[6];
+				opt = read_opt_file (opt_file);
+			} else {
+				help();
+			}
+			
+			if (opt.size () != multicast_group.size ()) {
+				cerr << "opt_list must have the same number of groups\n";
+				exit (1);
+			}
+
+			RunLeeModifiedModel (net, multicast_group, opt, 0);
 
 		}break;
 
