@@ -15,6 +15,9 @@ enum Option {
 	BUDGET_MODEL = 2
 };
 
+void write_results (vsolution_t &, 
+	rca::Network& net, GRBModel const& model);
+
 void RunLeeModel (rca::Network & net, 
 	std::vector<rca::Group> &  groups,
 	std::vector<double> & opt, int alpha) {
@@ -24,6 +27,11 @@ void RunLeeModel (rca::Network & net,
 	LeeModel (modelo, net, groups, opt);
 
 	modelo.optimize ();
+
+	auto sol = solution_info ("file", modelo, groups.size());
+
+	write_results (sol, net, modelo);
+	// return sol;
 
 }
 
@@ -39,6 +47,12 @@ void RunBudgetModel (rca::Network &net,
 
 	modelo.optimize ();
 
+	auto sol = solution_info ("file", modelo, groups.size());
+
+	write_results (sol, net, modelo);
+
+	// return sol;
+
 }
 
 void RunLeeModifiedModel (rca::Network & net, 
@@ -51,10 +65,37 @@ void RunLeeModifiedModel (rca::Network & net,
 
 	modelo.optimize ();
 
+	auto sol = solution_info ("file", modelo, groups.size());
+
+	write_results (sol, net, modelo);
+
+	// return sol;
+
 }
 
 void help () {
-	cout << "Help under construction!" << endl;
+	cout << "\n\tMathematical Models\n" << endl;
+
+	std::stringstream ss;
+	ss << "This program is used to run the following models on";
+	ss << " gurobi solver:\n";
+	ss << "\t LeeModel\n\t LeeModifiedModel\n\t BudgetModel";
+	ss << "\nThe commands to run each of the models are the following:";
+	ss << "\n\t -  ./build/mathmodel --model LM --instance <INST> --opt <OPT_FILE>";
+	ss << "\n\t -  ./build/mathmodel --model LMM --instance <INST> --opt <OPT_FILE>";
+	ss << "\n\t -  ./build/mathmodel --model BM --instance <INST> --budget <INT_VALUE>";
+	ss << "\nThe parameters passed to models are: ";
+	ss << "\n\t --opt: this parameter represent a list of double\n values for LM model, ";
+	ss << "these values represent a limit in the cost of each tree";
+	ss << "\n\t --opt: this parameter also represent a list of int\n values for LMM model, ";
+	ss << "these values represent a limit in the size of each tree";
+	ss << "\n\t --budget: this parameter represent a represent a \nvalue of the global solution,";
+	ss << "that contains all the trees and its respective costs";
+	ss << "\n";
+
+
+	cout << ss.str () << endl;
+
 	exit (1);
 }
 
@@ -185,8 +226,48 @@ int main(int argc, char const *argv[])
 	}
 
 
+	return 0;
+}
+
+void write_results (vsolution_t & sol, 
+	rca::Network& net, GRBModel const & model) {
+
+	// Objetivo  //boud //Gap
+
+	// full time
+
+	// -----------
+
+	//cost of each tree
+
+	//size of each tree
+
+	try {
+		cout << "Objec\tBound\tMIPGap\n";
+
+		cout << model.get (GRB_DoubleAttr_ObjVal) << "\t";
+		cout << model.get (GRB_DoubleAttr_ObjBound) << "\t";
+		cout << model.get (GRB_DoubleAttr_MIPGap) << endl;
+
+		cout << "Runtime: " << model.get (GRB_DoubleAttr_Runtime) << endl;
+
+		cout << endl;
+
+		cout << "Size\tCost" << endl;
+		for (auto list : sol) {
+			int cost_tree = 0;
+			for (auto l : list) {
+				cost_tree += net.getCost (l.getX(), l.getY());
+			}
+
+			cout << list.size () << "\t" << cost_tree << endl;
+		}
+
+	}
+	catch(const GRBException& e) {
+		std::cerr << e.getMessage () << '\n';
+	}
 	
 
 
-	return 0;
 }

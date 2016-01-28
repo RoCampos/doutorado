@@ -679,8 +679,6 @@ vsolution_t solution_info (std::string file,
 	  				int tree = atoi (rit->str ().c_str ()) - 1;
 
 	  				if (tree == k) {
-	  					cout << vertex1 << "-" << vertex2 << ":" << tree << endl;
-
 	  					rca::Link l (vertex1, vertex2, 0);
 	  					solution[k].push_back (l);
 	  				}
