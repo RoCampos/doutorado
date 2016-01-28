@@ -5,11 +5,14 @@
 #include <iostream>
 #include <sstream>
 
+#include <boost/regex.hpp>
+
 #include "gurobi_c++.h"
 #include "network.h"
 #include "group.h"
 
 typedef typename std::vector<rca::Group> vgroup_t;
+typedef typename std::vector<std::vector<rca::Link>> vsolution_t;
 
 std::string const get_var_name (int x, int y, int k, int d);
 
@@ -20,6 +23,9 @@ std::string const get_y_var_name (int x, int y, int k);
 *
 */
 void add_term_expr (int,int,int,int, GRBLinExpr&);
+
+vsolution_t solution_info (std::string file,
+	GRBModel & grbmodel, int gsize);
 
 
 class BaseModel;

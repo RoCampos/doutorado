@@ -642,3 +642,56 @@ std::string const get_y_var_name (int x, int y, int k) {
 
 	return ss.str();
 }
+
+vsolution_t solution_info (std::string file,
+	GRBModel & grbmodel, int gsize) 
+{
+
+	vsolution_t solution = 	vsolution_t(gsize);
+
+	GRBVar * array = grbmodel.getVars ();
+	int numvar = grbmodel.get (GRB_IntAttr_NumVars);
+
+	for (int k = 0; k < gsize; ++k)
+	{
+		
+		for (int i = 0; i < numvar; ++i)
+		{
+			GRBVar var = array[i];
+
+			if (var.get(GRB_StringAttr_VarName).find ("y") 
+				!= std::string::npos) {
+
+				if (var.get(GRB_DoubleAttr_X) == 1) {
+
+					std::string varname = var.get(GRB_StringAttr_VarName);
+
+					boost::regex ptn ("\\d+");
+					boost::sregex_iterator rit ( varname.begin(), 
+						varname.end(), ptn );
+
+	  				boost::sregex_iterator rend;
+
+	  				int vertex1 = atoi ( rit->str ().c_str () ) - 1;
+	  				rit++;
+	  				int vertex2 = atoi (rit->str ().c_str ()) - 1;
+	  				rit++;
+	  				int tree = atoi (rit->str ().c_str ()) - 1;
+
+	  				if (tree == k) {
+	  					cout << vertex1 << "-" << vertex2 << ":" << tree << endl;
+
+	  					rca::Link l (vertex1, vertex2, 0);
+	  					solution[k].push_back (l);
+	  				}
+
+				}
+
+			}
+		}
+
+	}
+
+	return solution;
+
+}
