@@ -463,8 +463,8 @@ void LeeModel::set_tree_limits (GRBModel & grbmodel,
 
 }
 
-void LeeModel::capacity (GRBModel & grbmodel, 
-	rca::Network& net, vgroup_t& groups, int Z = 0) {
+void ResidualModel::capacity (GRBModel & grbmodel, 
+	rca::Network& net, vgroup_t& groups, int Z) {
 
 	// AQUI O LIMITE É O VALOR DE Z
 	size_t GROUPS = groups.size ();
@@ -534,7 +534,7 @@ void LeeModel::set_tree_limits (GRBModel & grbmodel,
 	grbmodel.update ();
 }
 
-void LeeModel::add_objective_function (GRBModel &grbmodel) {
+void ResidualModel::add_objective_function (GRBModel &grbmodel) {
 
 	double up = std::numeric_limits<double>::max();
 	GRBVar Z = grbmodel.addVar (0,up,1, GRB_INTEGER, "Z");
@@ -586,6 +586,38 @@ void LeeModifiedModel::set_tree_limits (GRBModel & grbmodel,
 
 }
 
+void BudgetModel::budget (GRBModel& grbmodel, 
+	rca::Network& net, vgroup_t& groups, int budget) {
+
+	GRBLinExpr sum = 0;
+	size_t GROUPS = groups.size ();
+	for (size_t k = 0; k < GROUPS; ++k)
+	{
+
+		GRBLinExpr part = 0;
+		for (rca::Link const& l : net.getLinks ()) {
+			
+			int cost = net.getCost (l.getX(), l.getY()); 
+
+			std::string const& var = 
+				get_y_var_name (l.getX(), l.getY(), k);
+
+			GRBVar y = grbmodel.getVarByName (var);
+			part += (y * cost);
+
+			std::string const& var2 = 
+				get_y_var_name (l.getY(), l.getX(), k);
+
+			GRBVar y2 = grbmodel.getVarByName (var2);
+			part += (y2 * cost);
+		}
+
+		sum += part;
+	}
+
+	grbmodel.addConstr (sum <= budget, "Budget");
+	grbmodel.update ();
+}
 
 
 std::string const get_var_name (int x, int y, int k, int d) {
@@ -609,4 +641,55 @@ std::string const get_y_var_name (int x, int y, int k) {
 	ss << k+1 << ")";
 
 	return ss.str();
+}
+
+vsolution_t solution_info (std::string file,
+	GRBModel & grbmodel, int gsize) 
+{
+
+	vsolution_t solution = 	vsolution_t(gsize);
+
+	GRBVar * array = grbmodel.getVars ();
+	int numvar = grbmodel.get (GRB_IntAttr_NumVars);
+
+	for (int k = 0; k < gsize; ++k)
+	{
+		
+		for (int i = 0; i < numvar; ++i)
+		{
+			GRBVar var = array[i];
+
+			if (var.get(GRB_StringAttr_VarName).find ("y") 
+				!= std::string::npos) {
+
+				if (var.get(GRB_DoubleAttr_X) == 1) {
+
+					std::string varname = var.get(GRB_StringAttr_VarName);
+
+					boost::regex ptn ("\\d+");
+					boost::sregex_iterator rit ( varname.begin(), 
+						varname.end(), ptn );
+
+	  				boost::sregex_iterator rend;
+
+	  				int vertex1 = atoi ( rit->str ().c_str () ) - 1;
+	  				rit++;
+	  				int vertex2 = atoi (rit->str ().c_str ()) - 1;
+	  				rit++;
+	  				int tree = atoi (rit->str ().c_str ()) - 1;
+
+	  				if (tree == k) {
+	  					rca::Link l (vertex1, vertex2, 0);
+	  					solution[k].push_back (l);
+	  				}
+
+				}
+
+			}
+		}
+
+	}
+
+	return solution;
+
 }

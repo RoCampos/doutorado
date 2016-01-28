@@ -5,11 +5,14 @@
 #include <iostream>
 #include <sstream>
 
+#include <boost/regex.hpp>
+
 #include "gurobi_c++.h"
 #include "network.h"
 #include "group.h"
 
 typedef typename std::vector<rca::Group> vgroup_t;
+typedef typename std::vector<std::vector<rca::Link>> vsolution_t;
 
 std::string const get_var_name (int x, int y, int k, int d);
 
@@ -21,10 +24,15 @@ std::string const get_y_var_name (int x, int y, int k);
 */
 void add_term_expr (int,int,int,int, GRBLinExpr&);
 
+vsolution_t solution_info (std::string file,
+	GRBModel & grbmodel, int gsize);
+
 
 class BaseModel;
 class HopCostModel;
 class LeeModel;
+class LeeModifiedModel;
+class BudgetModel;
 
 
 /**
@@ -74,6 +82,15 @@ private:
 	
 };
 
+class ResidualModel {
+
+protected:
+	virtual void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z = 0);	
+	virtual void add_objective_function (GRBModel&) final;
+
+};
+
+
 class HopCostModel : public BaseModel
 {
 
@@ -107,27 +124,31 @@ private:
 };
 
 
-class LeeModel : public BaseModel
+class LeeModel : public BaseModel, ResidualModel
 {
 public:
 
-	LeeModel (){}
+	LeeModel (GRBModel & grbmodel, rca::Network& net, 
+		vgroup_t& groups)
+	: BaseModel (grbmodel, net, groups)
+	{
+		ResidualModel::add_objective_function (grbmodel);
+		ResidualModel::capacity (grbmodel, net, groups, 0);
+	}
 
 	LeeModel(GRBModel & grbmodel, rca::Network& net, 
-		vgroup_t& groups, std::vector<double>& limits, int Z = 0) 
+		vgroup_t& groups, std::vector<double>& limits) 
 	: BaseModel (grbmodel, net, groups){
 
 		this->set_tree_limits (grbmodel, net, limits);	
-		this->add_objective_function (grbmodel);
-		this->capacity (grbmodel, net, groups, Z);
+		ResidualModel::add_objective_function (grbmodel);
+		ResidualModel::capacity (grbmodel, net, groups, 0);
 	}
 
 	~LeeModel() {}
 
 	void set_tree_limits (GRBModel & grbmodel, 
 		double);
-
-	void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z);
 
 protected:
 
@@ -138,21 +159,17 @@ protected:
 	void avoid_leafs (GRBModel & grbmodel, 
 		rca::Network& net, vgroup_t& groups) {}
 	
-
-	void add_objective_function (GRBModel&);
 };
 
 
-class LeeModifiedModel : public LeeModel, BaseModel {
+class LeeModifiedModel : public LeeModel {
 
 public:
 	LeeModifiedModel(GRBModel & grbmodel, rca::Network& net, 
-		vgroup_t& groups, std::vector<double>& limits, int Z = 0) 	
-	: BaseModel (grbmodel, net, groups) {
+		vgroup_t& groups, std::vector<double>& limits) 	
+	: LeeModel (grbmodel, net, groups) {
 
-		this->set_tree_limits (grbmodel, net, limits);
-		this->add_objective_function (grbmodel);
-		LeeModel::capacity (grbmodel, net, groups, Z);
+		this->set_tree_limits (grbmodel, net, limits);		
 	}
 
 private:
@@ -160,6 +177,28 @@ private:
 		rca::Network &net,
 		std::vector<double>& limits) override;
 
+};
+
+
+class BudgetModel : public BaseModel, ResidualModel
+{
+public:
+	BudgetModel(GRBModel & grbmodel, rca::Network& net, 
+		vgroup_t& groups, int budget) 
+	: BaseModel (grbmodel, net, groups)
+	{
+
+		ResidualModel::add_objective_function (grbmodel);				
+		ResidualModel::capacity (grbmodel, net, groups, 0);
+
+		this->budget (grbmodel, net, groups, budget);
+	}
+
+	virtual ~BudgetModel() {}
+
+protected:	
+	virtual void budget (GRBModel&, rca::Network&, vgroup_t&, int budget);
+	
 };
 
 #endif // MODELS_H
