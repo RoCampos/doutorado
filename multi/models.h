@@ -34,6 +34,7 @@ class LeeModel;
 class LeeModifiedModel;
 class BudgetModel;
 
+class SteinerTreeModel;
 
 /**
 * Modele matemática para otimização do custo
@@ -199,6 +200,109 @@ public:
 protected:	
 	virtual void budget (GRBModel&, rca::Network&, vgroup_t&, int budget);
 	
+};
+
+// ----------------------------- Steiner Tree Definitions
+
+enum SteinerMode{
+
+	OPTIMIZE_BY_SIZE = 0,
+	OPTIMIZE_BY_COST = 1
+
+};
+
+typedef struct link_t
+{
+	int x;
+	int y;
+	int d;
+
+	link_t (int _x, int _y, int _d) 
+		: x(_x), y(_y), d(_d) {}
+};
+
+class SteinerTreeModel {
+
+public:
+	SteinerTreeModel (GRBModel& grbmodel, 
+		rca::Network& net, rca::Group& group, int type) {
+
+		create_variables (grbmodel, net, group);
+		// flow1 (grbmodel, net, group);
+		// flow2 (grbmodel, net, group);
+		// flow3 (grbmodel, net, group);
+		// mark (grbmodel, net, group);
+
+		// if (type == SteinerMode::OPTIMIZE_BY_COST) {
+		// 	this->set_objective_by_cost (grbmodel, net, group);
+		// } else if (type == SteinerMode::OPTIMIZE_BY_SIZE) {
+		// 	this->set_objective_by_links (grbmodel, net, group);
+		// }
+
+	}
+
+
+protected:
+
+	void create_variables (GRBModel&, rca::Network&, rca::Group&);
+	
+	void flow1 (GRBModel&, rca::Network&, rca::Group&);	
+
+	void flow2 (GRBModel&, rca::Network&, rca::Group&);
+	
+	void flow3 (GRBModel&, rca::Network&, rca::Group&);	
+	
+	void mark (GRBModel&, rca::Network&, rca::Group&){}
+
+
+	void set_objective_by_links (GRBModel&, rca::Network&, rca::Group&){}
+	void set_objective_by_cost (GRBModel&, rca::Network&, rca::Group&){}
+
+private:
+
+	std::string get_y_name (int x, int y) const {
+		std::stringstream ss;
+		ss << "y(" << x+1 << "," << y+1 << ")";
+		return ss.str ();
+	}
+
+	std::string get_x_name (int x, int y, int k) const {
+		std::stringstream ss;
+		ss << "x(" << x+1 << "," << y+1 << "," << k+1 << ")";
+		return ss.str ();
+	}
+
+	GRBLinExpr get (int x, int y, int k) {
+		GRBLinExpr expr = 0;
+
+		std::stringstream;
+
+		for (auto var : var_x) {
+
+			bool bx = false, by = false, bk = false;
+			if (var.first.x == x) {
+				bx = true;
+			}
+
+			if (var.fist.y = y) {
+				by = true;
+			}
+
+			if (var.first.d == k) {
+				bk = true;
+			}
+
+		}
+
+		return expr;
+	}
+
+private:
+
+	std::vector<GRBVar> var_y;
+	// std::vector<std::pair<rca::Link,GRBVar>> var_y;
+	std::vector<std::pair<link_t,GRBVar>> var_x;
+
 };
 
 #endif // MODELS_H

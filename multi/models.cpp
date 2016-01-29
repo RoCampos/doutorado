@@ -619,6 +619,72 @@ void BudgetModel::budget (GRBModel& grbmodel,
 	grbmodel.update ();
 }
 
+void SteinerTreeModel::create_variables (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
+
+	//creating x varibles
+	for (rca::Link const& l : net.getLinks ()) {
+
+		std::string varname = 
+			this->get_y_name (l.getX(), l.getY());
+
+		GRBVar v1 = grbmodel.addVar(0, 1, 1, GRB_BINARY, varname);
+		varname = this->get_y_name (l.getY(), l.getX());
+		GRBVar v2 =grbmodel.addVar(0, 1, 1, GRB_BINARY, varname);
+
+		var_y.push_back (v1);
+		var_y.push_back (v2);
+
+	}
+
+	for (int member : group.getMembers ())
+	{
+		for (rca::Link const& l : net.getLinks ()) {
+			
+			int x = l.getX();
+			int y = l.getY();
+			// int c = net.getCost (x,y);
+			std::string varname = 
+				this->get_x_name (x,y,member);		
+
+			GRBVar v1 = grbmodel.addVar(0,1,1, GRB_BINARY, varname);
+			varname = this->get_x_name (y,x, member);
+			GRBVar v2 = grbmodel.addVar(0,1,1, GRB_BINARY, varname);
+
+			var_x.push_back ( std::make_pair(link_t (x,y,member), v1) );
+			var_x.push_back ( std::make_pair(link_t (y,x,member), v1) );
+		}
+		
+	}
+
+	grbmodel.update ();
+}
+
+void SteinerTreeModel::flow1 (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
+
+	int source = group.getSource ();
+	for(auto&& member : group.getMembers ()) {
+		
+
+
+	}
+
+
+}
+
+void SteinerTreeModel::flow2 (GRBModel&, 
+	rca::Network&, rca::Group&) {
+	
+
+}
+
+void SteinerTreeModel::flow3 (GRBModel&, 
+	rca::Network&, rca::Group&) {
+	
+
+}
+
 
 std::string const get_var_name (int x, int y, int k, int d) {
 
