@@ -266,16 +266,17 @@ private:
 		GRBLinExpr expr = 0;
 
 		std::stringstream ss;		
+		ss << "\\(";
 		ss << (x != -1 ? std::to_string (x+1) : std::string("(\\d+)")) << ",";		
 		ss << (y != -1 ? std::to_string (y+1) : "(\\d+)") << ",";
-		ss << (k != -1 ? std::to_string (k+1) : "(\\d+)");
+		ss << (k != -1 ? std::to_string (k+1) : "(\\d+)") << "\\)";
 		
 		boost::regex ptn(ss.str ());
 		boost::smatch what;
 
 		for(auto&& var : var_x) {				
 			std::string const& str = var.get(GRB_StringAttr_VarName);
-			if ( boost::regex_search (str, what, ptn) ) {								
+			if ( boost::regex_search (str, what, ptn) ) {												
 				expr += var;
 			}
 
