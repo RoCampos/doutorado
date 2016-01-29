@@ -651,8 +651,8 @@ void SteinerTreeModel::create_variables (GRBModel& grbmodel,
 			varname = this->get_x_name (y,x, member);
 			GRBVar v2 = grbmodel.addVar(0,1,1, GRB_BINARY, varname);
 
-			var_x.push_back ( std::make_pair(link_t (x,y,member), v1) );
-			var_x.push_back ( std::make_pair(link_t (y,x,member), v1) );
+			var_x.push_back ( v1 );
+			var_x.push_back ( v2 );
 		}
 		
 	}
@@ -664,24 +664,66 @@ void SteinerTreeModel::flow1 (GRBModel& grbmodel,
 	rca::Network& net, rca::Group& group) {
 
 	int source = group.getSource ();
-	for(auto&& member : group.getMembers ()) {
+	for(auto&& member : group.getMembers ()) {		
 		
+		GRBLinExpr out =  this->get_sum_x (-1, source, member);
+		GRBLinExpr in =  this->get_sum_x (source, -1, member);
 
+		std::stringstream ss;
+		ss << "flow1(" << source + 1 << "," << member + 1<< ")";
+		grbmodel.addConstr (out - in == -1, ss.str ());
 
 	}
 
+	grbmodel.update ();
+
 
 }
 
-void SteinerTreeModel::flow2 (GRBModel&, 
-	rca::Network&, rca::Group&) {
+void SteinerTreeModel::flow2 (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
 	
+	for(auto&& member : group.getMembers ()) {
+		
+		std::stringstream ss;
+		ss << "flow2(" << member + 1 << ")";
+
+		GRBLinExpr out =  this->get_sum_x (-1, member, member);
+		GRBLinExpr in =  this->get_sum_x (member, -1, member);
+
+		grbmodel.addConstr (out - in == 1, ss.str ());
+
+	}
+
+	grbmodel.update ();
 
 }
 
-void SteinerTreeModel::flow3 (GRBModel&, 
-	rca::Network&, rca::Group&) {
+void SteinerTreeModel::flow3 (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
 	
+	int VERTEX = net.getNumberNodes ();
+	int source = group.getSource ();
+
+	for(auto&& member : group.getMembers()) {		
+		for (int j = 0; j < VERTEX; ++j)
+		{
+
+			if (j == member || j == source) continue;
+
+			std::stringstream ss;
+			ss << "flow3(" << member + 1<< "," << j + 1;
+
+			GRBLinExpr out =  this->get_sum_x (-1, j, member);
+			GRBLinExpr in =  this->get_sum_x (j, -1, member);
+
+			grbmodel.addConstr (out - in == 0, ss.str ());
+
+		}
+
+	}
+
+	grbmodel.update ();
 
 }
 

@@ -211,16 +211,6 @@ enum SteinerMode{
 
 };
 
-typedef struct link_t
-{
-	int x;
-	int y;
-	int d;
-
-	link_t (int _x, int _y, int _d) 
-		: x(_x), y(_y), d(_d) {}
-};
-
 class SteinerTreeModel {
 
 public:
@@ -228,10 +218,10 @@ public:
 		rca::Network& net, rca::Group& group, int type) {
 
 		create_variables (grbmodel, net, group);
-		// flow1 (grbmodel, net, group);
-		// flow2 (grbmodel, net, group);
-		// flow3 (grbmodel, net, group);
-		// mark (grbmodel, net, group);
+		flow1 (grbmodel, net, group);
+		flow2 (grbmodel, net, group);
+		flow3 (grbmodel, net, group);
+		mark (grbmodel, net, group);
 
 		// if (type == SteinerMode::OPTIMIZE_BY_COST) {
 		// 	this->set_objective_by_cost (grbmodel, net, group);
@@ -252,7 +242,7 @@ protected:
 	
 	void flow3 (GRBModel&, rca::Network&, rca::Group&);	
 	
-	void mark (GRBModel&, rca::Network&, rca::Group&){}
+	void mark (GRBModel&, rca::Network&, rca::Group&);
 
 
 	void set_objective_by_links (GRBModel&, rca::Network&, rca::Group&){}
@@ -272,24 +262,21 @@ private:
 		return ss.str ();
 	}
 
-	GRBLinExpr get (int x, int y, int k) {
+	GRBLinExpr get_sum_x (int x, int y, int k) {
 		GRBLinExpr expr = 0;
 
-		std::stringstream;
+		std::stringstream ss;		
+		ss << (x != -1 ? std::to_string (x+1) : std::string("(\\d+)")) << ",";		
+		ss << (y != -1 ? std::to_string (y+1) : "(\\d+)") << ",";
+		ss << (k != -1 ? std::to_string (k+1) : "(\\d+)");
+		
+		boost::regex ptn(ss.str ());
+		boost::smatch what;
 
-		for (auto var : var_x) {
-
-			bool bx = false, by = false, bk = false;
-			if (var.first.x == x) {
-				bx = true;
-			}
-
-			if (var.fist.y = y) {
-				by = true;
-			}
-
-			if (var.first.d == k) {
-				bk = true;
+		for(auto&& var : var_x) {				
+			std::string const& str = var.get(GRB_StringAttr_VarName);
+			if ( boost::regex_search (str, what, ptn) ) {								
+				expr += var;
 			}
 
 		}
@@ -300,8 +287,7 @@ private:
 private:
 
 	std::vector<GRBVar> var_y;
-	// std::vector<std::pair<rca::Link,GRBVar>> var_y;
-	std::vector<std::pair<link_t,GRBVar>> var_x;
+	std::vector<GRBVar> var_x;
 
 };
 
