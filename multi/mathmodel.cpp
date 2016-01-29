@@ -5,8 +5,6 @@
 #include "network.h"
 #include "reader.h"
 
-#include "command.h"
-
 
 /* Enum that defines the options to choose Gurobi Models*/
 enum Option {

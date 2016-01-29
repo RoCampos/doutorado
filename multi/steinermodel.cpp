@@ -26,12 +26,13 @@ int main(int argc, char const *argv[])
 	GRBEnv env = GRBEnv ();
 	GRBModel model = GRBModel (env);
 
-
 	SteinerTreeModel st (model, net, multicast_group[0], 
-		SteinerMode::OPTIMIZE_BY_COST);
+		SteinerMode::OPTIMIZE_BY_SIZE);
 
 
-	model.write ("teste.lp");
+	// model.write ("teste.lp");
+
+	model.optimize ();
 
 
 	return 0;

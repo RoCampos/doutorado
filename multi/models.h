@@ -223,11 +223,11 @@ public:
 		flow3 (grbmodel, net, group);
 		mark (grbmodel, net, group);
 
-		// if (type == SteinerMode::OPTIMIZE_BY_COST) {
-		// 	this->set_objective_by_cost (grbmodel, net, group);
-		// } else if (type == SteinerMode::OPTIMIZE_BY_SIZE) {
-		// 	this->set_objective_by_links (grbmodel, net, group);
-		// }
+		if (type == SteinerMode::OPTIMIZE_BY_COST) {
+			this->set_objective_by_cost (grbmodel, net, group);
+		} else if (type == SteinerMode::OPTIMIZE_BY_SIZE) {
+			this->set_objective_by_links (grbmodel, net, group);
+		}
 
 	}
 
@@ -245,7 +245,7 @@ protected:
 	void mark (GRBModel&, rca::Network&, rca::Group&);
 
 
-	void set_objective_by_links (GRBModel&, rca::Network&, rca::Group&){}
+	void set_objective_by_links (GRBModel&, rca::Network&, rca::Group&);
 	void set_objective_by_cost (GRBModel&, rca::Network&, rca::Group&){}
 
 private:

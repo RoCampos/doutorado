@@ -643,7 +643,7 @@ void SteinerTreeModel::create_variables (GRBModel& grbmodel,
 			
 			int x = l.getX();
 			int y = l.getY();
-			// int c = net.getCost (x,y);
+			
 			std::string varname = 
 				this->get_x_name (x,y,member);		
 
@@ -676,7 +676,6 @@ void SteinerTreeModel::flow1 (GRBModel& grbmodel,
 	}
 
 	grbmodel.update ();
-
 
 }
 
@@ -755,6 +754,20 @@ void SteinerTreeModel::mark (GRBModel& grbmodel,
 
 	}
 
+	grbmodel.update ();
+
+}
+
+void SteinerTreeModel::set_objective_by_links (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
+
+	GRBLinExpr sum = 0;
+
+	for (auto&& var : var_y) {
+		sum += var;
+	}
+
+	grbmodel.setObjective (sum, GRB_MINIMIZE);
 	grbmodel.update ();
 
 }
