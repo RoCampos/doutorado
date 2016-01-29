@@ -244,9 +244,9 @@ protected:
 	
 	void mark (GRBModel&, rca::Network&, rca::Group&);
 
-
 	void set_objective_by_links (GRBModel&, rca::Network&, rca::Group&);
-	void set_objective_by_cost (GRBModel&, rca::Network&, rca::Group&){}
+	
+	void set_objective_by_cost (GRBModel&, rca::Network&, rca::Group&);
 
 private:
 

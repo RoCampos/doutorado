@@ -772,6 +772,26 @@ void SteinerTreeModel::set_objective_by_links (GRBModel& grbmodel,
 
 }
 
+void SteinerTreeModel::set_objective_by_cost (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
+
+
+	GRBLinExpr sum = 0;
+
+	for(auto&& l : net.getLinks ()) {
+		
+		int x = l.getX(), y = l.getY();
+		int cost = net.getCost (x, y);
+		sum += (grbmodel.getVarByName (get_y_name (x, y) ) * cost);
+		sum += (grbmodel.getVarByName (get_y_name (y, x) ) * cost);
+
+	}
+
+	grbmodel.setObjective (sum , GRB_MINIMIZE);
+	grbmodel.update ();
+
+}
+
 
 std::string const get_var_name (int x, int y, int k, int d) {
 
