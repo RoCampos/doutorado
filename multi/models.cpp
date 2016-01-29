@@ -727,6 +727,38 @@ void SteinerTreeModel::flow3 (GRBModel& grbmodel,
 
 }
 
+void SteinerTreeModel::mark (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
+
+	for(auto&& member : group.getMembers()) {		 
+		for(auto&& l : net.getLinks ()) {
+			
+			int x = l.getX();
+			int y = l.getY();
+
+			std::stringstream ss1;
+			ss1 << "mark(" << x+1 << "," << y+1 << "," << member+1 << ")";
+
+			GRBVar varx = grbmodel.getVarByName (get_x_name (x,y,member));
+			GRBVar vary = grbmodel.getVarByName (get_y_name (x,y));
+
+			grbmodel.addConstr (varx <= vary, ss1.str());
+
+			varx = grbmodel.getVarByName (get_x_name (y,x,member));
+			vary = grbmodel.getVarByName (get_y_name (y,x));
+
+			std::stringstream ss2;
+			ss2 << "mark(" << y+1 << "," << x+1 << "," << member+1 << ")";
+			grbmodel.addConstr (varx <= vary, ss2.str ());
+
+		}
+
+	}
+
+	grbmodel.update ();
+
+}
+
 
 std::string const get_var_name (int x, int y, int k, int d) {
 
