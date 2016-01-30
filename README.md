@@ -1,4 +1,27 @@
 <h2>
+New Version (1.0.0) - Implementações de modelos matemáticos (30/01/2016)	
+</h2>
+
+Modelos matemáticos agora pode ser solucionados por meio do gurobi_apiusando c++.
+Assim fica, mas fácil resolver grandes modelos.
+
+<dl>
+	<dt>Modelos Matemáticos</dt>	
+	<dd>
+		Modelos implementados: BaseModel, ResidualModel, BudgetModel, LeeModel, LeeModifiedModel
+	</dd>
+
+	<dt>SteinerSolver</dt>
+	<dd>
+		O modelo de árvore de steiner foi implementado em c++ para rodar no solver
+		gurobi.
+
+		O modelo SteinerTreeModel permite obter o custo ótimo e o tamanho mínimo da árvore.
+	</dd>
+</dl>
+
+
+<h2>
 New Version (0.6.0) - Nova representação de árvore e novos algoritmos (09/12/2015)
 =====================================================================
 </h2>
