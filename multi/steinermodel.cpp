@@ -22,6 +22,10 @@ struct result_t {
 };
 
 std::string G_INSTANCE = "";
+int G_MODEL = -1; //options 0/1
+
+std::vector<std::string> 
+	OPTIMIZATION_MODE =	{"BY_SIZE(0)", "BY_COST(1)"};
 
 result_t get_result (GRBModel&, rca::Network&, rca::Group&);
 void write_result (std::vector<result_t>& results);
@@ -30,6 +34,7 @@ int main(int argc, char const *argv[])
 {
 	std::string file = argv[1];
 	G_INSTANCE = argv[2];
+	G_MODEL = atoi (argv[3]);
 
 	rca::Network net;
 	std::vector<rca::Group> multicast_group;
@@ -50,8 +55,13 @@ int main(int argc, char const *argv[])
 		GRBEnv env = GRBEnv ();
 		GRBModel model = GRBModel (env);
 
-		SteinerTreeModel st (model, net, multicast_group[k], 
-			SteinerMode::OPTIMIZE_BY_COST);	
+		if (G_MODEL == SteinerMode::OPTIMIZE_BY_COST) {
+			SteinerTreeModel st (model, net, multicast_group[k], 
+				SteinerMode::OPTIMIZE_BY_COST);	
+		} else if (G_MODEL == SteinerMode::OPTIMIZE_BY_SIZE){
+			SteinerTreeModel st (model, net, multicast_group[k], 
+				SteinerMode::OPTIMIZE_BY_SIZE);
+		}
 
 		std::stringstream ss;
 		ss << G_INSTANCE << "_" << k << ".lp";
@@ -119,6 +129,8 @@ void write_result (std::vector<result_t>& results) {
 	fname = G_INSTANCE;
 	fname += ".opt";
 	std::ofstream opt_file (fname.c_str (), std::ofstream::out);
+
+	file << "Modo: " << OPTIMIZATION_MODE[G_MODEL] << endl;
 
 	for(auto&& res : results) {
 		
