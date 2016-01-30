@@ -41,3 +41,12 @@ target_link_libraries (mathmodel graph
 						${GUROBI_CXX_LIBRARY} 
 						${GUROBI_LIBRARIES})
 
+add_executable (steinermodel steinermodel.cpp models.h models.cpp
+				${INCLUDE}
+				${GRB})
+
+target_link_libraries (steinermodel graph
+						-lboost_regex
+						${GUROBI_CXX_LIBRARY} 
+						${GUROBI_LIBRARIES})
+

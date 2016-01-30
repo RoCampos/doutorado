@@ -5,34 +5,38 @@
 #include "network.h"
 #include "reader.h"
 
-#include "command.h"
-
 
 /* Enum that defines the options to choose Gurobi Models*/
 enum Option {
+	NONE = -1,
 	LEE_MODEL = 0,
 	LEE_MODEL_MODIFIED = 1,
 	BUDGET_MODEL = 2
 };
 
 void write_results (vsolution_t &, 
-	rca::Network& net, GRBModel const& model);
+	rca::Network& net, GRBModel const& model, int type_model);
 
 void RunLeeModel (rca::Network & net, 
 	std::vector<rca::Group> &  groups,
-	std::vector<double> & opt, int alpha) {
+	std::vector<double> & opt, double alpha) {
 
 	GRBEnv env = GRBEnv ();
 	GRBModel modelo = GRBModel (env);
-	LeeModel (modelo, net, groups, opt);
+
+	std::vector<double> opt_list;
+	for (auto value : opt) {
+		opt_list.push_back (value * alpha);
+	}
+
+	LeeModel (modelo, net, groups, opt_list);
 
 	modelo.optimize ();
 
 	auto sol = solution_info ("file", modelo, groups.size());
 
-	write_results (sol, net, modelo);
-	// return sol;
-
+	write_results (sol, net, modelo, LEE_MODEL);
+	
 }
 
 void RunBudgetModel (rca::Network &net, 
@@ -49,27 +53,30 @@ void RunBudgetModel (rca::Network &net,
 
 	auto sol = solution_info ("file", modelo, groups.size());
 
-	write_results (sol, net, modelo);
-
-	// return sol;
+	write_results (sol, net, modelo, NONE);
 
 }
 
 void RunLeeModifiedModel (rca::Network & net, 
 	std::vector<rca::Group> &  groups,
-	std::vector<double> & opt, int alpha) {
+	std::vector<double> & opt, double alpha) {
 
 	GRBEnv env = GRBEnv ();
 	GRBModel modelo = GRBModel (env);
-	LeeModifiedModel (modelo, net, groups, opt);
+
+	std::vector<double> opt_list;
+	for (auto value : opt) {
+		opt_list.push_back (value * alpha);
+	}
+
+
+	LeeModifiedModel (modelo, net, groups, opt_list);
 
 	modelo.optimize ();
 
 	auto sol = solution_info ("file", modelo, groups.size());
 
-	write_results (sol, net, modelo);
-
-	// return sol;
+	write_results (sol, net, modelo, LEE_MODEL_MODIFIED);
 
 }
 
@@ -176,13 +183,21 @@ int main(int argc, char const *argv[])
 			} else {
 				help();
 			}
+
+			std::string alphastr = argv[7];
+			double alpha = 1.1;
+			if (alphastr.compare ("--alpha") == 0 ) {
+				alpha = atof(argv[8]);
+			} else {
+				help();
+			}
 			
 			if (opt.size () != multicast_group.size ()) {
 				cerr << "opt_list must have the same number of groups\n";
 				exit (1);
 			}
 
-			RunLeeModel (net, multicast_group, opt, 0);
+			RunLeeModel (net, multicast_group, opt, alpha);
 
 		}break;
 
@@ -196,13 +211,21 @@ int main(int argc, char const *argv[])
 			} else {
 				help();
 			}
+
+			std::string alphastr = argv[7];
+			double alpha = 1.1;
+			if (alphastr.compare ("--alpha") == 0 ) {
+				alpha = atof(argv[8]);
+			} else {
+				help();
+			}
 			
 			if (opt.size () != multicast_group.size ()) {
 				cerr << "opt_list must have the same number of groups\n";
 				exit (1);
 			}
 
-			RunLeeModifiedModel (net, multicast_group, opt, 0);
+			RunLeeModifiedModel (net, multicast_group, opt, alpha);
 
 		}break;
 
@@ -230,17 +253,7 @@ int main(int argc, char const *argv[])
 }
 
 void write_results (vsolution_t & sol, 
-	rca::Network& net, GRBModel const & model) {
-
-	// Objetivo  //boud //Gap
-
-	// full time
-
-	// -----------
-
-	//cost of each tree
-
-	//size of each tree
+	rca::Network& net, GRBModel const & model, int type) {
 
 	try {
 		cout << "Objec\tBound\tMIPGap\n";
@@ -254,14 +267,22 @@ void write_results (vsolution_t & sol,
 		cout << endl;
 
 		cout << "Size\tCost" << endl;
+		double ocost = 0.0;
 		for (auto list : sol) {
 			int cost_tree = 0;
 			for (auto l : list) {
 				cost_tree += net.getCost (l.getX(), l.getY());
+				
 			}
-
+			ocost += cost_tree;
 			cout << list.size () << "\t" << cost_tree << endl;
 		}
+
+
+		if (type == LEE_MODEL || type == LEE_MODEL_MODIFIED) {
+			cout << "Overall Cost: " << ocost << endl;
+		} 
+
 
 	}
 	catch(const GRBException& e) {

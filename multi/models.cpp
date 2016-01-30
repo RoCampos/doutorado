@@ -619,6 +619,179 @@ void BudgetModel::budget (GRBModel& grbmodel,
 	grbmodel.update ();
 }
 
+void SteinerTreeModel::create_variables (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
+
+	//creating x varibles
+	for (rca::Link const& l : net.getLinks ()) {
+
+		std::string varname = 
+			this->get_y_name (l.getX(), l.getY());
+
+		GRBVar v1 = grbmodel.addVar(0, 1, 1, GRB_BINARY, varname);
+		varname = this->get_y_name (l.getY(), l.getX());
+		GRBVar v2 =grbmodel.addVar(0, 1, 1, GRB_BINARY, varname);
+
+		var_y.push_back (v1);
+		var_y.push_back (v2);
+
+	}
+
+	for (int member : group.getMembers ())
+	{
+		for (rca::Link const& l : net.getLinks ()) {
+			
+			int x = l.getX();
+			int y = l.getY();
+			
+			std::string varname = 
+				this->get_x_name (x,y,member);		
+
+			GRBVar v1 = grbmodel.addVar(0,1,1, GRB_BINARY, varname);
+			varname = this->get_x_name (y,x, member);
+			GRBVar v2 = grbmodel.addVar(0,1,1, GRB_BINARY, varname);
+
+			var_x.push_back ( v1 );
+			var_x.push_back ( v2 );
+		}
+		
+	}
+
+	grbmodel.update ();
+}
+
+void SteinerTreeModel::flow1 (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
+
+	int source = group.getSource ();
+	for(auto&& member : group.getMembers ()) {		
+		
+		GRBLinExpr out =  this->get_sum_x (-1, source, member);
+		GRBLinExpr in =  this->get_sum_x (source, -1, member);
+
+		std::stringstream ss;
+		ss << "flow1(" << source + 1 << "," << member + 1<< ")";
+		grbmodel.addConstr (out - in == -1, ss.str ());
+
+	}
+
+	grbmodel.update ();
+
+}
+
+void SteinerTreeModel::flow2 (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
+	
+	for(auto&& member : group.getMembers ()) {
+		
+		std::stringstream ss;
+		ss << "flow2(" << member + 1 << ")";
+
+		GRBLinExpr out =  this->get_sum_x (-1, member, member);
+		GRBLinExpr in =  this->get_sum_x (member, -1, member);
+
+		grbmodel.addConstr (out - in == 1, ss.str ());
+
+	}
+
+	grbmodel.update ();
+
+}
+
+void SteinerTreeModel::flow3 (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
+	
+	int VERTEX = net.getNumberNodes ();
+	int source = group.getSource ();
+
+	for(auto&& member : group.getMembers()) {		
+		for (int j = 0; j < VERTEX; ++j)
+		{
+
+			if (j == member || j == source) continue;
+
+			std::stringstream ss;
+			ss << "flow3(" << member + 1<< "," << j + 1;
+
+			GRBLinExpr out =  this->get_sum_x (-1, j, member);
+			GRBLinExpr in =  this->get_sum_x (j, -1, member);
+
+			grbmodel.addConstr (out - in == 0, ss.str ());
+
+		}
+
+	}
+
+	grbmodel.update ();
+
+}
+
+void SteinerTreeModel::mark (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
+
+	for(auto&& member : group.getMembers()) {		 
+		for(auto&& l : net.getLinks ()) {
+			
+			int x = l.getX();
+			int y = l.getY();
+
+			std::stringstream ss1;
+			ss1 << "mark(" << x+1 << "," << y+1 << "," << member+1 << ")";
+
+			GRBVar varx = grbmodel.getVarByName (get_x_name (x,y,member));
+			GRBVar vary = grbmodel.getVarByName (get_y_name (x,y));
+
+			grbmodel.addConstr (varx <= vary, ss1.str());
+
+			varx = grbmodel.getVarByName (get_x_name (y,x,member));
+			vary = grbmodel.getVarByName (get_y_name (y,x));
+
+			std::stringstream ss2;
+			ss2 << "mark(" << y+1 << "," << x+1 << "," << member+1 << ")";
+			grbmodel.addConstr (varx <= vary, ss2.str ());
+
+		}
+
+	}
+
+	grbmodel.update ();
+
+}
+
+void SteinerTreeModel::set_objective_by_links (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
+
+	GRBLinExpr sum = 0;
+
+	for (auto&& var : var_y) {
+		sum += var;
+	}
+
+	grbmodel.setObjective (sum, GRB_MINIMIZE);
+	grbmodel.update ();
+
+}
+
+void SteinerTreeModel::set_objective_by_cost (GRBModel& grbmodel, 
+	rca::Network& net, rca::Group& group) {
+
+
+	GRBLinExpr sum = 0;
+
+	for(auto&& l : net.getLinks ()) {
+		
+		int x = l.getX(), y = l.getY();
+		int cost = net.getCost (x, y);
+		sum += (grbmodel.getVarByName (get_y_name (x, y) ) * cost);
+		sum += (grbmodel.getVarByName (get_y_name (y, x) ) * cost);
+
+	}
+
+	grbmodel.setObjective (sum , GRB_MINIMIZE);
+	grbmodel.update ();
+
+}
+
 
 std::string const get_var_name (int x, int y, int k, int d) {
 

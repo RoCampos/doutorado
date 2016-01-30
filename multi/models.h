@@ -34,6 +34,7 @@ class LeeModel;
 class LeeModifiedModel;
 class BudgetModel;
 
+class SteinerTreeModel;
 
 /**
 * Modele matemática para otimização do custo
@@ -199,6 +200,96 @@ public:
 protected:	
 	virtual void budget (GRBModel&, rca::Network&, vgroup_t&, int budget);
 	
+};
+
+// ----------------------------- Steiner Tree Definitions
+
+enum SteinerMode{
+
+	OPTIMIZE_BY_SIZE = 0,
+	OPTIMIZE_BY_COST = 1
+
+};
+
+class SteinerTreeModel {
+
+public:
+	SteinerTreeModel (GRBModel& grbmodel, 
+		rca::Network& net, rca::Group& group, int type) {
+
+		create_variables (grbmodel, net, group);
+		flow1 (grbmodel, net, group);
+		flow2 (grbmodel, net, group);
+		flow3 (grbmodel, net, group);
+		mark (grbmodel, net, group);
+
+		if (type == SteinerMode::OPTIMIZE_BY_COST) {
+			this->set_objective_by_cost (grbmodel, net, group);
+		} else if (type == SteinerMode::OPTIMIZE_BY_SIZE) {
+			this->set_objective_by_links (grbmodel, net, group);
+		}
+
+	}
+
+
+protected:
+
+	void create_variables (GRBModel&, rca::Network&, rca::Group&);
+	
+	void flow1 (GRBModel&, rca::Network&, rca::Group&);	
+
+	void flow2 (GRBModel&, rca::Network&, rca::Group&);
+	
+	void flow3 (GRBModel&, rca::Network&, rca::Group&);	
+	
+	void mark (GRBModel&, rca::Network&, rca::Group&);
+
+	void set_objective_by_links (GRBModel&, rca::Network&, rca::Group&);
+	
+	void set_objective_by_cost (GRBModel&, rca::Network&, rca::Group&);
+
+private:
+
+	std::string get_y_name (int x, int y) const {
+		std::stringstream ss;
+		ss << "y(" << x+1 << "," << y+1 << ")";
+		return ss.str ();
+	}
+
+	std::string get_x_name (int x, int y, int k) const {
+		std::stringstream ss;
+		ss << "x(" << x+1 << "," << y+1 << "," << k+1 << ")";
+		return ss.str ();
+	}
+
+	GRBLinExpr get_sum_x (int x, int y, int k) {
+		GRBLinExpr expr = 0;
+
+		std::stringstream ss;		
+		ss << "\\(";
+		ss << (x != -1 ? std::to_string (x+1) : std::string("(\\d+)")) << ",";		
+		ss << (y != -1 ? std::to_string (y+1) : "(\\d+)") << ",";
+		ss << (k != -1 ? std::to_string (k+1) : "(\\d+)") << "\\)";
+		
+		boost::regex ptn(ss.str ());
+		boost::smatch what;
+
+		for(auto&& var : var_x) {				
+			std::string const& str = var.get(GRB_StringAttr_VarName);
+			if ( boost::regex_search (str, what, ptn) ) {												
+				expr += var;
+			}
+
+		}
+
+		return expr;
+	}
+
+private:
+
+	std::vector<GRBVar> var_y;
+	std::vector<GRBVar> var_x;
+
 };
 
 #endif // MODELS_H
