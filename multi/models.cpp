@@ -19,7 +19,6 @@ void BaseModel::create_variables(GRBModel & grbmodel,
 				std::string var2 = 
 					get_var_name (link.getY(),link.getX(), k, m);
 
-
 				grbmodel.addVar (0,1,1, GRB_BINARY,var1);
 				grbmodel.addVar (0,1,1, GRB_BINARY,var2);
 
@@ -65,8 +64,14 @@ void BaseModel::flow1 (GRBModel & grbmodel,
 					get_var_name (link.getY(),link.getX(), k, d);
 	
 				//getting the variables
-				GRBVar v1 = grbmodel.getVarByName (var1);
-				GRBVar v2 = grbmodel.getVarByName (var2);
+				GRBVar v1, v2;
+				try {
+					v1 = grbmodel.getVarByName (var1);
+					v2 = grbmodel.getVarByName (var2);
+				}
+				catch(const GRBException& e) {
+					std::cerr << e.getMessage() << '\n';
+				}
 
 				//creating the summation
 				//entrando em Source
@@ -119,8 +124,14 @@ void BaseModel::flow2 (GRBModel & grbmodel,
 							get_var_name (link.getY(),link.getX(), k, d);
 
 						//getting the variables
-						GRBVar v1 = grbmodel.getVarByName (var1);
-						GRBVar v2 = grbmodel.getVarByName (var2);
+						GRBVar v1, v2;
+						try {
+							v1 = grbmodel.getVarByName (var1);
+							v2 = grbmodel.getVarByName (var2);
+						}
+						catch(const GRBException& e) {
+							std::cerr << e.getMessage() << '\n';
+						}
 
 						//updateing the GRBLinExpr terms
 						if ((size_t)link.getX() == j) {
@@ -176,8 +187,14 @@ void BaseModel::flow3 (GRBModel &grbmodel,
 					get_var_name (link.getY(),link.getX(), k, d);
 
 				//getting the variables
-				GRBVar v1 = grbmodel.getVarByName (var1);
-				GRBVar v2 = grbmodel.getVarByName (var2);
+				GRBVar v1, v2;
+				try {
+					v1 = grbmodel.getVarByName (var1);
+					v2 = grbmodel.getVarByName (var2);
+				}
+				catch(const GRBException& e) {
+					std::cerr << e.getMessage() << '\n';
+				}
 
 				//updateing the GRBLinExpr terms
 				if (link.getX() == d) {
@@ -218,9 +235,16 @@ void BaseModel::set_edge_as_used (GRBModel &grbmodel,
 				std::stringstream ss1;	
 				ss1 << "mark("<< x+1 << "," << y+1 <<",";
 				ss1 << k+1 << "," << d+1 << ")";
-				
-				GRBVar x1 = grbmodel.getVarByName (var_x1);
-				GRBVar y1 = grbmodel.getVarByName (var_y1);
+
+				GRBVar x1, y1;
+				try {
+					x1 = grbmodel.getVarByName (var_x1);
+					y1 = grbmodel.getVarByName (var_y1);
+				}
+				catch(const GRBException& e) {
+					std::cerr << e.getMessage() << '\n';
+				}
+
 				grbmodel.addConstr ( x1 <= y1, ss1.str());
 
 				std::string const var_x2 = get_var_name (y,	x, k, d);
@@ -229,8 +253,15 @@ void BaseModel::set_edge_as_used (GRBModel &grbmodel,
 				ss2 << "mark("<< y+1 << "," << x+1 <<",";
 				ss2 << k+1 << "," << d+1 << ")";
 
-				GRBVar x2 = grbmodel.getVarByName (var_x2);
-				GRBVar y2 = grbmodel.getVarByName (var_y2);
+				GRBVar x2, y2;
+				try {
+					x2 = grbmodel.getVarByName (var_x2);
+					y2 = grbmodel.getVarByName (var_y2);	
+				}
+				catch(const GRBException& e) {
+					std::cerr << e.getMessage() << '\n';
+				}
+				
 				grbmodel.addConstr ( x2 <= y2, ss2.str());
 
 				
@@ -264,8 +295,15 @@ void HopCostModel::capacity (GRBModel &grbmodel,
 
 			int tk = groups[k].getTrequest ();
 
-			GRBVar y1 = grbmodel.getVarByName (vname1);
-			GRBVar y2 = grbmodel.getVarByName (vname2);
+			GRBVar y1, y2;
+			try {
+				y1 = grbmodel.getVarByName (vname1);
+				y2 = grbmodel.getVarByName (vname2);
+			}
+			catch(const GRBException& e) {
+				std::cerr << e.getMessage() << '\n';
+			}
+			
 
 			sum += (y1 + y2)*tk;
 		}
@@ -350,9 +388,15 @@ void HopCostModel::hop_limite (GRBModel& grbmodel,
 				std::string const& varname2 = 
 					get_var_name (link.getY(), link.getX(),k,d);
 
-				GRBVar var1 = grbmodel.getVarByName (varname1);
-				GRBVar var2 = grbmodel.getVarByName (varname2);
-
+				GRBVar var1, var2;
+				try {
+					var1 = grbmodel.getVarByName (varname1);
+					var2 = grbmodel.getVarByName (varname2);
+				}
+				catch(const GRBException& e) {
+					std::cerr << e.getMessage() << '\n';
+				}
+				
 				sum += var1;
 				sum += var2;
 			}
@@ -381,20 +425,40 @@ void HopCostModel::add_objective_function (GRBModel& grbmodel,
 			std::string const& var = 
 				get_y_var_name (l.getX(), l.getY(), k);
 
-			GRBVar y = grbmodel.getVarByName (var);
+			GRBVar y;
+			try {
+				y = grbmodel.getVarByName (var);
+			}
+			catch(const GRBException& e) {
+				std::cerr << e.getMessage() << '\n';
+			}
+			
 			part += (y * cost);
 
 			std::string const& var2 = 
 				get_y_var_name (l.getY(), l.getX(), k);
 
-			GRBVar y2 = grbmodel.getVarByName (var2);
+			GRBVar y2;
+			try {
+				y2 = grbmodel.getVarByName (var2);
+			}
+			catch(const GRBException& e) {
+				std::cerr << e.getMessage() << '\n';
+			}
+			
 			part += (y2 * cost);
 		}
 
 		sum += part;
 	}
 
-	grbmodel.setObjective (sum, GRB_MINIMIZE);
+	try {
+		grbmodel.setObjective (sum, GRB_MINIMIZE);
+	}
+	catch(const GRBException& e) {
+		std::cerr << e.getMessage() << '\n';
+	}
+	
 
 	grbmodel.update ();
 
