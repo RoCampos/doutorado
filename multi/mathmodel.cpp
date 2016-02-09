@@ -89,12 +89,15 @@ void help () {
 	ss << "\t LeeModel\n\t LeeModifiedModel\n\t BudgetModel";
 	ss << "\nThe commands to run each of the models are the following:";
 	ss << "\n\t -  ./build/mathmodel --model LM --instance <INST> --opt <OPT_FILE>";
+	ss << " --alpha <double value>";
 	ss << "\n\t -  ./build/mathmodel --model LMM --instance <INST> --opt <OPT_FILE>";
+	ss << " --alpha <double value>";
 	ss << "\n\t -  ./build/mathmodel --model BM --instance <INST> --budget <INT_VALUE>";
 	ss << "\nThe parameters passed to models are: ";
 	ss << "\n\t --opt: this parameter represent a list of double\n values for LM model, ";
 	ss << "these values represent a limit in the cost of each tree";
 	ss << "\n\t --opt: this parameter also represent a list of int\n values for LMM model, ";
+	ss << "\n\t --alpha: this parameter represents a percentage of growning of a tree";
 	ss << "these values represent a limit in the size of each tree";
 	ss << "\n\t --budget: this parameter represent a represent a \nvalue of the global solution,";
 	ss << "that contains all the trees and its respective costs";
@@ -165,7 +168,7 @@ int main(int argc, char const *argv[])
 
 	std::vector<shared_ptr<rca::Group>> temp;	
 	MultipleMulticastReader r (file);		
-	r.configure_unit_values (&net,temp);
+	r.configure_real_values (&net,temp);
 	for (auto g : temp) {
 		multicast_group.push_back (*g);
 	}
