@@ -163,7 +163,7 @@ add_subdirectory (mmmstp)
 add_subdirectory (multi)
 
 #directory for test of libraries and some mpp_algorithms
-add_subdirectory (testes)
+#add_subdirectory (testes)
 
 INSTALL (FILES CMakeLists.txt DESTINATION .)
 INSTALL (DIRECTORY include lib DESTINATION .)

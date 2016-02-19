@@ -50,3 +50,5 @@ target_link_libraries (steinermodel graph
 						${GUROBI_CXX_LIBRARY} 
 						${GUROBI_LIBRARIES})
 
+
+INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION multi)
