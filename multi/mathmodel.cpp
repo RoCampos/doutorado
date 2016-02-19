@@ -17,6 +17,25 @@ enum Option {
 void write_results (vsolution_t &, 
 	rca::Network& net, GRBModel const& model, int type_model);
 
+void write_log_model (GRBModel & m) {
+
+	std::stringstream name;
+	name << "file.log";
+
+	std::stringstream modelname;
+	modelname << "modelo.lp";
+
+	try {
+		m.getEnv ().set (GRB_StringParam_LogFile, name.str ());
+		m.getEnv ().set (GRB_IntParam_Threads, 1);
+		m.write (modelname.str ());
+	} catch (GRBException & e) {
+		cout << e.getMessage () << endl;
+		cout << e.getErrorCode () << endl;
+	}
+
+}
+
 void RunLeeModel (rca::Network & net, 
 	std::vector<rca::Group> &  groups,
 	std::vector<double> & opt, double alpha) {
@@ -30,6 +49,8 @@ void RunLeeModel (rca::Network & net,
 	}
 
 	LeeModel (modelo, net, groups, opt_list);
+
+	write_log_model (modelo);
 
 	modelo.optimize ();
 
@@ -48,6 +69,8 @@ void RunBudgetModel (rca::Network &net,
 	GRBModel modelo = GRBModel (env);
 	
 	BudgetModel (modelo, net, groups, budget);
+
+	write_log_model (modelo);
 
 	modelo.optimize ();
 
@@ -71,6 +94,8 @@ void RunLeeModifiedModel (rca::Network & net,
 
 
 	LeeModifiedModel (modelo, net, groups, opt_list);
+
+	write_log_model (modelo);
 
 	modelo.optimize ();
 
@@ -202,6 +227,7 @@ int main(int argc, char const *argv[])
 
 			RunLeeModel (net, multicast_group, opt, alpha);
 
+
 		}break;
 
 		case Option::LEE_MODEL_MODIFIED : {
@@ -259,17 +285,17 @@ void write_results (vsolution_t & sol,
 	rca::Network& net, GRBModel const & model, int type) {
 
 	try {
-		cout << "Objec\tBound\tMIPGap\n";
+		cerr << "Objec\tBound\tMIPGap\n";
 
-		cout << model.get (GRB_DoubleAttr_ObjVal) << "\t";
-		cout << model.get (GRB_DoubleAttr_ObjBound) << "\t";
-		cout << model.get (GRB_DoubleAttr_MIPGap) << endl;
+		cerr << model.get (GRB_DoubleAttr_ObjVal) << "\t";
+		cerr << model.get (GRB_DoubleAttr_ObjBound) << "\t";
+		cerr << model.get (GRB_DoubleAttr_MIPGap) << endl;
 
-		cout << "Runtime: " << model.get (GRB_DoubleAttr_Runtime) << endl;
+		cerr << "Runtime: " << model.get (GRB_DoubleAttr_Runtime) << endl;
 
-		cout << endl;
+		cerr << endl;
 
-		cout << "Size\tCost" << endl;
+		cerr << "Size\tCost" << endl;
 		double ocost = 0.0;
 		for (auto list : sol) {
 			int cost_tree = 0;
@@ -278,12 +304,12 @@ void write_results (vsolution_t & sol,
 				
 			}
 			ocost += cost_tree;
-			cout << list.size () << "\t" << cost_tree << endl;
+			cerr << list.size () << "\t" << cost_tree << endl;
 		}
 
 
 		if (type == LEE_MODEL || type == LEE_MODEL_MODIFIED) {
-			cout << "Overall Cost: " << ocost << endl;
+			cerr << "Overall Cost: " << ocost << endl;
 		} 
 
 
@@ -291,7 +317,6 @@ void write_results (vsolution_t & sol,
 	catch(const GRBException& e) {
 		std::cerr << e.getMessage () << '\n';
 	}
-	
 
 
 }
