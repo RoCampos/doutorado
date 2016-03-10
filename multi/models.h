@@ -32,6 +32,7 @@ class HopCostModel;
 class LeeModel;
 class LeeModifiedModel;
 class BudgetModel;
+class BZModel; //otimiza budget sujeito a capacidade residual
 
 class SteinerTreeModel;
 
@@ -87,6 +88,24 @@ class ResidualModel {
 protected:
 	virtual void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z = 0);	
 	virtual void add_objective_function (GRBModel&) final;
+
+};
+
+class BZModel : public ResidualModel, BaseModel{
+
+public:
+	BZModel (GRBModel & grbmodel, 
+		rca::Network net, vgroup_t& groups, int Z) :
+		BaseModel(grbmodel, net, groups, Z) {
+			
+			ResidualModel::capacity (grbmodel, net, groups, Z);
+			cost_function (grbmodel, net, groups);
+		}
+
+private:
+	void cost_function (GRBModel& final, 
+		rca::Network& net, 
+		vgroup_t& groups);
 
 };
 

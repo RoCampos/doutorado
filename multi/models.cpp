@@ -617,6 +617,61 @@ void ResidualModel::add_objective_function (GRBModel &grbmodel) {
 
 }
 
+void BZModel::cost_function (GRBModel &grbmodel,
+	rca::Network& net, vgroup_t& groups) {
+
+	GRBLinExpr sum = 0;
+	size_t GROUPS = groups.size ();
+	for (size_t k = 0; k < GROUPS; ++k)
+	{
+
+		GRBLinExpr part = 0;
+		for (rca::Link const& l : net.getLinks ()) {
+			
+			int cost = net.getCost (l.getX(), l.getY()); 
+
+			std::string const& var = 
+				get_y_var_name (l.getX(), l.getY(), k);
+
+			GRBVar y;
+			try {
+				y = grbmodel.getVarByName (var);
+			}
+			catch(const GRBException& e) {
+				std::cerr << e.getMessage() << '\n';
+			}
+			
+			part += (y * cost);
+
+			std::string const& var2 = 
+				get_y_var_name (l.getY(), l.getX(), k);
+
+			GRBVar y2;
+			try {
+				y2 = grbmodel.getVarByName (var2);
+			}
+			catch(const GRBException& e) {
+				std::cerr << e.getMessage() << '\n';
+			}
+			
+			part += (y2 * cost);
+		}
+
+		sum += part;
+	}
+
+	try {
+		grbmodel.setObjective (sum, GRB_MINIMIZE);
+	}
+	catch(const GRBException& e) {
+		std::cerr << e.getMessage() << '\n';
+	}
+	
+
+	grbmodel.update ();
+
+}
+
 void LeeModifiedModel::set_tree_limits (GRBModel & grbmodel, 
 	rca::Network& net,
 	std::vector<double>& limits) {
