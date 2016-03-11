@@ -102,7 +102,7 @@ void RunLeeModifiedModel (rca::Network & net,
 
 	auto sol = solution_info ("file", modelo, groups.size());
 
-	write_results (sol, net, modelo, NONE);
+	write_results (sol, net, modelo, LEE_MODEL_MODIFIED);
 
 }
 
@@ -121,7 +121,7 @@ void RunCostZModel (rca::Network & net,
 
 	auto sol = solution_info ("file", modelo, groups.size());
 
-	write_results (sol, net, modelo, LEE_MODEL_MODIFIED);
+	write_results (sol, net, modelo, NONE);
 
 }
 

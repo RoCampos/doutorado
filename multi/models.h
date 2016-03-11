@@ -95,7 +95,7 @@ class BZModel : public BaseModel {
 
 public:
 	BZModel (GRBModel & grbmodel, 
-		rca::Network net, vgroup_t& groups, int Z) : 
+		rca::Network& net, vgroup_t& groups, int Z) : 
 			BaseModel(grbmodel, net, groups, Z) 
 		{
 
