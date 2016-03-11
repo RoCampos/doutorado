@@ -32,7 +32,7 @@ class HopCostModel;
 class LeeModel;
 class LeeModifiedModel;
 class BudgetModel;
-class BZModel; //otimiza budget sujeito a capacidade residual
+//class BZModel; //otimiza budget sujeito a capacidade residual
 
 class SteinerTreeModel;
 
@@ -91,21 +91,30 @@ protected:
 
 };
 
-class BZModel : public ResidualModel, BaseModel{
+class BZModel : public BaseModel {
 
 public:
 	BZModel (GRBModel & grbmodel, 
-		rca::Network net, vgroup_t& groups, int Z) :
-		BaseModel(grbmodel, net, groups, Z) {
+		rca::Network net, vgroup_t& groups, int Z) : 
+			BaseModel(grbmodel, net, groups, Z) 
+		{
+
+			this->cost_function (grbmodel, net, groups, Z);
+			this->capacity (grbmodel, net, groups, Z);
 			
-			ResidualModel::capacity (grbmodel, net, groups, Z);
-			cost_function (grbmodel, net, groups);
+
 		}
 
+	virtual ~BZModel () {
+
+	}
+
 private:
-	void cost_function (GRBModel& final, 
+	virtual void cost_function (GRBModel& final, 
 		rca::Network& net, 
-		vgroup_t& groups);
+		vgroup_t& groups, int);
+
+	void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z = 0);
 
 };
 
