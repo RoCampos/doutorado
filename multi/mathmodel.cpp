@@ -11,11 +11,12 @@ enum Option {
 	NONE = -1,
 	LEE_MODEL = 0,
 	LEE_MODEL_MODIFIED = 1,
-	BUDGET_MODEL = 2
+	BUDGET_MODEL = 2,
+	COST_Z_MODEL = 3
 };
 
 void write_results (vsolution_t &, 
-	rca::Network& net, GRBModel const& model, int type_model);
+	rca::Network& net, GRBModel & model, int type_model);
 
 void write_log_model (GRBModel & m) {
 
@@ -101,6 +102,25 @@ void RunLeeModifiedModel (rca::Network & net,
 
 	auto sol = solution_info ("file", modelo, groups.size());
 
+	write_results (sol, net, modelo, NONE);
+
+}
+
+//modelo que otimiza custo sujeito a Z
+void RunCostZModel (rca::Network & net, 
+	std::vector<rca::Group> &  groups,  int Z) {
+
+	GRBEnv env = GRBEnv ();
+	GRBModel modelo = GRBModel (env);
+
+	BZModel (modelo, net, groups, Z);
+
+	write_log_model (modelo);
+
+	modelo.optimize ();	
+
+	auto sol = solution_info ("file", modelo, groups.size());
+
 	write_results (sol, net, modelo, LEE_MODEL_MODIFIED);
 
 }
@@ -146,6 +166,10 @@ int get_option (std::string & opt) {
 
 	if (opt.compare ("BM") == 0) {
 		return 2;
+	}
+
+	if (opt.compare ("BZ") == 0) {
+		return 3;
 	}
 
 	return -1;
@@ -272,6 +296,20 @@ int main(int argc, char const *argv[])
 
 
 		}break;
+		case Option::COST_Z_MODEL : {
+			std::string opt_budget = argv[5];
+			int Z = -1;
+			if (opt_budget.compare ("--Z") == 0) {
+				Z = atoi (argv[6]);
+			} else {
+				help ();
+			}
+
+			cout << "Z: " << Z << endl;
+			RunCostZModel (net, multicast_group, Z);
+
+		}break;
+
 		default: {
 			help ();			
 		}
@@ -282,7 +320,7 @@ int main(int argc, char const *argv[])
 }
 
 void write_results (vsolution_t & sol, 
-	rca::Network& net, GRBModel const & model, int type) {
+	rca::Network& net, GRBModel & model, int type) {
 
 	try {
 		cerr << "Objec\tBound\tMIPGap\n";
@@ -312,6 +350,7 @@ void write_results (vsolution_t & sol,
 			cerr << "Overall Cost: " << ocost << endl;
 		} 
 
+		model.write ("Sol.sol");
 
 	}
 	catch(const GRBException& e) {
