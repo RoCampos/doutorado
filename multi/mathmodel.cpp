@@ -11,11 +11,31 @@ enum Option {
 	NONE = -1,
 	LEE_MODEL = 0,
 	LEE_MODEL_MODIFIED = 1,
-	BUDGET_MODEL = 2
+	BUDGET_MODEL = 2,
+	COST_Z_MODEL = 3
 };
 
 void write_results (vsolution_t &, 
-	rca::Network& net, GRBModel const& model, int type_model);
+	rca::Network& net, GRBModel & model, int type_model);
+
+void write_log_model (GRBModel & m) {
+
+	std::stringstream name;
+	name << "file.log";
+
+	std::stringstream modelname;
+	modelname << "modelo.lp";
+
+	try {
+		m.getEnv ().set (GRB_StringParam_LogFile, name.str ());
+		m.getEnv ().set (GRB_IntParam_Threads, 1);
+		m.write (modelname.str ());
+	} catch (GRBException & e) {
+		cout << e.getMessage () << endl;
+		cout << e.getErrorCode () << endl;
+	}
+
+}
 
 void RunLeeModel (rca::Network & net, 
 	std::vector<rca::Group> &  groups,
@@ -30,6 +50,8 @@ void RunLeeModel (rca::Network & net,
 	}
 
 	LeeModel (modelo, net, groups, opt_list);
+
+	write_log_model (modelo);
 
 	modelo.optimize ();
 
@@ -48,6 +70,8 @@ void RunBudgetModel (rca::Network &net,
 	GRBModel modelo = GRBModel (env);
 	
 	BudgetModel (modelo, net, groups, budget);
+
+	write_log_model (modelo);
 
 	modelo.optimize ();
 
@@ -72,11 +96,32 @@ void RunLeeModifiedModel (rca::Network & net,
 
 	LeeModifiedModel (modelo, net, groups, opt_list);
 
+	write_log_model (modelo);
+
 	modelo.optimize ();
 
 	auto sol = solution_info ("file", modelo, groups.size());
 
 	write_results (sol, net, modelo, LEE_MODEL_MODIFIED);
+
+}
+
+//modelo que otimiza custo sujeito a Z
+void RunCostZModel (rca::Network & net, 
+	std::vector<rca::Group> &  groups,  int Z) {
+
+	GRBEnv env = GRBEnv ();
+	GRBModel modelo = GRBModel (env);
+
+	BZModel (modelo, net, groups, Z);
+
+	write_log_model (modelo);
+
+	modelo.optimize ();	
+
+	auto sol = solution_info ("file", modelo, groups.size());
+
+	write_results (sol, net, modelo, NONE);
 
 }
 
@@ -89,12 +134,15 @@ void help () {
 	ss << "\t LeeModel\n\t LeeModifiedModel\n\t BudgetModel";
 	ss << "\nThe commands to run each of the models are the following:";
 	ss << "\n\t -  ./build/mathmodel --model LM --instance <INST> --opt <OPT_FILE>";
+	ss << " --alpha <double value>";
 	ss << "\n\t -  ./build/mathmodel --model LMM --instance <INST> --opt <OPT_FILE>";
+	ss << " --alpha <double value>";
 	ss << "\n\t -  ./build/mathmodel --model BM --instance <INST> --budget <INT_VALUE>";
 	ss << "\nThe parameters passed to models are: ";
 	ss << "\n\t --opt: this parameter represent a list of double\n values for LM model, ";
 	ss << "these values represent a limit in the cost of each tree";
 	ss << "\n\t --opt: this parameter also represent a list of int\n values for LMM model, ";
+	ss << "\n\t --alpha: this parameter represents a percentage of growning of a tree";
 	ss << "these values represent a limit in the size of each tree";
 	ss << "\n\t --budget: this parameter represent a represent a \nvalue of the global solution,";
 	ss << "that contains all the trees and its respective costs";
@@ -118,6 +166,10 @@ int get_option (std::string & opt) {
 
 	if (opt.compare ("BM") == 0) {
 		return 2;
+	}
+
+	if (opt.compare ("BZ") == 0) {
+		return 3;
 	}
 
 	return -1;
@@ -165,7 +217,7 @@ int main(int argc, char const *argv[])
 
 	std::vector<shared_ptr<rca::Group>> temp;	
 	MultipleMulticastReader r (file);		
-	r.configure_unit_values (&net,temp);
+	r.configure_real_values (&net,temp);
 	for (auto g : temp) {
 		multicast_group.push_back (*g);
 	}
@@ -198,6 +250,7 @@ int main(int argc, char const *argv[])
 			}
 
 			RunLeeModel (net, multicast_group, opt, alpha);
+
 
 		}break;
 
@@ -243,6 +296,20 @@ int main(int argc, char const *argv[])
 
 
 		}break;
+		case Option::COST_Z_MODEL : {
+			std::string opt_budget = argv[5];
+			int Z = -1;
+			if (opt_budget.compare ("--Z") == 0) {
+				Z = atoi (argv[6]);
+			} else {
+				help ();
+			}
+
+			cout << "Z: " << Z << endl;
+			RunCostZModel (net, multicast_group, Z);
+
+		}break;
+
 		default: {
 			help ();			
 		}
@@ -253,20 +320,20 @@ int main(int argc, char const *argv[])
 }
 
 void write_results (vsolution_t & sol, 
-	rca::Network& net, GRBModel const & model, int type) {
+	rca::Network& net, GRBModel & model, int type) {
 
 	try {
-		cout << "Objec\tBound\tMIPGap\n";
+		cerr << "Objec\tBound\tMIPGap\n";
 
-		cout << model.get (GRB_DoubleAttr_ObjVal) << "\t";
-		cout << model.get (GRB_DoubleAttr_ObjBound) << "\t";
-		cout << model.get (GRB_DoubleAttr_MIPGap) << endl;
+		cerr << model.get (GRB_DoubleAttr_ObjVal) << "\t";
+		cerr << model.get (GRB_DoubleAttr_ObjBound) << "\t";
+		cerr << model.get (GRB_DoubleAttr_MIPGap) << endl;
 
-		cout << "Runtime: " << model.get (GRB_DoubleAttr_Runtime) << endl;
+		cerr << "Runtime: " << model.get (GRB_DoubleAttr_Runtime) << endl;
 
-		cout << endl;
+		cerr << endl;
 
-		cout << "Size\tCost" << endl;
+		cerr << "Size\tCost" << endl;
 		double ocost = 0.0;
 		for (auto list : sol) {
 			int cost_tree = 0;
@@ -275,20 +342,20 @@ void write_results (vsolution_t & sol,
 				
 			}
 			ocost += cost_tree;
-			cout << list.size () << "\t" << cost_tree << endl;
+			cerr << list.size () << "\t" << cost_tree << endl;
 		}
 
 
 		if (type == LEE_MODEL || type == LEE_MODEL_MODIFIED) {
-			cout << "Overall Cost: " << ocost << endl;
+			cerr << "Overall Cost: " << ocost << endl;
 		} 
 
+		model.write ("Sol.sol");
 
 	}
 	catch(const GRBException& e) {
 		std::cerr << e.getMessage () << '\n';
 	}
-	
 
 
 }

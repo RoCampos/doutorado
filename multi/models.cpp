@@ -19,15 +19,21 @@ void BaseModel::create_variables(GRBModel & grbmodel,
 				std::string var2 = 
 					get_var_name (link.getY(),link.getX(), k, m);
 
-
-				grbmodel.addVar (0,1,1, GRB_BINARY,var1);
-				grbmodel.addVar (0,1,1, GRB_BINARY,var2);
+				try {
+					grbmodel.addVar (0,1,1, GRB_BINARY,var1);
+					grbmodel.addVar (0,1,1, GRB_BINARY,var2);
+				}
+				catch(const GRBException& e) {
+					std::cerr << __LINE__ << e.getMessage() << '\n';
+				}
+				
 
 			}
 
 			std::string const& var_y1 = 
 				get_y_var_name (link.getX(), link.getY(), k);
 			grbmodel.addVar (0,1,1, GRB_BINARY,var_y1);
+
 			std::string const& var_y2 = 
 				get_y_var_name (link.getY(), link.getX(), k);
 			grbmodel.addVar (0,1,1, GRB_BINARY,var_y2);
@@ -65,8 +71,14 @@ void BaseModel::flow1 (GRBModel & grbmodel,
 					get_var_name (link.getY(),link.getX(), k, d);
 	
 				//getting the variables
-				GRBVar v1 = grbmodel.getVarByName (var1);
-				GRBVar v2 = grbmodel.getVarByName (var2);
+				GRBVar v1, v2;
+				try {
+					v1 = grbmodel.getVarByName (var1);
+					v2 = grbmodel.getVarByName (var2);
+				}
+				catch(const GRBException& e) {
+					std::cerr << __LINE__ << e.getMessage() << '\n';
+				}
 
 				//creating the summation
 				//entrando em Source
@@ -80,7 +92,13 @@ void BaseModel::flow1 (GRBModel & grbmodel,
 
 			}
 			//adding the constraint (expression, name)
-			grbmodel.addConstr(sum1 - sum2 == -1, ss.str());
+			try {
+				grbmodel.addConstr(sum1 - sum2 == -1, ss.str());
+			}
+			catch(const GRBException& e) {
+				std::cerr << __LINE__ << e.getMessage() << '\n';
+			}
+
 		}
 	}
 	grbmodel.update ();
@@ -119,8 +137,14 @@ void BaseModel::flow2 (GRBModel & grbmodel,
 							get_var_name (link.getY(),link.getX(), k, d);
 
 						//getting the variables
-						GRBVar v1 = grbmodel.getVarByName (var1);
-						GRBVar v2 = grbmodel.getVarByName (var2);
+						GRBVar v1, v2;
+						try {
+							v1 = grbmodel.getVarByName (var1);
+							v2 = grbmodel.getVarByName (var2);
+						}
+						catch(const GRBException& e) {
+							std::cerr << __LINE__ << e.getMessage() << '\n';
+						}
 
 						//updateing the GRBLinExpr terms
 						if ((size_t)link.getX() == j) {
@@ -134,10 +158,22 @@ void BaseModel::flow2 (GRBModel & grbmodel,
 					}
 
 					//adding the constraint to model
-					grbmodel.addConstr (sum1 - sum2 == 0, ss.str());
+					try {
+						grbmodel.addConstr (sum1 - sum2 == 0, ss.str());
+					}
+					catch(const GRBException& e) {
+						std::cerr << __LINE__ << e.getMessage() << '\n';
+					}
+					
 					
 				} else {
-					grbmodel.addConstr (sum1 == 0, ss.str ());
+					try {
+						grbmodel.addConstr (sum1 == 0, ss.str ());
+					}
+					catch(const GRBException& e) {
+						std::cerr << __LINE__ << e.getMessage() << '\n';
+					}
+					
 				}
 
 			}
@@ -176,8 +212,14 @@ void BaseModel::flow3 (GRBModel &grbmodel,
 					get_var_name (link.getY(),link.getX(), k, d);
 
 				//getting the variables
-				GRBVar v1 = grbmodel.getVarByName (var1);
-				GRBVar v2 = grbmodel.getVarByName (var2);
+				GRBVar v1, v2;
+				try {
+					v1 = grbmodel.getVarByName (var1);
+					v2 = grbmodel.getVarByName (var2);
+				}
+				catch(const GRBException& e) {
+					std::cerr << __LINE__ << e.getMessage() << '\n';
+				}
 
 				//updateing the GRBLinExpr terms
 				if (link.getX() == d) {
@@ -191,7 +233,13 @@ void BaseModel::flow3 (GRBModel &grbmodel,
 
 			}
 
-			grbmodel.addConstr (sum1 - sum2 == 1, ss.str());
+			try {
+				grbmodel.addConstr (sum1 - sum2 == 1, ss.str());
+			}
+			catch(const GRBException& e)  {
+				std::cerr << __LINE__ << e.getMessage() << '\n';
+			}
+			
 
 		}
 
@@ -218,10 +266,17 @@ void BaseModel::set_edge_as_used (GRBModel &grbmodel,
 				std::stringstream ss1;	
 				ss1 << "mark("<< x+1 << "," << y+1 <<",";
 				ss1 << k+1 << "," << d+1 << ")";
-				
-				GRBVar x1 = grbmodel.getVarByName (var_x1);
-				GRBVar y1 = grbmodel.getVarByName (var_y1);
-				grbmodel.addConstr ( x1 <= y1, ss1.str());
+
+				GRBVar x1, y1;
+				try {
+					x1 = grbmodel.getVarByName (var_x1);
+					y1 = grbmodel.getVarByName (var_y1);
+
+					grbmodel.addConstr ( x1 <= y1, ss1.str());
+				}
+				catch(const GRBException& e) {
+					std::cerr << __LINE__ << e.getMessage() << '\n';
+				}
 
 				std::string const var_x2 = get_var_name (y,	x, k, d);
 				std::string const var_y2 = get_y_var_name (y, x, k);
@@ -229,9 +284,19 @@ void BaseModel::set_edge_as_used (GRBModel &grbmodel,
 				ss2 << "mark("<< y+1 << "," << x+1 <<",";
 				ss2 << k+1 << "," << d+1 << ")";
 
-				GRBVar x2 = grbmodel.getVarByName (var_x2);
-				GRBVar y2 = grbmodel.getVarByName (var_y2);
-				grbmodel.addConstr ( x2 <= y2, ss2.str());
+				GRBVar x2, y2;
+				try {
+					x2 = grbmodel.getVarByName (var_x2);
+					y2 = grbmodel.getVarByName (var_y2);
+
+					grbmodel.addConstr ( x2 <= y2, ss2.str());	
+				}
+				catch(const GRBException& e) {
+					std::cerr << __LINE__ << e.getMessage() << '\n';
+				}
+				
+
+				
 
 				
 			}
@@ -264,8 +329,15 @@ void HopCostModel::capacity (GRBModel &grbmodel,
 
 			int tk = groups[k].getTrequest ();
 
-			GRBVar y1 = grbmodel.getVarByName (vname1);
-			GRBVar y2 = grbmodel.getVarByName (vname2);
+			GRBVar y1, y2;
+			try {
+				y1 = grbmodel.getVarByName (vname1);
+				y2 = grbmodel.getVarByName (vname2);
+			}
+			catch(const GRBException& e) {
+				std::cerr << __LINE__ << e.getMessage() << '\n';
+			}
+			
 
 			sum += (y1 + y2)*tk;
 		}
@@ -350,9 +422,15 @@ void HopCostModel::hop_limite (GRBModel& grbmodel,
 				std::string const& varname2 = 
 					get_var_name (link.getY(), link.getX(),k,d);
 
-				GRBVar var1 = grbmodel.getVarByName (varname1);
-				GRBVar var2 = grbmodel.getVarByName (varname2);
-
+				GRBVar var1, var2;
+				try {
+					var1 = grbmodel.getVarByName (varname1);
+					var2 = grbmodel.getVarByName (varname2);
+				}
+				catch(const GRBException& e) {
+					std::cerr << __LINE__ << e.getMessage() << '\n';
+				}
+				
 				sum += var1;
 				sum += var2;
 			}
@@ -381,20 +459,40 @@ void HopCostModel::add_objective_function (GRBModel& grbmodel,
 			std::string const& var = 
 				get_y_var_name (l.getX(), l.getY(), k);
 
-			GRBVar y = grbmodel.getVarByName (var);
+			GRBVar y;
+			try {
+				y = grbmodel.getVarByName (var);
+			}
+			catch(const GRBException& e) {
+				std::cerr << __LINE__ << e.getMessage() << '\n';
+			}
+			
 			part += (y * cost);
 
 			std::string const& var2 = 
 				get_y_var_name (l.getY(), l.getX(), k);
 
-			GRBVar y2 = grbmodel.getVarByName (var2);
+			GRBVar y2;
+			try {
+				y2 = grbmodel.getVarByName (var2);
+			}
+			catch(const GRBException& e) {
+				std::cerr << __LINE__ << e.getMessage() << '\n';
+			}
+			
 			part += (y2 * cost);
 		}
 
 		sum += part;
 	}
 
-	grbmodel.setObjective (sum, GRB_MINIMIZE);
+	try {
+		grbmodel.setObjective (sum, GRB_MINIMIZE);
+	}
+	catch(const GRBException& e) {
+		std::cerr << __LINE__ << e.getMessage() << '\n';
+	}
+	
 
 	grbmodel.update ();
 
@@ -417,7 +515,7 @@ void HopCostModel::set_residual_capacity (GRBModel& grbmodel,
 				array[i].set (GRB_DoubleAttr_RHS, value+Z);	
 			}
 			catch(const GRBException& e) {
-				cout << e.getMessage () << endl;
+				cout << __LINE__ << " : " <<  e.getMessage () << endl;
 			}
 			
 		}
@@ -469,7 +567,13 @@ void ResidualModel::capacity (GRBModel & grbmodel,
 	// AQUI O LIMITE É O VALOR DE Z
 	size_t GROUPS = groups.size ();
 
-	GRBVar var_z = grbmodel.getVarByName ("Z");
+	GRBVar var_z;
+	try {
+		 var_z = grbmodel.getVarByName ("Z");		 
+	}
+	catch(const GRBException& e) {
+		cout << __LINE__ << " : " <<  e.getMessage () << endl;
+	}
 
 	for (rca::Link const& link : net.getLinks ()) {
 
@@ -525,7 +629,7 @@ void LeeModel::set_tree_limits (GRBModel & grbmodel,
 				array[i].set (GRB_DoubleAttr_RHS, value*factor);		
 			}
 			catch(const GRBException& e) {
-				std::cerr << e.getMessage() << '\n';
+				std::cerr << __LINE__ << e.getMessage() << '\n';
 			}
 
 		}
@@ -547,10 +651,112 @@ void ResidualModel::add_objective_function (GRBModel &grbmodel) {
 		grbmodel.setObjective (sum, GRB_MAXIMIZE);
 	}
 	catch(const GRBException& e) {
-		std::cerr << e.getMessage() << '\n';
+		std::cerr << __LINE__ << e.getMessage() << '\n';
 	}
 	grbmodel.update ();	
 
+}
+
+void BZModel::cost_function (GRBModel &grbmodel,
+	rca::Network& net, vgroup_t& groups, int z) {
+
+	GRBLinExpr sum = 0;
+	size_t GROUPS = groups.size ();
+	for (size_t k = 0; k < GROUPS; ++k)
+	{
+
+		GRBLinExpr part = 0;
+		for (rca::Link const& l : net.getLinks ()) {
+			
+			int cost = net.getCost (l.getX(), l.getY()); 
+
+			std::string const& var = 
+				get_y_var_name (l.getX(), l.getY(), k);
+
+			GRBVar y;
+			try {
+				y = grbmodel.getVarByName (var);
+			}
+			catch(const GRBException& e) {
+				std::cerr << __LINE__ << e.getMessage() << '\n';
+			}
+			
+			part += (y * cost);
+
+			std::string const& var2 = 
+				get_y_var_name (l.getY(), l.getX(), k);
+
+			GRBVar y2;
+			try {
+				y2 = grbmodel.getVarByName (var2);
+			}
+			catch(const GRBException& e) {
+				std::cerr << __LINE__ << e.getMessage() << '\n';
+			}
+			
+			part += (y2 * cost);
+		}
+
+		sum += part;
+	}
+
+	try {
+		grbmodel.setObjective (sum, GRB_MINIMIZE);		
+
+	}
+	catch(const GRBException& e) {
+		std::cerr << __LINE__ << e.getMessage() << '\n';
+	}
+	
+	grbmodel.update ();
+
+}
+
+void BZModel::capacity (GRBModel &grbmodel, 
+	rca::Network& net, vgroup_t& groups, int Z) {
+
+	size_t GROUPS = groups.size ();
+
+	for (rca::Link const& link : net.getLinks ()) {
+
+		int x = link.getX();
+		int y = link.getY();
+
+		GRBLinExpr sum = 0;
+		std::stringstream ss;
+		ss << "capacity(" << x+1 <<","<< y+1 << ")";
+
+		for (size_t k = 0; k < GROUPS; ++k)
+		{
+			std::string const& vname1 = get_y_var_name (x,y,k);
+			std::string const& vname2 = get_y_var_name (y,x,k);
+
+			int tk = groups[k].getTrequest ();
+
+			GRBVar y1, y2;
+			try {
+				y1 = grbmodel.getVarByName (vname1);
+				y2 = grbmodel.getVarByName (vname2);
+			}
+			catch(const GRBException& e) {
+				std::cerr << __LINE__ << e.getMessage() << '\n';
+			}
+			
+
+			sum += (y1 + y2)*tk;
+		}
+
+		int capacity = net.getBand (x,y);
+		
+		// std::stringstream ss1;
+		// ss1 << "capacity(" << y+1 <<","<< x+1 << ")";
+
+		grbmodel.addConstr ( capacity - sum >= Z, ss.str ());
+		// grbmodel.addConstr ( capacity - sum >= 0, ss1.str ());
+
+	}
+
+	grbmodel.update ();
 }
 
 void LeeModifiedModel::set_tree_limits (GRBModel & grbmodel, 

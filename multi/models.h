@@ -1,7 +1,6 @@
 #ifndef MODELS_H
 #define MODELS_H
 
-
 #include <iostream>
 #include <sstream>
 
@@ -33,6 +32,7 @@ class HopCostModel;
 class LeeModel;
 class LeeModifiedModel;
 class BudgetModel;
+//class BZModel; //otimiza budget sujeito a capacidade residual
 
 class SteinerTreeModel;
 
@@ -88,6 +88,33 @@ class ResidualModel {
 protected:
 	virtual void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z = 0);	
 	virtual void add_objective_function (GRBModel&) final;
+
+};
+
+class BZModel : public BaseModel {
+
+public:
+	BZModel (GRBModel & grbmodel, 
+		rca::Network& net, vgroup_t& groups, int Z) : 
+			BaseModel(grbmodel, net, groups, Z) 
+		{
+
+			this->cost_function (grbmodel, net, groups, Z);
+			this->capacity (grbmodel, net, groups, Z);
+			
+
+		}
+
+	virtual ~BZModel () {
+
+	}
+
+private:
+	virtual void cost_function (GRBModel& final, 
+		rca::Network& net, 
+		vgroup_t& groups, int);
+
+	void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z = 0);
 
 };
 
