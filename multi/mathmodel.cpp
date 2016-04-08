@@ -216,8 +216,19 @@ int main(int argc, char const *argv[])
 	}
 
 	std::vector<shared_ptr<rca::Group>> temp;	
-	MultipleMulticastReader r (file);		
+	MultipleMulticastReader r (file);	
+
+#ifdef MODEL_REAL	
 	r.configure_real_values (&net,temp);
+#endif
+	
+	/*Atribui valor 1 para traffic request (tk) e 
+	 a capacidade das arestas é igual ao tamanho do grupo.*/
+#ifdef MODEL_UNIT
+	r.configure_unit_values (&net,temp);
+#endif
+
+	
 	for (auto g : temp) {
 		multicast_group.push_back (*g);
 	}
