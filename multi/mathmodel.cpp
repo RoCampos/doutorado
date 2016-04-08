@@ -12,7 +12,8 @@ enum Option {
 	LEE_MODEL = 0,
 	LEE_MODEL_MODIFIED = 1,
 	BUDGET_MODEL = 2,
-	COST_Z_MODEL = 3
+	COST_Z_MODEL = 3,
+	RESIDUAL_MODEL = 4
 };
 
 void write_results (vsolution_t &, 
@@ -125,6 +126,24 @@ void RunCostZModel (rca::Network & net,
 
 }
 
+void RunResidualModel (rca::Network & net, 
+	std::vector<rca::Group> &  groups) {
+
+	GRBEnv env = GRBEnv ();
+	GRBModel modelo = GRBModel (env);
+
+	ConcreteResidualModel (modelo, net, groups);
+
+	write_log_model (modelo);
+
+	modelo.optimize ();	
+
+	auto sol = solution_info ("file", modelo, groups.size());
+
+	write_results (sol, net, modelo, RESIDUAL_MODEL);
+
+}
+
 void help () {
 	cout << "\n\tMathematical Models\n" << endl;
 
@@ -172,6 +191,10 @@ int get_option (std::string & opt) {
 		return 3;
 	}
 
+	if (opt.compare ("RM") == 0) {
+		return 4;
+	}
+
 	return -1;
 }
 
@@ -216,8 +239,19 @@ int main(int argc, char const *argv[])
 	}
 
 	std::vector<shared_ptr<rca::Group>> temp;	
-	MultipleMulticastReader r (file);		
+	MultipleMulticastReader r (file);	
+
+#ifdef MODEL_REAL	
 	r.configure_real_values (&net,temp);
+#endif
+	
+	/*Atribui valor 1 para traffic request (tk) e 
+	 a capacidade das arestas é igual ao tamanho do grupo.*/
+#ifdef MODEL_UNIT
+	r.configure_unit_values (&net,temp);
+#endif
+
+	
 	for (auto g : temp) {
 		multicast_group.push_back (*g);
 	}
@@ -310,6 +344,12 @@ int main(int argc, char const *argv[])
 
 		}break;
 
+		case Option::RESIDUAL_MODEL : {
+
+			RunResidualModel (net, multicast_group);
+
+		}break;
+
 		default: {
 			help ();			
 		}
@@ -346,7 +386,7 @@ void write_results (vsolution_t & sol,
 		}
 
 
-		if (type == LEE_MODEL || type == LEE_MODEL_MODIFIED) {
+		if (type == LEE_MODEL || type == LEE_MODEL_MODIFIED || type == RESIDUAL_MODEL) {
 			cerr << "Overall Cost: " << ocost << endl;
 		} 
 

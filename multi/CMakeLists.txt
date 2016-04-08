@@ -15,8 +15,13 @@ FILE(GLOB INCLUDE "${PROJECT_SOURCE_DIR}/include/*.h")
 
 IF (REAL)
 	add_definitions (-DMODEL_REAL)	
+
+	MESSAGE ("\nCompiling MATHMODEL using REAL Values\n")
+
 ELSE()
 	add_definitions (-DMODEL_UNIT)
+
+	MESSAGE ("\nCompiling MATHMODEL using UNIT Values\n")
 ENDIF()
 
 
@@ -50,5 +55,12 @@ target_link_libraries (steinermodel graph
 						${GUROBI_CXX_LIBRARY} 
 						${GUROBI_LIBRARIES})
 
+# compilation of parallel example of algorithms
+add_executable (parallel parallel.cpp
+				${INCLUDE})
+target_link_libraries (parallel graph sttree sttalgo myutil -fopenmp)
+
 
 INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION multi)
+
+
