@@ -91,6 +91,20 @@ protected:
 
 };
 
+class ConcreteResidualModel : public BaseModel, ResidualModel {
+
+public:
+	ConcreteResidualModel (GRBModel & grbmodel, 
+		rca::Network& net, vgroup_t& groups)
+	: BaseModel (grbmodel, net, groups) 
+	{
+		
+		ResidualModel::add_objective_function (grbmodel);
+		ResidualModel::capacity (grbmodel, net, groups);
+		
+	}
+};
+
 class BZModel : public BaseModel {
 
 public:

@@ -591,19 +591,24 @@ void ResidualModel::capacity (GRBModel & grbmodel,
 
 			int tk = groups[k].getTrequest ();
 
-			GRBVar y1 = grbmodel.getVarByName (vname1);
-			GRBVar y2 = grbmodel.getVarByName (vname2);
+			GRBVar y1, y2;
+
+			try {
+				y1 = grbmodel.getVarByName (vname1);
+				y2 = grbmodel.getVarByName (vname2);
+			}
+			catch(const GRBException& e) {
+				cout << __LINE__ << " : " <<  e.getMessage () << endl;
+			}
+			
 
 			sum += (y1 + y2)*tk;
 		}
 
 		int capacity = net.getBand (x,y);
-		
-		// std::stringstream ss1;
-		// ss1 << "capacity(" << y+1 <<","<< x+1 << ")";
 
 		grbmodel.addConstr ( capacity - sum >= var_z, ss.str ());
-		// grbmodel.addConstr ( capacity - sum >= 0, ss1.str ());
+
 
 	}
 
