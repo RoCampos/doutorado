@@ -548,9 +548,10 @@ void LeeModel::set_tree_limits (GRBModel & grbmodel,
 				get_y_var_name (l.getY(), l.getX(), k);			
 			GRBVar var2 = grbmodel.getVarByName (varname2);
 
-			int cost = net.getCost ( l.getX(), l.getY());
+			// int cost = net.getCost ( l.getX(), l.getY());
 			
-			sum += ((var1 + var2)*cost);			
+			// sum += ((var1 + var2)*cost);			
+			sum += ((var1 + var2)*1);
 
 		}
 
@@ -786,10 +787,13 @@ void LeeModifiedModel::set_tree_limits (GRBModel & grbmodel,
 				get_y_var_name (l.getY(), l.getX(), k);			
 			GRBVar var2 = grbmodel.getVarByName (varname2);
 			
-			sum += ((var1 + var2)*1);			
+			int cost = net.getCost ( l.getX(), l.getY());
+			
+			sum += ((var1 + var2)*cost);	
+
+			// sum += ((var1 + var2)*1);			
 
 		}
-
 		grbmodel.addConstr (sum <= limits[k], ss.str ());
 	}
 
