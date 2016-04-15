@@ -663,6 +663,55 @@ void ResidualModel::add_objective_function (GRBModel &grbmodel) {
 
 }
 
+void ConcreteResidualModel::avoid_leafs (GRBModel & grbmodel, 
+	rca::Network& net, vgroup_t& groups) {
+
+	size_t GROUPS = groups.size ();
+	for (size_t k = 0; k < GROUPS; ++k)
+	{
+		for (rca::Link const& link : net.getLinks()) {
+
+			int x = link.getX();
+			int y = link.getY();
+
+			std::stringstream ss1;
+			ss1 << "avoid(" << x+1 << ",";
+			ss1 << y+1 << "," << k+1 << ")";
+			
+			std::stringstream ss2;
+			ss2 << "avoid(" << y+1 << ",";
+			ss2 << x+1 << "," << k+1 << ")";
+
+		
+			GRBLinExpr sum1 = 0, sum2 = 0;
+
+			for (int d : groups[k].getMembers ()) {
+
+				std::string const& var_name1 = get_var_name (x,y,k,d);
+				GRBVar var1 = grbmodel.getVarByName (var_name1);
+				sum1 += var1;
+
+				std::string const& var_name2 = get_var_name (y,x,k,d);
+				GRBVar var2 = grbmodel.getVarByName (var_name2);
+				sum2 +=var2;
+
+			}
+
+			std::string const& var_y1 = get_y_var_name (x, y, k);
+			std::string const& var_y2 = get_y_var_name (y, x, k);
+
+			GRBVar y1 = grbmodel.getVarByName (var_y1);
+			GRBVar y2 = grbmodel.getVarByName (var_y2);
+
+			grbmodel.addConstr (sum1 - y1 >= 0, ss1.str());
+			grbmodel.addConstr (sum2 - y2 >= 0, ss2.str());
+
+		}
+	}
+
+	grbmodel.update ();
+}
+
 void BZModel::cost_function (GRBModel &grbmodel,
 	rca::Network& net, vgroup_t& groups, int z) {
 

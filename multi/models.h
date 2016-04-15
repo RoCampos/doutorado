@@ -101,8 +101,12 @@ public:
 		
 		ResidualModel::add_objective_function (grbmodel);
 		ResidualModel::capacity (grbmodel, net, groups);
-		
+		this->avoid_leafs (grbmodel, net, groups);
 	}
+
+private:
+	void avoid_leafs (GRBModel &, rca::Network&, vgroup_t&);
+
 };
 
 class BZModel : public BaseModel {
