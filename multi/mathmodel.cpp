@@ -377,10 +377,9 @@ void write_results (vsolution_t & sol,
 		double ocost = 0.0;
 		for (auto list : sol) {
 			int cost_tree = 0;
-			for (auto l : list) {
-				cost_tree += net.getCost (l.getX(), l.getY());
-				
-			}
+			for (auto l : list) {				
+				cost_tree += net.getCost (l.getX(), l.getY());				
+			}			
 			ocost += cost_tree;
 			cerr << list.size () << "\t" << cost_tree << endl;
 		}
