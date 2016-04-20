@@ -308,6 +308,49 @@ void BaseModel::set_edge_as_used (GRBModel &grbmodel,
 
 }
 
+void BaseModel::avoid_links_repeated (GRBModel & grbmodel, 
+	rca::Network& net, vgroup_t& groups) {
+
+	size_t GROUPS = groups.size ();
+
+	for (int k = 0; k < GROUPS; k++) {
+
+		std::vector<int> members = groups[k].getMembers ();
+		for (auto d : members) {
+
+			for (rca::Link const& link : net.getLinks ()) {
+
+				int x = link.getX();
+				int y = link.getY();
+
+				std::string const& vname1 = get_var_name (x,y,k,d);
+				std::string const& vname2 = get_var_name (y,x,k,d);
+
+				std::stringstream ss;
+				ss << "avoid_repeated_links(" << x+1 <<","<< y+1;
+				ss <<  "," << k+1 << ")";
+
+				GRBLinExpr sum = 0;
+				GRBVar y1, y2;
+				try {
+					
+					y1 = grbmodel.getVarByName (vname1);
+					y2 = grbmodel.getVarByName (vname2);
+
+				}
+				catch(const GRBException& e) {
+					std::cerr << __LINE__ << e.getMessage() << '\n';
+				}
+
+				sum = (y1 + y2);
+				grbmodel.addConstr ( sum <= 1, ss.str ());
+			}
+
+		}
+	}
+
+}
+
 void HopCostModel::capacity (GRBModel &grbmodel, 
 	rca::Network& net, vgroup_t& groups, int Z) {
 

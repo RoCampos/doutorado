@@ -57,7 +57,9 @@ public:
 		flow2 (grbmodel,net, groups);
 		flow3 (grbmodel,net, groups);
 
-		set_edge_as_used (grbmodel, net, groups);			
+		set_edge_as_used (grbmodel, net, groups);
+
+		avoid_links_repeated (grbmodel, net, groups);		
 				
 	}
 	
@@ -79,6 +81,8 @@ private:
 
 	//b_ij - sum(y_ij^k) >= 0
 	virtual void capacity (GRBModel &, rca::Network&, vgroup_t&, int Z = 0) {}
+
+	void avoid_links_repeated (GRBModel &, rca::Network&, vgroup_t&);
 
 	
 };
