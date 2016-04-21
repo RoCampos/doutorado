@@ -67,6 +67,14 @@ public:
 	SteinerTreeObserver(ContainerType & ec, SteinerRepr & st, rca::Network&,int);
 	
 	/**
+	* Objeto network passado ao método prunning da classe.
+	*
+	*
+	* @param rca::Network referência para um objeto rca::Network
+	*/
+	void set_network (rca::Network & net);
+
+	/**
 	* Método utilizado para definir uma estrutura de árvore de 
 	* steiner a ser manipulado pelo observer.
 	*

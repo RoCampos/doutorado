@@ -32,6 +32,11 @@ SteinerTreeObserver<ContainerType, SteinerRepr>::SteinerTreeObserver(ContainerTy
 }
 
 template<typename ContainerType, typename SteinerRepr>
+void SteinerTreeObserver<ContainerType, SteinerRepr>::set_network (rca::Network & net) {
+	this->m_network = &net;
+}
+
+template<typename ContainerType, typename SteinerRepr>
 void SteinerTreeObserver<ContainerType, SteinerRepr>::set_steiner_tree (SteinerRepr & st, int nodes)
 {
 	m_st = NULL;
@@ -114,9 +119,13 @@ bool SteinerTreeObserver<ContainerType, SteinerRepr>::add_edge (int x,
 			//updating the usage of the link
 			l.setValue (value - (trequest - 1));
 			m_ec->update (l);
+
+			return true;
 		}
 
 	}
+
+	return false;
 
 }
 

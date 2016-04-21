@@ -140,7 +140,7 @@ void ChenReplaceVisitor<SolutionType>::visitByCost ()
  				std::vector<int> cut = this->make_cut( group_id, *it);
  				//pegar os links disponíveis no corte de ll (x,y);
  				std::vector<rca::Link> links;
-  				this->getAvailableEdgesByCost (cut ,*it, links);
+  				this->getAvailableEdgesByCost (cut ,*it, links, group_id);
 				
 				if ( !links.empty() ) {
 					
@@ -150,8 +150,6 @@ void ChenReplaceVisitor<SolutionType>::visitByCost ()
 					 * o link em questão (ll)
 					 * o link candidato (links[_new_link])
 					 */
-					
-					
 					
 					for (auto lll : links) {
 					
@@ -176,15 +174,19 @@ void ChenReplaceVisitor<SolutionType>::visitByCost ()
 		}
 		
 		for (auto t : to_remove) {
+			int group = std::get<0>(t);	
 			rca::Link l = std::get<3>(t);
 			if (!m_ec->is_used(l)) {
 				replace (t);
 			} else {
 			
-				if (m_ec->value (l) > min_res + 1) {
-					replace (t);
+				// if (m_ec->value (l) > min_res + 1) {
+				int trequest = this->m_groups[group].getTrequest ();
+				int l_curr_cap = m_ec->value (l);
+				if ( (l_curr_cap - trequest) > min_res ) {
+					replace (t);				
 				} else {					
-					int group = std::get<0>(t);					
+									
 					auto link_it = std::find (this->m_temp_trees[group].begin (), 
 											  this->m_temp_trees[group].end (), l);
 					
@@ -194,7 +196,7 @@ void ChenReplaceVisitor<SolutionType>::visitByCost ()
 						std::vector<int> cut = this->make_cut( group, l);
 						//pegar os links disponíveis no corte de ll (x,y);
 						std::vector<rca::Link> links;
-						this->getAvailableEdgesByCost (cut ,l, links);
+						this->getAvailableEdgesByCost (cut ,l, links, group);
 						if (!links.empty()) {
 							int _new_link = rand() % links.size ();
 							/* Criar link contendo árvore (group_id)
@@ -420,7 +422,8 @@ void ChenReplaceVisitor<SolutionType>::getAvailableEdges(std::vector<int> &cut_x
 template<class SolutionType>
 void ChenReplaceVisitor<SolutionType>::getAvailableEdgesByCost (std::vector<int> &cut_xy, 
 								  const rca::Link& _old,
-							   std::vector<rca::Link>& newedges)
+							   std::vector<rca::Link>& newedges,
+							   int tree_id)
 {
 #ifdef DEBUG1
 	std::cout <<"----------"<<__FUNCTION__ <<"-------------"<< std::endl;
@@ -441,7 +444,8 @@ void ChenReplaceVisitor<SolutionType>::getAvailableEdgesByCost (std::vector<int>
 	}
 	
 	/*valor de capacidade residual*/
-	int residual_cap = m_ec->m_heap.ordered_begin ()->getValue ();
+	int min_capacity = m_ec->m_heap.ordered_begin ()->getValue ();
+	int trequest = this->m_groups[tree_id].getTrequest ();
 	
 	//separando as arestas no corte entre x e y
 	for (size_t i = 0; i < Tx.size (); i++) {
@@ -457,14 +461,21 @@ void ChenReplaceVisitor<SolutionType>::getAvailableEdgesByCost (std::vector<int>
 				//pegar o valor de uso atual
 				if ( m_ec->is_used(l) ) {
 				
-					int usage = m_ec->value (l);
+					// getting current capacity of link l
+					int curr_capacity = m_ec->value (l);
 					
-					if (usage >=  (residual_cap+1) ) {
-						if (l != _old) {
-							//l.setValue (usage);
-							newedges.push_back ( l );
-						}
+					// getting current capacity of link _old 
+					int old_capacity = this->m_network->getBand (
+						_old.getX(),_old.getY());
+
+					// check if the new link l can replace linn _old
+					if ( (curr_capacity - trequest) > old_capacity) {
+
+						if (l != _old)
+							newedges.push_back (l);
+
 					}
+
 				} else {
 					//se não for utilizado ainda, GOOD!
 					//l.setValue ( m_groups.size () );
@@ -496,7 +507,7 @@ ChenReplaceVisitor<SolutionType>::get_tuple (int group_id, rca::Link& _old)
 		
 		//pegar os links disponíveis no corte de ll (x,y);
 		std::vector<rca::Link> links;		
-		this->getAvailableEdgesByCost (cut ,_old, links);
+		this->getAvailableEdgesByCost (cut ,_old, links, group_id);
 		
 		if (!links.empty()) {
 			

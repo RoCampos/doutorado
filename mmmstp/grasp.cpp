@@ -71,6 +71,7 @@ sttree_t Grasp::build_solution () {
 	
 	STobserver ob;
 	ob.set_container (sol.cg);
+	ob.set_network (*this->m_network);
 	double m_cost = 0.0;
 	
 	sol.m_trees.resize (SIZE);
@@ -91,21 +92,21 @@ sttree_t Grasp::build_solution () {
 		double r = (double) (rand () % 100)/100.0;
 		
 		this->remove_congestioned_edges (cg, g_idx);
-		
+
 		if (r < this->m_heur) {
 			this->shortest_path_tree (g_idx, &ob);		
 		} else {
-			this->spanning_tree (&ob);
+			this->spanning_tree ( g_idx, &ob);
 		}
 		//make prunning
-		ob.prune (1, SIZE);
+		int trequest = group.getTrequest ();
+		ob.prune (trequest, SIZE);
 		
 		//computing the cost and store the tree
 		m_cost += ob.get_steiner_tree ().get_cost ();
 		sol.m_trees[g_idx] = ob.get_steiner_tree ();
 		
-		this->update_usage (ob.get_steiner_tree());
-		
+		this->update_usage (ob.get_steiner_tree(), g_idx);
 		
 		m_network->clearRemovedEdges();
 	}
@@ -118,14 +119,15 @@ sttree_t Grasp::build_solution () {
 	return sol;
 }
 
-void Grasp::spanning_tree (STobserver * ob)
+void Grasp::spanning_tree (int id, STobserver * ob)
 {
 #ifdef DEBUG
 	printf ("%s\n",__FUNCTION__);
 #endif
 	
 	std::vector<rca::Link> links = m_links;
-	int GROUPS_SIZE = m_groups.size ();
+	
+	int trequest = this->m_groups[id].getTrequest ();
 		
 	//O(E)
 	while (!links.empty()) {
@@ -141,15 +143,18 @@ void Grasp::spanning_tree (STobserver * ob)
 			
 		rca::Link link = links[pos];
 						
-		int cost = m_network->getCost (link.getX(), link.getY());
+		int cost = this->m_network->getCost (link.getX(), link.getY());
 			
 		if (this->m_network->isRemoved(link)){
 			links.erase ( (links.begin () + pos) );
 			continue;
 		}
 		
-		//checar disjoint set
-		ob->add_edge (link.getX(), link.getY(), cost, GROUPS_SIZE);
+		//checar disjoint set		
+		int band = this->m_network->getBand (link.getX(), link.getY());
+
+		ob->add_edge (link.getX(), link.getY(), cost, trequest, band);
+
 		links.erase ( (links.begin () + pos) );
 	}
 		
@@ -160,15 +165,14 @@ void Grasp::spanning_tree (STobserver * ob)
 void Grasp::shortest_path_tree (int id, STobserver* ob)
 {
 	
-	int N_SIZE = this->m_groups.size ();
 	
 	int source = this->m_groups[ id ].getSource ();
 	std::vector<int> destinations = this->m_groups[ id ].getMembers ();
-	int G_SIZE = destinations.size ();
 	
 	std::vector<int> prev;
 	prev = all_shortest_path (source, destinations[0] ,*m_network);
 	
+	int trequest = this->m_groups[id].getTrequest ();
 	for (int m : destinations) {
 		rca::Path path = get_shortest_path (source, m, *m_network, prev);
 			
@@ -181,8 +185,10 @@ void Grasp::shortest_path_tree (int id, STobserver* ob)
 			rca::Link l(x, y, 0);
 				
 			int cost = this->m_network->getCost (l.getX(), l.getY());
-				
-			ob->add_edge (l.getX(), l.getY(), cost, N_SIZE);
+			int band = this->m_network->getBand (l.getX(), l.getY());
+
+			ob->add_edge (l.getX(), l.getY(), cost, trequest ,band);
+			
 		}			
 	}
 
@@ -369,22 +375,27 @@ void Grasp::run ()
 #endif
 	}
 // 	best.print_solution ();
+
+	best.print_solution ();
 	
 }
 
 /*Private Methods*/
 
-void Grasp::update_usage (STTree & sttre)
+void Grasp::update_usage (STTree & sttre, int tree_id)
 {
-	
+
 	edge_t * e = sttre.get_edges ().begin;
+
+	int trequest = this->m_groups[tree_id].getTrequest ();
+
 	while (e != NULL) {
 	
 		if (e->in) { 
 		
 			rca::Link l(e->x, e->y,0);
 			auto link = std::find(m_links.begin (), m_links.end(), l);
-			link->setValue ( link->getValue () + 1);
+			link->setValue ( link->getValue () + trequest);
 			
 		}
 		
@@ -454,7 +465,7 @@ int main (int argc, char**argv) {
 	std::string file(argv[1]);
 	
 	MultipleMulticastReader reader(file);
-	reader.configure_unit_values (&m_network, g);
+	reader.configure_real_values (&m_network, g);
 	for (std::shared_ptr<rca::Group> i : g) {
 		m_groups.push_back (*i);
 	}

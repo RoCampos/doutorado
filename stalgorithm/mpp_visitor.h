@@ -280,7 +280,8 @@ private:
 	 */
 	void getAvailableEdgesByCost (std::vector<int> &cut, 
 								  const rca::Link&,
-							   std::vector<rca::Link>&);
+							   std::vector<rca::Link>&, 
+							   int tree_id);
 	
 	
 	/**
