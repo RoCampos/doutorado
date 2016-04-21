@@ -271,7 +271,8 @@ private:
 	/*Auxiliar methods*/
 	void getAvailableEdges (std::vector<int> &cut, 
 							const rca::Link&, 
-							std::vector<rca::Link>&);
+							std::vector<rca::Link>&, 
+							int group_id);
 	
 	/**
 	 * Método used to get edges with better cost than that on the trees

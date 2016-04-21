@@ -50,11 +50,12 @@ void rca::sttalgo::prunning (STTree & st,
 					std::cout << l <<":"<<l.getValue() << " not removed\n";
 				}
 				
-				if (l.getValue () + 1 == band) {
+				int _band = net.getBand (l.getX(), l.getY());
+				if (l.getValue () + trequest == _band) {
 					cont.erase (l);
 				} else if (l.getValue() > -1){
 					cont.erase (l);
-					l.setValue ( l.getValue () + 1 );
+					l.setValue ( l.getValue () + trequest );
 					cont.push  (l);
 				}
 			}
@@ -97,6 +98,19 @@ void rca::sttalgo::prunning (steiner & st,
 	int cost = 0;
 	for (auto e = prun.begin(); e != prun.end(); e++) {
 		cost += (int) net.getCost (e->first, e->second);
+
+		// updating the congestion of link
+		rca::Link l (e->first, e->second, 0);
+		int _band = net.getBand (l.getX(), l.getY());
+		if ( cont.is_used (l) ) {
+			if (cont.value (l) + trequest == _band) {
+				cont.erase (l);
+			} else {
+				cont.erase (l);
+				l.setValue ( cont.value (l) + trequest );
+				cont.push  (l);
+			}
+		}
 	}
 	st.set_cost (st.get_cost () - cost);
 
@@ -255,7 +269,7 @@ void rca::sttalgo::remove_top_edges (Container & ob, rca::Network & m_network,
 	auto it = ob.get_heap ().ordered_begin ();
 	auto end = ob.get_heap ().ordered_end ();
 
-	int top;
+	int top = -1;
 	if (ob.m_heap.size () > 0)
 		top = ob.top ();
 	
@@ -511,6 +525,8 @@ std::vector<rca::Link> rca::sttalgo::get_available_links (SteinerType & tree,
 		auto T_x = make_cut_visitor(links, x, old, nodes_x, NODES);
 		auto T_y = make_cut_visitor(links, y, old, nodes_y, NODES);
 		
+		int tk = group.getTrequest ();
+
 		for (int i : T_x) {
 			for (int j : T_y) {
 			
@@ -521,8 +537,13 @@ std::vector<rca::Link> rca::sttalgo::get_available_links (SteinerType & tree,
 
 					int value = (cg.is_used(link) ? cg.value (link) : -1);
 					
-					if (value >= cg.top () || value == -1) 
-					backup_links.push_back (link);
+					if ((value - tk) >= cg.top ()) {
+						backup_links.push_back (link);
+					} else if ((value - tk) > 0) {
+						backup_links.push_back (link);
+					} else if (value == -1) {
+						backup_links.push_back (link);
+					}
 				}
 				
 			}

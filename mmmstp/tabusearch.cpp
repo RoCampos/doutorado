@@ -16,7 +16,7 @@ rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::TabuSearch (s
 	std::vector<std::shared_ptr<rca::Group>> g;
 	
 	MultipleMulticastReader reader(file);
-	reader.configure_unit_values (&this->m_network, g);
+	reader.configure_real_values (&this->m_network, g);
 	for (std::shared_ptr<rca::Group> i : g) {
 		this->m_groups.push_back (*i);
 	}
@@ -105,7 +105,7 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::run ()
 	std::cout << m_seed << " ";
 	std::cout << best_iteration << std::endl;
 	
- 	//rca::sttalgo::print_solution<SolutionType> (this->m_best_sol);
+ 	rca::sttalgo::print_solution2<SolutionType> (this->m_best_sol);
 
  	// for (auto & st : m_best_sol) {
  	// 	st.print ();

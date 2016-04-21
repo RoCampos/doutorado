@@ -7,6 +7,7 @@
 #include "network.h"
 #include "group.h"
 #include "sttree.h"
+#include "steiner.h"
 #include "link.h"
 #include "edgecontainer.h"
 #include "sttree_visitor.h"
@@ -116,21 +117,6 @@ protected:
 		//for (SteinerTree * st : m_trees) {
 		for (; st != m_trees->end(); st++) {
 			
-			// edge_t * perc = st->get_edge ();
-			// std::vector<rca::Link> links;
-			// while (perc !=NULL) {
-			// 	rca::Link link (perc->x, perc->y, 0);
-			// 	*
-			// 	 * Se na iteração passada do visitor a aresta foi removida
-			// 	 * então, não a adiciona na solução que será processada
-			// 	 * após o prepare_trees()
-				 
-			// 	if (perc->in) { 
-			// 		links.push_back (link);
-			// 	}
-			// 	perc = perc->next;
-			// }
-
 			std::vector<rca::Link> links;
 			for (auto & edge : st->get_all_edges ()) {
 				int cost = (int) this->m_network->getCost (edge.first, edge.second);
@@ -285,7 +271,8 @@ private:
 	/*Auxiliar methods*/
 	void getAvailableEdges (std::vector<int> &cut, 
 							const rca::Link&, 
-							std::vector<rca::Link>&);
+							std::vector<rca::Link>&, 
+							int group_id);
 	
 	/**
 	 * Método used to get edges with better cost than that on the trees

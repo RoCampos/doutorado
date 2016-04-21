@@ -96,6 +96,31 @@ bool SteinerTreeObserver<ContainerType, SteinerRepr>::add_edge (int x,
 }
 
 template<typename ContainerType, typename SteinerRepr>
+bool SteinerTreeObserver<ContainerType, SteinerRepr>::add_edge (int x, 
+												   int y, 
+												   int cost,
+												   int trequest, 
+												   int band_usage)
+{
+
+	//reultilization of add_edge that consumes 1 unit of bandwith
+	bool result = this->add_edge (x, y, cost, band_usage);
+	rca::Link l (x, y, 0);
+	if (result) {
+
+		if ( m_ec->is_used (l) ) {
+			int value = m_ec->value (l);
+
+			//updating the usage of the link
+			l.setValue (value - (trequest - 1));
+			m_ec->update (l);
+		}
+
+	}
+
+}
+
+template<typename ContainerType, typename SteinerRepr>
 std::vector<rca::Link> SteinerTreeObserver<ContainerType, SteinerRepr>::getTreeAsLinks () const
 {
 	std::vector<rca::Link> links;
