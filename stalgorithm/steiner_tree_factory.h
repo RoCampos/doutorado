@@ -111,7 +111,7 @@ public:
 	 */
 	void update_usage (	rca::Group &g,
 						rca::Network & m_network,
-						STTree & st);
+						SteinerRepr & st);
 	
 // 	/**
 // 	 * Este método é utilizado para passar os links utilizados na construção

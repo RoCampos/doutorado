@@ -106,8 +106,9 @@ void rca::sttalgo::prunning (steiner & st,
 			if (cont.value (l) + trequest == _band) {
 				cont.erase (l);
 			} else {
+				int value = cont.value (l);
 				cont.erase (l);
-				l.setValue ( cont.value (l) + trequest );
+				l.setValue ( value + trequest );
 				cont.push  (l);
 			}
 		}

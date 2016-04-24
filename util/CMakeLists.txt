@@ -24,6 +24,10 @@ IF (REAL)
 	add_executable (realModelData DataGenerator.cpp SolverDataGenerator.h SolverDataGenerator.cpp ${INCLUDE})
 	target_link_libraries (realModelData graph sttree)
 
+	add_executable (solutionTest SolverSolutionTest.cpp SolverSolutionTest.h ${INCLUDE})
+	target_link_libraries (solutionTest graph sttree)
+
+
 ELSE()
 #the values of capacity is equal the size of groups
 #the values of tk(traffic request) for each group is equal 1
@@ -31,16 +35,16 @@ ELSE()
 	add_definitions (-DMODEL_UNIT)
 	add_executable (unitModelData DataGenerator.cpp SolverDataGenerator.h SolverDataGenerator.cpp ${INCLUDE})
 	target_link_libraries (unitModelData graph sttree)
+
+	add_executable (solutionTest SolverSolutionTest.cpp SolverSolutionTest.h ${INCLUDE})
+	target_link_libraries (solutionTest graph sttree)
+
 ENDIF()
 
 
 MESSAGE ("\tINFO:lpGenerator-- REAL(${REAL})")
 add_executable (lpGenerator LpGenerator.cpp SolverDataGenerator.h SolverDataGenerator.cpp ${INCLUDE})
 target_link_libraries (lpGenerator graph sttree)
-
-MESSAGE ("\tINFO:solutionTest-- REAL(${REAL})")
-add_executable (solutionTest SolverSolutionTest.cpp SolverSolutionTest.h ${INCLUDE})
-target_link_libraries (solutionTest graph sttree)
 
 MESSAGE ("\tINFO:Instance Generator")
 add_executable (instance InstanceGenerator.cpp InstanceGenerator.h ${INCLUDE})
