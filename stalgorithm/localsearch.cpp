@@ -28,10 +28,6 @@ void LocalSearch::apply (Solution & solution, int & cost, int & res) {
 	cout << "LocalSearch:" <<__FUNCTION__ << endl;
 #endif
 
-	// this->update_container (solution);
-
-
-
 	std::vector<rca::Link> list;
 	for (auto b = this->m_cg->m_heap.ordered_begin(); 
 		b != this->m_cg->m_heap.ordered_end(); b++) {

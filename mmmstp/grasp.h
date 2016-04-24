@@ -77,7 +77,7 @@ public:
 	sttree_t build_solution ();
 	
 	void shortest_path_tree (int id, STobserver*);
-	void spanning_tree (STobserver * ob);
+	void spanning_tree (int id, STobserver * ob);
 	
 	void residual_refinament (sttree_t* sol, ChenReplaceVisitor&);
 	void cost_refinament (sttree_t* sol, ChenReplaceVisitor&);
@@ -85,7 +85,7 @@ public:
 	void run ();
 	
 private:
-	void update_usage (STTree & sttre);
+	void update_usage (STTree & sttre, int tree_id);
 	
 	void reset_links_usage ();
 	

@@ -6,6 +6,9 @@ using namespace rca;
 template <class Container, class SteinerRepr>
 void AGMZSteinerTree<Container, SteinerRepr>::create_list (rca::Network& network)
 {
+
+	this->m_links.clear ();
+
 	auto iter = network.getLinks ().begin();
 	auto end = network.getLinks ().end();
 	for (; iter != end; iter++) {
@@ -28,6 +31,9 @@ void AGMZSteinerTree<Container, SteinerRepr>::build (SteinerTreeObserver<Contain
 	std::vector<rca::Link> links = this->m_links;
 		
 	int pos = 0;
+	
+	int trequest = g.getTrequest ();
+
 	//O(E)
 	while (!links.empty()) {
 		
@@ -41,31 +47,22 @@ void AGMZSteinerTree<Container, SteinerRepr>::build (SteinerTreeObserver<Contain
 		}
 		
 		int BAND = network.getBand (link.getX(), link.getY());
-		sttree.add_edge (link.getX(), link.getY(), cost, BAND);
+
+		// sttree.add_edge (link.getX(), link.getY(), cost, BAND);
+		sttree.add_edge (link.getX(), link.getY(), cost, trequest, BAND);
 		links.erase ( (links.begin () + pos) );
 	}
 	
 }
 
 template <class Container, class SteinerRepr>
-void AGMZSteinerTree<Container, SteinerRepr>::update_usage (	rca::Group& g,
+void AGMZSteinerTree<Container, SteinerRepr>::update_usage (rca::Group& g,
 						rca::Network & m_network,
-						STTree & st)
+						SteinerRepr & st)
 {
 
-	// edge_t * e = st.get_edges ().begin;
-	// while (e != NULL) {
-	
-	// 	if (e->in) { 
-		
-	// 		rca::Link l(e->x, e->y,0);
-	// 		auto link = std::find( this->m_links.begin (), this->m_links.end(), l);
-	// 		link->setValue ( link->getValue () + 1);
-			
-	// 	}
-		
-	// 	e = e->next;
-	// }
+
+	int trequest = g.getTrequest ();
 
 	for (std::pair<int,int> e : st.get_all_edges()) {		
 		rca::Link l (e.first, e.second, 0);
@@ -73,7 +70,7 @@ void AGMZSteinerTree<Container, SteinerRepr>::update_usage (	rca::Group& g,
 		l.setValue (cost);
 
 		auto link = std::find( this->m_links.begin (), this->m_links.end(), l);
-		link->setValue ( link->getValue () + 1);
+		link->setValue ( link->getValue () + trequest);
 		
 	}
 
@@ -102,6 +99,8 @@ void ShortestPathSteinerTree<Container, SteinerRepr>::build (
 
 	std::vector<int> prev = all_shortest_path (source, members[0] , network);
 		
+	int trequest = g.getTrequest ();
+
 	for (int m : members) {
 		rca::Path path = get_shortest_path (source, m, network, prev);
 		
@@ -116,7 +115,8 @@ void ShortestPathSteinerTree<Container, SteinerRepr>::build (
 			int cost = network.getCost (l.getX(), l.getY());
 			int BAND = network.getBand (l.getX(), l.getY());
 			
-			sttree.add_edge (l.getX(), l.getY(), cost, BAND);
+			//sttree.add_edge (l.getX(), l.getY(), cost, BAND);			
+			sttree.add_edge (l.getX(), l.getY(), cost, trequest, BAND);
 		}			
 	}
 	
@@ -136,7 +136,7 @@ void WildestSteinerTree<Container, SteinerRepr>::build (
 	std::vector<int> prev = inefficient_widest_path (source, 
 													members[0], 
 													&network);
-		
+	int trequest = g.getTrequest ();
 	for (int m : members) {
 		rca::Path path = get_shortest_path (source, m, network, prev);
 		
@@ -151,7 +151,8 @@ void WildestSteinerTree<Container, SteinerRepr>::build (
 			int cost = network.getCost (l.getX(), l.getY());
 			int BAND = network.getBand (l.getX(), l.getY());
 			
-			sttree.add_edge (l.getX(), l.getY(), cost, BAND);
+			// sttree.add_edge (l.getX(), l.getY(), cost, BAND);
+			sttree.add_edge (l.getX(), l.getY(), cost, trequest, BAND);
 		}			
 	}
 	
