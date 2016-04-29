@@ -209,6 +209,42 @@ public:
 	
 };
 
+/**
+*	Esta classe é uma implementação do algoritmo de busca em profundidade com tamnho
+*	de caminho limitado do nó que inicia a busca até o nó objetivo (nós de demanda).
+*
+*	O procedimento é datalhado no link referente à Iterative_deepening_depth-first_search
+*	disponível no wikipedia.
+*
+*
+*
+*/
+template <class Container, class SteinerRepr>
+class LimitedDepthSearchFirst : public SteinerTreeFactory<Container, SteinerRepr>
+{
+
+	typedef SteinerTreeObserver<Container, SteinerRepr> Observer;
+
+public:
+
+	LimitedDepthSearchFirst (int limit) {}
+
+	~LimitedDepthSearchFirst () {}
+
+	void build (Observer & sttree,
+				rca::Network & network,
+				rca::Group & g,
+				Container & cg);
+
+	int get_path_length (int member, int source);
+
+private:
+
+	std::vector<int> m_pred;
+	
+};
+
+
 } //namespace factory
 } //namespace rca
 
