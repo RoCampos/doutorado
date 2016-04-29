@@ -207,6 +207,9 @@ void LimitedDepthSearchFirst<Container, SteinerRepr>::build (
 	std::vector<int> marked = std::vector<int> (NODES, 0);
 	m_pred = std::vector<int> (NODES,0);
 
+	std::vector<int> counter = std::vector<int> (NODES, 0);
+	counter[source] = 0;
+
 	//starting...	
 	std::queue<int> queue;
 	queue.push (source);
@@ -228,7 +231,8 @@ void LimitedDepthSearchFirst<Container, SteinerRepr>::build (
 			int next_node = *iters.first;
 			rca::Link l (curr_node, next_node, 0);
 
-			if (!network.isRemoved (l) && marked[next_node] == 0) {
+			int limit = counter[next_node];				
+			if (!network.isRemoved (l) && marked[next_node] == 0 && limit < this->LIMIT - 1) {
 				
 				//add link to tree
 				int cost = network.getCost (l.getX(), l.getY());
@@ -239,6 +243,7 @@ void LimitedDepthSearchFirst<Container, SteinerRepr>::build (
 				queue.push (next_node);
 				marked[next_node] = 2;
 				m_pred[next_node] = curr_node;
+				counter[next_node] = counter[curr_node] + 1;			
 
 				if (sttree.get_steiner_tree ().is_terminal (next_node) ) {
 					term_count++;

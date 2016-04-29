@@ -227,7 +227,9 @@ class LimitedDepthSearchFirst : public SteinerTreeFactory<Container, SteinerRepr
 
 public:
 
-	LimitedDepthSearchFirst (int limit) {}
+	LimitedDepthSearchFirst (int limit) {
+		this->LIMIT = limit;
+	}
 
 	~LimitedDepthSearchFirst () {}
 
@@ -241,6 +243,7 @@ public:
 private:
 
 	std::vector<int> m_pred;
+	int LIMIT;
 	
 };
 
