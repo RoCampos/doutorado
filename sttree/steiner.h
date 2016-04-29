@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <deque>
+#include <queue>
 
 #include <map>
 
@@ -58,6 +59,10 @@ public:
 	void print_test ();
 
 	void prunning ();
+
+	//return a path from source to member passed as parameter
+	std::vector<int> get_path (int member, int source);
+
 	
 
 private:
