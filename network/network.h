@@ -369,6 +369,10 @@ public:
 	*/
 	const int get_adjacent_by_minimun_cost (const int & vertex, 
 											std::vector<rca::Link>&) ;
+
+	std::vector<int> get_neighboors (int const& vertex) {
+		return m_adjacent_vertex[vertex];
+	}
 	
 	const std::vector<Link> & getRemovedEdges () {
 		return m_removeds;
