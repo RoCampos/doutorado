@@ -31,7 +31,7 @@ FILE(GLOB GRB "${GUROBI_INCLUDE_DIRS}/*.h")
 add_executable (paretogen pareto.cpp models.h models.cpp 				
 				${INCLUDE} 
 				${GRB})
-target_link_libraries (paretogen graph
+target_link_libraries (paretogen graph sttree
 						-lboost_regex						
 						${GUROBI_CXX_LIBRARY} 
 						${GUROBI_LIBRARIES})

@@ -4,10 +4,17 @@
 #include "models.h"
 #include "network.h"
 #include "reader.h"
+#include "steiner.h"
+#include "group.h"
 
 #include <boost/regex.hpp>
 
 using namespace std;
+
+/* ESTA VARIÁVEL GUARDA O TAMANHO MÁXIMO DOS CAMINHOS*/
+int LIMIT_PATH;
+int NODES;
+int GROUPS;
 
 void to_dot (GRBModel const& model, 
 	vgroup_t const& multicast_group, int G);
@@ -16,6 +23,29 @@ void multiple_runs (GRBModel & model,
 	rca::Network &, vgroup_t &, HopCostModel&, int);
 
 void print_x_var (int x, int y, int k, int d, GRBModel const&);
+
+//recebe modelo e o valor de Z (count)
+void print_solution (GRBModel const& model, int count, vgroup_t & groups);
+
+void teste_solution (steiner & st, rca::Group const& g, int Z) {
+
+	auto members = g.getMembers ();
+	int source = g.getSource ();
+
+	int count = 0;
+	for (int member : members) {
+
+		auto path = st.get_path (source, member);
+		if (path.size () - 1 > LIMIT_PATH) {
+			count++;			
+		}
+	}
+
+	printf("Invalid paths %d for Z (%d)\n", count, Z);
+
+}
+
+
 
 int main(int argc, char const *argv[])
 {
@@ -43,7 +73,11 @@ int main(int argc, char const *argv[])
 	env.set(GRB_IntParam_LogToConsole, 0);
 	GRBModel m = GRBModel(env);
 
-	HopCostModel costmodel(m, net, multicast_group, 5, Z);
+	LIMIT_PATH = 5;
+	NODES = net.getNumberNodes ();
+	GROUPS= multicast_group.size ();
+
+	HopCostModel costmodel(m, net, multicast_group, LIMIT_PATH, Z);
 
 	multiple_runs (m, net, multicast_group, costmodel, Z);
 
@@ -59,6 +93,11 @@ void multiple_runs (GRBModel & m,
 
 	std::stringstream modelname;
 	modelname << "CostModel_" << ( Z < 10 ? "0" : "") << Z << ".lp";
+
+
+	std::stringstream solname;
+	solname << "Solution_" << (Z < 10 ? "0" : "") << Z << ".sol";
+
 
 	m.getEnv().set (GRB_StringParam_LogFile, name.str ());
 	m.write (modelname.str ());
@@ -89,10 +128,13 @@ void multiple_runs (GRBModel & m,
 		name << "pareto_" << (count < 10 ? "0" : "") << count << ".log";
 		modelname << "CostModel_" << (count < 10 ? "0" : "") << count << ".lp";
 
-		m.getEnv().set (GRB_StringParam_LogFile, name.str ());
+		m.getEnv().set (GRB_StringParam_LogFile, name.str ());		
 		m.write (modelname.str ());
 
-		m.optimize ();		
+		m.optimize ();
+
+		//testing the solutio to see if path has LIMIT_PATH size
+		print_solution (m, count, v);
 
 	} while (m.get(GRB_IntAttr_Status) == GRB_OPTIMAL);
 
@@ -154,6 +196,66 @@ void to_dot ( GRBModel const& m,
 
 	out.close ();
 
+}
+
+void print_solution (GRBModel const& m, int count, vgroup_t & groups) {
+
+	GRBVar * vars = m.getVars ();
+	int NUM_VAR = m.get (GRB_IntAttr_NumVars);
+
+	std::stringstream solname;
+	solname << "pareto_" << (count < 10 ? "0" : "") << count << ".sol";
+
+	std::fstream file (solname.str(), std::fstream::out);
+
+	std::vector<steiner> mtrees;
+
+	for (int i = 0; i < GROUPS; ++i)
+	{
+		steiner st(NODES, 
+				groups[i].getSource (), 
+				groups[i].getMembers ());
+
+		mtrees.push_back (st);
+	}
+
+	for (int i = 0; i < NUM_VAR; ++i)
+	{
+		std::string var = vars[i].get(GRB_StringAttr_VarName);
+		if (var.find ("y") != std::string::npos) {
+
+			if (vars[i].get (GRB_DoubleAttr_X) == 1) {
+				
+				boost::regex ptn ("\\d+");
+				boost::sregex_iterator rit ( var.begin(), var.end(), ptn );
+  				boost::sregex_iterator rend;
+  				
+  				int x = atoi (rit->str ().c_str ());
+  				rit++;
+  				int y = atoi (rit->str ().c_str ());
+  				rit++;
+  				int k = atoi (rit->str ().c_str ());
+
+  				file << x << " - " << y << ":" << k << ";\n";
+
+  				//criando st trees
+  				mtrees[k-1].add_edge (x-1, y-1, 1);
+
+			}
+
+		}
+	}
+
+
+	for (int i = 0; i < GROUPS; ++i)
+	{
+		// mtrees[i].print ();
+		teste_solution (mtrees[i], groups[i], count);
+	}
+
+
+	vars = NULL;
+	file.close ();
 }
 
 void print_x_var (int x, int y, int k, int d, GRBModel const& m) {
