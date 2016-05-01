@@ -182,27 +182,25 @@ void WildestSteinerTree<Container, SteinerRepr>::update_band (rca::Group & g,
 
 // ---------------------- INTERATIVE DEEPING DEPTH FIRST SEARCH ------------------ 
 template <class Container, class SteinerRepr>
-void LimitedDepthSearchFirst<Container, SteinerRepr>::build (
+void LimitedBreadthSearchFirst<Container, SteinerRepr>::build (
 				SteinerTreeObserver<Container, SteinerRepr> & sttree, 
 				rca::Network & network, 
 				rca::Group & g,
 				Container& cg)
 {
 
-	typedef typename std::vector<int>::const_iterator c_iterator;
-	typedef typename std::pair<c_iterator, c_iterator> neighbors;
-
 	int NODES = network.getNumberNodes ();
 	int trequest = g.getTrequest ();
 
 	//getting all members nodes
 	std::vector<int> members = g.getMembers ();
-	members.push_back (g.getSource ());
+	//members.push_back (g.getSource ());
 	
 	//defining a 'source' of the search
 	int pos = rand () % members.size ();
-	int source = members[pos];
-	members.erase (members.begin () + pos);
+	//int source = members[pos];
+	//members.erase (members.begin () + pos);
+	int source = g.getSource ();
 
 	std::vector<int> marked = std::vector<int> (NODES, 0);
 	m_pred = std::vector<int> (NODES,0);
@@ -223,16 +221,19 @@ void LimitedDepthSearchFirst<Container, SteinerRepr>::build (
 
 		marked[curr_node] = 1;
 
-		neighbors iters;
-		network.get_iterator_adjacent (curr_node, iters);
+		auto neighbors = network.get_neighboors (curr_node);
 
-		for ( ; iters.first != iters.second; iters.first++) {
+		std::random_shuffle (neighbors.begin (), neighbors.end ());
 
-			int next_node = *iters.first;
+		auto begin = neighbors.begin ();
+		auto end = neighbors.end ();
+		for ( ; begin != end; begin++) {
+
+			int next_node = *begin;
 			rca::Link l (curr_node, next_node, 0);
 
 			int limit = counter[next_node];				
-			if (!network.isRemoved (l) && marked[next_node] == 0 && limit < this->LIMIT - 1) {
+			if (!network.isRemoved (l) && marked[next_node] == 0 && limit < this->LIMIT) {
 				
 				//add link to tree
 				int cost = network.getCost (l.getX(), l.getY());
@@ -260,7 +261,7 @@ void LimitedDepthSearchFirst<Container, SteinerRepr>::build (
 }
 
 template <class Container, class SteinerRepr>
-int LimitedDepthSearchFirst<Container, SteinerRepr>::get_path_length (
+int LimitedBreadthSearchFirst<Container, SteinerRepr>::get_path_length (
 	int member, int source)
 {
 
@@ -277,6 +278,8 @@ int LimitedDepthSearchFirst<Container, SteinerRepr>::get_path_length (
 
 
 
+
+
 template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >; 
 template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >;
 template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >;
@@ -285,4 +288,4 @@ template class rca::sttalgo::WildestSteinerTree<rca::EdgeContainer<rca::Comparat
 template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >;
 template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >;
 template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >; 
-template class rca::sttalgo::LimitedDepthSearchFirst<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner>;
+template class rca::sttalgo::LimitedBreadthSearchFirst<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner>;
