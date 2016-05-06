@@ -30,6 +30,10 @@ public:
 	Path();
 	~Path();
 
+	Path (std::vector<int> const& path) {
+		m_path = std::move (path);
+	}
+
 	/**
 	 * Adicionar um vértice ao caminho.
 	 * @param int
