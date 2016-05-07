@@ -243,4 +243,7 @@ private:
 	
 };
 
+void get_problem_informations (std::string const& file, 
+	rca::Network &net, std::vector<rca::Group> &mgroups);
+
 #endif /* READER_H_ */

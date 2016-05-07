@@ -144,4 +144,30 @@ std::vector<std::shared_ptr<Group>> Reader:: readerGroup () {
 	
 }
 
+
+void get_problem_informations (std::string const& file, 
+	rca::Network &net, std::vector<rca::Group> & mgroups)
+{
+
+	// reader
+	MultipleMulticastReader reader (file);
+
+	// temp struct for groups
+	std::vector<std::shared_ptr<rca::Group>> _mgroups;
+
+#ifdef MODEL_REAL
+	reader.configure_real_values (&net,_mgroups);
+#endif 
+
+#ifdef MODEL_UNIT
+	reader.configure_unit_values (&net,_mgroups);
+#endif
+
+	for (auto && g : _mgroups) {
+		//getting from shared_ptr to Group Instance.
+		mgroups.push_back ( *g );
+	}
+
+}
+
 //} /*namespace rca*/

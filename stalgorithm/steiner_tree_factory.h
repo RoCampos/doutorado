@@ -2,6 +2,7 @@
 #define _STTREE_FACTORY_H_
 
 #include <iostream>
+#include <stack>
 
 #include "sttree.h"
 #include "steiner.h"
@@ -220,16 +221,18 @@ public:
 *
 */
 template <class Container, class SteinerRepr>
-class LimitedDepthSearchFirst : public SteinerTreeFactory<Container, SteinerRepr>
+class LimitedBreadthSearchFirst : public SteinerTreeFactory<Container, SteinerRepr>
 {
 
 	typedef SteinerTreeObserver<Container, SteinerRepr> Observer;
 
 public:
 
-	LimitedDepthSearchFirst (int limit) {}
+	LimitedBreadthSearchFirst (int limit) {
+		this->LIMIT = limit;
+	}
 
-	~LimitedDepthSearchFirst () {}
+	~LimitedBreadthSearchFirst () {}
 
 	void build (Observer & sttree,
 				rca::Network & network,
@@ -241,8 +244,10 @@ public:
 private:
 
 	std::vector<int> m_pred;
+	int LIMIT;
 	
 };
+
 
 
 } //namespace factory
