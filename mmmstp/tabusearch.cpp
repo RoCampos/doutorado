@@ -16,7 +16,7 @@ rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::TabuSearch (s
 	std::vector<std::shared_ptr<rca::Group>> g;
 	
 	MultipleMulticastReader reader(file);
-	reader.configure_unit_values (&this->m_network, g);
+	reader.configure_real_values (&this->m_network, g);
 	for (std::shared_ptr<rca::Group> i : g) {
 		this->m_groups.push_back (*i);
 	}
@@ -105,7 +105,7 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::run ()
 	std::cout << m_seed << " ";
 	std::cout << best_iteration << std::endl;
 	
- 	//rca::sttalgo::print_solution<SolutionType> (this->m_best_sol);
+ 	rca::sttalgo::print_solution2<SolutionType> (this->m_best_sol);
 
  	// for (auto & st : m_best_sol) {
  	// 	st.print ();
@@ -123,15 +123,20 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 	std::cout << __FUNCTION__ << std::endl;
 #endif
 	
+
 	
 	if (this->m_factory == NULL)
-		this->m_factory = new rca::sttalgo::ShortestPathSteinerTree<Container, SolutionType>();
+		// this->m_factory = new rca::sttalgo::ShortestPathSteinerTree<Container, SolutionType>();
+		this->m_factory = new rca::sttalgo::AGMZSteinerTree<Container, SolutionType>();
+
+	this->m_factory->create_list (this->m_network);
 	
 	int NODES = this->m_network.getNumberNodes();
 	int GROUPS= this->m_groups.size ();
 
 	rca::sttalgo::SteinerTreeObserver<CongestionHandle, SolutionType> ob;
 	ob.set_container (cg);
+	ob.set_network (m_network);
 	
 	std::vector<int> index(GROUPS, 0);
 	iota (index.begin(), index.end(), 0);
@@ -142,6 +147,8 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 	for (int j=0; j < GROUPS; j++) {
 	
 		int i = index[j];
+
+		int trequest = m_groups[i].getTrequest ();
 		
  		if (m_tabu_list[j] == 1) {
  			
@@ -180,14 +187,14 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 		//se a primeira solução tiver sido criada, 
 		//evita congestionamento de arestas
 		if (m_has_init) {
-			rca::sttalgo::remove_top_edges<CongestionHandle> (cg, 
- 													m_network, 
- 													m_groups[i], 0);
+			// rca::sttalgo::remove_top_edges<CongestionHandle> (cg, 
+ 		// 											m_network, 
+ 		// 											m_groups[i], 0);
 		}
 		
 		//building the tree
 		this->m_factory->build (ob, m_network, m_groups[i], cg);
-		ob.prune (1,GROUPS);
+		ob.prune (trequest, GROUPS);
 		
 		//updating the cost
 		cost += ob.get_steiner_tree ().get_cost ();
@@ -195,9 +202,11 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
  		m_network.clearRemovedEdges ();
 		
 		sol[i] = ob.get_steiner_tree ();
+
+		this->m_factory->update_usage (m_groups[i], m_network, ob.get_steiner_tree ());
 		
 	}
-	
+
 	res_sol = cg.top ();
 	cost_sol = cost;	
 }

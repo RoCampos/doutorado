@@ -79,7 +79,7 @@ void cycle_local_search<Container, SolutionType>::execute ( int tree,
 #endif
 	
 	int NODES = m_network.getNumberNodes ();
-	int GSIZE = m_groups.size ();
+	// int GSIZE = m_groups.size ();
 	
 	int tcost = m_trees[tree].get_cost ();	
 	
@@ -90,20 +90,31 @@ void cycle_local_search<Container, SolutionType>::execute ( int tree,
 	// Estas arestas correspondem a árvore multicast tree.
 
 	
+	int trequest = m_groups[tree].getTrequest ();
 	for (auto & e : m_trees[tree].get_all_edges ()) {			
 			rca::Link link (e.first, e.second, 0);			
 			// Se a aresta é utilizada apenas uma vez
 			//remove-a do grafo
-			if (cg.value (link) == (GSIZE-1) ) {
+			// if (cg.value (link) == (GSIZE-1) ) {
+			// 	cg.erase (link);
+			// } else {
+			// 	// Se ele é utilizada por mais de uma árvore
+			// 	// Então, desconta um valor de unidade
+			// 	int value = cg.value (link) + 1;
+			// 	cg.erase (link);
+			// 	link.setValue (value);
+			// 	cg.push (link);
+			// }
+			int band = m_network.getBand (link.getX(), link.getY());
+			int curr_value = cg.value (link);
+			if ( (curr_value + trequest) == band) {
 				cg.erase (link);
-			} else {
-				// Se ele é utilizada por mais de uma árvore
-				// Então, desconta um valor de unidade
-				int value = cg.value (link) + 1;
+			} else {				
 				cg.erase (link);
-				link.setValue (value);
+				link.setValue ( (curr_value + trequest) );
 				cg.push (link);
 			}
+
 			vertex.insert (link.getX());
 			vertex.insert (link.getY());			
 			m_links.push_back (link);			
@@ -129,8 +140,15 @@ void cycle_local_search<Container, SolutionType>::execute ( int tree,
 					if (cg.is_used(link)) {
 						
 						if (cg.value (link) <= TOP) continue;
+
+						// checar se não esgota capacidade
+						if ( (cg.value (link) - trequest) < 0) continue;
 						
-					}
+					} else {
+						int band = m_network.getBand (link.getX(), link.getY());
+						// checar se não esgota capacidade
+						if (band - trequest < 0) continue;
+					} 
 					
 					//verifica se o link estava na árvore
 					//onde ele será inserido
@@ -225,15 +243,19 @@ void cycle_local_search<Container, SolutionType>::execute ( int tree,
 	// apenas a estrutura que representa a árvore de steiner	
 	for (auto & e : m_trees[tree].get_all_edges ()) { 			
 			rca::Link link (e.first, e.second, 0);			
+			
+
 			if (cg.is_used (link)) {				
-				int value = cg.value (link) - 1;				
+				int value = cg.value (link) - trequest;				
 				cg.erase (link);
 				link.setValue (value);
 				cg.push (link);				
 			} else {
-				link.setValue (GSIZE - 1); 
+				int band = m_network.getBand (link.getX(), link.getY());
+				link.setValue (band - trequest); 
 				cg.push (link);
 			}
+
 	}
 
 }

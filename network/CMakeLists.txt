@@ -7,6 +7,14 @@ cmake_install*;
 CMakeCache*;
 )
 
+IF (REAL)
+	add_definitions (-DMODEL_REAL)	
+	MESSAGE ("\nCompiling NETWORK using REAL Values\n")
+ELSE()
+	add_definitions (-DMODEL_UNIT)
+	MESSAGE ("\nCompiling NETWORK using UNIT Values\n")
+ENDIF()
+
 FILE(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE(GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 

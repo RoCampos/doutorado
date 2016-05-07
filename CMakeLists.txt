@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.8.12.2)
 
 set(VERSION_MAJOR   1   CACHE STRING "Project major version number.")
-set(VERSION_MINOR   0   CACHE STRING "Project minor version number.")
+set(VERSION_MINOR   1   CACHE STRING "Project minor version number.")
 set(VERSION_PATCH   0   CACHE STRING "Project patch version number.")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
@@ -112,6 +112,13 @@ else (GUROBI_INCLUDE_DIRS)
 endif (GUROBI_INCLUDE_DIR)
 #------------------------ ENDOFGUROBI ------------------------- #
 
+#--------------------------- find omp
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+#------------------------- end find omp
 
 
 # ----------------------- FIND DOXYGEM ------------------------ # 

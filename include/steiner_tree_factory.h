@@ -2,6 +2,7 @@
 #define _STTREE_FACTORY_H_
 
 #include <iostream>
+#include <stack>
 
 #include "sttree.h"
 #include "steiner.h"
@@ -111,7 +112,7 @@ public:
 	 */
 	void update_usage (	rca::Group &g,
 						rca::Network & m_network,
-						STTree & st);
+						SteinerRepr & st);
 	
 // 	/**
 // 	 * Este método é utilizado para passar os links utilizados na construção
@@ -208,6 +209,46 @@ public:
 					STTree & st);
 	
 };
+
+/**
+*	Esta classe é uma implementação do algoritmo de busca em profundidade com tamnho
+*	de caminho limitado do nó que inicia a busca até o nó objetivo (nós de demanda).
+*
+*	O procedimento é datalhado no link referente à Iterative_deepening_depth-first_search
+*	disponível no wikipedia.
+*
+*
+*
+*/
+template <class Container, class SteinerRepr>
+class LimitedBreadthSearchFirst : public SteinerTreeFactory<Container, SteinerRepr>
+{
+
+	typedef SteinerTreeObserver<Container, SteinerRepr> Observer;
+
+public:
+
+	LimitedBreadthSearchFirst (int limit) {
+		this->LIMIT = limit;
+	}
+
+	~LimitedBreadthSearchFirst () {}
+
+	void build (Observer & sttree,
+				rca::Network & network,
+				rca::Group & g,
+				Container & cg);
+
+	int get_path_length (int member, int source);
+
+private:
+
+	std::vector<int> m_pred;
+	int LIMIT;
+	
+};
+
+
 
 } //namespace factory
 } //namespace rca

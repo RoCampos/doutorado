@@ -50,8 +50,30 @@ public:
 	*/
 	SteinerTreeObserver(ContainerType & ec, SteinerRepr & st, int);
 
+	/**
+	* 
+	* Construtor que recebe um container de arestas, uma
+	* estrutura para armazenar árvores de steiner e um 
+	* inteiro representando o número de arestas.
+	*
+	* Além disso, o construtor recebe uma referência para o grafo no 
+	* qual as soluções estão sendo construídas.
+	*
+	* @param ContainerType container de arestas
+	* @param STTree estrutura para armazenar árvore
+	* @param rca::Network referência para um objeto rca::Network
+	* @param int número de nós da rede
+	*/
 	SteinerTreeObserver(ContainerType & ec, SteinerRepr & st, rca::Network&,int);
 	
+	/**
+	* Objeto network passado ao método prunning da classe.
+	*
+	*
+	* @param rca::Network referência para um objeto rca::Network
+	*/
+	void set_network (rca::Network & net);
+
 	/**
 	* Método utilizado para definir uma estrutura de árvore de 
 	* steiner a ser manipulado pelo observer.
@@ -89,6 +111,17 @@ public:
 	* @param int capacidade do link 
 	*/
 	bool add_edge (int, int, int, int);
+
+
+	//adiciona mais um inteiro na interface, consumo do link
+	/**
+	* @param int x
+	* @param int y
+	* @param int custo
+	* @param int trequest
+	* @param int capacidade do link
+	*/
+	bool add_edge (int, int, int, int, int);
 	
 	/**
 	* Método que retorna uma lista de arestas representando a 

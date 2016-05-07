@@ -196,23 +196,6 @@ std::vector<std::pair<int,int>> steiner::get_all_edges () {
 
 	std::vector<std::pair<int,int>> edges;
 
-	// for (int i=0; i < NODES;i++) {
-	// 	auto adj = this->m_adjacentList[i];
-	// 	for (auto j : adj) {
-
-	// 		if (i < j) {
-
-	// 			auto iter = std::find (edges.begin(), edges.end(),std::make_pair(i,j));
-	// 			if (iter == edges.end())
-	// 				edges.push_back ( std::make_pair(i,j) );
-	// 		} else {
-	// 			auto iter = std::find (edges.begin(), edges.end(),std::make_pair(j,i));
-	// 			if (iter == edges.end())
-	// 				edges.push_back ( std::make_pair(j,i) );
-	// 		}
-	// 	}
-	// }
-
 	std::vector<bool> marked (NODES, false);
 	for (auto i : this->m_terminals) {
 		get_edges (i, edges, marked);
@@ -224,6 +207,51 @@ std::vector<std::pair<int,int>> steiner::get_all_edges () {
 void steiner::prunning () {
 	Prune prunner;
 	prunner.prunning ( *this);
+}
+
+std::vector<int> steiner::get_path (int member, int source) {
+
+	std::vector<int> path;
+
+	std::vector<int> pred = std::vector<int> (this->m_nodes, 0);
+	std::vector<int> mark = std::vector<int> (this->m_nodes, 0);
+
+	std::queue<int> queue;
+	queue.push (source);
+
+	mark[source] = 1;
+	pred[source] = -1;
+
+	while (!queue.empty()) {
+
+		int curr_node = queue.front ();
+
+		if (curr_node == member) break;
+
+		for (int next_node : this->m_adjacentList[curr_node]) {
+
+			if ( mark[next_node] == 0 ) {
+
+				queue.push (next_node);
+				mark[next_node] = 2;
+
+				pred[next_node] = curr_node;
+
+			}
+
+		}
+
+		queue.pop ();
+
+	}
+
+	int next = member;
+	while (next != -1) {
+		path.push_back (next);
+		next = pred[next];
+	}
+
+	return path;
 }
 
 // ----------------------------------- PRUNE CLASS --------------------------------- //

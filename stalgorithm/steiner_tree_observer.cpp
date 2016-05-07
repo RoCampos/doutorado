@@ -32,6 +32,11 @@ SteinerTreeObserver<ContainerType, SteinerRepr>::SteinerTreeObserver(ContainerTy
 }
 
 template<typename ContainerType, typename SteinerRepr>
+void SteinerTreeObserver<ContainerType, SteinerRepr>::set_network (rca::Network & net) {
+	this->m_network = &net;
+}
+
+template<typename ContainerType, typename SteinerRepr>
 void SteinerTreeObserver<ContainerType, SteinerRepr>::set_steiner_tree (SteinerRepr & st, int nodes)
 {
 	m_st = NULL;
@@ -93,6 +98,35 @@ bool SteinerTreeObserver<ContainerType, SteinerRepr>::add_edge (int x,
 	}
 	
 	return false;	
+}
+
+template<typename ContainerType, typename SteinerRepr>
+bool SteinerTreeObserver<ContainerType, SteinerRepr>::add_edge (int x, 
+												   int y, 
+												   int cost,
+												   int trequest, 
+												   int band_usage)
+{
+
+	//reultilization of add_edge that consumes 1 unit of bandwith
+	bool result = this->add_edge (x, y, cost, band_usage);
+	rca::Link l (x, y, 0);
+	if (result) {
+
+		if ( m_ec->is_used (l) ) {
+			int value = m_ec->value (l);
+
+			//updating the usage of the link
+			l.setValue (value - (trequest - 1));
+			m_ec->update (l);
+
+			return true;
+		}
+
+	}
+
+	return false;
+
 }
 
 template<typename ContainerType, typename SteinerRepr>
