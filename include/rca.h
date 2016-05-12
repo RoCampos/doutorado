@@ -12,3 +12,4 @@
 #include "include/steiner_tree_observer.h"
 #include "include/sttree_local_search.h"
 #include "include/sttree_visitor.h"
+#include "include/algorithm.h"

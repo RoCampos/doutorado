@@ -102,6 +102,17 @@ public:
 		m_heap = ref.m_heap;
 		
 	}
+
+	/**
+	* Construtor que inicializa a matriz que guardar as informações
+	* dos manipuladores.
+	*
+	* @param int número de nós da rede
+	*/
+	EdgeContainer<Comp, Handle> (int NODES) {
+		this->init_congestion_matrix (NODES);
+		this->init_handle_matrix (NODES);
+	}
 	
 	/**
 	* Operator de atribuição.
