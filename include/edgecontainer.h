@@ -260,6 +260,22 @@ public:
 
 	}
 
+	bool test_bandwitdh (rca::Link & novo, int band, int tk) {
+
+		bool activated = false;		
+		int top = this->top ();
+
+		if (this->is_used (novo)) {
+			if (this->value (novo) - tk > top) {
+				activated=true;
+			}
+		} else if (band - tk > top ) {
+			activated=true;
+		}
+
+		return activated;
+	}
+
 	/**
 	* Método utilizado para atualizar a utilização de um link..
 	* O link deve ser configurado para o novo valor fora do container e
