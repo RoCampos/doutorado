@@ -171,6 +171,60 @@ private:
 };
 
 
+template<class Container, class SteinerRpr>
+class PathExchange {
+	typedef typename std::vector<std::pair<rca::Link, rca::Link>> Trocas;
+	typedef typename std::vector<rca::Path> Paths;	
+	
+
+public:
+	PathExchange() {}
+
+	bool run (std::vector<SteinerRpr>&, Container&, 
+		rca::Network&, std::vector<rca::Group>&);
+
+private:
+	std::vector<std::vector<int>> get_components (SteinerRpr& st);
+	
+	bool test_pathsize (int c1, int c2, 
+		Paths &, std::vector<int> distancia);
+
+	bool control_trocas (rca::Link&, rca::Link&);
+
+	void paths_distance (SteinerRpr&, 
+		Paths&, 
+		std::vector<int>& distancia, 
+		std::vector<int>& members, 
+		int source);
+
+
+	bool core_search (steiner & st, 
+		Container & container, 
+		rca::Network& network, 
+		rca::Link& old, 
+		rca::Group& g);
+
+	bool tocontinue (rca::Link& novo, rca::Link& old,
+		Container& cg, int tk, int band) {
+		return (novo != old) && cg.test_bandwitdh (novo, band, tk);		
+	}
+
+	bool check_change (std::vector<std::vector<int>>&,
+		int c1, int c2, int source,
+		Paths& paths, 
+		std::vector<int>& distancia);
+
+	bool do_change (steiner&, Container&, 
+		rca::Link& novo, rca::Link& old, 
+		rca::Network&, rca::Group&);
+
+private:
+	Trocas m_trocas;
+
+
+};
+
+
 } // sttalgo
 
 } // rca
