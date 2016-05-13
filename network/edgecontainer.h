@@ -30,6 +30,14 @@ struct not_equal_rev{
 	  return (l1 < l2);
   }
 };
+
+/**
+* Tipo de operação de atualização container.
+*/
+enum OperationType{
+	IN = 0,
+	OUT = 1
+};
 	
 //Matriz de inteiros
 typedef typename std::vector<std::vector<int>> VMatrix;
@@ -221,6 +229,35 @@ public:
 	*/
 	int value (rca::Link &l) {
 		return (*(m_ehandle_matrix[ l.getX() ][ l.getY() ]).second).getValue ();
+	}
+
+	void update_inline (rca::Link & link, 
+		OperationType type, int trequest, int band) 
+	{
+
+		int value;
+		if (OperationType::OUT == type) {		
+			value = (this->value (link) + trequest);
+		} else if (OperationType::IN == type) {		
+			if (this->is_used (link)) {
+				value = (this->value (link) - trequest);
+			} else {
+				value = (band - trequest);
+			} 
+		}
+
+		if (value ==  band) {
+			this->erase (link);
+		} else {
+			if (this->is_used (link)) {
+				this->erase (link);
+				link.setValue (value);
+			} else {
+				link.setValue (value);
+			}
+			this->push (link);
+		}
+
 	}
 
 	/**
