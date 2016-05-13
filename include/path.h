@@ -11,6 +11,7 @@
 #include <vector>
 #include <ostream>
 #include <iterator>
+#include <algorithm>
 
 namespace rca {
 
@@ -39,6 +40,10 @@ public:
 	 * @param int
 	 */
 	void push (int);
+
+	bool find_in (int node) {
+		return (std::find (m_path.begin(), m_path.end(), node) != m_path.end());
+	}
 
 	/**
 	 * Método para acessar uma posição do caminho como se faz
