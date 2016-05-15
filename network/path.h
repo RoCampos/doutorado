@@ -52,7 +52,56 @@ public:
 	const int & operator[] (unsigned int pos) {
 		return m_path[pos];
 	}
+
+	/**
+	* Este método é utilizado para reverter a ordem do caminho.
+	*
+	*/
+	void reverse () {
+		std::reverse (m_path.begin(), m_path.end());
+	}
+
+	/**
+	* Este método é utilizado para associar um valor a uma 
+	* dada posição
+	*
+	* @param int posição
+	* @param int value a ser associado a posição pos
+	*/
+	void assign (unsigned int const pos, int const value) {
+		m_path[pos] = value;
+	}
+
+	/**
+	*
+	* Método utilizad para fazer um caminho receber outro.
+	* Basicamente é uma cópia de um novo caminho.
+	* 
+	* @param rca::Path 
+	*/
+	void assign (rca::Path const&path) {
+		m_path = path.m_path;
+	}
 	
+
+	/**
+	* Método para adicionar um caminho a outro.
+	* Evita que caminhos tenha nós repetidos:
+	* 	caminho1: 0 1 2 3, caminho2: 3 2 1 3 4
+	* Resultado: 0 1 2 4
+	* 
+	* @param rca::Path 
+	*/
+	void join (Path const & path) {		
+		for (auto && v : path.m_path){
+			auto begin = this->m_path.begin ();
+			auto end = this->m_path.end ();
+			if (std::find (begin, end, v) == end) {
+				this->m_path.push_back (v);
+			}
+		}
+	}
+
 	/**
 	 * Método retorna o vértice que está na posição
 	 * pos do caminho.
