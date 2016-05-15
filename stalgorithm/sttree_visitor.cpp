@@ -598,6 +598,27 @@ void rca::sttalgo::print_solutions_stats (std::vector<SteinerType>& trees,
 	
 }
 
+bool rca::sttalgo::check_path_limit (std::vector<steiner> & solucao, 
+	std::vector<rca::Group> & mgroups, int limit) 
+{
+
+	int k = 0;	
+	for (auto g : mgroups) {		
+		for (int i : g.getMembers ()) {
+			rca::Path path = solucao[k].get_path (i, g.getSource ());
+			// cout << path << endl;
+			int size = path.size () -1;
+			if (size > limit) {
+				return false;
+			}
+		}
+		k++;
+	}
+
+	return true;
+}
+
+
 /** explicit instantiation of methods**/
 template void rca::sttalgo::remove_top_edges<rca::EdgeContainer<rca::Comparator, rca::HCell>> 
 			(rca::EdgeContainer<rca::Comparator, rca::HCell> & ob, 
