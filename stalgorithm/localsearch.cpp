@@ -563,17 +563,109 @@ void PathExchange<Container, SteinerRpr>::paths_distance (
 }
 
 template <class Container, class SteinerRpr>
+std::vector<rca::Path> 
+PathExchange<Container, SteinerRpr>::prepare_paths (
+	Paths& paths, int connec, int oldroot, int newroot) 
+{
+	Paths newpaths; // = paths;
+
+	//int pos and the path
+	std::vector<std::pair<rca::Path, rca::Path>> v;
+
+	// eliminar a aresta ausente
+	rca::Path rootpath;
+
+	//selecionar os caminhos que contem a nova raiz
+	//newroot que será conectado a outra parte da árvore que
+	//contém a fonte
+	for (int i = 0; i < paths.size (); ++i)
+	{
+		if (paths[i].find_in (oldroot)) {			
+
+			if (paths[i].find_in (newroot)) 
+				rootpath = paths[i];
+
+			//creating subpath
+			std::vector<int> vec;
+			paths[i].subpath (connec, vec);			
+			Path tmp (vec);
+			tmp.reverse ();
+			v.push_back (make_pair (paths[i], tmp));
+
+		}
+	}
+
+	std::vector<int> subrootpath;
+	rootpath.subpath (connec, subrootpath);
+	rootpath.assign (subrootpath);
+
+	for (auto && p : v) {
+		rca::Path tmp(rootpath);		
+		tmp.join (p.second); //remove nos duplicados
+		p.second = tmp;
+		newpaths.push_back (p.second);
+	}
+
+
+	return newpaths;
+}
+
+template <class Container, class SteinerRpr>
 bool PathExchange<Container, SteinerRpr>::check_change (
 		std::vector<std::vector<int>>& ccs,
-		int c1, int c2, int source,
+		int c1, int c2, int source, 
+		rca::Link & old,
 		Paths& paths, 
 		std::vector<int>& distancia) 
 {
+
 	auto res = std::find(ccs[0].begin(),ccs[0].end(),source);
 	if (res != ccs[0].end()) {
-		return this->test_pathsize (c1, c2, 
-			paths, distancia);
+
+		if (c2 != old.getX() && c2 != old.getY()) {
+
+			Paths copy;
+
+			int old_head, connec;
+			if ( find (ccs[1], old.getX()) == find (ccs[1], c2)) {
+				old_head = old.getX();
+				connec = old.getY();
+			} else {
+				old_head = old.getY();			
+				connec = old.getX();
+			}
+
+			copy = this->prepare_paths (paths,connec,old_head,c2);
+
+			return this->test_pathsize (c1,c2,copy,distancia);
+		}
+
+		//c2 is the node not in the tree
+		return this->test_pathsize (c1,c2,paths,distancia);
 	} else {
+
+		if (c1 != old.getX() && c1 != old.getY()) {
+
+			Paths copy;
+
+			int old_head, connec;
+
+			if (find (ccs[1], old.getX()) == find (ccs[1], c1) ) {
+				old_head = old.getX();
+				connec = old.getY();				
+			} else {
+				old_head = old.getY();				
+				connec = old.getX();
+			}
+			
+			copy = this->prepare_paths (paths,connec,old_head,c1);
+
+			return this->test_pathsize (c2, c1,copy, distancia);
+
+		}
+
+
+		//c1 is the node not in the tree
 		return this->test_pathsize (c2, c1, 
 			paths, distancia);					
 	}
@@ -582,7 +674,7 @@ bool PathExchange<Container, SteinerRpr>::check_change (
 
 template<class Container, class SteinerRpr>
 bool PathExchange<Container, SteinerRpr>::do_change (
-	steiner& st, Container& container, 
+	SteinerRpr& st, Container& container, 
 	rca::Link& novo, rca::Link& old, 
 	rca::Network& network, rca::Group& g)
 {
@@ -625,7 +717,7 @@ bool PathExchange<Container, SteinerRpr>::do_change (
 
 template<class Container, class SteinerRpr>
 bool PathExchange<Container, SteinerRpr>::core_search (
-	steiner & st, 
+	SteinerRpr & st, 
 	Container & container, 
 	rca::Network& network, 
 	rca::Link& old, 
@@ -667,7 +759,7 @@ bool PathExchange<Container, SteinerRpr>::core_search (
 				}
 
 				bool canchange = this->check_change (ccs, 
-					c1, c2, source, tree_paths, distancia);
+					c1, c2, source, old, tree_paths, distancia);
 				
 				if (canchange) {					
 
