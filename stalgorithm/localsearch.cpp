@@ -509,7 +509,7 @@ bool PathExchange<Container, SteinerRpr>::test_pathsize (
 		if (p.find_in (cc2)) {
 			for (size_t i = 0; i < p.size (); ++i)	{
 				if (p[i] == cc2) {
-					if ( (p.size () - (i)) + dis_c0 > 5 ) {						
+					if ( (p.size () - (i)) + dis_c0 > this->m_path_size ) {						
 						return false;
 					} 
 				}

@@ -186,7 +186,7 @@ class PathExchange {
 	
 
 public:
-	PathExchange() {}
+	PathExchange(int limit) : m_path_size(limit) {}
 
 	/**
 	* Método utilizado para rodar a busca local que viza a melhoria
@@ -361,6 +361,8 @@ private:
 
 private:
 	Trocas m_trocas;
+
+	int m_path_size;
 
 
 };

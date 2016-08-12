@@ -240,6 +240,8 @@ void replace_edge (STTree &,
 bool check_path_limit (std::vector<steiner> & solucao, 
 	std::vector<rca::Group> & mgroups, int limit);
 
+bool check_path_limit (steiner&, rca::Group &, int limit);
+
 }// end of namespace visitor
 }// end of namespace rca
 

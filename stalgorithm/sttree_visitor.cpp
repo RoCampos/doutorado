@@ -603,19 +603,44 @@ bool rca::sttalgo::check_path_limit (std::vector<steiner> & solucao,
 {
 
 	int k = 0;	
+	bool condition = true;
 	for (auto g : mgroups) {		
 		for (int i : g.getMembers ()) {
 			rca::Path path = solucao[k].get_path (i, g.getSource ());
 			// cout << path << endl;
 			int size = path.size () -1;
 			if (size > limit) {
-				return false;
+				condition =  false;
+				#ifdef DEBUG
+					cout << "Invalid Tree: " << k << endl;									
+				#endif
+				break;
 			}
 		}
 		k++;
 	}
 
-	return true;
+	return condition;
+}
+
+bool rca::sttalgo::check_path_limit (steiner& st, 
+	rca::Group & group, int limit) {
+
+	int source = group.getSource ();
+	bool condition = true;
+	for (auto && m : group) {
+		rca::Path path = st.get_path (m, source);
+		int size = path.size () - 1;
+		if (size > limit) {
+			condition =  false;
+			#ifdef DEBUG
+				cout << "Invalid Tree"<< endl;									
+			#endif
+			break;
+		}
+	}
+
+	return condition;
 }
 
 
