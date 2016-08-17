@@ -77,5 +77,8 @@ private:
 
 };
 
+
+void get_steiner_info (rca::Network&, Group&, std::string file);
+
 } /* namespace rca */
 #endif /* STEINERREADER_H_ */

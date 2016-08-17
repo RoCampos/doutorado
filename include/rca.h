@@ -13,3 +13,6 @@
 #include "include/sttree_local_search.h"
 #include "include/sttree_visitor.h"
 #include "include/algorithm.h"
+#include "include/kspath.h"
+#include "include/misc.h"
+#include "include/steinerReader.h"

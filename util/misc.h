@@ -5,6 +5,18 @@
 
 namespace rca {
 
+namespace func{
+
+	std::vector<int> get_random_vector(int size) {
+		std::vector<int> index(size, 0);
+		iota (index.begin(), index.end(), 0);	
+		std::random_shuffle (index.begin(), index.end());
+		return index;
+	}
+
+}
+
+
 namespace dstructure {
 	
 /**
