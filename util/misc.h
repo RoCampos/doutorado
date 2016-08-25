@@ -14,6 +14,11 @@ namespace func{
 		return index;
 	}
 
+	bool in (std::vector<int> & list, int value) {
+		auto it = std::find (list.begin (), list.end(), value);
+		return it != list.end();
+	}
+
 }
 
 
