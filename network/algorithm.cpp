@@ -492,3 +492,24 @@ double min_bandwidth (rca::Network& network)
 	}
 	return min;
 }
+
+
+std::vector<rca::Link> path_to_edges (rca::Path const& path, rca::Network * net) 
+{
+
+	std::vector<rca::Link> out;
+	for (size_t i = 0; i < path.size ()-1; ++i)
+	{
+		rca::Link l (path.at(i), path.at(i+1), 0);
+
+		//if a network object is passed, 
+		//the links has its cost updated
+		if (net != NULL) {
+			l.setValue (net->getCost (l.getX(), l.getY()));
+		}
+
+		out.push_back (l);
+
+	}
+	return out;
+}
