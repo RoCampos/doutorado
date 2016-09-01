@@ -2,6 +2,9 @@
 
 using namespace rca;
 
+typedef rca::EdgeContainer<rca::Comparator, rca::HCell> Container;
+typedef rca::sttalgo::SteinerTreeObserver<Container, steiner> Observer;
+
 
 rca::StefanHeuristic::StefanHeuristic (rca::Network& network, 
 						std::vector<rca::Group>& groups) 
@@ -12,12 +15,20 @@ rca::StefanHeuristic::StefanHeuristic (rca::Network& network,
 
 void StefanHeuristic::run (size_t hoplimit) {
 
+
 	this->H = hoplimit;
 
 	int NODES = m_network->getNumberNodes ();
 	int GROUP = m_groups.size ();
 
 	int allcost = 0;
+
+	//CONTAINER to store the edge usage
+	Container cg(NODES);
+
+	//observer to handle changes on edges
+	Observer ob;
+	ob.set_container (cg);
 
 	//for each multicas group, build a hop-limited
 	//steiner tree
@@ -26,6 +37,10 @@ void StefanHeuristic::run (size_t hoplimit) {
 
 		int curr_source = this->m_groups[k].getSource ();
 		std::vector<int> members = this->m_groups[k].getMembers ();
+		int trequest = this->m_groups[k].getTrequest ();
+
+		steiner st (NODES, curr_source, members);
+		ob.set_steiner_tree (st, NODES);
 
 		//vetree mantém os nós da árvore
 		//m_terminals os nós terminais ainda não adicionads 
@@ -52,7 +67,7 @@ void StefanHeuristic::run (size_t hoplimit) {
 			if (path.size () == 0) break;
 
 			//updating invertex and position
-			this->update_invertex (path, invertex, termT);
+			this->update_invertex (path, invertex, termT, members);
 
 			//passa como parâmetro:
 			//vertices de T(vertexT), os membros do grupo(members), 
@@ -61,15 +76,39 @@ void StefanHeuristic::run (size_t hoplimit) {
 			this->update_position (verticesT, members, position, termT, path);
 
 			allcost += path.getCost ();
-			cout << path << ":" << path.getCost () << endl;;
+			// cout << path << ":" << path.getCost () << endl;
+
+			std::vector<rca::Link> v = path_to_edges (path, m_network);
+			for(auto&& link : v) {
+				int band = m_network->getBand (link.getX(), link.getY());
+				ob.add_edge (link.getX(), link.getY(), link.getValue (), trequest, band);			
+			}
 			
 		} while (termT.size ()-1 != members.size ());
-
-		cout << endl;
+		
+		m_solution.push_back(ob.get_steiner_tree ());
+		m_solution[k].print ();
+		
 
 	} //end for over groups
 
+	cout << "Z: ";
+	cout << cg.top () << endl;
+
+	cout << "Tree's cost\n";
+	for(auto&& sol : m_solution) {
+		cout << sol.get_cost () << endl;
+	}
+
 	cout << "AllCost: \t" << allcost << endl;
+
+	cout << "\nChecking paths...\n";	
+	// rca::sttalgo::check_path_limit (m_solution, m_groups, H);
+	for (int i = 0; i < m_solution.size (); ++i)
+	{
+		cout << rca::sttalgo::check_path_limit (m_solution[i], m_groups[i], H) << endl;
+	}
+	
 
 }
 
@@ -91,7 +130,7 @@ rca::Path StefanHeuristic::getShortestPath (
 			if (findin (verticesT, m)) continue;
 
 			rca::Path tmp_path = shortest_path (s, m, *this->m_network);
-
+			
 			//check for feasible
 			bool t1 = (position[s] + tmp_path.size ()-1) <= this->H;
 			bool t2 = this->avoidloop (invertex, tmp_path);

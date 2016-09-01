@@ -7,6 +7,9 @@
 #include "algorithm.h"
 #include "group.h"
 #include "path.h"
+#include "steiner.h"
+#include "steiner_tree_observer.h"
+#include "edgecontainer.h"
 
 namespace rca {
 
@@ -87,14 +90,17 @@ private:
 	}
 
 	void update_invertex (rca::Path& path, 
-		VectorI& invertex, VectorI& termT) 
+		VectorI& invertex, VectorI& termT, VectorI& members) 
 	{
 		for (size_t i = 0; i < path.size ()-1; ++i)
 		{
 			int vertex = path[i];
-			if (!findin (termT, vertex)) {
-				termT.push_back (vertex);
-			}
+
+			if (findin (members, vertex)) {
+				if (!findin (termT, vertex)) {
+					termT.push_back (vertex);
+				}	
+			}			
 
 			invertex[ vertex ] += 1;
 		}
@@ -111,6 +117,8 @@ private:
 	rca::Network *m_network;
 	std::vector<rca::Group> m_groups;
 	size_t H;
+
+	std::vector<steiner> m_solution; //tree constructed by the algorithm
 
 };
 
