@@ -17,6 +17,7 @@ void StefanHeuristic::run (size_t hoplimit) {
 
 
 	this->H = hoplimit;
+	this->m_version = 0;
 
 	int NODES = m_network->getNumberNodes ();
 	int GROUP = m_groups.size ();
@@ -78,6 +79,7 @@ void StefanHeuristic::run (size_t hoplimit) {
 			allcost += path.getCost ();
 			// cout << path << ":" << path.getCost () << endl;
 
+			//adding the paths to steiner tree structure
 			std::vector<rca::Link> v = path_to_edges (path, m_network);
 			for(auto&& link : v) {
 				int band = m_network->getBand (link.getX(), link.getY());
@@ -87,7 +89,6 @@ void StefanHeuristic::run (size_t hoplimit) {
 		} while (termT.size ()-1 != members.size ());
 		
 		m_solution.push_back(ob.get_steiner_tree ());
-		m_solution[k].print ();
 		
 
 	} //end for over groups
@@ -109,6 +110,85 @@ void StefanHeuristic::run (size_t hoplimit) {
 		cout << rca::sttalgo::check_path_limit (m_solution[i], m_groups[i], H) << endl;
 	}
 	
+
+}
+
+void StefanHeuristic::run2 (size_t hoplimit) 
+{
+	this->H = hoplimit;
+	this->m_version = 1;
+
+	int NODES = m_network->getNumberNodes ();
+	int GROUP = m_groups.size ();
+
+	int allcost = 0;
+
+	//CONTAINER to store the edge usage
+	Container cg(NODES);
+
+	//observer to handle changes on edges
+	Observer ob;
+	ob.set_container (cg);
+
+	for (int k = 0; k < GROUP; ++k)
+	{
+
+		int curr_source = this->m_groups[k].getSource ();
+		std::vector<int> members = this->m_groups[k].getMembers ();
+		int trequest = this->m_groups[k].getTrequest ();
+
+		steiner st (NODES, curr_source, members);
+		ob.set_steiner_tree (st, NODES);
+
+		//vetree mantém os nós da árvore
+		//m_terminals os nós terminais ainda não adicionads 
+		//a arvore
+		std::vector<int> verticesT, termT;
+
+		//controlar a posição dos vértices nos caminhos
+		std::vector<int> position = std::vector<int> (NODES);
+
+		//controlar  a entrada nos vértices
+		//grafos não-orietados, evita loops
+		std::vector<int> invertex = std::vector<int> (NODES);
+
+		verticesT.push_back (curr_source);
+		termT.push_back (curr_source);
+		position[curr_source] = 0;
+
+		std::vector<rca::Path> paths = std::vector<rca::Path> (NODES);
+
+		do {
+
+			rca::Path path = this->getShortestPath (position, invertex, verticesT, members);
+
+			if (path.size () == 0) break;
+
+			this->update_invertex (path, invertex, termT, members);
+
+			this->update_position_after (paths, verticesT, members, position, termT, path);			
+
+			
+		} while (termT.size ()-1 != members.size ());
+
+		//processing the tree
+		std::set<rca::Path> pathss;
+
+		for(auto&& path : paths) {
+			// cout << path << endl;
+			if (path.size () > 0)
+				pathss.insert (path);
+		}
+
+		for(auto& p : pathss) {
+			cout << p << endl;
+		}
+		cout << endl;
+		
+
+	}//end of for over groups
+
+
 
 }
 
@@ -134,6 +214,12 @@ rca::Path StefanHeuristic::getShortestPath (
 			//check for feasible
 			bool t1 = (position[s] + tmp_path.size ()-1) <= this->H;
 			bool t2 = this->avoidloop (invertex, tmp_path);
+
+			//version 1 is actavte, the algorithm
+			//don't control the input degree of vertex
+			if (this->m_version) {
+				t2 = 1;
+			}
 
 			if (t1 && t2) {
 				int curr_cost = this->get_cost (tmp_path);
@@ -185,3 +271,120 @@ void StefanHeuristic::update_position (std::vector<int> & verticesT,
 
 }
 
+void StefanHeuristic::update_position_after (
+		std::vector<rca::Path> & paths,
+		std::vector<int> & verticesT,
+		std::vector<int> & members,
+		std::vector<int> & position,
+		std::vector<int> & termT,
+		rca::Path& path)
+{
+	
+	//position of the source of path
+	int source_pos = position [path[path.size ()-1]];
+
+	// //getting the path which connect source of path to Tree T
+	// int croot = path[path.size ()-1];
+	// int prootsize = paths[croot].size ();
+	// int troot = paths[croot].size () > 0 ? paths[croot][prootsize-1] : -1;
+	// std::vector<int> rpath;
+	// troot != -1 ? paths[croot].subpath (croot, rpath) : 0;
+	// rca::Path rootpath (rpath);
+	// for (int i = path.size ()-1; i >=0; i--) {
+	// 	rootpath.push (path[i]);	
+	// }
+	// rootpath.reverse ();
+	// if (rootpath.size () == 0) {
+	// 	rootpath = path;
+	// } 
+	rca::Path rootpath = this->get_source_path (paths, path);
+
+	for (int i = 0; i < path.size ()-1; ++i)
+	{
+
+		int curr_node = path[i];
+
+		//get position of current node in the current path
+		int curr_node_pos = (path.size () - i + source_pos) - 1;
+
+		if (position[curr_node] == 0) {
+			
+			position[curr_node] = curr_node_pos;			
+			// paths[curr_node] = path;			
+			paths[curr_node] = rootpath;
+
+		} else {
+
+			if (position[curr_node] > curr_node_pos) {
+
+				//update_position && replace_path
+				position[curr_node] = curr_node_pos;
+
+				// paths[curr_node] = path;
+				paths[curr_node] = rootpath;
+
+			} 
+
+		}
+		
+
+		if (findin(members, curr_node) && !findin(termT, curr_node))	{
+			termT.push_back (curr_node);
+		}
+
+		if (!findin (verticesT, curr_node)) {
+			verticesT.push_back	 (curr_node);
+		}
+
+	}
+
+
+}
+
+
+// the method just get the path from root to the node 
+// the is the root of the current 'path' added to tree.
+
+// 	for example consider the following situation:
+// 		a path 5-->1-->23 is in the tree T
+// 		so a new node is added to tree by 1, 1-->14
+//	 	so the path which connects 14 to tree T is: 5-->1-->14
+// 		this the rootpath of 14 and will be returned
+rca::Path StefanHeuristic::get_source_path (
+		std::vector<rca::Path> & paths,
+		rca::Path& path)
+{
+
+	//root of the corrent path
+	int croot = path[path.size ()-1];
+
+	//size of the path from croot was added to Tree T
+	int prootsize = paths[croot].size ();
+
+	//the root of the tree T
+	int troot = paths[croot].size () > 0 ? paths[croot][prootsize-1] : -1;
+
+	//getting the path from root of root of the tree T until root of
+	//path 'croot'
+	std::vector<int> rpath;
+	troot != -1 ? paths[croot].subpath (croot, rpath) : 0;
+
+	rca::Path rootpath (rpath);
+	for (int i = path.size ()-1; i >=0; i--) {
+		rootpath.push (path[i]);	
+	}
+	rootpath.reverse ();
+	if (rootpath.size () == 0) {
+		rootpath = path;
+	}
+
+	int cost = 0;
+	for (int i = 0; i < rootpath.size ()-1; ++i)
+	{		
+		cost += this->m_network->getCost (rootpath[i],rootpath[i+1]);
+	}
+	rootpath.setCost (cost);
+
+	return rootpath;
+
+}

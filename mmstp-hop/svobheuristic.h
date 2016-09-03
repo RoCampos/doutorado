@@ -42,6 +42,18 @@ public:
 	*/
 	void run (size_t hoplimit);
 
+
+	/**
+	*	This version fixes the problema of updating in the
+	*	first version of the heuristic of vob(1999)
+	*
+	*	
+	*
+	*	@param int limit of the path (in terms of links)
+	*/
+	void run2 (size_t hoplimit);
+
+
 	/**
 	*	Este método adiciona os nós a árvore em construção.
 	*	Atualiza os valores de distância u_i de cada nó
@@ -111,7 +123,19 @@ private:
 		VectorI& position, 
 		VectorI& termT,
 		rca::Path& path);
+
+	void update_position_after (
+		std::vector<rca::Path> & paths,
+		VectorI& verticesT,
+		VectorI& members,
+		VectorI& position,
+		VectorI& termT,
+		rca::Path& path);
 	
+	rca::Path get_source_path (
+		std::vector<rca::Path> & paths,
+		rca::Path& path);
+
 private:
 
 	rca::Network *m_network;
@@ -119,6 +143,10 @@ private:
 	size_t H;
 
 	std::vector<steiner> m_solution; //tree constructed by the algorithm
+
+	//0 - is vesion with no update of u_i variables		CHINS-R
+	//1 - is the second version with update of u_i vars CHINS-RR
+	bool m_version; //this variable indicates which version the vob heuristic
 
 };
 
