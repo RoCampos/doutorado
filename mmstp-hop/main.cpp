@@ -17,7 +17,7 @@ int main(int argc, char const *argv[])
 
 	rca::StefanHeuristic obj (network, mgroups);
 
-	obj.run (H);
+	obj.run2 (H);
 
 	return 0;
 }
