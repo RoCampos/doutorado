@@ -172,15 +172,17 @@ void StefanHeuristic::run2 (size_t hoplimit)
 		} while (termT.size ()-1 != members.size ());
 
 		//processing the tree
-		std::set<rca::Path> pathss;
+		std::vector<rca::Path> treepaths;
 
 		for(auto&& path : paths) {
-			// cout << path << endl;
-			if (path.size () > 0)
-				pathss.insert (path);
+			
+			auto it = std::find (treepaths.begin(), treepaths.end(), path);
+			if (it == treepaths.end() && path.size () > 0) {
+				treepaths.push_back (path);
+			}			
 		}
 
-		for(auto& p : pathss) {
+		for(auto& p : treepaths) {
 			cout << p << endl;
 		}
 		cout << endl;
