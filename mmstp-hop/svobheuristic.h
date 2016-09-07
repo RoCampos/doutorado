@@ -225,6 +225,19 @@ private:
 		std::vector<rca::Path> & paths,
 		rca::Path& path);
 
+	/**
+	*	This method is used to finished the tree construction.
+	*	All nodes are connected to the tree and there is a complete path to each
+	*	of the terminals nodes.
+	*
+	*	The aim of the function is to choose the paths who connect each terminal to
+	* 	tree using the short path from all paths found.
+	*
+	*/
+	void step4 (std::vector<rca::Path>& tpaths, 
+		VectorI& position, 
+		VectorI& members);
+
 private:
 
 	rca::Network *m_network;

@@ -182,11 +182,11 @@ void StefanHeuristic::run2 (size_t hoplimit)
 			}			
 		}
 
-		for(auto& p : treepaths) {
+		this->step4 (treepaths, position, members);
+		
+		for(auto&& p : treepaths) {
 			cout << p << endl;
 		}
-		cout << endl;
-		
 
 	}//end of for over groups
 
@@ -284,21 +284,7 @@ void StefanHeuristic::update_position_after (
 	
 	//position of the source of path
 	int source_pos = position [path[path.size ()-1]];
-
-	// //getting the path which connect source of path to Tree T
-	// int croot = path[path.size ()-1];
-	// int prootsize = paths[croot].size ();
-	// int troot = paths[croot].size () > 0 ? paths[croot][prootsize-1] : -1;
-	// std::vector<int> rpath;
-	// troot != -1 ? paths[croot].subpath (croot, rpath) : 0;
-	// rca::Path rootpath (rpath);
-	// for (int i = path.size ()-1; i >=0; i--) {
-	// 	rootpath.push (path[i]);	
-	// }
-	// rootpath.reverse ();
-	// if (rootpath.size () == 0) {
-	// 	rootpath = path;
-	// } 
+	
 	rca::Path rootpath = this->get_source_path (paths, path);
 
 	for (int i = 0; i < path.size ()-1; ++i)
@@ -388,5 +374,104 @@ rca::Path StefanHeuristic::get_source_path (
 	rootpath.setCost (cost);
 
 	return rootpath;
+
+}
+
+
+void StefanHeuristic::step4 (
+	std::vector<rca::Path>& tpaths, 
+	VectorI& position, VectorI & members)
+{
+
+#ifdef DEBUG1
+	cout << "____" << __FUNCTION__ << "____" << endl;
+	for(auto&& a : tpaths) {
+		cout << a << endl;
+	}
+#endif
+
+	// TODO the paths on tpaths are incorrect, maybe after join their parts
+	// TODO here in the path sepearation step, take care of the order of vertex
+	// to avoid put the parts of a path in a reverse order
+
+	std::vector<rca::Path> outpaths;
+
+	std::vector<int> terminals;
+
+	for(auto&& m : members) {
+
+		std::vector<rca::Path> currpaths;
+
+		for(auto&& p : tpaths) {
+			if (p.find_in (m)) {
+				currpaths.push_back (p);
+			}
+		}
+
+		if (currpaths.size () > 1) {
+
+			int dist = std::numeric_limits<int>::max();
+			rca::Path tmp;
+			for(auto&& p : currpaths) {
+				if (p.getRevPosition (m) < dist) {
+					dist = p.getRevPosition (m);
+					tmp = p;
+				}
+			}
+			
+			outpaths.push_back (tmp);
+
+		} else {
+
+			int cut = -1;
+			for (int i = 1; i < currpaths[0].size ()-1; ++i)
+			{
+				int v = currpaths[0][i];
+
+				int vdist = position[v] + i;
+
+				if (vdist < position[m]) {
+					cut = v;
+					break;
+				}
+
+			}
+
+			if (cut == -1) {
+				outpaths.push_back (currpaths[0]);
+			} else {
+				int dist = std::numeric_limits<int>::max();
+				rca::Path tmp;
+				
+				for(auto&& p : tpaths) {
+
+					if (p.find_in (cut)) {
+						if (p.getRevPosition (cut) < dist) {
+							dist = p.getRevPosition (cut);
+							tmp = p;
+						}	
+					}
+					
+				}
+
+				std::vector<int> vvv;
+				tmp.subpath (cut,vvv);
+				vvv.push_back (cut);
+				std::vector<int> vvvv;
+				currpaths[0].revsubpath (cut, vvvv);
+				
+				vvv.insert (vvv.end(), vvvv.begin(), vvvv.end());
+				rca::Path v1(vvv), v2(vvvv);
+				v1.reverse ();
+
+				outpaths.push_back (v1);
+			}
+
+		}
+
+
+	}
+	
+	tpaths = outpaths;
 
 }
