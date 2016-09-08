@@ -56,7 +56,7 @@ int main(int argc, char const *argv[])
 	std::string file = argv[1];
 	
 	std::vector<shared_ptr<rca::Group>> temp;	
-	MultipleMulticastReader r (file);		
+	rca::reader::MultipleMulticastReader r (file);		
 	r.configure_real_values (&net,temp);
 	for (auto g : temp) {
 		multicast_group.push_back (*g);

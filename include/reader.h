@@ -21,6 +21,10 @@ using rca::Group;
 using namespace std;
 using dl::matrix2d;
 
+namespace rca {
+
+	namespace reader {
+
 /**
  * Esta classe reprenta o Leitor de Instâncias.
  * Ele consiste apenas de dois métodos para configuração
@@ -197,7 +201,7 @@ typedef struct stream_bind {
 	
 } stream_bind;
 
-typedef std::vector<stream_bind> stream_list;
+typedef std::vector<stream_bind> stream_list_t;
 
 /**
 * Esta classe é utilizada como parser das instâncias 
@@ -229,7 +233,7 @@ public:
 	 * 
 	 * @param rca::Network
 	 */
-	void configure_network (rca::Network &, stream_list &);
+	void configure_network (rca::Network &, stream_list_t &);
 		
 	int get_number_nodes () {return m_nodes;}
 	int get_number_edges () {return m_edges;}
@@ -243,7 +247,14 @@ private:
 	
 };
 
-void get_problem_informations (std::string const& file, 
-	rca::Network &net, std::vector<rca::Group> &mgroups);
+
+void get_problem_informations (
+	std::string const& file, 
+	rca::Network &net, 
+	std::vector<rca::Group> &mgroups);
+
+
+	} //end of namespace reader
+} //end of namespace rca
 
 #endif /* READER_H_ */

@@ -172,4 +172,8 @@ std::vector<int> all_shortest_path (int v, int w, rca::Network & network);
 */
 double min_bandwidth (rca::Network& network);
 
+
+std::vector<rca::Link> path_to_edges (rca::Path const& path, 
+	rca::Network * net = NULL);
+
 #endif

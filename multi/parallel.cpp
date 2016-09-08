@@ -39,7 +39,7 @@ void read_network (std::string const & file) {
 	
 	m_network = new Network;
 
-	MultipleMulticastReader reader(file);
+	rca::reader::MultipleMulticastReader reader(file);
 	reader.configure_unit_values (m_network, g);
 	for (std::shared_ptr<rca::Group> i : g) {
 		groups.push_back (*i);

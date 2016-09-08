@@ -36,6 +36,18 @@ bool Path::subpath (int vertex, std::vector<int> & path)
 	
 }
 
+bool Path::revsubpath (int node, std::vector<int>& path) {
+	for (int i = 0; i < m_path.size (); ++i)
+	{
+		if (m_path[i] != node) {
+			path.push_back (m_path[i]);
+		} else {
+			return true;
+		}
+	}
+	std::reverse (path.begin(), path.end());
+}
+
 bool Path::operator==(const Path& path)
 {
 	if (path.getCost() != m_cost || 
@@ -64,6 +76,30 @@ std::ostream& operator <<(std::ostream& os, const Path& path) {
 	os << "]";
 	return os;
 
+}
+
+int Path::getPosition (int node) {
+	
+	for (int i = 0; i < this->m_path.size (); ++i)
+	{
+		if (this->m_path[i] == node) {
+			return i;
+		}
+	}
+
+	return -1;
+
+}
+
+int Path::getRevPosition (int node) {
+
+	int size = this->m_path.size ();
+	for (int i = size-1; i >= 0; i--) {
+		if (this->m_path[i] == node) {
+			return size - i;
+		}		
+	}
+	return -1;
 }
 
 } /* namespace rca */

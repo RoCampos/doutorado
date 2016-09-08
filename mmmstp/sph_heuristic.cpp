@@ -109,7 +109,7 @@ int main (int argc, char** argv)
 	int res = atoi(argv[2]);
 	int option = atoi(argv[3]);
 	
-	MultipleMulticastReader reader(file);
+	rca::reader::MultipleMulticastReader reader(file);
 	reader.configure_unit_values (&m_network, g);
 	for (std::shared_ptr<rca::Group> i : g) {
 		m_groups.push_back (*i);

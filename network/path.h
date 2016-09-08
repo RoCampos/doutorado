@@ -228,6 +228,47 @@ public:
 	 * @return bool
 	 */
  	bool operator== (const Path& path);
+
+ 	/**
+ 	*	This function is used to get a reverse path
+ 	*	from the end of the path to node 'vertex' 
+ 	*	without consider the node 'vertex'
+ 	*
+ 	*	Consider the path 1-->2-->23 and the call 'revsubpath(23)'
+ 	*	the return is 1-->2.
+ 	*
+ 	*	The subpath is stored in the vector passed as paramater.
+ 	*	
+ 	*	@param vertex
+ 	*	@param std::vector<int> 
+ 	*/
+ 	bool revsubpath (int vertex, std::vector<int>&);
+
+
+ 	/**
+ 	*	This function returns the position of vertex
+ 	*	in the way it is stored in the internal structure
+ 	*	For example, the 1-->2-->23 is stored as [23,2,1]
+ 	*
+ 	*	So a cal to getPosition (23) returns 0.
+ 	*	@param int
+ 	*	@param int position
+ 	*/
+ 	int getPosition (int vertex);
+
+ 	/**
+ 	*	This function returns the position of the vertex
+ 	*	based on the representation. So if the path 1-->2-->23
+ 	*	is stored as [23,2,1]. 
+ 	*
+ 	*	The correct position of the vertex 23 is '3'. Considering
+ 	*	that the index start at 1.
+ 	*
+ 	*	@param int
+ 	*	@param int position
+ 	*/
+ 	int getRevPosition (int vertex);
+
 	
 private:
 	std::vector<int> m_path;
