@@ -8,6 +8,8 @@
 
 #include "reader.h"
 
+using namespace rca::reader;
+
 Reader::Reader(std::string file) {
 
 	m_file = file;
@@ -145,7 +147,7 @@ std::vector<std::shared_ptr<Group>> Reader:: readerGroup () {
 }
 
 
-void get_problem_informations (std::string const& file, 
+void rca::reader::get_problem_informations (std::string const& file, 
 	rca::Network &net, std::vector<rca::Group> & mgroups)
 {
 

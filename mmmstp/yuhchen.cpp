@@ -22,8 +22,8 @@ YuhChen::YuhChen (std::string file)
 
 	m_network = new rca::Network;
 	
-	YuhChenReader ycr(file);
-	stream_list sb;
+	rca::reader::YuhChenReader ycr(file);
+	rca::reader::stream_list_t sb;
 	
 	//configuring the Network
 	ycr.configure_network (*m_network, sb);
@@ -63,7 +63,7 @@ std::ostream & operator<< (std::ostream & out, stream_t const & t) {
 		return out;
 }
 
-void YuhChen::configure_streams (stream_list & sb)
+void YuhChen::configure_streams (rca::reader::stream_list_t & sb)
 {
 	//reading the streams
 	int id = 0;
@@ -566,7 +566,7 @@ int main (int argc, char**argv)
 	std::vector<shared_ptr<rca::Group>> g;
 	std::vector<rca::Group> groups;
 	
-	MultipleMulticastReader r(m_instance);	
+	rca::reader::MultipleMulticastReader r(m_instance);	
 	r.configure_unit_values (&net, g);
 	
 	for (auto it : g) {

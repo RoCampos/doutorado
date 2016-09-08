@@ -1,11 +1,17 @@
 #include <iostream>
 
-#include "rca.h"
+#include "network.h"
+#include "group.h"
+#include "reader.h"
+#include "kspath.h"
+#include "path.h"
 
 // binário para teste de caminhos entre dois vértices.
 // explora todos os caminhos possíveis
 
 // também é possível entrar com um limite no tamnho do caminho
+
+using namespace rca::reader;
 
 int main(int argc, char const *argv[])
 {

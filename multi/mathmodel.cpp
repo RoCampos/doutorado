@@ -239,7 +239,7 @@ int main(int argc, char const *argv[])
 	}
 
 	std::vector<shared_ptr<rca::Group>> temp;	
-	MultipleMulticastReader r (file);	
+	rca::reader::MultipleMulticastReader r (file);	
 
 #ifdef MODEL_REAL	
 	r.configure_real_values (&net,temp);

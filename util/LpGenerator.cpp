@@ -28,7 +28,7 @@ int main (int argv, char**argc)
 	Network * net = new Network;
 	std::vector<shared_ptr<rca::Group>> g;
 	//Reader r (file);
-	MultipleMulticastReader r (file);
+	rca::reader::MultipleMulticastReader r (file);
 	//r.configNetwork ( net );
 	
 #ifdef MODEL_REAL

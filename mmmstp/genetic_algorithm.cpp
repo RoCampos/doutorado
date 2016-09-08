@@ -16,7 +16,7 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
  	std::vector<shared_ptr<rca::Group>> g;
  	
 	
-	MultipleMulticastReader r(m_instance);
+	rca::reader::MultipleMulticastReader r(m_instance);
 #ifdef MODEL_REAL
 	r.configure_real_values (m_network, g);
 #endif

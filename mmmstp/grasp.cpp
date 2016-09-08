@@ -464,7 +464,7 @@ int main (int argc, char**argv) {
 	std::vector<rca::Group> m_groups;
 	std::string file(argv[1]);
 	
-	MultipleMulticastReader reader(file);
+	rca::reader::MultipleMulticastReader reader(file);
 	reader.configure_real_values (&m_network, g);
 	for (std::shared_ptr<rca::Group> i : g) {
 		m_groups.push_back (*i);
