@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
 
 	rca::Network network;
 	std::vector<rca::Group> mgroups;
-	get_problem_informations (file, network, mgroups);
+	rca::reader::get_problem_informations (file, network, mgroups);
 
 	rca::StefanHeuristic obj (network, mgroups);
 

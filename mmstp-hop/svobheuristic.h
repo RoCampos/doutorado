@@ -31,7 +31,10 @@ class StefanHeuristic
 	typedef typename std::vector<int> VectorI;
 
 public:
+	
 	StefanHeuristic(rca::Network&, std::vector<rca::Group>&);
+
+	StefanHeuristic(rca::Network&, std::vector<rca::Group>&, bool verbose);
 
 	~StefanHeuristic() {
 		this->m_network = 0;
@@ -250,6 +253,7 @@ private:
 	rca::Network *m_network;
 	std::vector<rca::Group> m_groups;
 	size_t H;
+	bool m_verbose; //used to print extra informations 
 
 	std::vector<steiner> m_solution; //tree constructed by the algorithm
 
