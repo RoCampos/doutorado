@@ -26,6 +26,8 @@ namespace rca {
 class StefanHeuristic
 {
 
+	typedef rca::EdgeContainer<rca::Comparator, rca::HCell> Container;
+	typedef rca::sttalgo::SteinerTreeObserver<Container, steiner> Observer;
 	typedef typename std::vector<int> VectorI;
 
 public:
@@ -237,6 +239,11 @@ private:
 	void step4 (std::vector<rca::Path>& tpaths, 
 		VectorI& position, 
 		VectorI& members);
+
+	void calculate_sol (
+		std::vector<rca::Path>&,
+		int group, 
+		Observer&);
 
 private:
 

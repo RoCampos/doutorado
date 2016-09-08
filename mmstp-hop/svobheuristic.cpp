@@ -115,11 +115,13 @@ void StefanHeuristic::run (size_t hoplimit) {
 
 void StefanHeuristic::run2 (size_t hoplimit) 
 {
-	this->H = hoplimit;
-	this->m_version = 1;
-
+	
 	int NODES = m_network->getNumberNodes ();
 	int GROUP = m_groups.size ();
+
+	this->H = hoplimit;
+	this->m_version = 1;
+	this->m_solution = std::vector<steiner>(GROUP);
 
 	int allcost = 0;
 
@@ -182,13 +184,27 @@ void StefanHeuristic::run2 (size_t hoplimit)
 			}			
 		}
 
-		this->step4 (treepaths, position, members);
+		this->step4 (treepaths, position, members);		
 		
-		for(auto&& p : treepaths) {
-			cout << p << endl;
-		}
+		this->calculate_sol (treepaths, k, ob);
+		allcost += this->m_solution[k].get_cost ();
 
 	}//end of for over groups
+
+	cout << "Tree's cost\n";
+	for(auto&& sol : m_solution) {
+		cout << sol.get_cost () << endl;
+	}
+
+	cout << "AllCost: \t" << allcost << endl;
+	cout << "ZConges: \t" << cg.top () << endl;
+
+	cout << "\nChecking paths...\n";	
+	// rca::sttalgo::check_path_limit (m_solution, m_groups, H);
+	for (int i = 0; i < m_solution.size (); ++i)
+	{
+		cout << rca::sttalgo::check_path_limit (m_solution[i], m_groups[i], H) << endl;
+	}
 
 
 
@@ -474,4 +490,26 @@ void StefanHeuristic::step4 (
 	
 	tpaths = outpaths;
 
+}
+
+
+void StefanHeuristic::calculate_sol (
+		std::vector<rca::Path>& tpaths,
+		int group, Observer& ob)
+{
+
+	int trequest = this->m_groups[group].getTrequest ();
+
+	for(auto&& path : tpaths) {
+			
+		for (int i=0; i < path.size ()-1; i++) {
+			int cost = this->m_network->getCost (path[i], path[i+1]);
+			int band = this->m_network->getBand (path[i], path[i+1]);
+			ob.add_edge (path[i],path[i+1], cost, trequest, band);
+		}
+
+	}
+
+	this->m_solution[group] = ob.get_steiner_tree ();
+	
 }
