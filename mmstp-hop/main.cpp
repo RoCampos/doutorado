@@ -15,7 +15,7 @@ int main(int argc, char const *argv[])
 	std::vector<rca::Group> mgroups;
 	rca::reader::get_problem_informations (file, network, mgroups);
 
-	rca::StefanHeuristic obj (network, mgroups);
+	rca::StefanHeuristic obj (network, mgroups, true);
 
 	obj.run2 (H);
 

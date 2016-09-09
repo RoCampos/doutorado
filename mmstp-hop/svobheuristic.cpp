@@ -11,6 +11,7 @@ rca::StefanHeuristic::StefanHeuristic (rca::Network& network,
 {
 	this->m_network = &network;
 	this->m_groups = groups;
+	this->m_verbose = false;
 }
 
 rca::StefanHeuristic::StefanHeuristic(rca::Network& network, 
@@ -116,6 +117,10 @@ void StefanHeuristic::run (size_t hoplimit) {
 		for (size_t i = 0; i < m_solution.size (); ++i)
 		{
 			cout << rca::sttalgo::check_path_limit (m_solution[i], m_groups[i], H) << endl;
+		}
+
+		for(auto&& tree : this->m_solution) {
+			tree.print ();
 		}	
 	}	
 
@@ -214,6 +219,11 @@ void StefanHeuristic::run2 (size_t hoplimit)
 		{
 			cout << rca::sttalgo::check_path_limit (m_solution[i], m_groups[i], H) << endl;
 		}	
+
+		for(auto&& tree : this->m_solution) {
+			tree.print ();
+		}
+
 	}
 
 
