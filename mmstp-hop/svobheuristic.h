@@ -36,6 +36,8 @@ public:
 
 	StefanHeuristic(rca::Network&, std::vector<rca::Group>&, bool verbose);
 
+	StefanHeuristic(rca::Network&, std::vector<rca::Group>&, bool verbose, bool randomly);
+
 	~StefanHeuristic() {
 		this->m_network = 0;
 	}
@@ -67,6 +69,15 @@ public:
 	*	@param rca::Path
 	*/
 	void addNodes (const rca::Path& path);
+
+	std::vector<steiner> get_solution () {
+		return this->m_solution;
+	}
+
+	void set_container (Container & cg) {
+		this->m_container = &cg;
+	};	
+
 
 private:
 
@@ -250,10 +261,12 @@ private:
 
 private:
 
+	Container * m_container;
 	rca::Network *m_network;
 	std::vector<rca::Group> m_groups;
 	size_t H;
 	bool m_verbose; //used to print extra informations 
+	bool m_randomly; //used to random the solution creation
 
 	std::vector<steiner> m_solution; //tree constructed by the algorithm
 
