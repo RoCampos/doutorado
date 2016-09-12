@@ -1,4 +1,64 @@
 <h2>
+	New Versioon (2.0.0) - New modele mmstp-hp && new functionalites (12/09/2016)
+</h2>
+	
+The main feature of this release is the new module that tackles the problem of multiple
+trees with hop contraints by tree (from it source to each terminal node).
+Besides, 
+
+<dl>
+	<dt>Path Class</dt>
+	<dd>find_in() - find a node in the path.</dd>
+	<dd>reverse() - reverse the sequence of node in the path.</dd>
+	<dd>assign() - create a path by assign a copy a another path</dd>
+	<dd>join() - function to join to paths</dd>
+	<dd>revsubpath () - get sub path reverse starting from a node to root of the path</dd>
+	<dd>getPosition () - get the position in the path(storage position)</dd>
+	<dd>getRevPosition ()- get the positin of the vertex in the path (real position)</dd>
+
+	<dt>EdgeContainer class</dt>
+	<dd>update_inline() - method to update link usage in the container while it is picked by an algorithm</dd>
+	<dd>new Contructor - it receives the number of nodes of the network</dd>
+	<dd>test_bandwidth - test for available capacity</dd>
+
+	<dd>Network module</dd>
+	<dt>Network::breadth_first_search - added to network by perform search with arbitrary node.</dt>
+	<dt>Group::set_member - added to group</dt>
+	<dt>Algorithm.h - path_to_edge added to convert a path into a set of rca::Link</dt>
+	<dt>SteinerReader::get_info_problem - function to build network, groups for steiner tree's algorithm</dt>
+	<dt></dt>
+
+	<dd>MMSTP-HOP</dd>
+	<dt>VOB(1999 - Steiner tree problem with hops) heuristics: CHIN-R and CHIN-RR</dt>
+
+	<dd>Steiner Tree Visitor</dd>
+	<dt>check_path_limit - function to check a limit size of a path</dt>
+
+</dl>
+
+<h2>
+	New Version (1.2.0) - Implementações de modelos e funções auxiliares (05/07/2016)	
+
+	<dd>Math Model</dd>
+	<dt>Model to optimize cost subject to Z(residual capacity) - BZ(BudgetZ)</dt>
+	<dt>Concrete Residual model has been added - optimize Z only</dt>
+	<dt>avoid_leafs () added to Residual Concrete Model</dt>
+	<dt></dt>
+
+	<dd>Models and algorithm tackle unit and real values</dd>
+
+	<dd>BreadthFirstSearch algorithm to create trees were added</dd>
+
+	<dd>Network</dd>
+	<dt>Network::get_adjacent_nodes</dt>
+	<dt>get_path_size</dt>
+	<dt>Reader::get_problem_informations - get all informations: network, groups</dt>
+	<dt>rca::Path has a new contructor</dt>
+
+
+</h2>
+
+<h2>
 New Version (1.0.0) - Implementações de modelos matemáticos (30/01/2016)	
 </h2>
 
