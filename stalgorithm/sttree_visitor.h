@@ -225,6 +225,23 @@ void replace_edge (STTree &,
 				   rca::Link & _new, 
 				   rca::Network&);
 
+/**
+*
+* Método que verifica se os caminhos do no fonte para
+* cada nó de demanda em cada grupo estão de acordo com
+* um limit de hops dado.
+*
+* @param vector<steiner> conjunto de árvores da solução
+* @param vector<rca::Group> conjunto de grupos multicast
+* @param int limit de tamanho dos caminhos
+* 
+* @return true se a solução é valida ou falso caso contrário.
+*/
+bool check_path_limit (std::vector<steiner> & solucao, 
+	std::vector<rca::Group> & mgroups, int limit);
+
+bool check_path_limit (steiner&, rca::Group &, int limit);
+
 }// end of namespace visitor
 }// end of namespace rca
 

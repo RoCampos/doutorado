@@ -180,7 +180,7 @@ void WildestSteinerTree<Container, SteinerRepr>::update_band (rca::Group & g,
 	
 }
 
-// ---------------------- INTERATIVE DEEPING DEPTH FIRST SEARCH ------------------ 
+// ---------------------- INTERATIVE DEPTH FIRST SEARCH ------------------
 template <class Container, class SteinerRepr>
 void LimitedBreadthSearchFirst<Container, SteinerRepr>::build (
 				SteinerTreeObserver<Container, SteinerRepr> & sttree, 
@@ -217,14 +217,19 @@ void LimitedBreadthSearchFirst<Container, SteinerRepr>::build (
 	int term_count = 0;
 	while (!queue.empty () || (term_count == members.size () - 1) ) {
 
+		//get the first element of the queue
 		int curr_node = queue.front ();
 
 		marked[curr_node] = 1;
 
+		//get the neighboors of the vertext 'curr_node'
 		auto neighbors = network.get_neighboors (curr_node);
 
+		//apply shuffle algorithm to get diversity
 		std::random_shuffle (neighbors.begin (), neighbors.end ());
 
+
+		//addind all neighboors of vertex 'curr_node' to be examined
 		auto begin = neighbors.begin ();
 		auto end = neighbors.end ();
 		for ( ; begin != end; begin++) {
@@ -232,7 +237,8 @@ void LimitedBreadthSearchFirst<Container, SteinerRepr>::build (
 			int next_node = *begin;
 			rca::Link l (curr_node, next_node, 0);
 
-			int limit = counter[next_node];				
+			//checking if the node has been visited and if the limit of the path has been found
+			int limit = counter[next_node];		
 			if (!network.isRemoved (l) && marked[next_node] == 0 && limit < this->LIMIT) {
 				
 				//add link to tree
@@ -246,6 +252,7 @@ void LimitedBreadthSearchFirst<Container, SteinerRepr>::build (
 				m_pred[next_node] = curr_node;
 				counter[next_node] = counter[curr_node] + 1;			
 
+				//updating terminal counting
 				if (sttree.get_steiner_tree ().is_terminal (next_node) ) {
 					term_count++;
 				}
@@ -269,16 +276,147 @@ int LimitedBreadthSearchFirst<Container, SteinerRepr>::get_path_length (
 	int count = 0;
 	do {
 
-		next = m_pred[next];
+		next = this->m_pred[next];
 		count++;
 	} while (next != -1);
 
 	return count;
 }
 
+// ------------------ PathLimitedLocaSearch ------------------- //
+
+template <class Container, class SteinerRepr>
+void PathLimitedSearchTree<Container, SteinerRepr>::build (
+	SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+	rca::Network & network, 
+	rca::Group & g,
+	Container& cg)
+{
+
+	//list of path for each terminal member
+	typedef std::vector<std::vector<rca::Path>> MPath;
+	typedef SteinerTreeObserver<Container, SteinerRepr> Observer;
+	typedef LimitedBreadthSearchFirst<Container, SteinerRepr> Factory;
+
+	//a factory type: LimitedBreadthSearchFirst
+	Factory * factory = new Factory (std::numeric_limits<int>::max());
+
+	//observer used in the trees search
+	Observer ob;
+	ob.set_network (network);
+	
+	//getting the members of a group multicas
+	std::vector<int> members = g.getMembers ();
+	members.push_back (g.getSource ());
+
+	//a 'matrix' of vertexs of size of members
+	MPath m_paths = MPath ( (members.size ()-1) );
+
+	int NODES = network.getNumberNodes ();	
+	int trequest = g.getTrequest ();
+	int real_source = g.getSource ();
+
+	//for each member create a tree 'st' with this member
+	//as source	
+	for (int k = 0; k < members.size (); ++k)
+	{
+		
+		Container cg;
+		cg.init_congestion_matrix (NODES);
+		cg.init_handle_matrix (NODES);
+
+		ob.set_container (cg);
+
+		//getting current member 'k'
+		int curr_src = members[k];
+
+		//getting the members of the group
+		std::vector<int> _curr_members_ = members;
+
+		//erasing 'curr_src' from members
+		_curr_members_.erase (_curr_members_.begin() + k);
+
+		//defining 'st' structure
+		steiner st (NODES, curr_src, _curr_members_);
+
+		//copying the group and changing the source
+		rca::Group _g = g;
+		_g.setSource (curr_src);
+
+		ob.set_steiner_tree (st, NODES);
+
+		//building the tree with 'curr_src' as source
+		factory->build (ob, network, _g, cg);
+		ob.prune (trequest, 0);
+
+		//getting the paths of tree with 'curr_src' as source
+		for (int i = 0; i < members.size () - 1; ++i)
+		{
+			
+			int curr_member = members[i];
+			rca::Path path = st.get_path (curr_member, real_source);
+
+			// cout << path << ":" << path.size () - 1 << endl;
+			if ( (path.size () - 1) <= this->m_limit && path.size () > 0 ) {
+				m_paths[i].push_back (path);
+
+			}
+		}
+
+	}
+
+	//processing the paths to build the tree for group g
+	this->build_result_tree (m_paths, sttree, network, g);
+
+}
+
+template <class Container, class SteinerRepr>
+void PathLimitedSearchTree<Container, SteinerRepr>::build_result_tree (
+	std::vector<std::vector<rca::Path>>& m_paths,
+	rca::sttalgo::SteinerTreeObserver<Container,SteinerRepr>& observer, 
+	rca::Network& network, rca::Group & g)
+{
 
 
+	int trequest = g.getTrequest ();
+	std::vector<int> members = g.getMembers ();
 
+	//for each member vertex
+	for (size_t i = 0; i < members.size (); ++i)
+	{
+
+		//get the path with less cost and size within the limit
+		int size = m_paths[i][0].size();
+		rca::Path curr_path = m_paths[i][0];
+		for (auto && path : m_paths[i]) {
+			
+			int psize = (path.size () - 1);
+			if ( psize < size) {
+				size = (path.size () - 1);
+				curr_path = path;
+			}
+
+			if (psize == size && path.getCost () < curr_path.getCost())
+			{
+				size = (path.size () - 1);
+				curr_path = path;	
+			}
+		}
+		
+		//adding the path to final tree
+		auto begin = curr_path.rbegin ();
+		auto end = curr_path.rend ()-1;
+		for (; begin != end; begin++) {			
+			rca::Link l (*begin, *(begin+1), 0);
+
+			int cost = network.getCost (l.getX(), l.getY());
+			int band = network.getBand (l.getX(), l.getY()); 
+			l.setValue (cost);
+
+			observer.add_edge (l.getX(), l.getY(), cost, trequest, band);
+		}
+	}
+}
 
 template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >; 
 template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >;
@@ -289,3 +427,4 @@ template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Com
 template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >;
 template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >; 
 template class rca::sttalgo::LimitedBreadthSearchFirst<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner>;
+template class rca::sttalgo::PathLimitedSearchTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner>;

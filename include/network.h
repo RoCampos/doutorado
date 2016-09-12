@@ -377,6 +377,10 @@ public:
 	const std::vector<Link> & getRemovedEdges () {
 		return m_removeds;
 	}
+
+	
+	std::vector<int> breadth_first_search (int start);
+
 	
 private:
 	int m_nodes;

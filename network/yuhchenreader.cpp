@@ -1,6 +1,8 @@
 #include "reader.h"
 
-void YuhChenReader::configure_network (rca::Network & network, stream_list & list)
+using namespace rca::reader;
+
+void YuhChenReader::configure_network (rca::Network & network, stream_list_t & list)
 {
 
 	std::ifstream file ( getFileName().c_str() );

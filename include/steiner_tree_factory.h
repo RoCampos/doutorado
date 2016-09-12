@@ -211,14 +211,18 @@ public:
 };
 
 /**
-*	Esta classe é uma implementação do algoritmo de busca em profundidade com tamnho
-*	de caminho limitado do nó que inicia a busca até o nó objetivo (nós de demanda).
+*	
+*	This class represents a object who performs a search for a tree with path limited from 
+*	source to each destination node.
+*	
+*	The search is based on breadth search first.
+*	
+* 	A start node is select randomly and all neighboors of this node is added. And the search	
+*	follows until all terminals nodes are added (terminals means the tree as steiner tree).
 *
-*	O procedimento é datalhado no link referente à Iterative_deepening_depth-first_search
-*	disponível no wikipedia.
+*	
 *
-*
-*
+*	@author Romerito Campos
 */
 template <class Container, class SteinerRepr>
 class LimitedBreadthSearchFirst : public SteinerTreeFactory<Container, SteinerRepr>
@@ -228,6 +232,7 @@ class LimitedBreadthSearchFirst : public SteinerTreeFactory<Container, SteinerRe
 
 public:
 
+	
 	LimitedBreadthSearchFirst (int limit) {
 		this->LIMIT = limit;
 	}
@@ -239,6 +244,14 @@ public:
 				rca::Group & g,
 				Container & cg);
 
+	/**
+	*	This method returns the size of a path
+	*	the paths start at the 'source' and finish at 'member' node.
+	*
+	*	@param int source of the path
+	*	@param int member node
+	*	@return int size of a path
+	*/
 	int get_path_length (int member, int source);
 
 private:
@@ -248,6 +261,53 @@ private:
 	
 };
 
+
+/**
+*	
+*	This class represents an algorithm to perform tree construction
+*	for steiner tree under path limited size constraints.
+*
+*	The algorithm uses the factory 'LimitedBreadthSearchFirst' as subroutine.
+*
+*	For each group of terminals, GROUP_SIZE trees are built. One tree for each
+* 	member. The construction is performed by 'LimitedBreadthSearchFirst' instance
+*
+*	Then, a internal procedure is used to select the path with less cost. The selected
+*	path might respect a size limit for the path (in terms of hop).
+*
+*	@author Romerito Campos
+*/
+template <class Container, class SteinerRepr>
+class PathLimitedSearchTree : public SteinerTreeFactory<Container, SteinerRepr>
+{
+
+public:
+	PathLimitedSearchTree (int limit) 
+	: m_limit (limit) {}
+
+	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree,
+				rca::Network & network,
+				rca::Group & g,
+				Container & cg);
+
+	// para modificar o algoritmo de construção de solução
+	void set_tree_builder ();
+
+private:
+
+	/**
+	*	This method select the path found for each multicast group
+	*	the result is multicast tree (steiner tree) holding the terminals
+	*	node connected.
+	*/
+	void build_result_tree (std::vector<std::vector<rca::Path>>&,
+		rca::sttalgo::SteinerTreeObserver<Container,SteinerRepr>&, 
+		rca::Network&, rca::Group&);
+
+private:
+	int m_limit;
+
+};
 
 
 } //namespace factory

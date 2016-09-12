@@ -19,13 +19,52 @@
 
 namespace rca {
 
+/**
+* Classe implementa um parser para instância do 
+* problema da árvore de Steiner em grafos.
+* 
+* O parser faz a leitura das instâncias com base na 
+* seguinte representação: http://steinlib.zib.de/steinlib.php
+*
+* 
+* @author Romerito C. Andrade
+* @version 0.5.0
+*/
 class SteinerReader {
 
 public:
+
+	/**
+	* Construtor da classe SteinerReader.
+	*
+	* Recebe como parâmetro uma string indicado o arquivo
+	* que armazena uma instância do problema da árvore de Steiner em Grafo.
+	*
+	* @param std::string caminho para instância do problema da árvore de Steiner
+	*/
 	SteinerReader(std::string);
+
+	/**
+	* Destrutor do classe.
+	*
+	*/
 	~SteinerReader();
 
+	/**
+	* Método utilizado para configurar o grafo com
+	* base nas informações da instâncias de Steiner.
+	*
+	* @param rca::Network ponteiro para objeto do tipo rca::Network
+	*/
 	void configNetwork (Network *network);
+
+	/**
+	* Método que retorna os nós terminais de uma instância dó
+	* do problema da árvore de Steiner como um objeto do tipo
+	* rca::Group.
+	* 
+	* @return rca::Group objeto grupo que armazena os nós terminais.
+	*/
 	Group terminalsAsGroup ();
 
 private:
@@ -37,6 +76,9 @@ private:
 	std::vector<Link> m_edges_set;
 
 };
+
+
+void get_steiner_info (rca::Network&, Group&, std::string file);
 
 } /* namespace rca */
 #endif /* STEINERREADER_H_ */

@@ -129,6 +129,16 @@ public:
 	int getMember (int poss);
 
 	/**
+	* Método para adicionar um vector de inteiros como membros
+	* do grupo multicast.
+	*
+	* @param std::vector<int>
+	*/
+	void setMembers (std::vector<int> members) {
+		m_members = members;
+	}
+
+	/**
 	 * Retorna um vector com todos os nós membros.
 	 *
 	 * @return vector<int> membros do grupo multicast

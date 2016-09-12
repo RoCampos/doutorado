@@ -166,7 +166,8 @@ add_subdirectory (statistics)
 #add_subdirectory (mpp_algorithms)
 add_subdirectory (util)
 add_subdirectory (stalgorithm)
-add_subdirectory (mmmstp)
+add_subdirectory (mmmstp) #multiple tree under budget constraints
+add_subdirectory (mmstp-hop) #multiple tree under hop constraints
 add_subdirectory (multi)
 
 #directory for test of libraries and some mpp_algorithms

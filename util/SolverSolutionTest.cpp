@@ -8,7 +8,7 @@ bool MMMSTPGurobiResult::do_test (std::string instance, std::string result, int 
 	Network * net = new Network;
 	std::vector<std::shared_ptr<rca::Group> > groups;
 	
-	MultipleMulticastReader r(instance);
+	rca::reader::MultipleMulticastReader r(instance);
 	
 #ifdef MODEL_REAL
 	r.configure_real_values (net,groups);

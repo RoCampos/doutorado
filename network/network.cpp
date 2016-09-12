@@ -262,4 +262,38 @@ Network::get_adjacent_by_minimun_cost
 	
 }
 
+std::vector<int>
+Network::breadth_first_search (int start) {
+
+	std::vector<int> nodes(this->m_nodes);
+	nodes[start] = 1;
+
+	std::vector<int> stack;
+	std::vector<int> pred (this->m_nodes, -2);
+	stack.push_back (start);
+	pred[start] = -1;
+
+	do {
+
+		int curr = *stack.begin();
+		nodes [curr] = 1;
+
+		for (auto && neighbor : m_adjacent_vertex[curr]) {
+			
+			if (nodes[neighbor] == 0) {
+				stack.push_back (neighbor);
+				pred[neighbor] = curr;
+				nodes[neighbor] = 1;
+			}
+		}
+
+		stack.erase (stack.begin ());
+
+	} while ( !stack.empty () );
+
+	return pred;
+
+}
+
+
 } /* namespace rca */

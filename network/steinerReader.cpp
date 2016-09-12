@@ -116,4 +116,18 @@ Group SteinerReader::terminalsAsGroup() {
 	return group;
 }
 
+
+void get_steiner_info (
+	rca::Network& network, 
+	Group& group, 
+	std::string file)
+{
+
+	SteinerReader sr (file);
+	sr.configNetwork (&network);
+	group = sr.terminalsAsGroup ();
+
+}
+
+
 } /* namespace rca */

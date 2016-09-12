@@ -87,7 +87,7 @@ int main (int argc, char**argv)
 void budget_by_sttree (std::string file, std::string dir_output)
 {
 	Network * net = new Network;
-	Reader r (file);
+	rca::reader::Reader r (file);
 	r.configNetwork ( net );
 	
 	std::vector<shared_ptr<rca::Group>> g = r.readerGroup ();
@@ -115,7 +115,7 @@ void budget_multicast (std::string file)
 {
 	
 	Network * net = new Network;
-	MultipleMulticastReader r (file);
+	rca::reader::MultipleMulticastReader r (file);
 	std::vector<shared_ptr<rca::Group>> g;
 	
 	/*Lê os valores confome definidos nas instâncias.*/

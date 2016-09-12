@@ -89,7 +89,7 @@ typedef struct stream_t {
 	
 	friend std::ostream & operator<< (std::ostream & out, stream_t const & t);
 	
-}stream_t;
+} stream_t;
 
 
 typedef struct forest_t {
@@ -144,7 +144,7 @@ public:
 	 * Ele é utilizdo no construtor que recebe o nome do arquivo.
 	 * @stream_list é defindo em reader.h 
 	 */
-	void configure_streams (stream_list & s);
+	void configure_streams (rca::reader::stream_list_t & s);
 	
 	void configure_streams (std::vector<rca::Group> &);
 	

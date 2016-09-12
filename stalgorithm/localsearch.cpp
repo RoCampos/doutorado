@@ -481,3 +481,348 @@ void CycleLocalSearch::inline_update (rca::Link& out, EdgeType type, int tree_id
 	//atualizando a banda
 	
 }
+
+// ----------------- ReplaceEdgeConstrained ------------//
+
+template <class Container, class SteinerRpr>
+std::vector<std::vector<int>> 
+PathExchange<Container, SteinerRpr>::get_components (
+	SteinerRpr& st)
+{
+	CC cc (st);
+	std::vector<std::vector<int>> ccs;
+	assert (cc.get_num_cc () > 1);	
+	cc.get_components_list (ccs);
+
+	return ccs;
+}
+
+template <class Container, class SteinerRpr>
+bool PathExchange<Container, SteinerRpr>::test_pathsize (
+	int cc1, 
+	int cc2, 
+	Paths & paths, 
+	std::vector<int> distancia)
+{
+	int dis_c0 = distancia[cc1];	
+	for (auto && p : paths) {
+		if (p.find_in (cc2)) {
+			for (size_t i = 0; i < p.size (); ++i)	{
+				if (p[i] == cc2) {
+					if ( (p.size () - (i)) + dis_c0 > this->m_path_size ) {						
+						return false;
+					} 
+				}
+			}
+		} 
+	}		
+	return true;
+}
+
+template <class Container, class SteinerRpr>
+bool PathExchange<Container, SteinerRpr>::control_trocas (
+	rca::Link& novo, rca::Link& old) {
+
+	auto pair1 = std::make_pair(old, novo);
+	auto pair2 = std::make_pair(novo, old);
+
+	auto res1 = std::find (
+		m_trocas.begin(), 
+		m_trocas.end(), pair1);
+
+	auto res2 = std::find (
+		m_trocas.begin(),
+		m_trocas.end(), pair2);
+
+	if (res1 != m_trocas.end() || res2 != m_trocas.end())
+	{
+		return true;
+	}
+
+	m_trocas.push_back ( std::make_pair(old, novo) );
+
+	return false;
+
+}
+
+template <class Container, class SteinerRpr>
+void PathExchange<Container, SteinerRpr>::paths_distance (
+	SteinerRpr& st,  
+	Paths& paths, 
+	std::vector<int>& distancia, 
+	std::vector<int>& members, 
+	int source)
+{
+	for (auto && m: members) {		
+		rca::Path path ( st.get_path (source, m) );		
+		paths.push_back (path);
+		for (size_t i = 0; i < path.size (); i++) {
+			distancia[ path[i] ] = i;
+		}
+	}
+}
+
+template <class Container, class SteinerRpr>
+std::vector<rca::Path> 
+PathExchange<Container, SteinerRpr>::prepare_paths (
+	Paths& paths, int connec, int oldroot, int newroot) 
+{
+	Paths newpaths; // = paths;
+
+	//int pos and the path
+	std::vector<std::pair<rca::Path, rca::Path>> v;
+
+	// eliminar a aresta ausente
+	rca::Path rootpath;
+
+	//selecionar os caminhos que contem a nova raiz
+	//newroot que será conectado a outra parte da árvore que
+	//contém a fonte
+	for (int i = 0; i < paths.size (); ++i)
+	{
+		if (paths[i].find_in (oldroot)) {			
+
+			if (paths[i].find_in (newroot)) 
+				rootpath = paths[i];
+
+			//creating subpath
+			std::vector<int> vec;
+			paths[i].subpath (connec, vec);			
+			Path tmp (vec);
+			tmp.reverse ();
+			v.push_back (make_pair (paths[i], tmp));
+
+		}
+	}
+
+	std::vector<int> subrootpath;
+	rootpath.subpath (connec, subrootpath);
+	rootpath.assign (subrootpath);
+
+	for (auto && p : v) {
+		rca::Path tmp(rootpath);		
+		tmp.join (p.second); //remove nos duplicados
+		p.second = tmp;
+		newpaths.push_back (p.second);
+	}
+
+
+	return newpaths;
+}
+
+template <class Container, class SteinerRpr>
+bool PathExchange<Container, SteinerRpr>::check_change (
+		std::vector<std::vector<int>>& ccs,
+		int c1, int c2, int source, 
+		rca::Link & old,
+		Paths& paths, 
+		std::vector<int>& distancia) 
+{
+
+	auto res = std::find(ccs[0].begin(),ccs[0].end(),source);
+	if (res != ccs[0].end()) {
+
+		if (c2 != old.getX() && c2 != old.getY()) {
+
+			Paths copy;
+
+			int old_head, connec;
+			if ( find (ccs[1], old.getX()) == find (ccs[1], c2)) {
+				old_head = old.getX();
+				connec = old.getY();
+			} else {
+				old_head = old.getY();			
+				connec = old.getX();
+			}
+
+			copy = this->prepare_paths (paths,connec,old_head,c2);
+
+			return this->test_pathsize (c1,c2,copy,distancia);
+		}
+
+		//c2 is the node not in the tree
+		return this->test_pathsize (c1,c2,paths,distancia);
+	} else {
+
+		if (c1 != old.getX() && c1 != old.getY()) {
+
+			Paths copy;
+
+			int old_head, connec;
+
+			if (find (ccs[1], old.getX()) == find (ccs[1], c1) ) {
+				old_head = old.getX();
+				connec = old.getY();				
+			} else {
+				old_head = old.getY();				
+				connec = old.getX();
+			}
+			
+			copy = this->prepare_paths (paths,connec,old_head,c1);
+
+			return this->test_pathsize (c2, c1,copy, distancia);
+
+		}
+
+
+		//c1 is the node not in the tree
+		return this->test_pathsize (c2, c1, 
+			paths, distancia);					
+	}
+}
+
+
+template<class Container, class SteinerRpr>
+bool PathExchange<Container, SteinerRpr>::do_change (
+	SteinerRpr& st, Container& container, 
+	rca::Link& novo, rca::Link& old, 
+	rca::Network& network, rca::Group& g)
+{
+	typedef typename rca::OperationType OperationType;
+
+	int trequest = g.getTrequest ();
+	int band = network.getBand (novo.getX(), novo.getY());	
+
+	container.update_inline (novo, 
+		OperationType::IN, trequest, band);
+
+	int cost = network.getCost (novo.getX(), novo.getY());
+	st.add_edge (novo.getX(), novo.getY(), cost);					
+
+	Prune p;
+	p.prunning (st);
+	int rcost = 0;
+	for (auto e = p.begin(); e != p.end(); e++) {
+		
+		int x = e->first;
+		int y = e->second;
+
+		rcost += (int)network.getCost (x, y);						
+		rca::Link l (x, y, 0);						
+
+		int band = network.getBand (l.getX(), l.getY());
+		container.update_inline (l, OperationType::OUT, 
+			trequest, band);
+	}
+
+	st.set_cost (st.get_cost () - rcost);
+
+	band = network.getBand (old.getX(), old.getY());
+	container.update_inline (old, OperationType::OUT,
+		trequest, band);
+
+	return true;
+
+}
+
+template<class Container, class SteinerRpr>
+bool PathExchange<Container, SteinerRpr>::core_search (
+	SteinerRpr & st, 
+	Container & container, 
+	rca::Network& network, 
+	rca::Link& old, 
+	rca::Group& g)
+
+{
+
+	//inicialization of some variables
+	int trequest = g.getTrequest ();	
+	int NODES = network.getNumberNodes ();
+	int tree_cost = st.get_cost ();
+	std::vector<int> members = g.getMembers ();
+	int source = g.getSource ();
+
+	std::vector<rca::Path> tree_paths;
+	std::vector<int> distancia(NODES);
+	this->paths_distance (st, tree_paths, distancia, 
+		members, source);
+
+	//removing edges: old
+	st.remove_edge (old.getX (), old.getY());
+	tree_cost -= (int)network.getCost (old.getX(),old.getY());
+	st.set_cost (tree_cost);
+
+	//getting the components after removing the edge 'old'
+	std::vector<std::vector<int>> ccs = this->get_components (st);
+
+	for (auto c1 : ccs[0]) {				
+		//getting the neighbors
+		std::vector<int> neighbor = network.get_neighboors (c1);
+
+		for (auto c2 : ccs[1]) {
+			if (network.getCost (c1, c2) > 0) {
+
+				rca::Link novo(c1, c2, 0);
+				int band = network.getBand (c1, c2);
+				if (!tocontinue (novo, old, container, trequest, band)) {
+					continue;
+				}
+
+				bool canchange = this->check_change (ccs, 
+					c1, c2, source, old, tree_paths, distancia);
+				
+				if (canchange) {					
+
+					//evita loop infinito com trocas repedidas
+					if (this->control_trocas (old, novo)) {
+						int cost = network.getCost (old.getX(), old.getY());
+						st.add_edge (old.getX (), old.getY(), cost);
+						return false;
+					}
+
+					//realiando mudança
+					return this->do_change (st, container, 
+						novo, old, network, g);
+
+				}
+
+			}
+		}
+	}
+
+	int cost = network.getCost (old.getX(), old.getY());
+	st.add_edge (old.getX (), old.getY(), cost);
+	
+	return false;
+
+}
+
+template <class Container, class SteinerRpr>
+bool PathExchange<Container, SteinerRpr>::run (
+	std::vector<SteinerRpr>& solucao, 
+	Container& container, 
+	rca::Network& network, std::vector<rca::Group>& mgroups) 
+{
+
+	int GROUPS = mgroups.size ();
+
+	auto begin = container.m_heap.ordered_begin ();
+	auto end = container.m_heap.ordered_end ();
+
+	do {
+
+		rca::Link l = *begin;
+		bool res = false;
+		for (int i = 0; i < GROUPS; ++i)
+		{
+			int x = begin->getX();
+			int y = begin->getY();
+			if (solucao[i].find_edge (x,y)) {
+				res = this->core_search (solucao[i], container, 
+					network, l, mgroups[i]);
+
+				if (res) {
+					begin = container.m_heap.ordered_begin ();
+					end = container.m_heap.ordered_end ();
+					return true;
+				}
+			}
+		}
+		begin++;
+	} while (begin != end);
+
+	return false;
+
+}
+
+template class PathExchange<rca::EdgeContainer<rca::Comparator,rca::HCell>,steiner>;

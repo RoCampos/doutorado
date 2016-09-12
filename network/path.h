@@ -11,6 +11,7 @@
 #include <vector>
 #include <ostream>
 #include <iterator>
+#include <algorithm>
 
 namespace rca {
 
@@ -40,6 +41,10 @@ public:
 	 */
 	void push (int);
 
+	bool find_in (int node) {
+		return (std::find (m_path.begin(), m_path.end(), node) != m_path.end());
+	}
+
 	/**
 	 * Método para acessar uma posição do caminho como se faz
 	 * com um vector;
@@ -47,7 +52,56 @@ public:
 	const int & operator[] (unsigned int pos) {
 		return m_path[pos];
 	}
+
+	/**
+	* Este método é utilizado para reverter a ordem do caminho.
+	*
+	*/
+	void reverse () {
+		std::reverse (m_path.begin(), m_path.end());
+	}
+
+	/**
+	* Este método é utilizado para associar um valor a uma 
+	* dada posição
+	*
+	* @param int posição
+	* @param int value a ser associado a posição pos
+	*/
+	void assign (unsigned int const pos, int const value) {
+		m_path[pos] = value;
+	}
+
+	/**
+	*
+	* Método utilizad para fazer um caminho receber outro.
+	* Basicamente é uma cópia de um novo caminho.
+	* 
+	* @param rca::Path 
+	*/
+	void assign (rca::Path const&path) {
+		m_path = path.m_path;
+	}
 	
+
+	/**
+	* Método para adicionar um caminho a outro.
+	* Evita que caminhos tenha nós repetidos:
+	* 	caminho1: 0 1 2 3, caminho2: 3 2 1 3 4
+	* Resultado: 0 1 2 4
+	* 
+	* @param rca::Path 
+	*/
+	void join (Path const & path) {		
+		for (auto && v : path.m_path){
+			auto begin = this->m_path.begin ();
+			auto end = this->m_path.end ();
+			if (std::find (begin, end, v) == end) {
+				this->m_path.push_back (v);
+			}
+		}
+	}
+
 	/**
 	 * Método retorna o vértice que está na posição
 	 * pos do caminho.
@@ -174,6 +228,47 @@ public:
 	 * @return bool
 	 */
  	bool operator== (const Path& path);
+
+ 	/**
+ 	*	This function is used to get a reverse path
+ 	*	from the end of the path to node 'vertex' 
+ 	*	without consider the node 'vertex'
+ 	*
+ 	*	Consider the path 1-->2-->23 and the call 'revsubpath(23)'
+ 	*	the return is 1-->2.
+ 	*
+ 	*	The subpath is stored in the vector passed as paramater.
+ 	*	
+ 	*	@param vertex
+ 	*	@param std::vector<int> 
+ 	*/
+ 	bool revsubpath (int vertex, std::vector<int>&);
+
+
+ 	/**
+ 	*	This function returns the position of vertex
+ 	*	in the way it is stored in the internal structure
+ 	*	For example, the 1-->2-->23 is stored as [23,2,1]
+ 	*
+ 	*	So a cal to getPosition (23) returns 0.
+ 	*	@param int
+ 	*	@param int position
+ 	*/
+ 	int getPosition (int vertex);
+
+ 	/**
+ 	*	This function returns the position of the vertex
+ 	*	based on the representation. So if the path 1-->2-->23
+ 	*	is stored as [23,2,1]. 
+ 	*
+ 	*	The correct position of the vertex 23 is '3'. Considering
+ 	*	that the index start at 1.
+ 	*
+ 	*	@param int
+ 	*	@param int position
+ 	*/
+ 	int getRevPosition (int vertex);
+
 	
 private:
 	std::vector<int> m_path;
