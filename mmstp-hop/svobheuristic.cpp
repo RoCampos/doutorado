@@ -11,6 +11,8 @@ rca::StefanHeuristic::StefanHeuristic (rca::Network& network,
 {
 	this->m_network = &network;
 	this->m_groups = groups;
+	this->m_verbose = false;
+	this->m_randomly = false;
 }
 
 rca::StefanHeuristic::StefanHeuristic(rca::Network& network, 
@@ -19,6 +21,21 @@ rca::StefanHeuristic::StefanHeuristic(rca::Network& network,
 	this->m_network = &network;
 	this->m_groups = groups;
 	this->m_verbose = verbose;
+	this->m_randomly = false;
+}
+
+rca::StefanHeuristic::StefanHeuristic(
+	rca::Network& network, 
+	std::vector<rca::Group>& groups, 
+	bool verbose, 
+	bool randomly) 
+{
+
+	this->m_network = &network;
+	this->m_groups = groups;
+	this->m_verbose = verbose;
+	this->m_randomly = randomly;
+
 }
 
 void StefanHeuristic::run (size_t hoplimit) {
@@ -116,6 +133,10 @@ void StefanHeuristic::run (size_t hoplimit) {
 		for (size_t i = 0; i < m_solution.size (); ++i)
 		{
 			cout << rca::sttalgo::check_path_limit (m_solution[i], m_groups[i], H) << endl;
+		}
+
+		for(auto&& tree : this->m_solution) {
+			tree.print ();
 		}	
 	}	
 
@@ -134,14 +155,22 @@ void StefanHeuristic::run2 (size_t hoplimit)
 	int allcost = 0;
 
 	//CONTAINER to store the edge usage
-	Container cg(NODES);
+	// Container cg(NODES);
 
 	//observer to handle changes on edges
 	Observer ob;
-	ob.set_container (cg);
+	ob.set_container (*this->m_container);
 
-	for (int k = 0; k < GROUP; ++k)
+	std::vector<int> index(GROUP, 0);
+	iota (index.begin(), index.end(), 0);
+	
+	if (this->m_randomly)
+		std::random_shuffle (index.begin(), index.end());
+
+	for (int i = 0; i < GROUP; ++i)
 	{
+
+		int k = index[i];
 
 		int curr_source = this->m_groups[k].getSource ();
 		std::vector<int> members = this->m_groups[k].getMembers ();		
@@ -199,7 +228,7 @@ void StefanHeuristic::run2 (size_t hoplimit)
 	}//end of for over groups
 
 	cout << "Z: ";
-	cout << cg.top () << " ";
+	cout << this->m_container->top () << " ";
 	cout << "Cost: " << allcost << endl;
 
 	if (this->m_verbose) {
@@ -214,6 +243,11 @@ void StefanHeuristic::run2 (size_t hoplimit)
 		{
 			cout << rca::sttalgo::check_path_limit (m_solution[i], m_groups[i], H) << endl;
 		}	
+
+		for(auto&& tree : this->m_solution) {
+			tree.print ();
+		}
+
 	}
 
 
