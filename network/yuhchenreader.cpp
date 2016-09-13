@@ -72,3 +72,25 @@ void YuhChenReader::configure_network (rca::Network & network, stream_list_t & l
 	} while ( getline (file, line) );
 }
 
+void YuhChenReader::configure_network (
+	rca::Network & network, 
+	std::vector<rca::Group>& mgroups)
+{
+
+	stream_list_t streams;
+	this->configure_network (network, streams);
+
+	int id=0;
+	for(auto&& g : streams) {		
+		rca::Group group;
+		group.setSource (g.get_sources ()[0]);
+		group.setMembers (g.get_members ());
+		group.setTrequest (1);
+		group.setId (id);
+
+		mgroups.push_back (group);
+		id++;
+	}
+
+}
+

@@ -234,6 +234,8 @@ public:
 	 * @param rca::Network
 	 */
 	void configure_network (rca::Network &, stream_list_t &);
+
+	void configure_network (rca::Network &, std::vector<rca::Group>&);
 		
 	int get_number_nodes () {return m_nodes;}
 	int get_number_edges () {return m_edges;}
