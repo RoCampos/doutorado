@@ -131,6 +131,7 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 	cg.init_handle_matrix (NODES);
 	STObserver stob;
 	stob.set_container (cg);
+	stob.set_network (*this->m_network);
 	
 	stream_t w = m_streams[stream_id];
 			
@@ -567,7 +568,16 @@ int main (int argc, char**argv)
 	std::vector<rca::Group> groups;
 	
 	rca::reader::MultipleMulticastReader r(m_instance);	
-	r.configure_unit_values (&net, g);
+
+#ifdef MODEL_REAL
+	r.configure_real_values (&net,g);
+#endif
+	
+#ifdef MODEL_UNIT
+	r.configure_unit_values (&net,g);
+#endif
+
+	
 	
 	for (auto it : g) {
 		groups.push_back (*it.get());
