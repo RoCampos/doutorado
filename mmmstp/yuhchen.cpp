@@ -12,8 +12,10 @@ YuhChen::YuhChen (rca::Network * net)
 	//creating the congestion handle that will be used 
 	//to improve the cost of solution
 	int NODES = this->m_network->getNumberNodes ();
-	m_cg.init_congestion_matrix (NODES);
-	m_cg.init_handle_matrix (NODES);
+	// m_cg->init_congestion_matrix (NODES);
+	// m_cg->init_handle_matrix (NODES);
+
+	m_cg = new CongestionHandle (NODES);
 	
 }
 
@@ -41,8 +43,9 @@ YuhChen::YuhChen (std::string file)
 	}
 	
 	int NODES = this->m_network->getNumberNodes ();
-	m_cg.init_congestion_matrix (NODES);
-	m_cg.init_handle_matrix (NODES);
+	// m_cg->init_congestion_matrix (NODES);
+	// m_cg->init_handle_matrix (NODES);
+	m_cg = new CongestionHandle (NODES);
 	
 }
 
@@ -427,17 +430,17 @@ void YuhChen::update_cg (STTree & st)
 		if (e->in) {
 		
 			rca::Link l (e->x, e->y, 0);
-			if (!m_cg.is_used (l)) {
+			if (!m_cg->is_used (l)) {
 				
 				l.setValue ( STREAMS - 1 );
-				this->m_cg.push(l);
+				this->m_cg->push(l);
 				
 			} else {
 				
-				int value = m_cg.value (l) - 1;
-				this->m_cg.erase (l);
+				int value = m_cg->value (l) - 1;
+				this->m_cg->erase (l);
 				l.setValue ( value );
-				this->m_cg.push (l);
+				this->m_cg->push (l);
 				
 			}
 		}
@@ -531,6 +534,7 @@ void YuhChen::run (int param)
 	
 	
 	if (this->m_improve_cost == 1) {
+
 		/*Improving solution cost*/
 		std::vector<rca::Group> m_groups;
 		for (auto stm : m_streams) {			
@@ -542,17 +546,18 @@ void YuhChen::run (int param)
 		rca::sttalgo::ChenReplaceVisitor<> c(&improve);
 		c.setNetwork (m_network);
 		c.setMulticastGroups (m_groups);
-		c.setEdgeContainer (m_cg);
+		c.setEdgeContainer (*m_cg);
 		
 		c.visitByCost ();
 		int tt = 0.0;
 		for (auto st : improve) {
 			tt += (int)st.get_cost ();
 		}
+
 		std::cout << tt << "\t";
 		CycleLocalSearch cls;
 		cls.local_search (improve, *m_network, 
-					m_groups, m_cg, tt);
+					m_groups, *m_cg, tt);
 		std::cout << tt << "\t";
 	} 
 }

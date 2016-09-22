@@ -219,7 +219,7 @@ private:
 	
 	std::vector<stream_t> m_streams;
 	
-	CongestinoHandle m_cg;
+	CongestinoHandle * m_cg;
 	
 	int m_improve_cost;
 	
