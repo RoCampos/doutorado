@@ -309,6 +309,7 @@ forest_t YuhChen::to_forest (int stream_id, std::vector<rca::Path> paths)
 		
 	STObserver ob;
 	ob.set_container (cg);
+	ob.set_network (*m_network);
 	std::vector<STObserver> observers( SOURCES );
 	std::fill (observers.begin(), observers.end(), ob);
 	
@@ -562,17 +563,12 @@ void YuhChen::run (int param)
 	} 
 }
 
-int main (int argc, char**argv) 
-{
-
-	std::string m_instance(argv[1]);
-	int improve_cost = atoi (argv[2]);
- 	
+void singlesoruce(std::string file, int option) {
 	rca::Network net;
 	std::vector<shared_ptr<rca::Group>> g;
 	std::vector<rca::Group> groups;
 	
-	rca::reader::MultipleMulticastReader r(m_instance);	
+	rca::reader::MultipleMulticastReader r(file);	
 
 #ifdef MODEL_REAL
 	r.configure_real_values (&net,g);
@@ -582,24 +578,46 @@ int main (int argc, char**argv)
 	r.configure_unit_values (&net,g);
 #endif
 
-	
-	
 	for (auto it : g) {
 		groups.push_back (*it.get());
 	}
-	
 	rca::elapsed_time time_elapsed;	
 	time_elapsed.started ();
 	
 	YuhChen yuhchen (&net);
 	yuhchen.configure_streams (groups);
-	
- 	//YuhChen yuhchen(m_instance);
-	
-	yuhchen.run (improve_cost);
+
+	yuhchen.run (option);
 	
 	time_elapsed.finished ();
 	std::cout << time_elapsed.get_elapsed () << std::endl;
+}
+
+void multiplesource(std::string file) {
+	
+	rca::Network net;
+	YuhChen yuhchen (file);
+	yuhchen.run (0);
+
+}
+
+int main (int argc, char**argv) 
+{
+
+	std::string m_instance(argv[1]);
+	int improve_cost = atoi (argv[2]);
+	int option = atoi (argv[3]);
+
+	if (option==0) {
+
+		singlesoruce (m_instance, improve_cost);
+
+	} else {
+
+		multiplesource (m_instance);
+
+	}
+
 	//forest_t ff = yuhchen.widest_path_tree (0);
 	
 	//std::cout << ff.m_trees.size () << std::endl;
