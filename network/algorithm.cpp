@@ -513,3 +513,74 @@ std::vector<rca::Link> path_to_edges (rca::Path const& path, rca::Network * net)
 	}
 	return out;
 }
+
+
+void voronoi_diagram (
+	int source,
+	rca::Network & network)  
+{
+	typedef typename std::vector<int>::const_iterator c_iterator;
+
+	int NODES = network.getNumberNodes ();
+	int infty = std::numeric_limits<int>::min();
+
+	std::vector<int> bases = std::vector<int> (NODES,-1);
+	std::vector<rca::Path> paths = std::vector<rca::Path> (NODES);
+	std::vector<int> distance = std::vector<int> (NODES, infty);
+	std::vector<int> prev = std::vector<int> (NODES, -1);
+	std::vector<bool> visited= std::vector<bool> (NODES, false);
+
+	std::vector<g_handle_t> handles = std::vector<g_handle_t> (NODES);
+
+	fibonacci_greater_t queue;
+
+	distance[source] = std::numeric_limits<int>::max();
+
+	vertex_t v (distance[source], source);
+	handles[source] = queue.push (v);
+
+	while (!queue.empty ()) {
+
+		vertex_t curr_node = queue.top ();
+		queue.pop ();
+		visited[curr_node.id] = true;	
+		
+		//open a new node... TODO			
+
+		// getting the neighboors of vertex
+		std::pair<c_iterator, c_iterator> neighbors;
+		network.get_iterator_adjacent (curr_node.id, neighbors);
+		for (auto u=neighbors.first; u!= neighbors.second; u++) {
+
+			int next = *u;
+
+			//distance between curr_node and neighboor 'u'
+			int band_curr_u = network.getBand(curr_node.id, next);
+			rca::Link l = rca::Link(curr_node.id, next, band_curr_u);
+			bool removed = network.isRemoved(l);
+			//if the link is valid then go on
+			if (!removed) {
+
+				//minimum distance between current link
+				// and distance until current node
+				int edge_value = std::min (band_curr_u, distance[curr_node.id] );
+
+				if (!visited[next] && distance[next] < edge_value) {
+					
+					int next_old_dist = distance[next];
+
+					distance[next] = edge_value;
+					prev[next] = curr_node.id;
+					vertex_t t(distance[next]*-1, next);
+
+					if (next_old_dist == infty) {
+						handles[t.id] = queue.push (t);
+					} else {
+						queue.decrease (handles[t.id], t);
+					}
+				}//endif compare distance
+			}//endif is_removed??
+		}//end neighboor for
+	}//end while loop
+
+}
