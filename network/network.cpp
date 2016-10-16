@@ -33,7 +33,7 @@ Network * Network::extend (std::vector<int> sources) {
 	for (auto link : this->m_links) {
 
 		int cost = this->getCost (link.getX(), link.getY());
-		int band = this->getCost (link.getX(), link.getY());
+		int band = this->getBand (link.getX(), link.getY());
 		net->setCost(link.getX(),link.getY(),cost);
 		net->setCost(link.getY(),link.getX(),cost);
 		
