@@ -195,7 +195,11 @@ std::vector<int> all_shortest_path (int v, int w, rca::Network & network);
 * @param rca::Network the network where the tree is built
 *
 */
-void voronoi_diagram (int source, rca::Network &);
+void voronoi_diagram (
+	rca::Network &,
+	std::vector<int> & bases,
+	std::vector<int> & costpath,
+	std::vector<std::vector<int>> & paths);
 
 
 /**

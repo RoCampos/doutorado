@@ -516,16 +516,21 @@ std::vector<rca::Link> path_to_edges (rca::Path const& path, rca::Network * net)
 
 
 void voronoi_diagram (
-	int source,
-	rca::Network & network)  
+	rca::Network & network,
+	std::vector<int> & bases,
+	std::vector<int> & costpath,
+	std::vector<std::vector<int>> & paths) 
 {
 	typedef typename std::vector<int>::const_iterator c_iterator;
 
 	int NODES = network.getNumberNodes ();
+	int source = NODES-1;
+
 	int infty = std::numeric_limits<int>::min();
 
-	std::vector<int> bases = std::vector<int> (NODES,-1);
-	std::vector<rca::Path> paths = std::vector<rca::Path> (NODES);
+	costpath = std::vector<int> (NODES,-1);
+	bases = std::vector<int> (NODES,-1);
+	paths = std::vector<std::vector<int>> (NODES);
 	std::vector<int> distance = std::vector<int> (NODES, infty);
 	std::vector<int> prev = std::vector<int> (NODES, -1);
 	std::vector<bool> visited= std::vector<bool> (NODES, false);
@@ -545,7 +550,33 @@ void voronoi_diagram (
 		queue.pop ();
 		visited[curr_node.id] = true;	
 		
-		//open a new node... TODO			
+		//building extra informations
+		if (curr_node.id != source) {
+			
+			//getting the previus node
+			int pv = prev[curr_node.id];
+			for (auto n : paths[pv]) {
+				paths[curr_node.id].push_back (n);
+			}
+			paths[curr_node.id].push_back (curr_node.id);
+
+			//getting the cost of a path
+			if (paths[curr_node.id].size () > 1) {
+				int length = paths[curr_node.id].size ();
+				int v = paths[curr_node.id][length-1];
+				int w = paths[curr_node.id][length-2];
+				int edge_cost = network.getCost (v, w);
+				costpath[curr_node.id] += edge_cost;
+			}
+
+			//updating the bases
+			if (pv == source) {
+				bases[curr_node.id] = curr_node.id;
+			} else {
+				bases[curr_node.id] = bases[pv];
+			}
+
+		}			
 
 		// getting the neighboors of vertex
 		std::pair<c_iterator, c_iterator> neighbors;
