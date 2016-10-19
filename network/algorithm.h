@@ -211,7 +211,28 @@ void voronoi_diagram (
 */
 double min_bandwidth (rca::Network& network);
 
+/**
+*	Este método é utilizado para pegar a aresta de um caminho
+* com menor valor de capacidade residual e retoná-lo.
+* 
+*
+* @param rca::Network
+* @param rca::Path
+*/
+int get_bottleneck (
+	rca::Network& network, 
+	rca::Path& path);
 
+/**
+*	Este método é utilizado para transformar um rca::Path
+*	em um conjunto de arestas adicionando o custo da aresta
+* 	obtido da rede, que e passada como parâmetro.
+*
+*
+*	@param rca::Path
+*	@param rca::Network
+*	@return std::vector<rca::Link>
+*/
 std::vector<rca::Link> path_to_edges (rca::Path const& path, 
 	rca::Network * net = NULL);
 

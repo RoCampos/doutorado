@@ -493,6 +493,26 @@ double min_bandwidth (rca::Network& network)
 	return min;
 }
 
+int get_bottleneck (
+	rca::Network& network, 
+	rca::Path& path)
+{
+	int min = std::numeric_limits<int>::max();
+
+	if (path.size () >=2 ) {
+		for (int i = 0; i < path.size ()-1; ++i)
+		{
+			int x = path[i];
+			int y = path[i+1];
+			int band = network.getBand (x, y);
+
+			if (band < min) {
+				min = band;
+			}
+		}
+	}
+	return min;
+}
 
 std::vector<rca::Link> path_to_edges (rca::Path const& path, rca::Network * net) 
 {
