@@ -22,30 +22,31 @@ struct DataSMT
 
 };
 
-int update_graph (rca::Path const& p, 
-	rca::Network& net, 
-	int tk, 
-	std::vector<rca::Link> & links) {
+int update_graph (DataSMT * data, rca::Network & net)
+{
+	int cost;
+	
+	std::vector<rca::Link> links;
 
-	int cost = 0;
+	for (auto l : data->links) {
 
-	for (int i = 0; i < p.size ()-1; ++i)
-	{
-		int v = p.at (i);
-		int w = p.at (i+1);
-		rca::Link l (v, w, (int)net.getCost (v, w));
-		if (std::find(links.begin(), links.end(), l) == links.end()) {
+		auto it = std::find (links.begin(), links.end(), l);
+		if (it == links.end()) {
+
+			int b = net.getBand (l.getX(), l.getY());
+			net.setBand (l.getX(), l.getY(), b-1);
+
 			links.push_back (l);
-			int band = net.getBand (v,w)-tk;
-			net.setBand (v, w, band);
-			net.setBand (w, v, band);
-
-			cost += net.getCost (v,w);
-
-		} 
+		}
 	}
+
+	// for(auto c : links) {
+	// 	cout << c << endl;
+	// }
+
 	return cost;
 }
+
 
 int get_min_cap (
 	rca::Network & net,
@@ -129,7 +130,7 @@ DataSMT * join_components (
 
 			} else {
 
-				if (dist < G->getBand(v.getX(), v.getY())) {
+				if (dist > G->getBand(v.getX(), v.getY())) {
 
 					G->setBand (v.getY(), v.getX(), dist);
 					G->setBand (v.getX(), v.getY(), dist);
@@ -177,7 +178,8 @@ minimum_spanning_tree (DataSMT * data)
 
 void rebuild_solution (
 	DataSMT * data, 
-	std::vector<std::vector<int>> & paths) 
+	std::vector<std::vector<int>> & paths,
+	rca::Network & network) 
 {
 
 	std::vector<rca::Link> links;
@@ -195,9 +197,26 @@ void rebuild_solution (
 		rca::Path p1 (paths[link.getX()]);
 		rca::Path p2 (paths[link.getY()]);
 		
+		auto path = path_to_edges (p1, &network);
+		auto it = links.end();
+		
+		if (path.size () >= 1) {
+			links.insert (it, path.begin(), path.end());
+		}
+
+		path = path_to_edges (p2, &network);
+
+		auto end = links.begin();
+		if (path.size () >= 1) {
+			links.insert (end, path.begin(), path.end());
+		}
+
+		links.push_back (link);
+
 	}
 
-	cout << endl;
+	data->links.clear ();
+	data->links = std::move (links);
 
 }
 
@@ -232,7 +251,9 @@ int main(int argc, char const *argv[])
 		
 		minimum_spanning_tree (data);
 
-		rebuild_solution (data, paths);
+		rebuild_solution (data, paths, network);
+
+		update_graph (data, network);
 
 		delete data;
 		delete ptr;
