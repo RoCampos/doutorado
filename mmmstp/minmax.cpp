@@ -4,9 +4,30 @@
 
 #include "minmax.h"
 #include "rcatime.h"
+#include "sttree_visitor.h"
 
 typedef std::pair<int,int> EdgePair;
 typedef std::map<EdgePair, rca::Link> EdgeMap;
+
+typedef rca::EdgeContainer<rca::Comparator, rca::HCell> Container;
+
+struct CompareLessGroup 
+{
+	bool operator () (rca::Group const& g1, rca::Group const& g2)
+	const
+	{
+		return g1.getTrequest() < g2.getTrequest ();
+	}
+};
+
+struct CompareGreaterGroup 
+{
+	bool operator () (rca::Group const& g1, rca::Group const& g2)
+	const
+	{
+		return g1.getTrequest() > g2.getTrequest ();
+	}
+};
 
 struct DataSMT
 {
@@ -22,9 +43,12 @@ struct DataSMT
 
 };
 
-int update_graph (DataSMT * data, rca::Network & net)
+int update_graph (
+	DataSMT * data, 
+	rca::Network & net ,
+	int tk)
 {
-	int cost;
+	int cost = 0;
 	
 	std::vector<rca::Link> links;
 
@@ -34,15 +58,16 @@ int update_graph (DataSMT * data, rca::Network & net)
 		if (it == links.end()) {
 
 			int b = net.getBand (l.getX(), l.getY());
-			net.setBand (l.getX(), l.getY(), b-1);
+			net.setBand (l.getX(), l.getY(), b-tk);
+
+			cost += net.getCost(l);
 
 			links.push_back (l);
 		}
 	}
 
-	// for(auto c : links) {
-	// 	cout << c << endl;
-	// }
+	data->links.clear ();
+	data->links = std::move (links);
 
 	return cost;
 }
@@ -92,6 +117,8 @@ DataSMT * join_components (
 
 	for(auto&& edge : network.getLinks ()) {
 		
+		if (network.isRemoved(edge)) continue;
+
 		int x = bases[edge.getX()];
 		int y = bases[edge.getY()];
 	
@@ -200,14 +227,18 @@ void rebuild_solution (
 		auto path = path_to_edges (p1, &network);
 		auto it = links.end();
 		
-		if (path.size () >= 1) {
+		if (path.size () > 0) {
 			links.insert (it, path.begin(), path.end());
+		}
+
+		for (auto e : path) {
+			cout << e << endl;
 		}
 
 		path = path_to_edges (p2, &network);
 
 		auto end = links.begin();
-		if (path.size () >= 1) {
+		if (path.size () > 0) {
 			links.insert (end, path.begin(), path.end());
 		}
 
@@ -220,6 +251,40 @@ void rebuild_solution (
 
 }
 
+void
+remove_top (rca::Network & network, 
+	int rem, rca::Group & group) 
+{
+
+	Container edgeContainer(network.getNumberNodes ());
+
+	for(auto e : network.getLinks ()) {		
+		int band = network.getBand(e.getX(), e.getY());
+		edgeContainer.update_inline (e, 
+			rca::OperationType::IN, 
+			group.getTrequest (), 
+			band);
+	}
+
+	int count = 0;
+
+	int top = edgeContainer.top ();
+	auto it = edgeContainer.get_heap ().ordered_begin ();
+	auto end = edgeContainer.get_heap ().ordered_end ();
+	for ( ; it != end; it++) { 	
+
+		if (count++ == rem) return;
+
+		int b = network.getBand (it->getX(), it->getValue());
+		if (b-group.getTrequest() < top) {
+			network.removeEdge (*it);
+	 		if ( !is_connected (network, group) ) {
+	 			network.undoRemoveEdge (*it);
+	 		}	
+		} 			
+	}
+} 
+
 int main(int argc, char const *argv[])
 {
 	
@@ -227,11 +292,15 @@ int main(int argc, char const *argv[])
 	std::vector<rca::Group> mgroups;
 	std::string file = argv[1];
 
+	int rem = atoi (argv[2]);
+
 	rca::reader::get_problem_informations (
 		file, network, mgroups);
 
 	rca::elapsed_time time_elapsed;
 	time_elapsed.started ();
+
+	std::sort (mgroups.begin(), mgroups.end(), CompareGreaterGroup()); 
 
 	int cost = 0;
 	for(auto&& group : mgroups) {
@@ -243,17 +312,36 @@ int main(int argc, char const *argv[])
 		std::vector<int> costpath;
 		std::vector<std::vector<int>> paths;
 
+		//remove top
+		remove_top (network, rem, group);
+
 		rca::Network *ptr = network.extend (srcs);
 		voronoi_diagram (*ptr, bases, costpath, paths);
 
 		DataSMT * data =
 			join_components (bases, paths, costpath, *ptr, srcs);
 		
+		//apply MST over network distance(Z over edges)
+		//the calculation uses cost
 		minimum_spanning_tree (data);
 
+		//rebuild the solution	
 		rebuild_solution (data, paths, network);
 
-		update_graph (data, network);
+		cost += update_graph (data, network, group.getTrequest());
+
+		// std::vector<int> g = group.getMembers ();
+		// steiner st = steiner(network.getNumberNodes(), 
+		// 		group.getSource(), 
+		// 		g);
+
+		// for(auto&& e : data->links) {
+		// 	st.add_edge (e.getX(), e.getY(), e.getValue());
+		// }
+
+		// st.print ();
+
+		network.clearRemovedEdges ();
 
 		delete data;
 		delete ptr;
