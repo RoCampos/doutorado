@@ -32,6 +32,8 @@ Network * Network::extend (std::vector<int> sources) {
 
 	for (auto link : this->m_links) {
 
+		if (this->isRemoved (link)) continue;
+
 		int cost = this->getCost (link.getX(), link.getY());
 		int band = this->getBand (link.getX(), link.getY());
 		net->setCost(link.getX(),link.getY(),cost);
@@ -56,6 +58,9 @@ Network * Network::extend (std::vector<int> sources) {
 	}
 
 	net->m_links = this->m_links;
+
+	net->m_removeds_edge = this->m_removeds_edge;
+	net->m_removeds = this->m_removeds;
 
 	return net;
 }
