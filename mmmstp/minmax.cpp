@@ -2,32 +2,17 @@
 #include <vector>
 #include <map>
 
+#include "sttree_visitor.h"
 #include "minmax.h"
 #include "rcatime.h"
 #include "sttree_visitor.h"
+#include "mpp_visitor.h"
+#include "sttree_local_search.h"
+#include "localsearch.h"
 
 typedef std::pair<int,int> EdgePair;
 typedef std::map<EdgePair, rca::Link> EdgeMap;
-
 typedef rca::EdgeContainer<rca::Comparator, rca::HCell> Container;
-
-struct CompareLessGroup 
-{
-	bool operator () (rca::Group const& g1, rca::Group const& g2)
-	const
-	{
-		return g1.getTrequest() < g2.getTrequest ();
-	}
-};
-
-struct CompareGreaterGroup 
-{
-	bool operator () (rca::Group const& g1, rca::Group const& g2)
-	const
-	{
-		return g1.getTrequest() > g2.getTrequest ();
-	}
-};
 
 struct DataSMT
 {
@@ -231,10 +216,6 @@ void rebuild_solution (
 			links.insert (it, path.begin(), path.end());
 		}
 
-		for (auto e : path) {
-			cout << e << endl;
-		}
-
 		path = path_to_edges (p2, &network);
 
 		auto end = links.begin();
@@ -253,7 +234,7 @@ void rebuild_solution (
 
 void
 remove_top (rca::Network & network, 
-	int rem, rca::Group & group) 
+	float perc_rem, rca::Group & group) 
 {
 
 	Container edgeContainer(network.getNumberNodes ());
@@ -267,6 +248,7 @@ remove_top (rca::Network & network,
 	}
 
 	int count = 0;
+	int rem = ((perc_rem * (float)network.getNumberNodes ()));
 
 	int top = edgeContainer.top ();
 	auto it = edgeContainer.get_heap ().ordered_begin ();
@@ -276,7 +258,7 @@ remove_top (rca::Network & network,
 		if (count++ == rem) return;
 
 		int b = network.getBand (it->getX(), it->getValue());
-		if (b-group.getTrequest() < top) {
+		if (b-group.getTrequest() < top+5) {
 			network.removeEdge (*it);
 	 		if ( !is_connected (network, group) ) {
 	 			network.undoRemoveEdge (*it);
@@ -285,22 +267,66 @@ remove_top (rca::Network & network,
 	}
 } 
 
+void print_result (int Z, int cost, 
+	double time, std::string arg) {
+
+	if (arg.compare ("full") == 0){
+		cout << Z << " "<< cost << " ";
+		cout << time << endl;
+	}else {
+		if (arg.compare ("cost") == 0) {
+			cout << cost << endl;
+		} else {
+			cout << Z << endl;
+		}
+	}
+
+}
+
+// parameters
+// --inst [brite|yuh]
+// --rem  [int] ..percentual
+// --reverse [yes|no]
+// --sort [request|size]
+// --result [res|cost|full]
+// --multi 	[yes|no]
+
 int main(int argc, char const *argv[])
 {
 	
 	rca::Network network;
 	std::vector<rca::Group> mgroups;
-	std::string file = argv[1];
+	std::string file = argv[2];
 
-	int rem = atoi (argv[2]);
+	float rem = atof (argv[4]);
+	std::string reverse = argv[6];
+	std::string sort = argv[8];
+	std::string full_res = argv[10];
 
 	rca::reader::get_problem_informations (
 		file, network, mgroups);
 
+	rca::Network finalnetwork = network;
+	Container container (network.getNumberNodes ());
+
 	rca::elapsed_time time_elapsed;
 	time_elapsed.started ();
 
-	std::sort (mgroups.begin(), mgroups.end(), CompareGreaterGroup()); 
+	if (reverse.compare ("yes") == 0) {		 
+		if (sort.compare("request") == 0) {			
+			std::sort (mgroups.begin(), mgroups.end(), rca::CompareGreaterGroup());
+		} else {			
+			std::sort (mgroups.begin(), mgroups.end(), rca::CompareGreaterGroupBySize());
+		}
+	} else {
+		if (sort.compare("request") == 0) {
+			std::sort (mgroups.begin(), mgroups.end(), rca::CompareLessGroup());
+		} else {
+			std::sort (mgroups.begin(), mgroups.end(), rca::CompareLessGroupBySize());
+		}
+	}	 
+
+	std::vector<steiner> solution;
 
 	int cost = 0;
 	for(auto&& group : mgroups) {
@@ -330,16 +356,19 @@ int main(int argc, char const *argv[])
 
 		cost += update_graph (data, network, group.getTrequest());
 
-		// std::vector<int> g = group.getMembers ();
-		// steiner st = steiner(network.getNumberNodes(), 
-		// 		group.getSource(), 
-		// 		g);
+		steiner st = steiner(network.getNumberNodes(), 
+				group.getSource(), 
+				group.getMembers ());
 
-		// for(auto&& e : data->links) {
-		// 	st.add_edge (e.getX(), e.getY(), e.getValue());
-		// }
+		for(auto&& e : data->links) {
+			st.add_edge (e.getX(), e.getY(), e.getValue());
+			int b = finalnetwork.getBand (e.getX(), e.getY());
+			container.update_inline (e, 
+				rca::OperationType::IN, 
+				group.getTrequest (), b);
+		}
 
-		// st.print ();
+		solution.push_back (st);
 
 		network.clearRemovedEdges ();
 
@@ -349,7 +378,6 @@ int main(int argc, char const *argv[])
 
 	time_elapsed.finished ();
 	
-
 	int Z = std::numeric_limits<int>::max();
 	auto links = network.getLinks ();
 	for (auto & e : links) {
@@ -357,13 +385,32 @@ int main(int argc, char const *argv[])
 			Z = network.getBand (e.getX(), e.getY());
 		}
 	}
-	cout << Z << " "<< cost << " ";
-	std::cout << time_elapsed.get_elapsed () << std::endl;
 
-	std::map<std::pair<int,int>, rca::Link> mapa;
+	rca::sttalgo::LocalSearch ls(finalnetwork, mgroups, container);	
+	int ocost = cost;
+	int z = container.top ();
+	do {				
+		ocost = cost;
+		ls.apply (solution, cost, z);	
+	} while (cost < ocost);	
 
-	mapa[std::pair<int,int>(0,1)] = rca::Link(0,0,0);
-	mapa[std::pair<int,int>(1,0)] = rca::Link(0,0,0);
+	rca::sttalgo::CycleLocalSearch cls(finalnetwork, mgroups, container);	
+	z = container.top ();
+	ocost = cost;
+	do {
+		ocost = cost;
+		cls.apply (solution, cost, z);	 	
+	} while (cost < ocost);
+
+	print_result (Z, cost, time_elapsed.get_elapsed (), full_res);
+
+	//PRINT FOR TEST
+	// std::vector<steiner> saida = std::vector<steiner> (solution.size());
+	// for (int i = 0; i < solution.size(); ++i)
+	// {
+	// 	saida[mgroups[i].getId()] = solution[i];
+	// }
+	// rca::sttalgo::print_solution2<steiner> (saida);
 
 	return 0;
 }
