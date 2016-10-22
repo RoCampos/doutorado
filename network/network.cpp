@@ -58,9 +58,14 @@ Network * Network::extend (std::vector<int> sources) {
 	}
 
 	net->m_links = this->m_links;
-
 	net->m_removeds_edge = this->m_removeds_edge;
+
 	net->m_removeds = this->m_removeds;
+
+	m_removeds_edge = std::vector<std::vector<EdgeRemoved>> (NODES+1);
+	for (int i = 0; i < NODES+1; i++) {
+		m_removeds_edge[i] = std::vector<EdgeRemoved>(NODES+1);
+	}
 
 	return net;
 }

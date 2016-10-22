@@ -144,7 +144,8 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 	forest_t forest;
 	forest.m_id = w.m_id;
 	
-	int BAND = w.m_group.getSize ();
+	// int BAND = w.m_group.getSize ();
+	int BAND = m_streams.size ();
 	
 	int cost = 0;
 	
@@ -187,7 +188,7 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 		
 		stob.prune (1, BAND);
 		
-		this->update_usage (stob.get_steiner_tree ());
+		// this->update_usage (stob.get_steiner_tree ());
 		
 		cost += stob.get_steiner_tree().get_cost ();
 		//stob.get_steiner_tree().xdotFormat ();
@@ -470,11 +471,15 @@ void YuhChen::run (int param)
 	
 	for (int i=0; i < STREAMS; i++) {
 		
+		cout << i << endl;
+
 		forest_t f = wp_forest (this->m_streams[i]);
 		
 		std::vector<tree_t> trees = f.m_trees;
 		
 		for (tree_t t: trees) {
+
+			this->update_usage (t.m_tree);
 			
 			std::vector<rca::Link> tree_links;
 			
@@ -561,6 +566,8 @@ void YuhChen::run (int param)
 					m_groups, *m_cg, tt);
 		std::cout << tt << "\t";
 	} 
+
+	cout << endl;
 }
 
 void singlesoruce(std::string file, int option) {
