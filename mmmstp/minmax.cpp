@@ -2,6 +2,8 @@
 #include <vector>
 #include <map>
 
+#include "config.h"
+
 #include "sttree_visitor.h"
 #include "minmax.h"
 #include "rcatime.h"
@@ -291,9 +293,13 @@ void print_result (int Z, int cost,
 // --result [res|cost|full]
 // --multi 	[yes|no]
 
+
+
 int main(int argc, char const *argv[])
 {
 	
+	message (argc, argv);
+
 	rca::Network network;
 	std::vector<rca::Group> mgroups;
 	std::string file = argv[2];
