@@ -464,14 +464,14 @@ void YuhChen::run (int param)
 	
 	std::vector<rca::Link> links;
 	
-	double cost = 0.0;
+	int cost = 0;
+
+	rca::Network copy = *m_network;
 	
 	//list of sttrees to be improved
 	std::vector<STTree> improve;
 	
 	for (int i=0; i < STREAMS; i++) {
-		
-		cout << i << endl;
 
 		forest_t f = wp_forest (this->m_streams[i]);
 		
@@ -525,7 +525,7 @@ void YuhChen::run (int param)
 					links.push_back (link);
 				}
 				
-				cost += m_network->getCost (link.getX(), link.getY());
+				cost += (int)m_network->getCost (link.getX(), link.getY());
 			}
 			tree_links.clear ();
 			
@@ -550,7 +550,7 @@ void YuhChen::run (int param)
 		}
 		
 		rca::sttalgo::ChenReplaceVisitor<> c(&improve);
-		c.setNetwork (m_network);
+		c.setNetwork (&copy);
 		c.setMulticastGroups (m_groups);
 		c.setEdgeContainer (*m_cg);
 		
@@ -562,7 +562,7 @@ void YuhChen::run (int param)
 
 		std::cout << tt << "\t";
 		CycleLocalSearch cls;
-		cls.local_search (improve, *m_network, 
+		cls.local_search (improve, copy, 
 					m_groups, *m_cg, tt);
 		std::cout << tt << "\t";
 	} 
