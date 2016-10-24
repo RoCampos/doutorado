@@ -346,7 +346,8 @@ bool CycleLocalSearch::cut_replace (int id, std::vector<int>& vertex, steiner & 
 				if ( in_cost > 0 && !st.find_edge (x,y) ) {
 
 					//avitar piorar solução
-					if (m_cg->is_used (in) && m_cg->value (in) <= this->m_top) {
+					int tk = m_groups->at (id).getTrequest ();
+					if (m_cg->is_used (in) && (m_cg->value (in)-tk < this->m_top)) {
 						continue;
 					}
 
