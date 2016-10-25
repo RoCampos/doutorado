@@ -448,13 +448,15 @@ int main(int argc, char const *argv[])
 
 	print_result (z, cost_res, time_elapsed.get_elapsed (), full_res);
 
-	//PRINT FOR TEST
-	std::vector<steiner> saida = std::vector<steiner> (solution.size());
-	for (size_t i = 0; i < solution.size(); ++i)
-	{
-		saida[mgroups[i].getId()] = solution[i];
+	if (full_res.compare ("full") == 0) {
+		//PRINT FOR TEST
+		std::vector<steiner> saida = std::vector<steiner> (solution.size());
+		for (size_t i = 0; i < solution.size(); ++i)
+		{
+			saida[mgroups[i].getId()] = solution[i];
+		}
+		rca::sttalgo::print_solution2<steiner> (saida);	
 	}
-	rca::sttalgo::print_solution2<steiner> (saida);
 
 	return 0;
 }
