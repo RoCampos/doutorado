@@ -5,6 +5,8 @@
 #include <memory>
 #include <iostream>
 
+#include "config.h"
+
 #include "path.h"
 #include "network.h"
 #include "group.h"

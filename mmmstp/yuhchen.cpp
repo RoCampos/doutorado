@@ -608,28 +608,38 @@ void multiplesource(std::string file) {
 
 }
 
-int main (int argc, char**argv) 
+std::string commandLine ()
+{
+	std::string command = "--inst [brite|yuh]";
+	command += " --localsearch [yes|no] --single [yes|no]";
+	return command;
+}
+
+
+
+int main (int argc, char const *argv[]) 
 {
 
-	std::string m_instance(argv[1]);
-	int improve_cost = atoi (argv[2]);
-	int option = atoi (argv[3]);
+	if (message(argc, argv, commandLine())) {
+		exit (1);
+	}
 
-	if (option==0) {
+	std::string m_instance(argv[2]);
+	std::string localsearch = (argv[4]);
+	std::string option = (argv[6]);
 
-		singlesoruce (m_instance, improve_cost);
+	if (option.compare ("yes") == 0) {
 
-	} else {
+		if (localsearch.compare ("yes"))
+			singlesoruce (m_instance, 1);
+		else
+			singlesoruce (m_instance, 0);
+
+	} else if (option.compare("no") == 0) {
 
 		multiplesource (m_instance);
 
 	}
-
-	//forest_t ff = yuhchen.widest_path_tree (0);
-	
-	//std::cout << ff.m_trees.size () << std::endl;
-	//std::cout << ff.m_cost << std::endl;
-	//std::cout << ff.Z << std::endl;
 	
 	return 0;
 }
