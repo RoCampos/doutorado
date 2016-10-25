@@ -252,7 +252,6 @@ remove_top (rca::Network & network,
 	int count = 0;
 	int rem = ((perc_rem * (float)network.getNumberNodes ()));
 
-	int top = edgeContainer.top ();
 	auto it = edgeContainer.get_heap ().ordered_begin ();
 	auto end = edgeContainer.get_heap ().ordered_end ();
 	for ( ; it != end; it++) { 	
@@ -260,12 +259,10 @@ remove_top (rca::Network & network,
 		if (count++ == rem) return;
 
 		int b = network.getBand (it->getX(), it->getValue());
-		if (b-group.getTrequest() < top+5) {
-			network.removeEdge (*it);
-	 		if ( !is_connected (network, group) ) {
-	 			network.undoRemoveEdge (*it);
-	 		}	
-		} 			
+		network.removeEdge (*it);
+ 		if ( !is_connected (network, group) ) {
+ 			network.undoRemoveEdge (*it);
+ 		}	
 	}
 } 
 
@@ -285,20 +282,78 @@ void print_result (int Z, int cost,
 
 }
 
-// parameters
-// --inst [brite|yuh]
-// --rem  [int] ..percentual
-// --reverse [yes|no]
-// --sort [request|size]
-// --result [res|cost|full]
-// --multi 	[yes|no]
 
+int l1 (
+	std::vector<steiner> &solution, 
+	Container & container,
+	std::vector<rca::Group> & mgroups,
+	rca::Network & network, 
+	int cost) 
+{
+	rca::sttalgo::LocalSearch ls(network, mgroups, container);	
+	int ocost = cost;
+	int z = container.top ();
+	do {				
+		ocost = cost;
+		ls.apply (solution, cost, z);	
+	} while (cost < ocost);
 
+	return cost;
+}
+
+int l2 (
+	std::vector<steiner> &solution, 
+	Container & container,
+	std::vector<rca::Group> & mgroups,
+	rca::Network & network,
+	int cost) 
+{	
+	rca::sttalgo::CycleLocalSearch cls(network, mgroups, container);	
+	int z = container.top ();
+	int ocost = cost;
+	do {
+		ocost = cost;
+		cls.apply (solution, cost, z);	 	
+	} while (cost < ocost);
+
+	return cost;
+}
+
+int local_search (
+	std::string option, 
+	std::vector<steiner> &solution, 
+	Container & container,
+	std::vector<rca::Group> & mgroups,
+	rca::Network & network, 
+	int cost) 
+{
+
+	int custo = 0;
+
+	if (option.compare("local") == 0) {
+		custo = l1 (solution, container, mgroups, network, cost);
+		return 	l2 (solution, container, mgroups, network, custo);
+	} else if (option.compare ("localrev") == 0) {
+		custo = l2 (solution, container, mgroups, network, cost);
+		return 	l1 (solution, container, mgroups, network, custo);
+	}
+
+	return (0);
+}
+
+std::string commandLine() {
+	std::string command = "--inst [brite|yuh]";
+	command+="--rem [double] --reverse [yes|no] --sort [request|size]";
+	command+="--local [local|localrev] --result[full, cost, re]";	
+	return command;
+}
 
 int main(int argc, char const *argv[])
 {
 	
-	message (argc, argv);
+	if (message (argc, argv, commandLine()) ) {
+		exit (1);
+	}
 
 	rca::Network network;
 	std::vector<rca::Group> mgroups;
@@ -307,7 +362,9 @@ int main(int argc, char const *argv[])
 	float rem = atof (argv[4]);
 	std::string reverse = argv[6];
 	std::string sort = argv[8];
-	std::string full_res = argv[10];
+	std::string localsearch = argv[10];
+	std::string full_res = argv[12];
+
 
 	rca::reader::get_problem_informations (
 		file, network, mgroups);
@@ -335,6 +392,7 @@ int main(int argc, char const *argv[])
 	std::vector<steiner> solution;
 
 	int cost = 0;
+
 	for(auto&& group : mgroups) {
 		
 		std::vector<int> srcs = group.getMembers ();
@@ -384,39 +442,19 @@ int main(int argc, char const *argv[])
 
 	time_elapsed.finished ();
 	
-	int Z = std::numeric_limits<int>::max();
-	auto links = network.getLinks ();
-	for (auto & e : links) {
-		if (network.getBand (e.getX(), e.getY()) < Z) {
-			Z = network.getBand (e.getX(), e.getY());
-		}
-	}
-
-	rca::sttalgo::LocalSearch ls(finalnetwork, mgroups, container);	
-	int ocost = cost;
+	int cost_res = local_search (localsearch, solution, 
+		container, mgroups, finalnetwork, cost);
 	int z = container.top ();
-	do {				
-		ocost = cost;
-		ls.apply (solution, cost, z);	
-	} while (cost < ocost);	
 
-	rca::sttalgo::CycleLocalSearch cls(finalnetwork, mgroups, container);	
-	z = container.top ();
-	ocost = cost;
-	do {
-		ocost = cost;
-		cls.apply (solution, cost, z);	 	
-	} while (cost < ocost);
-
-	print_result (Z, cost, time_elapsed.get_elapsed (), full_res);
+	print_result (z, cost_res, time_elapsed.get_elapsed (), full_res);
 
 	//PRINT FOR TEST
-	// std::vector<steiner> saida = std::vector<steiner> (solution.size());
-	// for (int i = 0; i < solution.size(); ++i)
-	// {
-	// 	saida[mgroups[i].getId()] = solution[i];
-	// }
-	// rca::sttalgo::print_solution2<steiner> (saida);
+	std::vector<steiner> saida = std::vector<steiner> (solution.size());
+	for (size_t i = 0; i < solution.size(); ++i)
+	{
+		saida[mgroups[i].getId()] = solution[i];
+	}
+	rca::sttalgo::print_solution2<steiner> (saida);
 
 	return 0;
 }
