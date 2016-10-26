@@ -630,7 +630,7 @@ int main (int argc, char const *argv[])
 
 	if (option.compare ("yes") == 0) {
 
-		if (localsearch.compare ("yes"))
+		if (localsearch.compare ("yes")==0)
 			singlesoruce (m_instance, 1);
 		else
 			singlesoruce (m_instance, 0);
