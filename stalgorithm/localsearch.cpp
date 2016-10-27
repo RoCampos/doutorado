@@ -343,7 +343,8 @@ bool CycleLocalSearch::cut_replace (
 					int tk = (int)m_groups->at (id).getTrequest ();
 					if (m_cg->is_used (in) && (m_cg->value (in)-tk < this->m_top)) {
 						continue;
-					}
+					} else if ((int)m_network->getBand(x,y)-tk <this->m_top) 
+						continue;
 
 					rca::Path p = this->get_path (x,y,st);
 
