@@ -500,7 +500,6 @@ void YuhChen::run (int param)
  	
 	}
 
-	// std::cout << links.begin ()->getValue () << "\t" << cost << "\t";
 	std::cout << this->m_cg->top () << " " << cost << "\t";
 	
 	if (this->m_improve_cost == 1) {

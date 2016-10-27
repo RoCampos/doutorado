@@ -44,10 +44,10 @@ int update_graph (
 		auto it = std::find (links.begin(), links.end(), l);
 		if (it == links.end()) {
 
-			int b = net.getBand (l.getX(), l.getY());
+			int b = (int)net.getBand (l.getX(), l.getY());
 			net.setBand (l.getX(), l.getY(), b-tk);
 
-			cost += net.getCost(l);
+			cost += (int)net.getCost(l);
 
 			links.push_back (l);
 		}
@@ -70,7 +70,7 @@ int get_min_cap (
 	int bp1 = get_bottleneck (net, p1);
 	int bp2 = get_bottleneck (net, p2);
 	bp1 = std::min (bp1, bp2);
-	bp2 =  net.getBand(l.getX(), l.getY());
+	bp2 =  (int)net.getBand(l.getX(), l.getY());
 	bp1 = std::min (bp1,bp2);
 
 	return bp1;	
@@ -112,7 +112,7 @@ DataSMT * join_components (
 		//if x and y are in different bases
 		if (x != y) {			
 
-			int band = network.getBand (edge.getX(), edge.getY());
+			int band = (int) network.getBand (edge.getX(), edge.getY());
 
 			//link on network distance
 			rca::Link v (vertex[x], vertex[y], band);
@@ -240,12 +240,12 @@ remove_top (rca::Network & network,
 {
 
 	Container edgeContainer(network.getNumberNodes ());
-
+	int tk = (int)group.getTrequest ();
 	for(auto e : network.getLinks ()) {		
-		int band = network.getBand(e.getX(), e.getY());
+		int band = (int)network.getBand(e.getX(), e.getY());
 		edgeContainer.update_inline (e, 
 			rca::OperationType::IN, 
-			group.getTrequest (), 
+			tk, 
 			band);
 	}
 
@@ -258,7 +258,6 @@ remove_top (rca::Network & network,
 
 		if (count++ == rem) return;
 
-		int b = network.getBand (it->getX(), it->getValue());
 		network.removeEdge (*it);
  		if ( !is_connected (network, group) ) {
  			network.undoRemoveEdge (*it);
@@ -353,7 +352,7 @@ int main(int argc, char const *argv[])
 	
 	if (message (argc, argv, commandLine()) ) {
 		exit (1);
-	}
+	}	
 
 	rca::Network network;
 	std::vector<rca::Group> mgroups;
@@ -441,11 +440,9 @@ int main(int argc, char const *argv[])
 	}
 
 	time_elapsed.finished ();
-	
 	int cost_res = local_search (localsearch, solution, 
 		container, mgroups, finalnetwork, cost);
 	int z = container.top ();
-
 	print_result (z, cost_res, time_elapsed.get_elapsed (), full_res);
 
 	if (full_res.compare ("full") == 0) {
