@@ -5,8 +5,9 @@
 #include "network.h"
 #include "reader.h"
 #include "steinerReader.h"
+#include "config.h"
 
-void help ();
+std::string help ();
 
 /**
  * Binário que gera os lps para cada instância do MPP
@@ -14,14 +15,14 @@ void help ();
  * Usa a implementação de MultipleMulticastCommodityLP
  * 
  */
-int main (int argv, char**argc)
+int main (int argv, char const *argc[])
 {
-	int option = atoi(argc[1]);
 	
-	if ( (strcmp(argc[1], "-h") == 0) ) {
-		help ();
+	if (message (argv, argc, help()) ) {
 		exit (1);
 	}
+
+	int option = atoi(argc[1]);
 	
 	std::string file = argc[2];
 	
@@ -74,7 +75,7 @@ int main (int argv, char**argc)
 	return 0;
 }
 
-void help ()
+std::string help ()
 {
 
 	std::string msg;
@@ -96,5 +97,5 @@ void help ()
 	msg += "\t\tto alpha*OPT_k on each multicast tree where\n";
 	msg += "\t\tParameters: <option><brite><alpha><OPTFILE>\n";
 	
-	std::cout << msg << std::endl;
+	return msg;
 }
