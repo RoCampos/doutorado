@@ -206,14 +206,14 @@ private:
 	forest_t to_forest (int stream_id, std::vector<rca::Path>);
 	
 	
-	void update_usage (STTree & st);
+	void update_usage (STTree & st, int trequest);
 	
 	/**
 	 * This method is used to update the congestion handle.
 	 * The congestioon handle will be used to improve the cost
 	 * of a solution.
 	 */
-	void update_cg (STTree & st);
+	int update_cg (STTree & st, int trequest, rca::Network & copy);
 	
 private:
 	

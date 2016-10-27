@@ -104,7 +104,9 @@ void YuhChen::configure_streams (std::vector<rca::Group> & groups)
 	
 }
 
-void YuhChen::add_stream(int id, int req,  std::vector<source_t> S, rca::Group D)
+void YuhChen::add_stream(int id, int req,  
+	std::vector<source_t> S,
+	rca::Group D)
 {
 	stream_t w;
 	
@@ -129,14 +131,13 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 	int NODES = m_network->getNumberNodes ();
 	
 	//typedef st observer
-	CongestionHandle cg;
-	cg.init_congestion_matrix (NODES);
-	cg.init_handle_matrix (NODES);
+	CongestionHandle cg(NODES);
 	STObserver stob;
 	stob.set_container (cg);
 	stob.set_network (*this->m_network);
 	
 	stream_t w = m_streams[stream_id];
+	int trequest = w.m_trequest;
 			
 	std::vector<source_t> sources = w.m_sources;
 	
@@ -145,7 +146,7 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 	forest.m_id = w.m_id;
 	
 	// int BAND = w.m_group.getSize ();
-	int BAND = m_streams.size ();
+	int STREAMS = m_streams.size ();
 	
 	int cost = 0;
 	
@@ -163,6 +164,7 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 		
 		for (int & d : members) {
 			
+			//from sttree_visitor.h
 			rca::Path p = get_shortest_path (s, d, *m_network, previous);
 			
 			//TODO BUILDING A PATH			
@@ -177,16 +179,15 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 				int y = *(it+1);
 				
 				int cost = m_network->getCost (x,y);
-				
-				rca::Link l(x, y, cost);
-				
-				stob.add_edge (l.getX(), l.getY(), cost, BAND);
+				int band = m_network->getBand (x, y);
+				rca::Link l(x, y, cost);					
+				stob.add_edge (l.getX(), l.getY(), cost, trequest, band);
 				
 			} 
 			
 		} //end of three construction 
 		
-		stob.prune (1, BAND);
+		stob.prune (trequest, STREAMS);
 		
 		// this->update_usage (stob.get_steiner_tree ());
 		
@@ -297,9 +298,7 @@ forest_t YuhChen::to_forest (int stream_id, std::vector<rca::Path> paths)
 	int SOURCES = sources.size ();
 	
 	//manipulador de uso de arestas
-	CongestionHandle cg;
-	cg.init_congestion_matrix (NODES);
-	cg.init_handle_matrix (NODES);
+	CongestionHandle cg(NODES);
 	
 	std::vector<STTree> sttrees;
 	for (int i=0;i < SOURCES; i++) {
@@ -346,6 +345,7 @@ forest_t YuhChen::to_forest (int stream_id, std::vector<rca::Path> paths)
 	
 	int i=0;
 	for (auto ob : observers) {
+		int trequest = this->m_streams[i].m_trequest;
 		//o número de grupos é a capacidade da aresta.
 		ob.prune (1, this->m_streams.size ());
 		//ob.get_steiner_tree ().xdotFormat ();
@@ -396,7 +396,6 @@ rca::Link YuhChen::get_bottleneck_link (rca::Path & path)
 	for ( ; it != path.cend() -1; it++) {
 		
 		int band = m_network->getBand( *it , *(it+1) );
-		//rca::Link l ( *it , *(it+1), );
 		
 		if ( band < min_bottleneck) {
 			min_bottleneck = band;
@@ -407,7 +406,7 @@ rca::Link YuhChen::get_bottleneck_link (rca::Path & path)
 	return l;
 }
 
-void YuhChen::update_usage (STTree & st)
+void YuhChen::update_usage (STTree & st, int trequest)
 {
 	
 	edge_t * e = st.get_edges ().begin;
@@ -415,18 +414,24 @@ void YuhChen::update_usage (STTree & st)
 		
 		rca::Link l (e->x, e->y,0);
 		int band_value = this->m_network->getBand (l.getX(), l.getY());
-		this->m_network->setBand (l.getX(), l.getY(),band_value-1);
-		this->m_network->setBand (l.getY(), l.getX(),band_value-1);
+		this->m_network->setBand (l.getX(), l.getY(),band_value-trequest);
+		this->m_network->setBand (l.getY(), l.getX(),band_value-trequest);
 		
 		e = e->next;
 	}
 	
 }
 
-void YuhChen::update_cg (STTree & st)
+int YuhChen::update_cg (
+	STTree & st, 
+	int trequest,
+	rca::Network & copy)
 {
+
 	int STREAMS = m_streams.size ();
 	edge_t *e = st.get_edges().begin;
+
+	int cost = 0;
 	while (e != NULL) {
 		
 		if (e->in) {
@@ -434,23 +439,24 @@ void YuhChen::update_cg (STTree & st)
 			rca::Link l (e->x, e->y, 0);
 			if (!m_cg->is_used (l)) {
 				
-				l.setValue ( STREAMS - 1 );
+				int band = copy.getBand (l.getX(), l.getY());
+				l.setValue ( band - trequest );
 				this->m_cg->push(l);
 				
 			} else {
 				
-				int value = m_cg->value (l) - 1;
+				int value = (m_cg->value (l) - trequest);
 				this->m_cg->erase (l);
 				l.setValue ( value );
 				this->m_cg->push (l);
 				
 			}
-		}
-		
+			cost += copy.getCost (l.getX(), l.getY());
+		}		
 		e = e->next;
 	}
 	
-	
+	return cost;	
 }
 
 /* ---------------------- main routine -----------------------*/
@@ -479,55 +485,14 @@ void YuhChen::run (int param)
 		
 		for (tree_t t: trees) {
 
-			this->update_usage (t.m_tree);
+			int trequest = this->m_streams[i].m_trequest;
+			this->update_usage (t.m_tree, trequest);
 			
-			std::vector<rca::Link> tree_links;
-			
-			if (this->m_improve_cost == 1) {
-				//updating the CongestioonHandle Strucute
-				this->update_cg (t.m_tree);
-				//storing three to improve Cost.
+			//updating the CongestioonHandle Strucute			
+			cost += this->update_cg (t.m_tree, trequest, copy);
+			if (this->m_improve_cost == 1) {			
 				improve.push_back (t.m_tree);
 			}
-		
-			
-			//getting the links of a tree
-			for (auto p: t.m_paths) {
-				
-				auto node = p.begin ();
-				for ( ; node != p.end()-1; node++) {
-					int x = *node;
-					int y = *(node+1);
-					
-					rca::Link l(x,y,0);
-					
-					if (std::find (tree_links.begin(), tree_links.end(),l) 
-						== tree_links.end() )
-					{
-						tree_links.push_back (l);
-					}
-					
-				}
-			}
-			
-			//updating the congestion
-			for (auto link : tree_links) {
-				if (std::find(links.begin(), links.end(), link) == links.end())
-				{
-					link.setValue( STREAMS-1 );
-					links.push_back (link);
-				} else {
-					auto tmp = std::find(links.begin(), links.end(), link);
-					
-					int value = tmp->getValue () - 1;
-					links.erase (tmp);
-					link.setValue (value);
-					links.push_back (link);
-				}
-				
-				cost += (int)m_network->getCost (link.getX(), link.getY());
-			}
-			tree_links.clear ();
 			
 		}
 		
@@ -535,9 +500,8 @@ void YuhChen::run (int param)
  	
 	}
 
- 	std::sort (links.begin (), links.end());
- 	std::cout << links.begin ()->getValue () << "\t" << cost << "\t";
-	
+	// std::cout << links.begin ()->getValue () << "\t" << cost << "\t";
+	std::cout << this->m_cg->top () << " " << cost << "\t";
 	
 	if (this->m_improve_cost == 1) {
 
