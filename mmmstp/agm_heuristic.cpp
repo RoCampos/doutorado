@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <stdio.h>
 
@@ -64,6 +65,7 @@ int main (int argc, char** argv)
 	
 	STobserver ob;
 	ob.set_container (cg);
+	ob.set_network (m_network);
 	
 	std::vector<STTree> steiner_trees;
 	double cost = 0.0;
@@ -107,16 +109,12 @@ int main (int argc, char** argv)
 void update_usage (std::vector<rca::Link>& m_links, STTree & sttree)
 {
 	edge_t * e = sttree.get_edges ().begin;
-	while (e != NULL) {
-	
-		if (e->in) { 
-		
+	while (e != NULL) {	
+		if (e->in) { 		
 			rca::Link l(e->x, e->y,0);
 			auto link = std::find(m_links.begin (), m_links.end(), l);
 			link->setValue ( link->getValue () + 1);
-			
-		}
-		
+		}		
 		e = e->next;
 	}
 	
