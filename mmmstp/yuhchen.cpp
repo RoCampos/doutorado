@@ -452,7 +452,7 @@ int YuhChen::update_cg (
 }
 
 /* ---------------------- main routine -----------------------*/
-void YuhChen::run (int param) 
+void YuhChen::run (int param, std::string print) 
 {
 	
 	this->m_improve_cost = param;
@@ -482,9 +482,7 @@ void YuhChen::run (int param)
 			
 			//updating the CongestioonHandle Strucute			
 			cost += this->update_cg (t.m_tree, trequest, copy);
-			if (this->m_improve_cost == 1) {			
-				improve.push_back (t.m_tree);
-			}
+			improve.push_back (t.m_tree);
 			
 		}
 		
@@ -523,13 +521,25 @@ void YuhChen::run (int param)
 	} 
 
 	cout << endl;
+
+	if (print.compare("complete") == 0) {
+		std::vector<STTree> saida = std::vector<STTree> (improve.size());
+		for (size_t i = 0; i < improve.size(); ++i)
+		{
+			int id = m_streams[i].m_group.getId();
+			saida[id] = improve[i];
+		}
+		rca::sttalgo::print_solution2<STTree> (saida);	
+	}
 }
 
 void singlesoruce(
 	std::string file, 
 	int option,
 	std::string reverse,
-	std::string param) 
+	std::string param,
+	std::string print)
+
 {
 	
 	rca::Network net;
@@ -569,10 +579,11 @@ void singlesoruce(
 	YuhChen yuhchen (&net);
 	yuhchen.configure_streams (groups);
 
-	yuhchen.run (option);
+	yuhchen.run (option, print);
 	
 	time_elapsed.finished ();
 	std::cout << time_elapsed.get_elapsed () << std::endl;
+
 }
 
 void multiplesource(std::string file) {
@@ -603,12 +614,13 @@ int main (int argc, char const *argv[])
 	std::string option = (argv[6]);
 	std::string reverse = (argv[8]);
 	std::string param = (argv[10]);
+	std::string print = (argv[12]);
 
 	if (option.compare ("yes") == 0) {
 		if (localsearch.compare ("yes")==0){
-			singlesoruce (m_instance, 1, reverse, param);
+			singlesoruce (m_instance, 1, reverse, param, print);
 		} else{
-			singlesoruce (m_instance, 0, reverse, param);
+			singlesoruce (m_instance, 0, reverse, param, print);
 		}
 	} else if (option.compare("no") == 0) {
 		multiplesource (m_instance);
