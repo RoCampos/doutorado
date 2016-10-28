@@ -9,6 +9,8 @@
 #include "rcatime.h"
 #include "mpp_visitor.h"
 
+#include "config.h"
+
 #include "sttree_local_search.h"
 
 using namespace rca;
@@ -98,16 +100,31 @@ void intensification (std::vector<STTree> & steiner_trees,
 	result = std::make_tuple<int,int> ((int)res, (int)cost);
 }
 
-int main (int argc, char** argv) 
+std::string commandLine () {
+
+	std::string str;
+	str = "--inst ['bite'] --res ['int'] --localsearch ['yes'|'no']";
+	str += " --reverse ['yes'|'no']";
+
+	return str;
+}
+
+int main (int argc, char const *argv[]) 
 {
 	
+	if (message (argc, argv, commandLine ())) {
+		exit (1);
+	}
+
 	rca::Network m_network;
 	std::vector<std::shared_ptr<rca::Group>> g;
 	std::vector<rca::Group> m_groups;
-	std::string file(argv[1]);
+	std::string file(argv[2]);
 	
-	int res = atoi(argv[2]);
-	int option = atoi(argv[3]);
+	int res = atoi(argv[4]);
+	std::string localsearch = (argv[6]);
+	std::string reverse = (argv[8]);
+	std::string param = (argv[10]);
 	
 	rca::reader::MultipleMulticastReader reader(file);
 	reader.configure_unit_values (&m_network, g);
@@ -118,9 +135,7 @@ int main (int argc, char** argv)
 	int NODES = m_network.getNumberNodes ();
 	int GROUP_SIZE = m_groups.size ();
 	
-	CongestionHandle cg;
-	cg.init_congestion_matrix (NODES);
-	cg.init_handle_matrix (NODES);
+	CongestionHandle cg(NODES);
 	
 	STobserver ob;
 	ob.set_container (cg);
@@ -130,6 +145,20 @@ int main (int argc, char** argv)
  	
 	rca::elapsed_time _time_;	
 	_time_.started ();
+
+	if (reverse.compare ("yes") == 0) {
+		if (param.compare ("request") == 0) {
+			std::sort (m_groups.begin(), m_groups.end(), rca::CompareGreaterGroup());
+		} else {
+			std::sort (m_groups.begin(), m_groups.end(), rca::CompareGreaterGroupBySize());
+		}
+	} else {
+		if (param.compare ("request") == 0) {
+			std::sort (m_groups.begin(), m_groups.end(), rca::CompareLessGroup());	
+		} else {
+			std::sort (m_groups.begin(), m_groups.end(), rca::CompareLessGroupBySize());
+		}
+	}
 	
 	int ii=0;
 	for (Group g : m_groups) {
@@ -176,7 +205,7 @@ int main (int argc, char** argv)
 
 	Result result( std::make_tuple<int,int>(cg.top(), (int)cost) );
 	
-	if (option == 1)
+	if (localsearch.compare ("yes") == 0)
 		intensification (steiner_trees, cg, m_network, m_groups, result);	
 	
 	_time_.finished ();
