@@ -26,49 +26,41 @@ typedef std::tuple<int,int> Result;
 
 previous_t shortest_path2 (int v, int w, rca::Network & network);
 
-rca::Path get_path (int v, int w, rca::Network & network, previous_t & prev){
-	
-	int NODES = network.getNumberNodes ();
-	
+rca::Path get_path (int v, int w, rca::Network & network, previous_t & prev){	
+	int NODES = network.getNumberNodes ();	
 	rca::Path path;
 	int pos = 0;
 	double pathcost = 0.0;
 	int s = w;
 	while (s != v) {
 		path.push (s);
-		s = prev[s];
-		
-		if (s == -1 || s >= NODES)
-		{
+		s = prev[s];		
+		if (s == -1 || s >= NODES){
 			rca::Path path2;
 			return path2; //se não há caminho
 		}
-		
-		
-		pathcost += network.getCost (path[pos],s);
-		
+		pathcost += (int)network.getCost (path[pos],s);		
 		pos++;
-
 	}
 	path.push (s);
 	return path;
 }
 
-void remove_top_edges (CongestionHandle & ob, Network & m_network, Group & group, int res) {
+void remove_top_edges (
+	CongestionHandle & ob,
+	Network & m_network, 
+	Group & group, 
+	int res) {
 	
 	auto it = ob.get_heap ().ordered_begin ();
 	auto end = ob.get_heap ().ordered_end ();
 	
-	for ( ; it != end; it++) {
- 		if (it->getValue () <= ob.top()+res) {
-			m_network.removeEdge (*it);
-// 			if ( !is_connected (m_network, group) )
-// 				m_network.undoRemoveEdge (*it);
- 		} else {
-			break;	
-		}
-	}
-	
+	for ( ; it != end; it++) { 		
+		m_network.removeEdge (*it);
+		if (!is_connected (m_network, group)) {
+			m_network.undoRemoveEdge (*it);
+		} 	
+	}	
 }
 
 void intensification (std::vector<STTree> & steiner_trees, 
@@ -104,7 +96,8 @@ std::string commandLine () {
 
 	std::string str;
 	str = "--inst ['bite'] --res ['int'] --localsearch ['yes'|'no']";
-	str += " --reverse ['yes'|'no']";
+	str += " \n\t--reverse ['yes'|'no']";
+	str += " \n\t--result ['full','res','cost',complete]";
 
 	return str;
 }
@@ -125,15 +118,23 @@ int main (int argc, char const *argv[])
 	std::string localsearch = (argv[6]);
 	std::string reverse = (argv[8]);
 	std::string param = (argv[10]);
+	std::string print = (argv[12]);
 	
 	rca::reader::MultipleMulticastReader reader(file);
-	reader.configure_unit_values (&m_network, g);
+
+#ifdef MODEL_REAL
+	reader.configure_real_values (&m_network,g);
+#endif
+	
+#ifdef MODEL_UNIT
+	reader.configure_unit_values (&m_network,g);
+#endif
+
 	for (std::shared_ptr<rca::Group> i : g) {
 		m_groups.push_back (*i);
 	}
 	
 	int NODES = m_network.getNumberNodes ();
-	int GROUP_SIZE = m_groups.size ();
 	
 	CongestionHandle cg(NODES);
 	
@@ -160,7 +161,6 @@ int main (int argc, char const *argv[])
 		}
 	}
 	
-	int ii=0;
 	for (Group g : m_groups) {
 				
 		int source = g.getSource ();
@@ -169,36 +169,29 @@ int main (int argc, char const *argv[])
 		STTree steiner_tree(NODES, source, g.getMembers ());		
 		ob.set_steiner_tree (steiner_tree, NODES);
 		
- 		if (is_connected (m_network, g)) {
- 			remove_top_edges (cg, m_network, g, res);
-			
-			if (!is_connected (m_network, g))
-				m_network.clearRemovedEdges ();
-		} else {
-			m_network.clearRemovedEdges ();
-		}
+		remove_top_edges (cg, m_network, g, res);
 		
 		previous_t prev = all_shortest_path (source, members[0] ,m_network);
 		
+		int trequest = g.getTrequest ();
 		for (int m : members) {
-			rca::Path path = get_path (source, m, m_network, prev);
-			
+			rca::Path path = get_path (source, m, m_network, prev);			
 			auto rit = path.rbegin ();
 			for (; rit != path.rend()-1; rit++) {
 		
 				int x = *rit;
 				int y = *(rit+1);
 				
-				rca::Link l(x, y, 0);
-				
-				int cost = m_network.getCost (l.getX(), l.getY());
-				
-				ob.add_edge (l.getX(), l.getY(), cost, GROUP_SIZE);
+				rca::Link l(x, y, 0);				
+				int cost = m_network.getCost (l.getX(), l.getY());				
+				int band = m_network.getBand (l.getX(), l.getY());
+				ob.add_edge (l.getX(), l.getY(), cost, trequest, band);
 			}			
 		}
 		
-		steiner_trees.push_back (ob.get_steiner_tree());
-		
+		m_network.clearRemovedEdges ();
+
+		steiner_trees.push_back (ob.get_steiner_tree());		
 		cost += ob.get_steiner_tree ().get_cost ();
 	}
  	_time_.finished ();
@@ -210,66 +203,25 @@ int main (int argc, char const *argv[])
 	
 	_time_.finished ();
 	
-	std::cout << get<0>(result) << " " << get<1>(result);
-	std::cout << " " << _time_.get_elapsed ()<< " \n";
-	
+	if (print.compare ("complete") == 0) {		
+		std::vector<STTree> saida = std::vector<STTree> (steiner_trees.size());
+		for (size_t i = 0; i < steiner_trees.size(); ++i)
+		{
+			saida[m_groups[i].getId()] = steiner_trees[i];
+		}
+		rca::sttalgo::print_solution2<STTree> (saida);
+
+		std::cout << get<0>(result) << " " << get<1>(result);
+		std::cout << " " << _time_.get_elapsed ()<< " \n";
+	} else if (print.compare ("full")) {
+		std::cout << get<0>(result) << " " << get<1>(result);
+		std::cout << " " << _time_.get_elapsed ()<< " \n";	
+	} else if (print.compare ("res")) {
+		cout << get<0> (result) << endl;
+	} else if (print.compare ("cost")) {
+		cout << get<1> (result) << endl;
+	}
+
 	
 	return 0;
-}
-
-previous_t shortest_path2 (int source, int w, rca::Network & network) {
-
-#ifdef DEBUG1
-	printf ("Call: %s\n", __FUNCTION__);
-#endif
-	
-	typedef typename std::vector<int>::const_iterator c_iterator;
-	
-	int NODES = network.getNumberNodes ();
-	double infty = std::numeric_limits<double>::infinity();
-	
-	std::vector<double> distance = std::vector<double>(NODES,infty);
-	previous_t previous = previous_t (NODES,-1);
-	std::vector<handle_t> handles = std::vector<handle_t> (NODES);
-	
- 	boost::heap::fibonacci_heap< vertex_t, boost::heap::compare<std::less<vertex_t>> > queue;
-	
-	distance[source] = 0;
-	vertex_t v( distance[source]*-1, source );
-	handles[source] = queue.push ( v );
-	
-	while (!queue.empty ()) {
-	
-		vertex_t v = queue.top ();
-		queue.pop ();
-// 		if (v.id == w) break;
-		
-		std::pair<c_iterator, c_iterator> neighbors;
-		network.get_iterator_adjacent (v.id, neighbors);
-		for (auto u=neighbors.first; u!= neighbors.second; u++) {
-			
-			double cost = network.getCost(v.id, *u);
-			
-			bool removed = network.isRemoved(rca::Link(v.id, *u, cost));
-			
-			if (distance[*u] > ((v.weight*-1 + cost)) 
-				&& !removed) {
-				double old_u_cost = distance[*u];
-				distance[*u] = (v.weight*-1 + cost);
-				previous[*u] = v.id;
-				
-				// TODO update heap. How to manipulate the handle
-				vertex_t t(distance[*u]*-1, *u);
-				
-				if ( old_u_cost == infty ) {
-					handles[ t.id ] = queue.push ( t );
-				} else {
-					queue.increase ( handles[*u], t );
-				}
-			}
-		}
-	}
-	
-	return previous;
-	
 }
