@@ -345,7 +345,6 @@ forest_t YuhChen::to_forest (int stream_id, std::vector<rca::Path> paths)
 	
 	int i=0;
 	for (auto ob : observers) {
-		int trequest = this->m_streams[i].m_trequest;
 		//o número de grupos é a capacidade da aresta.
 		ob.prune (1, this->m_streams.size ());
 		//ob.get_steiner_tree ().xdotFormat ();
@@ -428,28 +427,21 @@ int YuhChen::update_cg (
 	rca::Network & copy)
 {
 
-	int STREAMS = m_streams.size ();
 	edge_t *e = st.get_edges().begin;
 
 	int cost = 0;
-	while (e != NULL) {
-		
-		if (e->in) {
-		
+	while (e != NULL) {		
+		if (e->in) {		
 			rca::Link l (e->x, e->y, 0);
-			if (!m_cg->is_used (l)) {
-				
+			if (!m_cg->is_used (l)) {				
 				int band = copy.getBand (l.getX(), l.getY());
 				l.setValue ( band - trequest );
-				this->m_cg->push(l);
-				
-			} else {
-				
+				this->m_cg->push(l);				
+			} else {				
 				int value = (m_cg->value (l) - trequest);
 				this->m_cg->erase (l);
 				l.setValue ( value );
-				this->m_cg->push (l);
-				
+				this->m_cg->push (l);				
 			}
 			cost += copy.getCost (l.getX(), l.getY());
 		}		
@@ -460,7 +452,7 @@ int YuhChen::update_cg (
 }
 
 /* ---------------------- main routine -----------------------*/
-void YuhChen::run (int param) 
+void YuhChen::run (int param, std::string print) 
 {
 	
 	this->m_improve_cost = param;
@@ -490,9 +482,7 @@ void YuhChen::run (int param)
 			
 			//updating the CongestioonHandle Strucute			
 			cost += this->update_cg (t.m_tree, trequest, copy);
-			if (this->m_improve_cost == 1) {			
-				improve.push_back (t.m_tree);
-			}
+			improve.push_back (t.m_tree);
 			
 		}
 		
@@ -531,9 +521,27 @@ void YuhChen::run (int param)
 	} 
 
 	cout << endl;
+
+	if (print.compare("complete") == 0) {
+		std::vector<STTree> saida = std::vector<STTree> (improve.size());
+		for (size_t i = 0; i < improve.size(); ++i)
+		{
+			int id = m_streams[i].m_group.getId();
+			saida[id] = improve[i];
+		}
+		rca::sttalgo::print_solution2<STTree> (saida);	
+	}
 }
 
-void singlesoruce(std::string file, int option) {
+void singlesoruce(
+	std::string file, 
+	int option,
+	std::string reverse,
+	std::string param,
+	std::string print)
+
+{
+	
 	rca::Network net;
 	std::vector<shared_ptr<rca::Group>> g;
 	std::vector<rca::Group> groups;
@@ -553,14 +561,29 @@ void singlesoruce(std::string file, int option) {
 	}
 	rca::elapsed_time time_elapsed;	
 	time_elapsed.started ();
-	
+
+	if (reverse.compare ("yes") == 0) {		 
+		if (param.compare("request") == 0) {			
+			std::sort (groups.begin(), groups.end(), rca::CompareGreaterGroup());
+		} else {			
+			std::sort (groups.begin(), groups.end(), rca::CompareGreaterGroupBySize());
+		}
+	} else {
+		if (param.compare("request") == 0) {
+			std::sort (groups.begin(), groups.end(), rca::CompareLessGroup());
+		} else {
+			std::sort (groups.begin(), groups.end(), rca::CompareLessGroupBySize());
+		}
+	}
+
 	YuhChen yuhchen (&net);
 	yuhchen.configure_streams (groups);
 
-	yuhchen.run (option);
+	yuhchen.run (option, print);
 	
 	time_elapsed.finished ();
 	std::cout << time_elapsed.get_elapsed () << std::endl;
+
 }
 
 void multiplesource(std::string file) {
@@ -575,10 +598,9 @@ std::string commandLine ()
 {
 	std::string command = "--inst [brite|yuh]";
 	command += " --localsearch [yes|no] --single [yes|no]";
+	command += " --reverse [yes|no] --param [sort|request]";
 	return command;
 }
-
-
 
 int main (int argc, char const *argv[]) 
 {
@@ -590,18 +612,18 @@ int main (int argc, char const *argv[])
 	std::string m_instance(argv[2]);
 	std::string localsearch = (argv[4]);
 	std::string option = (argv[6]);
+	std::string reverse = (argv[8]);
+	std::string param = (argv[10]);
+	std::string print = (argv[12]);
 
 	if (option.compare ("yes") == 0) {
-
-		if (localsearch.compare ("yes")==0)
-			singlesoruce (m_instance, 1);
-		else
-			singlesoruce (m_instance, 0);
-
+		if (localsearch.compare ("yes")==0){
+			singlesoruce (m_instance, 1, reverse, param, print);
+		} else{
+			singlesoruce (m_instance, 0, reverse, param, print);
+		}
 	} else if (option.compare("no") == 0) {
-
 		multiplesource (m_instance);
-
 	}
 	
 	return 0;

@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <iostream>
+#include <algorithm>
 
 #include "config.h"
 
@@ -186,7 +187,7 @@ public:
 	 */
 	forest_t wp_forest (stream_t & stream);
 	
-	void run (int improve_cost = 0);
+	void run (int improve_cost = 0, std::string result = "");
 	
 private:
 	/**

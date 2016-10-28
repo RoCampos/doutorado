@@ -134,12 +134,11 @@ void cycle_local_search<Container, SolutionType>::execute ( int tree,
 					//cria o link para incluir um ciclos
 					rca::Link link (v,w, (int) m_network.getCost (v,w));
 					
-
 					//verifica se a utilização do link 
 					//vai não vai piorar a qualidade da solução
 					if (cg.is_used(link)) {
 						
-						if (cg.value (link) <= TOP) continue;
+						if (cg.value (link) - trequest <= TOP) continue;
 
 						// checar se não esgota capacidade
 						if ( (cg.value (link) - trequest) < 0) continue;
