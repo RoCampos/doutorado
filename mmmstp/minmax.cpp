@@ -408,6 +408,17 @@ int main(int argc, char const *argv[])
 		rca::reader::YuhChenReader ycr(file);
 		rca::reader::stream_list_t mgroups;
 		ycr.configure_network (network, mgroups);
+
+		for (int i = 0; i < network.getNumberNodes(); ++i)
+		{
+			for (int j = 0; j < network.getNumberNodes(); ++j)
+			{
+				if (network.getCost (i,j) > 0.0) {
+					network.setBand (i,j,mgroups.size ());
+				}
+			}
+		}
+
 		int id = 0;
 		for (auto str : mgroups) {			
 			rca::Group g (id, -1, str.trequest);
@@ -439,7 +450,7 @@ int main(int argc, char const *argv[])
 			srcs.push_back (group.m_group.getSource());	
 		} else if (single.compare ("no") == 0){
 			//starting multiple tree
-
+			srcs = group.m_sources;
 		}	
 
 		std::vector<int> bases;
@@ -486,10 +497,20 @@ int main(int argc, char const *argv[])
 			delete data;
 			delete ptr;
 
+		} else if (single.compare ("no") == 0){
+
+			//ending the algorithm for multiple trees
+			for (auto m : group.m_group.getMembers ()) {
+				cout << bases[m] << endl;
+				rca::Path p (paths[m]);
+				cout << p << " : ";
+				cout << costpath[m] << endl;
+			}
+
+			cout << "--------------" << endl;
+
 		}
 
-
-		
 	}
 
 	if (single.compare ("yes") == 0) {
