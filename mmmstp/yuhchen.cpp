@@ -70,14 +70,12 @@ void YuhChen::configure_streams (rca::reader::stream_list_t & sb)
 {
 	//reading the streams
 	int id = 0;
-	for (auto & it : sb) {
-		
+	for (auto & it : sb) {		
 		//configuring the group of stream with id
 		rca::Group g(id, -1, it.trequest);		
 		for (auto & m : it.get_members()) {
 			g.addMember (m); //adding the members of group
-		}		
-		
+		}				
 		//creating stream w_id
 		stream_t stream (id, it.trequest, it.get_sources(), g);			
 		
@@ -161,7 +159,7 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 		//computed here
 		std::vector<int> previous = 
 				inefficient_widest_path (s, members[0], m_network);
-		
+
 		for (int & d : members) {
 			
 			//from sttree_visitor.h
@@ -519,8 +517,6 @@ void YuhChen::run (int param, std::string print)
 					m_groups, *m_cg, tt);
 		std::cout << tt << "\t";
 	} 
-
-	cout << endl;
 
 	if (print.compare("complete") == 0) {
 		std::vector<STTree> saida = std::vector<STTree> (improve.size());

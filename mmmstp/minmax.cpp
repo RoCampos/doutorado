@@ -12,9 +12,14 @@
 #include "sttree_local_search.h"
 #include "localsearch.h"
 
+#include "multisource_group.h"
+
 typedef std::pair<int,int> EdgePair;
 typedef std::map<EdgePair, rca::Link> EdgeMap;
 typedef rca::EdgeContainer<rca::Comparator, rca::HCell> Container;
+
+using stream_t = rca::network::stream_t;
+using msource_list_t = std::vector<stream_t> ;
 
 struct DataSMT
 {
@@ -30,7 +35,7 @@ struct DataSMT
 
 };
 
-int update_graph (
+int update_graph_single (
 	DataSMT * data, 
 	rca::Network & net ,
 	int tk)
@@ -40,15 +45,11 @@ int update_graph (
 	std::vector<rca::Link> links;
 
 	for (auto l : data->links) {
-
 		auto it = std::find (links.begin(), links.end(), l);
 		if (it == links.end()) {
-
 			int b = (int)net.getBand (l.getX(), l.getY());
 			net.setBand (l.getX(), l.getY(), b-tk);
-
 			cost += (int)net.getCost(l);
-
 			links.push_back (l);
 		}
 	}
@@ -347,33 +348,10 @@ std::string commandLine() {
 	return command;
 }
 
-int main(int argc, char const *argv[])
+void rearange (
+	std::string reverse, 
+	std::string sort, std::vector<rca::Group> & mgroups)
 {
-	
-	if (message (argc, argv, commandLine()) ) {
-		exit (1);
-	}	
-
-	rca::Network network;
-	std::vector<rca::Group> mgroups;
-	std::string file = argv[2];
-
-	float rem = atof (argv[4]);
-	std::string reverse = argv[6];
-	std::string sort = argv[8];
-	std::string localsearch = argv[10];
-	std::string full_res = argv[12];
-
-
-	rca::reader::get_problem_informations (
-		file, network, mgroups);
-
-	rca::Network finalnetwork = network;
-	Container container (network.getNumberNodes ());
-
-	rca::elapsed_time time_elapsed;
-	time_elapsed.started ();
-
 	if (reverse.compare ("yes") == 0) {		 
 		if (sort.compare("request") == 0) {			
 			std::sort (mgroups.begin(), mgroups.end(), rca::CompareGreaterGroup());
@@ -386,64 +364,142 @@ int main(int argc, char const *argv[])
 		} else {
 			std::sort (mgroups.begin(), mgroups.end(), rca::CompareLessGroupBySize());
 		}
-	}	 
+	}	
+}
+
+int main(int argc, char const *argv[])
+{
+	
+	if (message (argc, argv, commandLine()) ) {
+		exit (1);
+	}	
+
+	rca::Network network;
+	std::vector<rca::Group> mgroups;
+	std::string file = argv[2];
+
+	// parameters...
+	float rem = atof (argv[4]);
+	std::string reverse = argv[6];
+	std::string sort = argv[8];
+	std::string localsearch = argv[10];
+	std::string single = argv[12];
+	std::string full_res = argv[14];
+
+	msource_list_t m_streams;
+
+	if (single.compare ("yes") == 0) {
+		rca::reader::get_problem_informations (
+		file, network, mgroups);	
+
+		//if single rearange the groups based or on size, or on request
+		if (single.compare ("yes") == 0) {
+			rearange (reverse, sort, mgroups);	
+		} 	
+
+		for (auto g : mgroups) {
+			std::vector<int> sources {g.getSource()};			
+			stream_t stream (g.getId(), g.getTrequest(), sources, g);
+			m_streams.push_back (stream);
+		}
+
+	} else if (single.compare ("no") == 0) {
+		//for multiple source instances	
+		rca::reader::YuhChenReader ycr(file);
+		rca::reader::stream_list_t mgroups;
+		ycr.configure_network (network, mgroups);
+		int id = 0;
+		for (auto str : mgroups) {			
+			rca::Group g (id, -1, str.trequest);
+			for (auto m : str.get_members ()) {
+				g.addMember (m);
+			}
+			stream_t stream(id, str.trequest, str.get_sources(), g);
+			m_streams.push_back (stream);
+			id++;
+		}
+	}
+
+	rca::Network finalnetwork = network;
+	Container container (network.getNumberNodes ());
+
+	rca::elapsed_time time_elapsed;
+	time_elapsed.started ();
 
 	std::vector<steiner> solution;
 
 	int cost = 0;
 
-	for(auto&& group : mgroups) {
+	for(auto&& group : m_streams) {
 		
-		std::vector<int> srcs = group.getMembers ();
-		srcs.push_back (group.getSource());
+		std::vector<int> srcs;
+
+		if (single.compare ("yes") == 0) {
+			srcs = group.m_group.getMembers ();
+			srcs.push_back (group.m_group.getSource());	
+		} else if (single.compare ("no") == 0){
+			//starting multiple tree
+
+		}	
 
 		std::vector<int> bases;
 		std::vector<int> costpath;
 		std::vector<std::vector<int>> paths;
 
 		//remove top
-		remove_top (network, rem, group);
+		if (single.compare ("yes") == 0) {
+			remove_top (network, rem, group.m_group);	
+		}		
 
 		rca::Network *ptr = network.extend (srcs);
 		voronoi_diagram (*ptr, bases, costpath, paths);
 
-		DataSMT * data =
-			join_components (bases, paths, costpath, *ptr, srcs);
-		
-		//apply MST over network distance(Z over edges)
-		//the calculation uses cost
-		minimum_spanning_tree (data);
+		if (single.compare ("yes") == 0) {
+			DataSMT * data =
+				join_components (bases, paths, costpath, *ptr, srcs);
 
-		//rebuild the solution	
-		rebuild_solution (data, paths, network);
+			//apply MST over network distance(Z over edges)
+			//the calculation uses cost
+			minimum_spanning_tree (data);
 
-		cost += update_graph (data, network, group.getTrequest());
+			//rebuild the solution	
+			rebuild_solution (data, paths, network);
 
-		steiner st = steiner(network.getNumberNodes(), 
-				group.getSource(), 
-				group.getMembers ());
+			cost += update_graph_single (data, network, group.m_group.getTrequest());
 
-		for(auto&& e : data->links) {
-			st.add_edge (e.getX(), e.getY(), e.getValue());
-			int b = finalnetwork.getBand (e.getX(), e.getY());
-			container.update_inline (e, 
-				rca::OperationType::IN, 
-				group.getTrequest (), b);
+			steiner st = steiner(network.getNumberNodes(), 
+				group.m_group.getSource(), 
+				group.m_group.getMembers ());
+
+			for(auto&& e : data->links) {
+				st.add_edge (e.getX(), e.getY(), e.getValue());
+				int b = finalnetwork.getBand (e.getX(), e.getY());
+				container.update_inline (e, 
+					rca::OperationType::IN, 
+					group.m_group.getTrequest (), b);
+			}
+
+			solution.push_back (st);
+
+			network.clearRemovedEdges ();
+
+			delete data;
+			delete ptr;
+
 		}
 
-		solution.push_back (st);
 
-		network.clearRemovedEdges ();
-
-		delete data;
-		delete ptr;
+		
 	}
 
-	time_elapsed.finished ();
-	int cost_res = local_search (localsearch, solution, 
+	if (single.compare ("yes") == 0) {
+		int cost_res = local_search (localsearch, solution, 
 		container, mgroups, finalnetwork, cost);
-	int z = container.top ();
-	print_result (z, cost_res, time_elapsed.get_elapsed (), full_res);
+		int z = container.top ();
+		time_elapsed.finished ();
+		print_result (z, cost_res, time_elapsed.get_elapsed (), full_res);	
+	}
+		
 
 	if (full_res.compare ("full") == 0) {
 		//PRINT FOR TEST

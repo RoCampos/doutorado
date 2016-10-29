@@ -11,6 +11,7 @@
 #include "path.h"
 #include "network.h"
 #include "group.h"
+#include "multisource_group.h"
 #include "reader.h"
 #include "steiner_tree_observer.h"
 #include "edgecontainer.h"
@@ -20,7 +21,8 @@
 #include "rcatime.h"
 #include "sttree_local_search.h"
 
-typedef int source_t;
+using rca::network::source_t;
+using rca::network::stream_t;
 
 /**
  * Tree representation.
@@ -47,52 +49,6 @@ typedef struct tree_t {
 } tree_t;
 
 //typedef std::vector<tree_t> forest_t;
-
-/**
- * This struct represents a stream w_k.
- * This stream can has a set of sources and
- * a set of destinations.
- * 
- * A stream can be viewed as group
- * But with more than one source.
- * 
- */
-typedef struct stream_t {
-	
-	stream_t(){}
-	
-	stream_t (int id, int req, std::vector<source_t> source, rca::Group & g)
-	: m_id (id), m_trequest (req)
-	{
-		m_sources = source;
-		m_group = g;
-	}
-	
-	int get_source_index (int source) {
-		int idx = 0;
-		for (int i : m_sources) {
-			if (source == i) {
-				return idx;
-			}
-			idx++;
-		}
-		return -1;
-	}
-	
-	//stream id
-	int m_id;
-	
-	int m_trequest;
-	
-	//list of source of the stream
-	std::vector<source_t> m_sources;
-	
-	//destination of the stream
-	rca::Group m_group;
-	
-	friend std::ostream & operator<< (std::ostream & out, stream_t const & t);
-	
-} stream_t;
 
 
 typedef struct forest_t {
