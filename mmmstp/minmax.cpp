@@ -367,70 +367,6 @@ void rearange (
 	}	
 }
 
-// void cu (
-// 	std::vector<int> & bases,
-// 	std::vector<int> & costpath,
-// 	stream_t & stream,
-// 	rca::Network & network,
-// 	std::vector<std::vector<int>> const * paths)
-// {
-// 	std::map<int, int> sources;
-// 	std::map<int, int> members;
-// 	int SOURCES = stream.m_sources.size ();
-// 	int NODES = network.getNumberNodes ();
-// 	int MEMBERS = stream.m_group.getMembers ().size ();
-// 	std::vector<steiner> trees(SOURCES, steiner(NODES));
-// 	std::vector<std::vector<int>> nodes_tree(SOURCES);
-// 	std::vector<int> visited(MEMBERS, 0);
-// 	int OUT = 0;
-// 	int IN = 1;
-
-// 	int i=0;
-// 	for (int m : stream.m_sources) {
-// 		sources[m] = i;
-// 		nodes_tree[i].push_back (m);
-// 		i++;
-// 	}
-// 	i = 0;
-// 	for (int m : stream.m_group.getMembers ()) {
-// 		members[m] = i;
-// 		i++;
-// 	}
-
-// 	for (auto m : stream.m_group.getMembers ()) {
-		
-// 		int b = bases[m];
-// 		int id = sources[b];
-// 		rca::Path p (paths->m);
-
-// 		if (visited[m] == OUT) {
-// 			continue;
-// 		}
-
-// 		for (size_t v = 0; v < p.size ()-1; ++v)
-// 		{
-// 			rca::Link l (p[v], p[v+1], 1);
-// 			trees[id].add_edge (l.getX(), l.getY(), 1);
-
-// 			if (stream.m_group.isMember (l.getX()) && (visited[l.getX()]==OUT)) {
-// 				visited[l.getX()] = IN;
-// 				nodes_tree[id].push_back (l.getX());
-// 			}
-// 			if (stream.m_group.isMember (l.getY()) && (visited[l.getY()]==OUT)) {
-// 				visited[l.getY()] = IN;
-// 				nodes_tree[id].push_back (l.getX());
-// 			}
-// 		}
-// 	}
-
-// 	for (int i = 0; i < SOURCES; ++i)
-// 	{
-// 		trees[i].set_terminals (nodes_tree[i]);
-// 		// trees[i].print ();
-// 	}
-
-// }
-
 int main(int argc, char const *argv[])
 {
 	
@@ -511,7 +447,7 @@ int main(int argc, char const *argv[])
 	for(auto&& group : m_streams) {
 		
 		std::vector<int> srcs;
-		
+
 		if (single.compare ("yes") == 0) {
 			srcs = group.m_group.getMembers ();
 			srcs.push_back (group.m_group.getSource());	
@@ -527,7 +463,7 @@ int main(int argc, char const *argv[])
 		//remove top
 		if (single.compare ("yes") == 0) {
 			remove_top (network, rem, group.m_group);	
-		}		
+		}
 
 		rca::Network *ptr = network.extend (srcs);
 		voronoi_diagram (*ptr, bases, costpath, paths);
@@ -596,8 +532,7 @@ int main(int argc, char const *argv[])
 					if (it) {
 						links.push_back (link);
 					}
-				}			
-
+				}	
 			}
 
 			for (auto l : links) {
