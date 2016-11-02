@@ -408,6 +408,17 @@ int main(int argc, char const *argv[])
 		rca::reader::YuhChenReader ycr(file);
 		rca::reader::stream_list_t mgroups;
 		ycr.configure_network (network, mgroups);
+
+		for (int i = 0; i < network.getNumberNodes(); ++i)
+		{
+			for (int j = 0; j < network.getNumberNodes(); ++j)
+			{
+				if (network.getCost (i,j) > 0.0) {
+					network.setBand (i,j,mgroups.size ());
+				}
+			}
+		}
+
 		int id = 0;
 		for (auto str : mgroups) {			
 			rca::Group g (id, -1, str.trequest);
@@ -427,6 +438,9 @@ int main(int argc, char const *argv[])
 	time_elapsed.started ();
 
 	std::vector<steiner> solution;
+	std::vector<std::vector<steiner>> multiplesolution =
+		std::vector<std::vector<steiner>> (m_streams.size ());
+
 
 	int cost = 0;
 
@@ -439,7 +453,7 @@ int main(int argc, char const *argv[])
 			srcs.push_back (group.m_group.getSource());	
 		} else if (single.compare ("no") == 0){
 			//starting multiple tree
-
+			srcs = group.m_sources;
 		}	
 
 		std::vector<int> bases;
@@ -449,7 +463,7 @@ int main(int argc, char const *argv[])
 		//remove top
 		if (single.compare ("yes") == 0) {
 			remove_top (network, rem, group.m_group);	
-		}		
+		}
 
 		rca::Network *ptr = network.extend (srcs);
 		voronoi_diagram (*ptr, bases, costpath, paths);
@@ -485,11 +499,50 @@ int main(int argc, char const *argv[])
 
 			delete data;
 			delete ptr;
+			ptr = NULL;
 
+		} else if (single.compare ("no") == 0){
+			//ending the algorithm for multiple trees
+
+			int i=0;
+			std::map<int, int> sources;
+			for (int m : group.m_sources) {
+				sources[m] = i;
+				i++;
+			}
+			int NODES = network.getNumberNodes ();
+			int idg = group.m_group.getId();
+			multiplesolution[idg] = std::vector<steiner>(
+				group.m_sources.size(),
+				steiner(NODES));
+
+			std::vector<rca::Link> links;
+
+			for (auto m : group.m_group.getMembers ()) {
+				int b = bases[m];
+				int id = sources[b];				
+				rca::Path path (paths[m]);
+				//adding the links to specific tree...
+				for (int i = 0; i < path.size()-1; ++i)
+				{ 
+					rca::Link link (path[i], path[i+1], 1);
+					bool it = multiplesolution[idg][id].add_edge (
+						link.getX(),
+						link.getY(), 1);
+					if (it) {
+						links.push_back (link);
+					}
+				}	
+			}
+
+			for (auto l : links) {
+				int b = (int)network.getBand (l.getX(), l.getY());
+				network.setBand (l.getX(), l.getY(), b-1);
+			}
+
+			delete ptr;
+			ptr = NULL;
 		}
-
-
-		
 	}
 
 	if (single.compare ("yes") == 0) {
@@ -498,6 +551,10 @@ int main(int argc, char const *argv[])
 		int z = container.top ();
 		time_elapsed.finished ();
 		print_result (z, cost_res, time_elapsed.get_elapsed (), full_res);	
+	} else if (single.compare ("no") == 0){
+
+		cout << min_bandwidth (network) << endl;
+
 	}
 		
 
@@ -513,4 +570,3 @@ int main(int argc, char const *argv[])
 
 	return 0;
 }
-
