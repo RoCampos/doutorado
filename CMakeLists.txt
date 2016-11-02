@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.8.12.2)
 
-set(VERSION_MAJOR   1   CACHE STRING "Project major version number.")
-set(VERSION_MINOR   1   CACHE STRING "Project minor version number.")
+set(VERSION_MAJOR   2   CACHE STRING "Project major version number.")
+set(VERSION_MINOR   2   CACHE STRING "Project minor version number.")
 set(VERSION_PATCH   0   CACHE STRING "Project patch version number.")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
@@ -66,6 +66,14 @@ if (CMAKE_BUILD_TYPE MATCHES "[Pp][Rr][Oo][Ff][Ii][Ll][Ee]")
     message("${CMAKE_CXX_FLAGS_PROFILE}")
     
 endif()
+
+# ------------------------ config versio file ----------------- #
+configure_file (
+  "${PROJECT_BINARY_DIR}/include/config.h.in"
+  "${PROJECT_BINARY_DIR}/include/config.h"
+  )
+# --------------------------- endof config file --------------- #
+
 
 # ------------------------ FIND_BOOST ------------------------- #
 find_package (Boost)

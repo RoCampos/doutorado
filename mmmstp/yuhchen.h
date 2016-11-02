@@ -4,10 +4,14 @@
 #include <vector>
 #include <memory>
 #include <iostream>
+#include <algorithm>
+
+#include "config.h"
 
 #include "path.h"
 #include "network.h"
 #include "group.h"
+#include "multisource_group.h"
 #include "reader.h"
 #include "steiner_tree_observer.h"
 #include "edgecontainer.h"
@@ -17,7 +21,8 @@
 #include "rcatime.h"
 #include "sttree_local_search.h"
 
-typedef int source_t;
+using rca::network::source_t;
+using rca::network::stream_t;
 
 /**
  * Tree representation.
@@ -44,52 +49,6 @@ typedef struct tree_t {
 } tree_t;
 
 //typedef std::vector<tree_t> forest_t;
-
-/**
- * This struct represents a stream w_k.
- * This stream can has a set of sources and
- * a set of destinations.
- * 
- * A stream can be viewed as group
- * But with more than one source.
- * 
- */
-typedef struct stream_t {
-	
-	stream_t(){}
-	
-	stream_t (int id, int req, std::vector<source_t> source, rca::Group & g)
-	: m_id (id), m_trequest (req)
-	{
-		m_sources = source;
-		m_group = g;
-	}
-	
-	int get_source_index (int source) {
-		int idx = 0;
-		for (int i : m_sources) {
-			if (source == i) {
-				return idx;
-			}
-			idx++;
-		}
-		return -1;
-	}
-	
-	//stream id
-	int m_id;
-	
-	int m_trequest;
-	
-	//list of source of the stream
-	std::vector<source_t> m_sources;
-	
-	//destination of the stream
-	rca::Group m_group;
-	
-	friend std::ostream & operator<< (std::ostream & out, stream_t const & t);
-	
-} stream_t;
 
 
 typedef struct forest_t {
@@ -184,7 +143,7 @@ public:
 	 */
 	forest_t wp_forest (stream_t & stream);
 	
-	void run (int improve_cost = 0);
+	void run (int improve_cost = 0, std::string result = "");
 	
 private:
 	/**
@@ -204,14 +163,14 @@ private:
 	forest_t to_forest (int stream_id, std::vector<rca::Path>);
 	
 	
-	void update_usage (STTree & st);
+	void update_usage (STTree & st, int trequest);
 	
 	/**
 	 * This method is used to update the congestion handle.
 	 * The congestioon handle will be used to improve the cost
 	 * of a solution.
 	 */
-	void update_cg (STTree & st);
+	int update_cg (STTree & st, int trequest, rca::Network & copy);
 	
 private:
 	
@@ -219,7 +178,7 @@ private:
 	
 	std::vector<stream_t> m_streams;
 	
-	CongestinoHandle m_cg;
+	CongestinoHandle * m_cg;
 	
 	int m_improve_cost;
 	

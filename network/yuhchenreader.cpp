@@ -21,14 +21,20 @@ void YuhChenReader::configure_network (rca::Network & network, stream_list_t & l
 	network.init (this->m_nodes, this->m_edges);
 	
 	//reading the edges
+	double dec = 0.000001;
 	for (int i=0; i < this->m_edges; i++) {
 		int x, y, w;
 		file >> x >> y >> w;
 
-		network.setCost (x,y,w);
-		network.setCost (y,w,w);
+		network.setCost (x,y,w+dec);
+		network.setCost (y,x,w+dec);
 		network.setBand (x,y,w);
 		network.setBand (y,x,w);
+		rca::Link link(x, y, w+dec);
+		network.insertLink(link);		
+		network.addAdjacentVertex(x, y);
+		network.addAdjacentVertex(y, x);
+		dec += 0.000001;
 	}
 	
 	typedef boost::tokenizer<boost::char_separator<char>,
@@ -70,5 +76,27 @@ void YuhChenReader::configure_network (rca::Network & network, stream_list_t & l
 		list.push_back (sbind);	 		
 	
 	} while ( getline (file, line) );
+}
+
+void YuhChenReader::configure_network (
+	rca::Network & network, 
+	std::vector<rca::Group>& mgroups)
+{
+
+	stream_list_t streams;
+	this->configure_network (network, streams);
+
+	int id=0;
+	for(auto&& g : streams) {		
+		rca::Group group;
+		group.setSource (g.get_sources ()[0]);
+		group.setMembers (g.get_members ());
+		group.setTrequest (1);
+		group.setId (id);
+
+		mgroups.push_back (group);
+		id++;
+	}
+
 }
 

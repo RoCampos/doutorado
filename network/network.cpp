@@ -22,6 +22,54 @@ Network::~Network() {
 
 }
 
+Network * Network::extend (std::vector<int> sources) {
+
+	int NODES = this->getNumberNodes ();
+	int EDGES = this->getNumberEdges ();
+	int MAXINT = std::numeric_limits<int>::max();
+
+	Network * net = new Network(NODES+1, EDGES+sources.size ());
+
+	for (auto link : this->m_links) {
+
+		if (this->isRemoved (link)) continue;
+
+		int cost = this->getCost (link.getX(), link.getY());
+		int band = this->getBand (link.getX(), link.getY());
+		net->setCost(link.getX(),link.getY(),cost);
+		net->setCost(link.getY(),link.getX(),cost);
+		
+		net->setBand(link.getX(),link.getY(),band);
+		net->setBand(link.getY(),link.getX(),band);
+
+		net->addAdjacentVertex(link.getX(), link.getY());
+		net->addAdjacentVertex(link.getY(), link.getX());
+	}
+
+	for (auto s : sources) {
+		rca::Link link (NODES, s, 0);
+
+		net->setCost(link.getX(),link.getY(),0);
+		net->setCost(link.getY(),link.getX(),0);		
+		net->setBand(link.getX(),link.getY(),MAXINT);
+		net->setBand(link.getY(),link.getX(),MAXINT);
+		net->addAdjacentVertex(link.getX(), link.getY());
+		net->addAdjacentVertex(link.getY(), link.getX());
+	}
+
+	net->m_links = this->m_links;
+	net->m_removeds_edge = this->m_removeds_edge;
+
+	net->m_removeds = this->m_removeds;
+
+	m_removeds_edge = std::vector<std::vector<EdgeRemoved>> (NODES+1);
+	for (int i = 0; i < NODES+1; i++) {
+		m_removeds_edge[i] = std::vector<EdgeRemoved>(NODES+1);
+	}
+
+	return net;
+}
+
 void Network::setCost(unsigned row, unsigned col, double value) {
 	m_costMatrix.assign(row,col,value);
 }

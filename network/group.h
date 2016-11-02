@@ -183,5 +183,63 @@ private:
 
 };
 
+/**
+* 	Struct usada para ordenação de objetos do tipo grupo
+* 	baseado no consumo de banda do grupo.
+*
+*	A ordenação é realizada com base na comparação Less, 
+*	assim os grupos são ordenados ascendentemente por 
+* 	demanda de banda.
+*
+*	@author Romerito Campos
+*	@date 10/21/2016
+*/
+struct CompareLessGroup 
+{
+	bool operator () (rca::Group const& g1, rca::Group const& g2)
+	const
+	{
+		return g1.getTrequest() < g2.getTrequest ();
+	}
+};
+
+/**
+* 	Struct usada para ordenação de objetos do tipo grupo
+* 	baseado no consumo de banda do grupo.
+*
+*	A ordenação é realizada com base na comparação Less, 
+*	assim os grupos são ordenados descendentemente por 
+* 	demanda de banda.
+*
+*	@author Romerito Campos
+*	@date 10/21/2016
+*/
+struct CompareGreaterGroup 
+{
+	bool operator () (rca::Group const& g1, rca::Group const& g2)
+	const
+	{
+		return g1.getTrequest() > g2.getTrequest ();
+	}
+};
+
+struct CompareLessGroupBySize
+{
+	bool operator () (rca::Group const& g1, rca::Group const& g2)
+	const
+	{
+		return g1.getSize() < g2.getSize ();
+	}
+};
+
+struct CompareGreaterGroupBySize
+{
+	bool operator () (rca::Group const& g1, rca::Group const& g2)
+	const
+	{
+		return g1.getSize() > g2.getSize ();
+	}
+};
+
 } /* namespace rca */
 #endif /* GROUP_H_ */

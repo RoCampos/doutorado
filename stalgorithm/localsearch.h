@@ -168,6 +168,8 @@ private:
 
 	int m_top;
 
+	static int contador;
+
 };
 
 /**

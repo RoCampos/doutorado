@@ -219,7 +219,7 @@ int MMMSTPGurobiResult::tree_cost (rca::Network *net, rca::Group *group,
 			}
 		}
 	}
-	
+	file.close ();
 	return tree_cost;
 }
 
@@ -240,6 +240,7 @@ int MMMSTPGurobiResult::cost (rca::Network * net,std::string result)
 		sol_cost += (int)net->getCost (v-1,w-1);
 		
 	}
+	file.close ();
 	return sol_cost;
 }
 

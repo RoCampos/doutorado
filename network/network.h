@@ -75,6 +75,9 @@ public:
 	 */
 	friend std::ostream& operator << (std::ostream& os, const Network & network);
 
+
+	Network * extend (std::vector<int> sources);
+
 	/**
 	 * Método para definir um valor de custo de uma aresta.
 	 *

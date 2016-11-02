@@ -13,6 +13,10 @@
 
 namespace rca {
 
+	//namespace steiner trees with hop
+	namespace stphop {
+
+
 /*
 *	Esta classe modelo as heurísticas propostas
 *	no paper de Stefan Vob(1999).
@@ -279,5 +283,6 @@ private:
 #endif // STEFANVOB_H
 
 
-
+	} //namespace stphop
+	
 } // rca

@@ -1,12 +1,13 @@
 #include "svobheuristic.h"
 
 using namespace rca;
+using namespace rca::stphop;
 
 typedef rca::EdgeContainer<rca::Comparator, rca::HCell> Container;
 typedef rca::sttalgo::SteinerTreeObserver<Container, steiner> Observer;
 
 
-rca::StefanHeuristic::StefanHeuristic (rca::Network& network, 
+StefanHeuristic::StefanHeuristic (rca::Network& network, 
 						std::vector<rca::Group>& groups) 
 {
 	this->m_network = &network;
@@ -15,7 +16,7 @@ rca::StefanHeuristic::StefanHeuristic (rca::Network& network,
 	this->m_randomly = false;
 }
 
-rca::StefanHeuristic::StefanHeuristic(rca::Network& network, 
+StefanHeuristic::StefanHeuristic(rca::Network& network, 
 	std::vector<rca::Group>& groups, bool verbose)
 {
 	this->m_network = &network;
@@ -24,7 +25,7 @@ rca::StefanHeuristic::StefanHeuristic(rca::Network& network,
 	this->m_randomly = false;
 }
 
-rca::StefanHeuristic::StefanHeuristic(
+StefanHeuristic::StefanHeuristic(
 	rca::Network& network, 
 	std::vector<rca::Group>& groups, 
 	bool verbose, 

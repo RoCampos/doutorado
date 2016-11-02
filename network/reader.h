@@ -190,6 +190,7 @@ private:
 	
 };
 
+//pair of sources(first) and mambers(second)
 typedef std::pair<std::vector<int>,std::vector<int>> stream;
 
 typedef struct stream_bind {
@@ -234,6 +235,8 @@ public:
 	 * @param rca::Network
 	 */
 	void configure_network (rca::Network &, stream_list_t &);
+
+	void configure_network (rca::Network &, std::vector<rca::Group>&);
 		
 	int get_number_nodes () {return m_nodes;}
 	int get_number_edges () {return m_edges;}
@@ -252,7 +255,6 @@ void get_problem_informations (
 	std::string const& file, 
 	rca::Network &net, 
 	std::vector<rca::Group> &mgroups);
-
 
 	} //end of namespace reader
 } //end of namespace rca

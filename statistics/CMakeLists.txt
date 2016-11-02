@@ -10,19 +10,19 @@ CMakeCache*;
 FILE(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE(GLOB HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
-add_library (statistical STATIC ${SRC})
+#add_library (statistical STATIC ${SRC})
 
-add_executable (leitor main.cpp)
-target_link_libraries (leitor statistical)
+#add_executable (leitor main.cpp)
+#target_link_libraries (leitor statistical)
 
-add_executable (media mean.cpp)
-target_link_libraries (media statistical)
+#add_executable (media mean.cpp)
+#target_link_libraries (media statistical)
 
-add_executable (mediana median.cpp)
-target_link_libraries (mediana statistical)
+#add_executable (mediana median.cpp)
+#target_link_libraries (mediana statistical)
 
-add_executable (min min.cpp)
-target_link_libraries (min statistical)
+#add_executable (min min.cpp)
+#target_link_libraries (min statistical)
 
 INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION statistics)
 

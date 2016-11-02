@@ -41,7 +41,7 @@ void run_steiner_tree (std::string & file, int H)
 	int NODES = network.getNumberNodes ();
 	Container cg(NODES);
 
-	rca::StefanHeuristic obj (network, mgroups);
+	rca::stphop::StefanHeuristic obj (network, mgroups);
 	obj.set_container  (cg);
 	obj.run2 (H);
 
@@ -64,7 +64,7 @@ void run_multiple_tree (std::string & file, int H)
 	int NODES = network.getNumberNodes ();
 	Container cg(NODES);
 
-	rca::StefanHeuristic obj (network, mgroups, false, true);
+	rca::stphop::StefanHeuristic obj (network, mgroups, false, true);
 	obj.set_container  (cg);
 	obj.run2 (H);
 

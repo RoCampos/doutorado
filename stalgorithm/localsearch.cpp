@@ -50,13 +50,10 @@ void LocalSearch::apply (Solution & solution, int & cost, int & res) {
 		std::iota (gindex.begin(), gindex.end(), 0);
 		std::random_shuffle (gindex.begin(), gindex.end());
 
-		// for (steiner & tree : solution) {						
-		for (auto id : gindex) {
-			// if ( this->cut_replace (begin->getX(), begin->getY(), id, tree, cost) ) {					
+		for (auto id : gindex) {			
 			if ( this->cut_replace (begin->getX(), begin->getY(), id, solution[id], cost) ) {					
 				break;
 			}
-			// id++;
 		}		
 	}
 	
@@ -68,14 +65,14 @@ void LocalSearch::apply (Solution & solution, int & cost, int & res) {
 void LocalSearch::inline_replace (steiner & solution, 
 	int& cost, rca::Link& out, rca::Link& in, int tree_id) {
 
-	cost -= solution.get_cost ();
+	cost -= (int)solution.get_cost ();
 
 	int outcost = (int) m_network->getCost (out.getX(), out.getY());
 	int incost = (int) m_network->getCost (in.getX(), in.getY());
 
 	//remove aresta e atualiza o custo
 	solution.remove_edge (out.getX(), out.getY());
-	solution.set_cost ( solution.get_cost () - outcost);
+	solution.set_cost ( (int)solution.get_cost () - outcost);
 
 	//adicionando nova aresta, custo atualizado
 	solution.add_edge (in.getY(), in.getX(), incost);
@@ -96,9 +93,9 @@ void LocalSearch::inline_replace (steiner & solution,
 	this->m_removed.push_back (out);
 
 	//remove custo das arestas prunneds
-	solution.set_cost (solution.get_cost () - removedcost);
+	solution.set_cost ( (int)solution.get_cost () - removedcost);
 	
-	cost += solution.get_cost ();
+	cost += (int)solution.get_cost ();
 
 }
 
@@ -142,10 +139,10 @@ bool LocalSearch::cut_replace (int x, int y, int id, steiner & tree, int& solcos
 							if (m_cg->is_used (in)) {
 								value = m_cg->value (in);
 							} else {
-								value = m_network->getBand (in.getX(), in.getY());
+								value = (int)m_network->getBand (in.getX(), in.getY());
 							}
 
-							int tk = m_groups->at (id).getTrequest ();
+							int tk = (int)m_groups->at (id).getTrequest ();
 
 							if ( (value - tk) > 0 && (value-tk) >= this->m_top ) {
 								
@@ -181,12 +178,12 @@ void LocalSearch::inline_update (rca::Link& out, EdgeType type, int tree_id) {
 	//OUT e IN são usados para determinar a estrategia
 	int value;
 	if (EdgeType::OUT == type) {		
-		value = m_cg->value (out) + tk;		
+		value = (m_cg->value (out) + tk);
 	} else if (EdgeType::IN == type) {		
 		if (m_cg->is_used (out)) {
-			value = m_cg->value (out) - tk;
+			value = (m_cg->value (out) - tk);
 		} else {
-			value = BAND - tk;
+			value = (BAND - tk);
 		} 
 	}
 
@@ -216,13 +213,11 @@ void LocalSearch::update_container (Solution & solution) {
 	for (auto & tree : solution) {
 		auto edges = tree.get_all_edges ();			
 		for (const std::pair<int,int> & e : edges) {
-			int cost = m_network->getCost (e.first, e.second);
+			int cost = (int)m_network->getCost (e.first, e.second);
 			rca::Link l (e.first, e.second, cost);
 
-			if ( !m_cg->is_used (l) ) {					
-
+			if ( !m_cg->is_used (l) ) {
 				to_replace.push_back (l);
-
 				l.setValue (LINKS-1);
 				m_cg->push (l);
 
@@ -273,16 +268,13 @@ void CycleLocalSearch::update_container (Solution & solution) {
 	for (auto & tree : solution) {
 		auto edges = tree.get_all_edges ();			
 		for (const std::pair<int,int> & e : edges) {
-			int cost = m_network->getCost (e.first, e.second);
+			int cost = (int)m_network->getCost (e.first, e.second);
 			rca::Link l (e.first, e.second, cost);
 
-			if ( !m_cg->is_used (l) ) {					
-
+			if ( !m_cg->is_used (l) ) {
 				to_replace.push_back (l);
-
 				l.setValue (LINKS-1);
 				m_cg->push (l);
-
 			} else {
 				int value = m_cg->value (l);
 				m_cg->erase (l);
@@ -301,24 +293,19 @@ void CycleLocalSearch::apply (Solution & solution, int & cost, int & res) {
 	cout << "CycleLocalSearch:" <<__FUNCTION__ << endl;
 #endif
 
-	// this->update_container (solution);
-
 	int tree_id = 0;
 	for (steiner & st : solution) { //O(K)
-
 		//getting the vertex of the tree
 		std::vector<int> vertex;
 		this->get_vertex (vertex, st);
-		this->cut_replace (tree_id, vertex, st, cost);
-
-		//inline_replace (vertex, st);
-		
+		this->cut_replace (tree_id, vertex, st, cost);		
 		tree_id++;
 	}
 
 }
 
-void CycleLocalSearch::get_vertex (std::vector<int> & vertex, 
+void CycleLocalSearch::get_vertex (
+	std::vector<int> & vertex, 
 	steiner & st) {
 
 	int NODES = m_network->getNumberNodes ();
@@ -330,25 +317,34 @@ void CycleLocalSearch::get_vertex (std::vector<int> & vertex,
 
 }
 
-bool CycleLocalSearch::cut_replace (int id, std::vector<int>& vertex, steiner & st, int& solcost) {
+int CycleLocalSearch::contador = 0;
 
+bool CycleLocalSearch::cut_replace (
+	int id, 
+	std::vector<int>& vertex, 
+	steiner & st, 
+	int& solcost) {
+
+	CycleLocalSearch::contador++;
 
 	//V*V*O(V+E) --> O(V³ + E) 
 	for (auto x : vertex) {
 		for (auto y : vertex) {
 			if (x < y) {
 
-				rca::Link in (x,y, 0);
-				int in_cost = m_network->getCost (x,y);
+				rca::Link in (x,y,0);
+				int in_cost = (int)m_network->getCost (x,y);
 
 				in.setValue (in_cost);
 
 				if ( in_cost > 0 && !st.find_edge (x,y) ) {
 
 					//avitar piorar solução
-					if (m_cg->is_used (in) && m_cg->value (in) <= this->m_top) {
+					int tk = (int)m_groups->at (id).getTrequest ();
+					if (m_cg->is_used (in) && (m_cg->value (in)-tk < this->m_top)) {
 						continue;
-					}
+					} else if ((int)m_network->getBand(x,y)-tk <this->m_top) 
+						continue;
 
 					rca::Path p = this->get_path (x,y,st);
 
@@ -364,29 +360,22 @@ bool CycleLocalSearch::cut_replace (int id, std::vector<int>& vertex, steiner & 
 						steiner st_copy = st;
 						inline_replace (st_copy, solcost_copy ,out, in, id);
 						
-						if (solcost_copy < solcost) {
-							
+						if (solcost_copy < solcost) {	
+
 							solcost = solcost_copy;
 							st = st_copy;
 							inline_update (out, EdgeType::OUT, id);
 							inline_update (in, EdgeType::IN, id);
 
 							//remover arestas do prunning
-							// std::cout << "\ttoremove\n";
-							for (auto & e : this->m_removed) {
-								// cout << e << endl;
+							for (auto & e : this->m_removed) {								
 								inline_update (e, EdgeType::OUT, id);
 							}
 						}
-
 						this->m_removed.clear ();
-
 					}
-
 				}
-
 			}
-
 		}
 	}
 
@@ -394,35 +383,39 @@ bool CycleLocalSearch::cut_replace (int id, std::vector<int>& vertex, steiner & 
 
 }
 
-rca::Link CycleLocalSearch::get_out_link (rca::Path& path, steiner & st) {
+rca::Link CycleLocalSearch::get_out_link (
+	rca::Path& path, 
+	steiner & st) 
+{
 
 	for (auto it = path.begin (); it != path.end () - 1; it++) {
-
 		rca::Link l (*it, *(it+1), 0);
-		int cost = this->m_network->getCost (l.getX(), l.getY());
-		l.setValue (cost);
-		
+		int cost = (int)this->m_network->getCost (l.getX(), l.getY());
+		l.setValue (cost);		
 		if ( !st.is_terminal (l.getX()) && !st.is_terminal (l.getY()) ) {
 			return l;
 		}		
-
 	}
-
 	rca::Link l(0,0,0);
 	return l;
 }
 
-void CycleLocalSearch::inline_replace (steiner & solution, 
-	int& cost, rca::Link& out, rca::Link& in, int tree_id) {
+void CycleLocalSearch::inline_replace (
+	steiner & solution, 
+	int& cost, 
+	rca::Link& out, 
+	rca::Link& in, 
+	int tree_id) 
+{
 
-	cost -= solution.get_cost ();
+	cost -= (int)solution.get_cost ();
 
 	int outcost = (int) m_network->getCost (out.getX(), out.getY());
 	int incost = (int) m_network->getCost (in.getX(), in.getY());
 
 	//remove aresta e atualiza o custo
 	solution.remove_edge (out.getX(), out.getY());
-	solution.set_cost ( solution.get_cost () - outcost);
+	solution.set_cost ( (int)solution.get_cost () - outcost);
 
 	//adicionando nova aresta, custo atualizado
 	solution.add_edge (in.getY(), in.getX(), incost);
@@ -439,13 +432,17 @@ void CycleLocalSearch::inline_replace (steiner & solution,
 	}	
 
 	//remove custo das arestas prunneds
-	solution.set_cost (solution.get_cost () - removedcost);
+	solution.set_cost ( (int)solution.get_cost () - removedcost);
 	
-	cost += solution.get_cost ();
+	cost += (int)solution.get_cost ();
 
 }
 
-void CycleLocalSearch::inline_update (rca::Link& out, EdgeType type, int tree_id) {
+void CycleLocalSearch::inline_update (
+	rca::Link& out, 
+	EdgeType type, 
+	int tree_id) 
+{
 
 	//obter requisição de tráfego
 	int tk = (int)this->m_groups->at(tree_id).getTrequest ();	
@@ -457,17 +454,17 @@ void CycleLocalSearch::inline_update (rca::Link& out, EdgeType type, int tree_id
 	//OUT e IN são usados para determinar a estrategia
 	int value;
 	if (EdgeType::OUT == type) {		
-		value = m_cg->value (out) + tk;
+		value = (m_cg->value (out) + tk);
 	} else if (EdgeType::IN == type) {		
 		if (m_cg->is_used (out)) {
-			value = m_cg->value (out) - tk;
+			value = (m_cg->value (out) - tk);
 		} else {
-			value = BAND - tk;
+			value = (BAND - tk);
 		} 
 	}
 
 
-	if (value ==  BAND) {
+	if (value == BAND) {
 		m_cg->erase (out);
 	} else {
 		if (m_cg->is_used (out)) {
@@ -681,12 +678,12 @@ bool PathExchange<Container, SteinerRpr>::do_change (
 	typedef typename rca::OperationType OperationType;
 
 	int trequest = g.getTrequest ();
-	int band = network.getBand (novo.getX(), novo.getY());	
+	int band = (int)network.getBand (novo.getX(), novo.getY());	
 
 	container.update_inline (novo, 
 		OperationType::IN, trequest, band);
 
-	int cost = network.getCost (novo.getX(), novo.getY());
+	int cost = (int)network.getCost (novo.getX(), novo.getY());
 	st.add_edge (novo.getX(), novo.getY(), cost);					
 
 	Prune p;
@@ -700,14 +697,14 @@ bool PathExchange<Container, SteinerRpr>::do_change (
 		rcost += (int)network.getCost (x, y);						
 		rca::Link l (x, y, 0);						
 
-		int band = network.getBand (l.getX(), l.getY());
+		int band = (int)network.getBand (l.getX(), l.getY());
 		container.update_inline (l, OperationType::OUT, 
 			trequest, band);
 	}
 
 	st.set_cost (st.get_cost () - rcost);
 
-	band = network.getBand (old.getX(), old.getY());
+	band = (int)network.getBand (old.getX(), old.getY());
 	container.update_inline (old, OperationType::OUT,
 		trequest, band);
 

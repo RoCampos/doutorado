@@ -35,6 +35,18 @@ typedef typename boost::heap::fibonacci_heap<vertex_t,boost::heap::compare<std::
 typedef typename rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 
 
+// for max_heap
+struct compare_greater {
+	bool operator () (vertex_t const& t1, vertex_t const& t2) const{
+		return t1.weight > t2.weight;
+	}
+};
+
+typedef typename boost::heap::compare<compare_greater> gcomparator_t;
+typedef typename boost::heap::fibonacci_heap<vertex_t, gcomparator_t>::handle_type g_handle_t;
+typedef typename boost::heap::fibonacci_heap<vertex_t, gcomparator_t> fibonacci_greater_t;
+
+
 /**
 * Algoritmo de caminho mais curto utilizando Dijkstra.
 * Este algoritmo encontra o caminho mais curto entre dois
@@ -164,6 +176,33 @@ std::vector<int> all_shortest_path (int v, int w, rca::Network & network);
 
 
 /**
+* This algorithm is used to compute the voronoi diagram
+* of a graph based on maximun residual capacity of edges
+* of the graph passed as parameters.
+*
+* The algorithm creates a artificial source and connect it with
+* the nodes passed as parameter 'sources'.
+*
+* After run dijkstra algorithm (modified version), the edges that
+* connect the artificial source to the network are cutted off. So,
+* some connected components are connected using a edge (based on cost or
+* residual capacity).
+*
+* This algorithm can be used to build network distance of a graph
+*
+*
+* @param vector<int> the sources
+* @param rca::Network the network where the tree is built
+*
+*/
+void voronoi_diagram (
+	rca::Network &,
+	std::vector<int> & bases,
+	std::vector<int> & costpath,
+	std::vector<std::vector<int>> & paths);
+
+
+/**
 * Retorna o menor valor de capacidade dentre todas as arestas da rede.
 * 
 *
@@ -172,7 +211,28 @@ std::vector<int> all_shortest_path (int v, int w, rca::Network & network);
 */
 double min_bandwidth (rca::Network& network);
 
+/**
+*	Este método é utilizado para pegar a aresta de um caminho
+* com menor valor de capacidade residual e retoná-lo.
+* 
+*
+* @param rca::Network
+* @param rca::Path
+*/
+int get_bottleneck (
+	rca::Network& network, 
+	rca::Path& path);
 
+/**
+*	Este método é utilizado para transformar um rca::Path
+*	em um conjunto de arestas adicionando o custo da aresta
+* 	obtido da rede, que e passada como parâmetro.
+*
+*
+*	@param rca::Path
+*	@param rca::Network
+*	@return std::vector<rca::Link>
+*/
 std::vector<rca::Link> path_to_edges (rca::Path const& path, 
 	rca::Network * net = NULL);
 
