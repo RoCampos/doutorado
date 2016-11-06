@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <cassert>
 
 #include "config.h"
 
@@ -185,10 +186,8 @@ minimum_spanning_tree (DataSMT * data)
 		auto it = data->links.begin();
 		data->links.erase (it);
 	}
-
 	data->links.clear ();
 	data->links = std::move(result);
-
 }
 
 void rebuild_solution (
@@ -216,23 +215,27 @@ void rebuild_solution (
 		auto it = links.end();
 		
 		if (path.size () > 0) {
-			links.insert (it, path.begin(), path.end());
+			for (auto e : path) {
+				auto it = std::find (links.begin(), links.end(), e);
+				if (it == links.end()) {
+					links.push_back (e);
+				}					
+			}
 		}
-
 		path = path_to_edges (p2, &network);
-
 		auto end = links.begin();
 		if (path.size () > 0) {
-			links.insert (end, path.begin(), path.end());
+			for (auto e : path) {
+				auto it = std::find (links.begin(), links.end(), e);
+				if (it == links.end()) {
+					links.push_back (e);
+				}
+			}
 		}
-
 		links.push_back (link);
-
 	}
-
 	data->links.clear ();
 	data->links = std::move (links);
-
 }
 
 void
@@ -260,7 +263,7 @@ remove_top (rca::Network & network,
 		if (count++ == rem) return;
 
 		network.removeEdge (*it);
- 		if ( !is_connected (network, group) ) {
+ 		if (is_connected (network, group) == false ) {
  			network.undoRemoveEdge (*it);
  		}	
 	}
@@ -400,7 +403,7 @@ int main(int argc, char const *argv[])
 		for (auto g : mgroups) {
 			std::vector<int> sources {g.getSource()};			
 			stream_t stream (g.getId(), g.getTrequest(), sources, g);
-			m_streams.push_back (stream);
+			m_streams.push_back (stream);			
 		}
 
 	} else if (single.compare ("no") == 0) {
@@ -462,10 +465,14 @@ int main(int argc, char const *argv[])
 
 		//remove top
 		if (single.compare ("yes") == 0) {
-			remove_top (network, rem, group.m_group);	
+			remove_top (network, rem, group.m_group);
 		}
 
+		//checking for connectivity
+		assert (is_connected (network, group.m_group) == true);
+
 		rca::Network *ptr = network.extend (srcs);
+
 		voronoi_diagram (*ptr, bases, costpath, paths);
 
 		if (single.compare ("yes") == 0) {

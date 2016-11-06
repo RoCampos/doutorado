@@ -525,7 +525,7 @@ std::vector<rca::Link> path_to_edges (rca::Path const& path, rca::Network * net)
 		//if a network object is passed, 
 		//the links has its cost updated
 		if (net != NULL) {
-			l.setValue (net->getCost (l.getX(), l.getY()));
+			l.setValue ((int)net->getCost (l.getX(), l.getY()));
 		}
 
 		out.push_back (l);
