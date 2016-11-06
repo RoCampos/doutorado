@@ -518,6 +518,7 @@ int main(int argc, char const *argv[])
 
 			std::vector<rca::Link> links;
 
+
 			for (auto m : group.m_group.getMembers ()) {
 				int b = bases[m];
 				int id = sources[b];				
@@ -534,6 +535,7 @@ int main(int argc, char const *argv[])
 					}
 				}	
 			}
+			cost += links.size ();
 
 			for (auto l : links) {
 				int b = (int)network.getBand (l.getX(), l.getY());
@@ -553,7 +555,10 @@ int main(int argc, char const *argv[])
 		print_result (z, cost_res, time_elapsed.get_elapsed (), full_res);	
 	} else if (single.compare ("no") == 0){
 
-		cout << min_bandwidth (network) << endl;
+		cout << min_bandwidth (network) << " ";
+		cout << cost << " ";
+		time_elapsed.finished ();
+		cout << time_elapsed.get_elapsed () << endl;
 
 	}
 		
