@@ -62,6 +62,63 @@ public:
 	
 };
 
+
+typedef std::pair<int,int> EdgePair;
+typedef std::map<EdgePair, rca::Link> EdgeMap;
+
+struct DataSMT
+{
+	rca::Network * G;
+	EdgeMap edgeMap;
+	std::map<int, int> vertex;
+	std::map<int, int> invertex;
+	std::vector<rca::Link> links;
+
+	~DataSMT () {
+		delete G;
+	}
+
+};
+
+template<class Container, class SteinerRepr>
+class MinmaxSteinerFactory : public SteinerTreeFactory<Container, SteinerRepr> {
+public:
+
+	MinmaxSteinerFactory (rca::Network & network) {
+		this->m_copy = network;
+	}
+
+	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+				rca::Network & network, 
+				rca::Group & g,
+				Container& cg);
+	
+	DataSMT* join_components (
+		std::vector<int> bases,
+		std::vector<int> costpath,
+		std::vector<std::vector<int>> paths,
+		std::vector<int> scrs
+		);
+
+	int get_min_cap (
+		rca::Network & net,
+		rca::Path & p1, 
+		rca::Path & p2, 
+		rca::Link  l
+		);
+
+	void minimun_spanning_tree (DataSMT*);
+	
+	//using network m_copy
+	void rebuild_solution (DataSMT*, 
+		std::vector<std::vector<int>> & paths);	
+
+private:
+	rca::Network * m_ptr_net;
+	rca::Network m_copy;
+
+};
+
 /**
  * Classe AGMZSteinerTree é uma classe que implementa a construção
  * de árvores de Steiner utilizando a ideia de contruir a árvore utilizando
