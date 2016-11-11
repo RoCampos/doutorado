@@ -201,6 +201,14 @@ void voronoi_diagram (
 	std::vector<int> & costpath,
 	std::vector<std::vector<int>> & paths);
 
+void widest_shortest_path (
+	int source,
+	rca::Network & network,
+	std::vector<int> & bases,
+	std::vector<int> & costpath,
+	std::vector<int> & prev,
+	std::vector<std::vector<int>> & paths);
+
 
 /**
 * Retorna o menor valor de capacidade dentre todas as arestas da rede.

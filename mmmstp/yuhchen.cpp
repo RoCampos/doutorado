@@ -157,8 +157,12 @@ forest_t YuhChen::widest_path_tree (int stream_id)
 		
 		//shortest_path_tree
 		//computed here
-		std::vector<int> previous = 
-				inefficient_widest_path (s, members[0], m_network);
+		// std::vector<int> previous = 
+		// 		inefficient_widest_path (s, members[0], m_network);
+		std::vector<int> previous;
+		std::vector<int> bases, costpath;
+		std::vector<std::vector<int>> paths;
+		widest_shortest_path (s, *m_network, bases, costpath, previous, paths);
 
 		for (int & d : members) {
 			
@@ -585,8 +589,13 @@ void singlesoruce(
 void multiplesource(std::string file) {
 	
 	rca::Network net;
+	rca::elapsed_time time_elapsed;	
+	time_elapsed.started ();
+
 	YuhChen yuhchen (file);
 	yuhchen.run (0);
+	time_elapsed.finished ();
+	std::cout << time_elapsed.get_elapsed () << std::endl;
 
 }
 
