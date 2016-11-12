@@ -34,11 +34,14 @@ class TabuSearch {
 	typedef rca::sttalgo::ChenReplaceVisitor<SolutionType> ChenReplaceVisitor;
 	typedef rca::sttalgo::cycle_local_search<Container, SolutionType> OCycleLocalSearch;	
 
+	typedef rca::sttalgo::ShortestPathSteinerTree<Container, SolutionType> sph_t;
+	typedef rca::sttalgo::AGMZSteinerTree<Container, SolutionType> agm_t;
+
 	
 public:
 	TabuSearch (std::string& );
 	~TabuSearch () {
-		delete m_factory;
+		this->finish_factoy ();
 	}
 	
 	inline void set_iterations (int iter) {m_iter = iter;}
@@ -46,9 +49,9 @@ public:
 	inline void set_has_init (bool value) {m_has_init = value;}
 	inline void set_tabu_links_size (double value){m_links_perc = value;}
 	inline void set_seed (int seed) {m_seed = seed;}
-	inline void set_update_by_cost (int value) {m_update = value;}
-	
+	inline void set_update_by_cost (int value) {m_update = value;}	
 	inline void set_redo_tabu_perc (int value) { m_redo_tabu_perc = value;}
+	inline void set_type (std::string & type) {m_type = type;}
 	
 	void run ();
 	
@@ -124,6 +127,28 @@ private:
 		}
 		return toReturn;
 	}
+
+	void start_factory () {
+		if (this->m_type.compare("SPH") == 0) {
+			this->m_sph_fact = new rca::sttalgo::ShortestPathSteinerTree<Container, SolutionType>();
+		}
+
+		if (this->m_type.compare("AGM") == 0) {
+			this->m_agm_fact = new rca::sttalgo::AGMZSteinerTree<Container, SolutionType>();	
+		}
+	}
+
+	void finish_factoy () {
+		if (this->m_agm_fact != NULL) {
+			delete this->m_agm_fact;
+			this->m_agm_fact = NULL;
+		} 
+
+		if (this->m_sph_fact != NULL) {
+			delete this->m_sph_fact;
+			this->m_sph_fact = NULL;
+		} 
+	}
 		
 	
 private:
@@ -168,7 +193,12 @@ private:
 	ObjectiveType m_budget;
 	
 	//multicast tree factory
-	rca::sttalgo::AGMZSteinerTree<Container, SolutionType> * m_factory;
+	agm_t * m_agm_fact;
+	sph_t * m_sph_fact;
+
+	//type of factory
+	std::string m_type;
+
 	
 	
 };

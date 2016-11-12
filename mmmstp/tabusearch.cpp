@@ -11,7 +11,8 @@ rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::TabuSearch (s
 	std::cout << __FUNCTION__ << std::endl;
 #endif
 	
-	m_factory = NULL;
+	this->m_agm_fact = NULL;
+	this->m_sph_fact = NULL;
 	
 	std::vector<std::shared_ptr<rca::Group>> g;
 	
@@ -126,12 +127,13 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 	std::cout << __FUNCTION__ << std::endl;
 #endif
 		
-	if (this->m_factory == NULL)
-		// this->m_factory = new rca::sttalgo::ShortestPathSteinerTree<Container, SolutionType>();
-		this->m_factory = new rca::sttalgo::AGMZSteinerTree<Container, SolutionType>();
+	this->start_factory ();
 
-	this->m_factory->create_list (this->m_network);
-	
+	// cout << "Type:" <<this->m_type << endl;
+
+	if (this->m_type.compare ("AGM") == 0)
+		this->m_agm_fact->create_list (this->m_network);
+
 	int NODES = this->m_network.getNumberNodes();
 	int GROUPS= this->m_groups.size ();
 
@@ -191,8 +193,13 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 		}
 		
 		//building the tree
-		this->m_factory->build (ob, m_network, m_groups[i], cg);
-		ob.prune (trequest, GROUPS);
+		if (this->m_type.compare ("AGM") == 0) {
+			this->m_agm_fact->build (ob, m_network, m_groups[i], cg);
+			ob.prune (trequest, GROUPS);
+		} else {
+			this->m_sph_fact->build (ob, m_network, m_groups[i], cg);
+		}
+		
 		
 		//updating the cost
 		cost += ob.get_steiner_tree ().get_cost ();
@@ -201,9 +208,13 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 		
 		sol[i] = ob.get_steiner_tree ();
 
-		this->m_factory->update_usage (m_groups[i], m_network, ob.get_steiner_tree ());
+		if (this->m_type.compare ("AGM") == 0) { 
+			this->m_agm_fact->update_usage (m_groups[i], m_network, ob.get_steiner_tree ());
+		}		
 		
 	}
+
+
 
 	res_sol = cg.top ();
 	cost_sol = cost;	
@@ -501,7 +512,8 @@ typedef rca::EdgeContainer<rca::Comparator, rca::HCell> CongestionHandle;
 
 std::string commandLine() {
 	std::string command = "tabu --inst [brite]";
-	command += " --iter [int] --list_perc [0.0,1.0] --tabu [0.0, 1.0] --upd8 [int]";
+	command += " --iter [int] --budget --list_perc [0.0,1.0] --tabu [0.0, 1.0] --upd8 [int]";
+	// command += ""
 	return command;
 }
 
@@ -529,6 +541,8 @@ int main (int argv, char const *argc[]) {
 	double redo_tabu_perc = atof (argc[10]);
 	
 	int update = atoi (argc[12]);
+
+	std::string type = argc[14];
 	
 	TabuSearch<steiner, CongestionHandle, int> tabueSearch (file);
 	tabueSearch.set_iterations ( iterations );
@@ -537,6 +551,8 @@ int main (int argv, char const *argc[]) {
 	tabueSearch.set_seed ( r );
 	tabueSearch.set_update_by_cost (update);
 	tabueSearch.set_redo_tabu_perc (redo_tabu_perc);
+	tabueSearch.set_type (type);
+
 		
  	tabueSearch.run ();	
 		
