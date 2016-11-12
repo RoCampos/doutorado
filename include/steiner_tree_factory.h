@@ -111,7 +111,11 @@ public:
 	
 	//using network m_copy
 	void rebuild_solution (DataSMT*, 
-		std::vector<std::vector<int>> & paths);	
+		std::vector<std::vector<int>> & paths);
+
+	rca::Network & get_network () {
+		return (this->m_copy);
+	}
 
 private:
 	rca::Network * m_ptr_net;

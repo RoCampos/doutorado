@@ -451,20 +451,17 @@ void MinmaxSteinerFactory<Container, SteinerRepr>::build (
 	//update_edges
 	int trequest = g.getTrequest ();
 	
-	int cost = 0;
+	int solcost = 0;
 	for(auto&& e : data->links) {
 		
 		int band = (int)network.getBand (e.getX(), e.getY());
-		// int cost = (int)network.getBand (e.getX(), e.getY());
-		bool res = sttree.add_edge (e.getX(), e.getY(), 
-							e.getValue(), trequest, band);	
-
+		int cost = (int)network.getCost (e.getX(), e.getY());
+		bool res = sttree.add_edge (e.getX(), e.getY(), cost, trequest, band);	
 		//se o link foi inserido na árvore, então atualiza container
 		//e copia da rede mantida pelo factory
 		if (res) {
-			cg.update_inline (e, rca::OperationType::IN, trequest, band);			
 			this->m_copy.setBand (e.getX(), e.getY(), band-trequest);
-			cost += (int)this->m_copy.getCost(e);
+			solcost += cost;
 		}			
 	}
 
