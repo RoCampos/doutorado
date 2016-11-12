@@ -36,6 +36,8 @@ class TabuSearch {
 
 	typedef rca::sttalgo::ShortestPathSteinerTree<Container, SolutionType> sph_t;
 	typedef rca::sttalgo::AGMZSteinerTree<Container, SolutionType> agm_t;
+	typedef rca::sttalgo::MinmaxSteinerFactory<Container, SolutionType> wsp_t;
+
 
 	
 public:
@@ -129,12 +131,16 @@ private:
 	}
 
 	void start_factory () {
-		if (this->m_type.compare("SPH") == 0) {
-			this->m_sph_fact = new rca::sttalgo::ShortestPathSteinerTree<Container, SolutionType>();
+		if (this->m_type.compare("AGM") == 0) {
+			this->m_agm_fact = new agm_t();
 		}
 
-		if (this->m_type.compare("AGM") == 0) {
-			this->m_agm_fact = new rca::sttalgo::AGMZSteinerTree<Container, SolutionType>();	
+		if (this->m_type.compare("SPH") == 0) {
+			this->m_sph_fact = new sph_t();	
+		}
+
+		if (this->m_type.compare("WSP") == 0) {
+			this->m_wsp_fact = new wsp_t(this->m_network);	
 		}
 	}
 
@@ -195,6 +201,7 @@ private:
 	//multicast tree factory
 	agm_t * m_agm_fact;
 	sph_t * m_sph_fact;
+	wsp_t * m_wsp_fact;
 
 	//type of factory
 	std::string m_type;

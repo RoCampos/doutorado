@@ -129,10 +129,13 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 		
 	this->start_factory ();
 
-	// cout << "Type:" <<this->m_type << endl;
+	rca::Network copy;
 
 	if (this->m_type.compare ("AGM") == 0)
 		this->m_agm_fact->create_list (this->m_network);
+
+	if (this->m_type.compare ("WSP") == 0)
+		copy = this->m_network;
 
 	int NODES = this->m_network.getNumberNodes();
 	int GROUPS= this->m_groups.size ();
@@ -187,17 +190,22 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 		//se a primeira solução tiver sido criada, 
 		//evita congestionamento de arestas
 		if (m_has_init) {
-			// rca::sttalgo::remove_top_edges<CongestionHandle> (cg, 
- 		// 											m_network, 
- 		// 											m_groups[i], 0);
+			if (this->m_type.compare ("SPH") == 0) {
+				rca::sttalgo::remove_top_edges<CongestionHandle> (cg, 
+ 													m_network, 
+ 													m_groups[i], 0);	
+			}
+			
 		}
 		
 		//building the tree
 		if (this->m_type.compare ("AGM") == 0) {
 			this->m_agm_fact->build (ob, m_network, m_groups[i], cg);
 			ob.prune (trequest, GROUPS);
-		} else {
+		} else if (this->m_type.compare ("SPH") == 0){
 			this->m_sph_fact->build (ob, m_network, m_groups[i], cg);
+		} else {
+			this->m_wsp_fact->build (ob, m_network, m_groups[i], cg);
 		}
 		
 		
@@ -214,7 +222,9 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 		
 	}
 
-
+	if (this->m_type.compare ("WSP") == 0) {
+		this->m_network = copy;
+	}
 
 	res_sol = cg.top ();
 	cost_sol = cost;	
@@ -349,7 +359,6 @@ rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::tabu_list (st
 		}
 		
 	}
-
 
 	std::sort (std::begin(links_cost), 
 			   std::end(links_cost), 
