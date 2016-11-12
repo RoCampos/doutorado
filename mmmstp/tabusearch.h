@@ -6,6 +6,8 @@
 #include <bitset>
 #include <cmath>
 
+#include "config.h"
+
 #include "sttree.h"
 #include "network.h"
 #include "edgecontainer.h"
