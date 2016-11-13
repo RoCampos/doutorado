@@ -43,7 +43,7 @@ class TabuSearch {
 public:
 	TabuSearch (std::string& );
 	~TabuSearch () {
-		this->finish_factoy ();
+		this->finish_factory();
 	}
 	
 	inline void set_iterations (int iter) {m_iter = iter;}
@@ -103,12 +103,12 @@ private:
 	void remove_tabu_links (int g_id, std::vector<rca::Link>& links) {
 		
 		for (auto l : links) {
-			if (m_network.isRemoved(l)) continue;
+			if (this->m_network.isRemoved(l)) continue;
 			
-			m_network.removeEdge (l);
+			this->m_network.removeEdge (l);
 			
-			if ( !is_connected (m_network, m_groups[g_id]) ) {
-				m_network.undoRemoveEdge (l);
+			if ( !is_connected (this->m_network, m_groups[g_id]) ) {
+				this->m_network.undoRemoveEdge (l);
 			}
 		}
 		
@@ -144,7 +144,7 @@ private:
 		}
 	}
 
-	void finish_factoy () {
+	void finish_factory () {
 		if (this->m_agm_fact != NULL) {
 			delete this->m_agm_fact;
 			this->m_agm_fact = NULL;
@@ -154,6 +154,33 @@ private:
 			delete this->m_sph_fact;
 			this->m_sph_fact = NULL;
 		} 
+
+		if (this->m_wsp_fact != NULL) {
+			delete this->m_wsp_fact;
+			this->m_wsp_fact = NULL;
+		}
+	}
+
+	void check (std::vector<SolutionType>const & sol, char const * str)
+	{
+		std::string strc = str;		
+		for (auto s : sol) {
+			if (s.get_all_edges ().size () == 0) {
+				cout << "Invalid after: " << strc << endl;
+				cout << "Graph Status:" << m_network.isConnected () << endl;
+				exit (1);
+			}
+		}
+	}
+	void check (std::vector<SolutionType>const & sol, int strc)
+	{		
+		for (auto s : sol) {
+			if (s.get_all_edges ().size () == 0) {
+				cout << "Invalid Line: " << strc << endl;
+				cout << "Graph Status:" << m_network.isConnected () << endl;
+				exit (1);
+			}
+		}
 	}
 		
 	
