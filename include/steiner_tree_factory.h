@@ -55,10 +55,11 @@ public:
 	 * @param rca::Group
 	 * @param Container	 
 	 */
-	virtual void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
-					rca::Network & network, 
-					rca::Group & g,
-					Container& cg) = 0;
+	virtual void build (
+		SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+		rca::Network & network, 
+		rca::Group & g,
+		Container& cg) = 0;
 	
 };
 
@@ -88,24 +89,23 @@ public:
 		this->m_copy = network;
 	}
 
-	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
-				rca::Network & network, 
-				rca::Group & g,
-				Container& cg);
+	void build (
+		SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+		rca::Network & network, 
+		rca::Group & g,
+		Container& cg);
 	
 	DataSMT* join_components (
-		std::vector<int> bases,
-		std::vector<int> costpath,
-		std::vector<std::vector<int>> paths,
-		std::vector<int> scrs
-		);
+		std::vector<int> &bases,
+		std::vector<int> &costpath,
+		std::vector<std::vector<int>> &paths,
+		std::vector<int> &scrs);
 
 	int get_min_cap (
 		rca::Network & net,
 		rca::Path & p1, 
 		rca::Path & p2, 
-		rca::Link  l
-		);
+		rca::Link  l);
 
 	void minimun_spanning_tree (DataSMT*);
 	
@@ -120,6 +120,7 @@ public:
 private:
 	rca::Network * m_ptr_net;
 	rca::Network m_copy;
+	std::vector<vector<int>> m_paths;
 
 };
 
@@ -157,10 +158,12 @@ public:
 	 * @param rca::Group
 	 * @param Container 
 	 */
-	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
-				rca::Network & network, 
-				rca::Group & g,
-				Container& cg);
+	void build (
+		SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+		rca::Network & network, 
+		rca::Group & g,
+		Container& cg);
+
 	/**
 	 * Este atualiza a lista de arestas mais utilizadas
 	 * Esta lista é utilizada para fazer a construção da árvore geradora.
@@ -226,10 +229,11 @@ public:
 	 * @param rca::Group
 	 * @param Container	 
 	 */
-	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
-				rca::Network & network, 
-				rca::Group & g,
-				Container& cg);
+	void build (
+		SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+		rca::Network & network, 
+		rca::Group & g,
+		Container& cg);
 	
 };
 
@@ -249,10 +253,11 @@ public:
 	* @param rca::Group
 	* @param Container
 	*/
-	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
-				rca::Network & network, 
-				rca::Group & g,
-				Container& cg);
+	void build (
+		SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+		rca::Network & network, 
+		rca::Group & g,
+		Container& cg);
 	
 	/**
 	 * Este método é utilizado para atualizar a largura de banda
@@ -300,10 +305,11 @@ public:
 
 	~LimitedBreadthSearchFirst () {}
 
-	void build (Observer & sttree,
-				rca::Network & network,
-				rca::Group & g,
-				Container & cg);
+	void build (
+		Observer & sttree,
+		rca::Network & network,
+		rca::Group & g,
+		Container & cg);
 
 	/**
 	*	This method returns the size of a path
@@ -346,10 +352,11 @@ public:
 	PathLimitedSearchTree (int limit) 
 	: m_limit (limit) {}
 
-	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree,
-				rca::Network & network,
-				rca::Group & g,
-				Container & cg);
+	void build (
+		SteinerTreeObserver<Container, SteinerRepr> & sttree,
+		rca::Network & network,
+		rca::Group & g,
+		Container & cg);
 
 	// para modificar o algoritmo de construção de solução
 	void set_tree_builder ();
