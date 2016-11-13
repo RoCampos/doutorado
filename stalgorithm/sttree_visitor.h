@@ -135,6 +135,37 @@ void remove_top_edges (Container & ob,
 					   rca::Network & m_network, 
 					   rca::Group & group, int res);
 
+template<class Container>
+void remove_top_edges (
+	rca::Network & network,
+	rca::Group & group) 
+{
+	Container edgeContainer(network.getNumberNodes ());
+	int tk = (int)group.getTrequest ();
+	for(auto e : network.getLinks ()) {		
+		int band = (int)network.getBand(e.getX(), e.getY());
+		edgeContainer.update_inline (e, 
+			rca::OperationType::IN, 
+			tk, 
+			band);
+	}
+
+	int count = 0;
+	int rem = ((0.5 * (float)network.getNumberNodes ()));
+
+	auto it = edgeContainer.get_heap ().ordered_begin ();
+	auto end = edgeContainer.get_heap ().ordered_end ();
+	for ( ; it != end; it++) { 	
+
+		if (count++ == rem) return;
+
+		network.removeEdge (*it);
+ 		if (is_connected (network, group) == false ) {
+ 			network.undoRemoveEdge (*it);
+ 		}	
+	}	
+}
+
 /**
  * This method create a new steiner tree based on AGM algorithm.
  * First, the most congested edges on network object are removed.
