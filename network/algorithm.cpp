@@ -550,7 +550,8 @@ void voronoi_diagram (
 
 	costpath = std::vector<int> (NODES,-1);
 	bases = std::vector<int> (NODES,-1);
-	paths = std::vector<std::vector<int>> (NODES);
+	// paths = std::vector<std::vector<int>> (NODES);
+	paths.resize (NODES);
 	std::vector<int> distance = std::vector<int> (NODES, infty);
 	std::vector<int> prev = std::vector<int> (NODES, -1);
 	std::vector<bool> visited= std::vector<bool> (NODES, false);
@@ -575,16 +576,18 @@ void voronoi_diagram (
 			
 			//getting the previus node
 			int pv = prev[curr_node.id];
-			for (auto n : paths[pv]) {
-				paths[curr_node.id].push_back (n);
+			std::vector<int> & ref = paths.at (curr_node.id);
+			for (auto n : paths[pv]) {				  
+				ref.push_back (n);
 			}
-			paths[curr_node.id].push_back (curr_node.id);
+
+			ref.push_back (curr_node.id);
 
 			//getting the cost of a path
-			if (paths[curr_node.id].size () > 1) {
-				int length = paths[curr_node.id].size ();
-				int v = paths[curr_node.id][length-1];
-				int w = paths[curr_node.id][length-2];
+			if (ref.size () > 1) {
+				int length = ref.size ();
+				int v = ref[length-1];
+				int w = ref[length-2];
 				int edge_cost = network.getCost (v, w);
 				costpath[curr_node.id] += edge_cost;
 			}
