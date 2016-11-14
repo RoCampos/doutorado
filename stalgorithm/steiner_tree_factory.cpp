@@ -441,7 +441,7 @@ void MinmaxSteinerFactory<Container, SteinerRepr>::build (
 	this->m_ptr_net = network.extend (srcs);
 
 	//from algorithm
-	voronoi_diagram (*this->m_ptr_net, bases, costpath, paths);
+	voronoi_diagram (*this->m_ptr_net, bases, costpath, paths); 
 
 	DataSMT * data =
 		this->join_components (bases, costpath, paths, srcs);

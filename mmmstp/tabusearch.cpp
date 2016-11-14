@@ -13,6 +13,7 @@ rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::TabuSearch (s
 	
 	this->m_agm_fact = NULL;
 	this->m_sph_fact = NULL;
+	this->m_wsp_fact = NULL;
 	
 	std::vector<std::shared_ptr<rca::Group>> g;
 	
@@ -77,7 +78,7 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::run ()
 	int best_iteration = 0;
 	
 	do {
-		
+		cout << iter << endl;
 		this->m_has_init = true;
 		
 		count_iter++;
@@ -100,8 +101,10 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::run ()
    		this->zig_zag (sol, rr, cc, cg);
 		
 		//updating a solution
- 		if (this->update_best_solution (sol, rr, cc) ) 
+ 		if (this->update_best_solution (sol, rr, cc) ) {
 			best_iteration = iter;
+			this->check (sol, __FUNCTION__);
+ 		}
 				
 	} while (iter++ < this->m_iter);
 
@@ -119,15 +122,19 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::run ()
 
 
 template <class SolutionType, class Container, class ObjectiveType>
-void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_solution (std::vector<SolutionType>& sol, 
-														 ObjectiveType& res_sol, ObjectiveType& cost_sol,
-														Container &cg)
+void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_solution (
+	std::vector<SolutionType>& sol, 
+	ObjectiveType& res_sol, 
+	ObjectiveType& cost_sol,
+	Container &cg)
 {
 #ifdef DEBUG1
 	std::cout << __FUNCTION__ << std::endl;
 #endif
 		
 	this->start_factory ();
+
+	assert (this->m_network.isConnected());
 
 	rca::Network copy;
 
@@ -151,16 +158,16 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 	
 	ObjectiveType cost = 0;
 	for (int j=0; j < GROUPS; j++) {
-	
+		
 		int i = index[j];
 
 		int trequest = m_groups[i].getTrequest ();
 		
  		if (m_tabu_list[j] == 1) {
  			
-			sol[i] = m_best_sol[i];			
+			sol[i] = m_best_sol[i];
 			cost += update_container (m_best_sol[i], cg, m_groups[i], m_network);
-			
+			assert (sol[i].get_all_edges().size () > 0);
  			continue;
  		}
 		
@@ -215,6 +222,7 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
  		m_network.clearRemovedEdges ();
 		
 		sol[i] = ob.get_steiner_tree ();
+		assert (sol[i].get_all_edges().size () > 0);
 
 		if (this->m_type.compare ("AGM") == 0) { 
 			this->m_agm_fact->update_usage (m_groups[i], m_network, ob.get_steiner_tree ());
@@ -226,21 +234,23 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
 		this->m_network = copy;
 	}
 
+	this->check (sol, __FUNCTION__);
+
+	this->finish_factory();
+
 	res_sol = cg.top ();
 	cost_sol = cost;	
 }
 
 template <class SolutionType, class Container, class ObjectiveType>
-bool 
-rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::update_best_solution 
-								(const std::vector<SolutionType>& sol,
-								const ObjectiveType res,
-								const ObjectiveType cost)
+bool rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::update_best_solution (
+		const std::vector<SolutionType>& sol,
+		const ObjectiveType res,
+		const ObjectiveType cost)
 {
 #ifdef DEBUG1
 	std::cout << __FUNCTION__ << std::endl;
 #endif
-	
 	
 	if (res > this->m_best && cost < this->m_budget) {
 		
@@ -512,7 +522,14 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::zig_zag 
 
 	res = cg.top ();
 	cos = cost;
+
+	for (auto st : sol) {
+		assert (st.get_all_edges ().size () > 0);
+	}
 	
+
+	this->check (sol, __FUNCTION__);
+
 	//cleang the network
 	this->m_network.clearRemovedEdges();
 }
@@ -533,7 +550,7 @@ int main (int argv, char const *argc[]) {
 	}
 
 	int r = time(NULL);
-  	srand ( r );
+  	srand ( 0 );
 	
 	using namespace rca;
 	using namespace rca::metaalgo;
