@@ -106,6 +106,10 @@ public:
 	double getCost (unsigned row, unsigned col) {
 		return m_costMatrix.at (row, col);
 	}
+
+	double getCost (unsigned row, unsigned col) const{
+		return m_costMatrix.at (row, col);
+	}
 	
 	/**
 	* Método utilizado para retonar o custo de uma aresta.
@@ -115,6 +119,10 @@ public:
 	*/
 	double getCost (rca::Link l) {
 		return this->getCost (l.getX(), l.getY());
+	}
+
+	double getCost (rca::Link l) const {
+		return m_costMatrix.at (l.getX(), l.getY());
 	}
 
 	/**
@@ -128,11 +136,19 @@ public:
 		return m_bandMatrix.at (row, col);
 	}
 
+	double getBand (unsigned row, unsigned col) const {
+		return m_bandMatrix.at (row, col);
+	}
+
 	/**
 	 * Método para retornar o número de nós de uma rede.
 	 * @return int
 	 */
 	int getNumberNodes () {
+		return m_nodes;
+	}
+
+	int getNumberNodes () const{
 		return m_nodes;
 	}
 
@@ -348,6 +364,20 @@ public:
 	  _pair = std::make_pair (m_adjacent_vertex[vertex].begin (),
 				 m_adjacent_vertex[vertex].end());
 	}
+
+	void get_iterator_adjacent(int vertex, 
+		std::pair<c_iterator,c_iterator> & _pair) const 
+	{
+	  _pair = std::make_pair (m_adjacent_vertex[vertex].begin (),
+				 m_adjacent_vertex[vertex].end());
+	}
+
+	// typedef typename std::vector<int>::const_iterator c_iterator;
+	// void get_iterator_adjacent(int vertex, std::pair<c_iterator,c_iterator> & _pair) 
+	// {
+	//   _pair = std::make_pair (m_adjacent_vertex[vertex].begin (),
+	// 			 m_adjacent_vertex[vertex].end());
+	// }
 	
 	/**
 	* Método utilizado para retonar o vizinho imediato do
