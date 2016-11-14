@@ -21,10 +21,11 @@ void AGMZSteinerTree<Container, SteinerRepr>::create_list (rca::Network& network
 }
 
 template <class Container, class SteinerRepr>
-void AGMZSteinerTree<Container, SteinerRepr>::build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
-							rca::Network & network, 
-							rca::Group & g,
-							Container& cg)
+void AGMZSteinerTree<Container, SteinerRepr>::build (
+	SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+	rca::Network & network, 
+	rca::Group & g,
+	Container& cg)
 {
 
 	
@@ -83,10 +84,10 @@ void AGMZSteinerTree<Container, SteinerRepr>::update_usage (rca::Group& g,
 
 template <class Container, class SteinerRepr>
 void ShortestPathSteinerTree<Container, SteinerRepr>::build (
-				SteinerTreeObserver<Container, SteinerRepr> & sttree, 
-				rca::Network & network, 
-				rca::Group & g,
-				Container& cg)
+	SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+	rca::Network & network, 
+	rca::Group & g,
+	Container& cg)
 {
 	
 	// int source = g.getSource ();
@@ -125,10 +126,10 @@ void ShortestPathSteinerTree<Container, SteinerRepr>::build (
 /** ------------------------ WildestSteinerTree ------------------- **/
 template <class Container, class SteinerRepr>
 void WildestSteinerTree<Container, SteinerRepr>::build (
-				SteinerTreeObserver<Container, SteinerRepr> & sttree, 
-				rca::Network & network, 
-				rca::Group & g,
-				Container& cg)
+	SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+	rca::Network & network, 
+	rca::Group & g,
+	Container& cg)
 {
 
 	int source = g.getSource ();
@@ -183,10 +184,10 @@ void WildestSteinerTree<Container, SteinerRepr>::update_band (rca::Group & g,
 // ---------------------- INTERATIVE DEPTH FIRST SEARCH ------------------
 template <class Container, class SteinerRepr>
 void LimitedBreadthSearchFirst<Container, SteinerRepr>::build (
-				SteinerTreeObserver<Container, SteinerRepr> & sttree, 
-				rca::Network & network, 
-				rca::Group & g,
-				Container& cg)
+	SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+	rca::Network & network, 
+	rca::Group & g,
+	Container& cg)
 {
 
 	int NODES = network.getNumberNodes ();
@@ -418,6 +419,246 @@ void PathLimitedSearchTree<Container, SteinerRepr>::build_result_tree (
 	}
 }
 
+// --------------------------- minmax_factory ------------------------- //
+template <class Container, class SteinerRepr>
+void MinmaxSteinerFactory<Container, SteinerRepr>::build (
+	SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+	rca::Network & network, 
+	rca::Group & g,
+	Container& cg)
+{
+
+	std::vector<int> srcs;
+	srcs = g.getMembers ();
+	srcs.push_back (g.getSource());	
+
+	std::vector<int> bases;
+	std::vector<int> costpath;
+	std::vector<std::vector<int>> paths;
+
+	assert (is_connected (network, g) == true);
+
+	this->m_ptr_net = network.extend (srcs);
+
+	//from algorithm
+	voronoi_diagram (*this->m_ptr_net, bases, costpath, paths); 
+
+	DataSMT * data =
+		this->join_components (bases, costpath, paths, srcs);
+
+	this->minimun_spanning_tree (data);
+
+	this->rebuild_solution (data, paths);	
+
+	//update_edges
+	int trequest = g.getTrequest ();
+	
+	int solcost = 0;
+	for(rca::Link e : data->links) {
+		
+		int band = (int)network.getBand (e.getX(), e.getY());
+		int cost = (int)network.getCost (e.getX(), e.getY());
+		bool res = sttree.add_edge (e.getX(), e.getY(), cost, trequest, band);	
+		//se o link foi inserido na árvore, então atualiza container
+		//e copia da rede mantida pelo factory
+		if (res) {
+			network.setBand (e.getX(), e.getY(), band-trequest);
+			solcost += cost;
+		}			
+	}
+
+	assert (sttree.get_steiner_tree().get_all_edges ().size () > 0);
+
+	delete data;
+	delete this->m_ptr_net;
+	
+	this->m_ptr_net = NULL;
+	data = NULL;
+
+}
+
+
+template <class Container, class SteinerRepr>
+int MinmaxSteinerFactory<Container, SteinerRepr>::get_min_cap (
+		rca::Network & net,
+		rca::Path & p1, 
+		rca::Path & p2, 
+		rca::Link l
+		)
+{
+	//get_bottleneck from algoritmo.h
+	int bp1 = get_bottleneck (net, p1);
+	int bp2 = get_bottleneck (net, p2);
+	bp1 = std::min (bp1, bp2);
+	bp2 =  (int)net.getBand(l.getX(), l.getY());
+	bp1 = std::min (bp1,bp2);
+
+	return bp1;	
+}
+
+template <class Container, class SteinerRepr>
+DataSMT* MinmaxSteinerFactory<Container, SteinerRepr>::join_components (
+	std::vector<int> & bases,
+	std::vector<int> & costpath,
+	std::vector<std::vector<int>> & paths,
+	std::vector<int> & srcs
+	)
+{
+	std::map<int, int> vertex, invertex;
+
+	for (size_t i = 0; i < srcs.size (); ++i)
+	{
+		vertex[ srcs[i] ] = i;
+		invertex[ i ] = srcs[i];
+	}
+
+	rca::Network * G = new Network (srcs.size (), 0);
+	//links que formam a rede de distância
+	std::vector<rca::Link> tree;	
+	//usando para armazear a aresta que junta duas bases
+	EdgeMap edgeMap;
+	//all the data do convert to and form network distance
+	DataSMT * data = new DataSMT;
+
+	for(rca::Link edge : this->m_ptr_net->getLinks ()) {
+
+		if (this->m_ptr_net->isRemoved(edge)) continue;
+
+		int x = bases[edge.getX()];
+		int y = bases[edge.getY()];
+
+		//if x and y are in different bases
+		if (x != y) {			
+
+			int band = (int) this->m_ptr_net->getBand (edge.getX(), edge.getY());
+
+			//link on network distance
+			rca::Link v (vertex[x], vertex[y], band);
+
+			//path that may connect the bases x and y
+			rca::Path p1(paths[edge.getX()]);
+			rca::Path p2(paths[edge.getY()]);
+
+			//bottleneck of bases x and y (path between them)
+			int dist = this->get_min_cap (*(this->m_ptr_net), p1, p2, edge);
+
+			if (G->getBand(v.getX(), v.getY()) == 0) {
+
+				int cost = costpath[edge.getX()];
+				cost 	+= costpath[edge.getY()];
+				cost 	+= this->m_ptr_net->getCost (edge);
+
+				G->setCost (v.getX(), v.getY(), cost);
+				G->setCost (v.getY(), v.getX(), cost);
+				G->setBand (v.getY(), v.getX(), dist);
+				G->setBand (v.getX(), v.getY(), dist);
+
+				v.setValue (cost);
+				tree.push_back (v);
+
+				//edges can be recovered from vertex and invertex
+				//based on index
+				edgeMap[EdgePair(v.getX(), v.getY())] = edge;
+
+			} else {
+
+				if (dist > G->getBand(v.getX(), v.getY())) {
+
+					G->setBand (v.getY(), v.getX(), dist);
+					G->setBand (v.getX(), v.getY(), dist);
+
+					edgeMap[EdgePair(v.getX(), v.getY())] = edge; 
+				}				
+			}
+		}
+
+	}
+
+	data->G = G;
+	data->invertex = invertex;
+	data->vertex = vertex;
+	data->edgeMap = edgeMap;
+	data->links = tree;
+
+	return data;
+
+}
+
+template <class Container, class SteinerRepr>
+void MinmaxSteinerFactory<Container, SteinerRepr>::minimun_spanning_tree (
+	DataSMT* data) 
+{
+	//tree resulting from data
+	std::vector<rca::Link> result;
+	DisjointSet2 ds (data->G->getNumberNodes ());
+
+	//sorting the edges based on cost of the path(edge)
+	std::sort (data->links.begin(), data->links.end());
+
+	//bulding minimum spanning tree
+	while ( !data->links.empty () ) {
+		rca::Link l = data->links[0];
+		if (ds.find2(l.getX()) != ds.find2(l.getY())) {
+			ds.simpleUnion (l.getX(), l.getY());
+			result.push_back (l);
+		}
+		auto it = data->links.begin();
+		data->links.erase (it);
+	}
+	data->links.clear ();
+	data->links = result;
+}
+
+
+template <class Container, class SteinerRepr>
+void MinmaxSteinerFactory<Container, SteinerRepr>::rebuild_solution (
+	DataSMT* data, 
+	std::vector<std::vector<int>> & paths)
+{
+	std::vector<rca::Link> links;
+
+	for(rca::Link e : data->links) {
+
+		//getting base vertex
+		int bx = e.getX(),  by = e.getY();
+
+		//pair to get eges that connects bases bx and bxy
+		std::pair<int,int> p(bx, by);
+
+		//complete path connecting two bases
+		rca::Link link = data->edgeMap[p];
+		rca::Path p1 (paths[link.getX()]);
+		rca::Path p2 (paths[link.getY()]);
+		
+		auto path = path_to_edges (p1, &this->m_copy);
+		auto it = links.end();
+		
+		if (path.size () > 0) {
+			for (auto e : path) {
+				auto it = std::find (links.begin(), links.end(), e);
+				if (it == links.end()) {
+					links.push_back (e);
+				}					
+			}
+		}
+		path = path_to_edges (p2, &this->m_copy);
+		auto end = links.begin();
+		if (path.size () > 0) {
+			for (auto e : path) {
+				auto it = std::find (links.begin(), links.end(), e);
+				if (it == links.end()) {
+					links.push_back (e);
+				}
+			}
+		}
+		links.push_back (link);
+	}
+	data->links.clear ();
+	data->links = links;
+
+}
+
+
 template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >; 
 template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >;
 template class rca::sttalgo::ShortestPathSteinerTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, STTree >;
@@ -428,3 +669,4 @@ template class rca::sttalgo::AGMZSteinerTree<rca::EdgeContainer<rca::Comparator,
 template class rca::sttalgo::SteinerTreeFactory<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >; 
 template class rca::sttalgo::LimitedBreadthSearchFirst<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner>;
 template class rca::sttalgo::PathLimitedSearchTree<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner>;
+template class rca::sttalgo::MinmaxSteinerFactory<rca::EdgeContainer<rca::Comparator, rca::HCell>, steiner >;
