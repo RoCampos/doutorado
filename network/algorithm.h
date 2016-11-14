@@ -196,7 +196,7 @@ std::vector<int> all_shortest_path (int v, int w, rca::Network & network);
 *
 */
 void voronoi_diagram (
-	rca::Network &,
+	rca::Network const &,
 	std::vector<int> & bases,
 	std::vector<int> & costpath,
 	std::vector<std::vector<int>> & paths);

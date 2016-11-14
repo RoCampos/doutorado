@@ -32,7 +32,13 @@ Network * Network::extend (std::vector<int> sources) {
 
 	for (auto link : this->m_links) {
 
-		if (this->isRemoved (link)) continue;
+		if (this->isRemoved (link)) {
+			net->removeEdge(link);
+			continue;
+		}
+
+		net->m_removeds_edge[link.getX()][link.getY()].removed = false;
+		net->m_removeds_edge[link.getY()][link.getX()].removed = false;
 
 		int cost = this->getCost (link.getX(), link.getY());
 		int band = this->getBand (link.getX(), link.getY());
@@ -44,6 +50,8 @@ Network * Network::extend (std::vector<int> sources) {
 
 		net->addAdjacentVertex(link.getX(), link.getY());
 		net->addAdjacentVertex(link.getY(), link.getX());
+
+		net->m_links.insert (link);
 	}
 
 	for (auto s : sources) {
@@ -57,15 +65,9 @@ Network * Network::extend (std::vector<int> sources) {
 		net->addAdjacentVertex(link.getY(), link.getX());
 	}
 
-	net->m_links = this->m_links;
-	net->m_removeds_edge = this->m_removeds_edge;
+	// net->m_links = this->m_links;
 
 	net->m_removeds = this->m_removeds;
-
-	m_removeds_edge = std::vector<std::vector<EdgeRemoved>> (NODES+1);
-	for (int i = 0; i < NODES+1; i++) {
-		m_removeds_edge[i] = std::vector<EdgeRemoved>(NODES+1);
-	}
 
 	return net;
 }
