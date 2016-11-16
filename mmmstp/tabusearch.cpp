@@ -42,7 +42,8 @@ rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::TabuSearch (s
 }
 
 template <class SolutionType, class Container, class ObjectiveType>
-void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::run () 
+void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::run (
+	std::string result) 
 {
 #ifdef DEBUG1
 	std::cout << __FUNCTION__ << std::endl;
@@ -78,7 +79,7 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::run ()
 	int best_iteration = 0;
 	
 	do {
-		cout << iter << endl;
+
 		this->m_has_init = true;
 		
 		count_iter++;
@@ -110,13 +111,21 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::run ()
 
 	_time_.finished ();
 
-  	std::cout << this->m_best << " ";
-	std::cout << this->m_cost << " ";
-	std::cout << _time_.get_elapsed() << " ";
-	std::cout << m_seed << " ";
-	std::cout << best_iteration << std::endl;
-	
- 	rca::sttalgo::print_solution2<SolutionType> (this->m_best_sol);
+	if (result.compare ("full") == 0) {
+		std::cout << this->m_best << " ";
+		std::cout << this->m_cost << " ";
+		std::cout << _time_.get_elapsed() << " ";
+		std::cout << m_seed << " ";
+		std::cout << best_iteration << std::endl;
+
+			rca::sttalgo::print_solution2<SolutionType> (this->m_best_sol);
+	} else if (result.compare ("res") == 0) {
+		std::cout << this->m_best << "\n";
+	} else if (result.compare ("cos") == 0) {
+		std::cout << this->m_cost << "\n";
+	}
+
+  	
 
 }
 
@@ -202,7 +211,12 @@ void rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::build_so
  													m_network, 
  													m_groups[i], 0);	
 			}
-			
+		
+			if (this->m_type.compare ("WSP") == 0) {
+				rca::sttalgo::remove_top_edges<CongestionHandle>(
+					m_network, m_groups[i], cg);
+			}
+
 		}
 		
 		//building the tree
@@ -550,7 +564,7 @@ int main (int argv, char const *argc[]) {
 	}
 
 	int r = time(NULL);
-  	srand ( 0 );
+  	srand ( r );
 	
 	using namespace rca;
 	using namespace rca::metaalgo;
@@ -569,6 +583,8 @@ int main (int argv, char const *argc[]) {
 	int update = atoi (argc[12]);
 
 	std::string type = argc[14];
+
+	std::string result = argc[16];
 	
 	TabuSearch<steiner, CongestionHandle, int> tabueSearch (file);
 	tabueSearch.set_iterations ( iterations );
@@ -580,7 +596,7 @@ int main (int argv, char const *argc[]) {
 	tabueSearch.set_type (type);
 
 		
- 	tabueSearch.run ();	
+ 	tabueSearch.run (result);	
 		
 	return 0;
 }

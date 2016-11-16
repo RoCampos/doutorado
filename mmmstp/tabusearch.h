@@ -55,7 +55,7 @@ public:
 	inline void set_redo_tabu_perc (int value) { m_redo_tabu_perc = value;}
 	inline void set_type (std::string & type) {m_type = type;}
 	
-	void run ();
+	void run (std::string);
 	
 	void build_solution (std::vector<SolutionType>& ,
 						ObjectiveType& res, 
