@@ -86,7 +86,13 @@ class MinmaxSteinerFactory : public SteinerTreeFactory<Container, SteinerRepr> {
 public:
 
 	MinmaxSteinerFactory (rca::Network & network) {
+		this->m_ptr_net = network.extend ();
 		this->m_copy = network;
+	}
+
+	~MinmaxSteinerFactory () {
+		delete this->m_ptr_net;
+		this->m_ptr_net = NULL;
 	}
 
 	void build (
@@ -120,7 +126,6 @@ public:
 private:
 	rca::Network * m_ptr_net;
 	rca::Network m_copy;
-	std::vector<vector<int>> m_paths;
 
 };
 
