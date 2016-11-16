@@ -138,26 +138,13 @@ void remove_top_edges (Container & ob,
 template<class Container>
 void remove_top_edges (
 	rca::Network & network,
-	rca::Group & group) 
+	rca::Group & group, 
+	Container& container) 
 {
-	Container edgeContainer(network.getNumberNodes ());
-	int tk = (int)group.getTrequest ();
-	for(auto e : network.getLinks ()) {		
-		int band = (int)network.getBand(e.getX(), e.getY());
-		edgeContainer.update_inline (e, 
-			rca::OperationType::IN, 
-			tk, 
-			band);
-	}
 
-	int count = 0;
-	int rem = ((0.5 * (float)network.getNumberNodes ()));
-
-	auto it = edgeContainer.get_heap ().ordered_begin ();
-	auto end = edgeContainer.get_heap ().ordered_end ();
-	for ( ; it != end; it++) { 	
-
-		if (count++ == rem) return;
+	auto it = container.get_heap ().ordered_begin ();
+	auto end = container.get_heap ().ordered_end ();
+	for ( ; it != end; it++) {
 
 		network.removeEdge (*it);
  		if (is_connected (network, group) == false ) {
