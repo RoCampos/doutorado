@@ -448,7 +448,7 @@ void MinmaxSteinerFactory<Container, SteinerRepr>::build (
 
 	this->minimun_spanning_tree (data);
 
-	this->rebuild_solution (data, paths);	
+	this->rebuild_solution (data, paths, network);	
 
 	//update_edges
 	int trequest = g.getTrequest ();
@@ -612,7 +612,8 @@ void MinmaxSteinerFactory<Container, SteinerRepr>::minimun_spanning_tree (
 template <class Container, class SteinerRepr>
 void MinmaxSteinerFactory<Container, SteinerRepr>::rebuild_solution (
 	DataSMT* data, 
-	std::vector<std::vector<int>> & paths)
+	std::vector<std::vector<int>> & paths,
+	rca::Network & network)
 {
 	std::vector<rca::Link> links;
 
@@ -629,7 +630,7 @@ void MinmaxSteinerFactory<Container, SteinerRepr>::rebuild_solution (
 		rca::Path p1 (paths[link.getX()]);
 		rca::Path p2 (paths[link.getY()]);
 		
-		auto path = path_to_edges (p1, &this->m_copy);
+		auto path = path_to_edges (p1, &network);
 		auto it = links.end();
 		
 		if (path.size () > 0) {
@@ -640,7 +641,7 @@ void MinmaxSteinerFactory<Container, SteinerRepr>::rebuild_solution (
 				}					
 			}
 		}
-		path = path_to_edges (p2, &this->m_copy);
+		path = path_to_edges (p2, &network);
 		auto end = links.begin();
 		if (path.size () > 0) {
 			for (auto e : path) {
