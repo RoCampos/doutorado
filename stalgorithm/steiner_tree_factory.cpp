@@ -438,7 +438,15 @@ void MinmaxSteinerFactory<Container, SteinerRepr>::build (
 
 	assert (is_connected (network, g) == true);
 
-	this->m_ptr_net = network.extend (srcs);
+	this->m_ptr_net->addPseudoEdges (srcs);
+	for (auto & e : this->m_ptr_net->getLinks ()) {
+		if (network.isRemoved (e)) {
+			this->m_ptr_net->removeEdge (e);
+		} else {
+			this->m_ptr_net->undoRemoveEdge (e);
+		}
+	}
+
 
 	//from algorithm
 	voronoi_diagram (*this->m_ptr_net, bases, costpath, paths); 
@@ -448,7 +456,7 @@ void MinmaxSteinerFactory<Container, SteinerRepr>::build (
 
 	this->minimun_spanning_tree (data);
 
-	this->rebuild_solution (data, paths);	
+	this->rebuild_solution (data, paths, network);	
 
 	//update_edges
 	int trequest = g.getTrequest ();
@@ -469,10 +477,9 @@ void MinmaxSteinerFactory<Container, SteinerRepr>::build (
 
 	assert (sttree.get_steiner_tree().get_all_edges ().size () > 0);
 
+	this->m_ptr_net->removePseudoEdges (srcs);
+
 	delete data;
-	delete this->m_ptr_net;
-	
-	this->m_ptr_net = NULL;
 	data = NULL;
 
 }
@@ -613,7 +620,8 @@ void MinmaxSteinerFactory<Container, SteinerRepr>::minimun_spanning_tree (
 template <class Container, class SteinerRepr>
 void MinmaxSteinerFactory<Container, SteinerRepr>::rebuild_solution (
 	DataSMT* data, 
-	std::vector<std::vector<int>> & paths)
+	std::vector<std::vector<int>> & paths,
+	rca::Network & network)
 {
 	std::vector<rca::Link> links;
 
@@ -630,7 +638,7 @@ void MinmaxSteinerFactory<Container, SteinerRepr>::rebuild_solution (
 		rca::Path p1 (paths[link.getX()]);
 		rca::Path p2 (paths[link.getY()]);
 		
-		auto path = path_to_edges (p1, &this->m_copy);
+		auto path = path_to_edges (p1, &network);
 		auto it = links.end();
 		
 		if (path.size () > 0) {
@@ -641,7 +649,7 @@ void MinmaxSteinerFactory<Container, SteinerRepr>::rebuild_solution (
 				}					
 			}
 		}
-		path = path_to_edges (p2, &this->m_copy);
+		path = path_to_edges (p2, &network);
 		auto end = links.begin();
 		if (path.size () > 0) {
 			for (auto e : path) {

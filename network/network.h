@@ -76,7 +76,47 @@ public:
 	friend std::ostream& operator << (std::ostream& os, const Network & network);
 
 
-	Network * extend (std::vector<int> sources);
+	Network * extend (std::vector<int> const & sources = std::vector<int>());
+
+	void addPseudoEdges (std::vector<int> & srcs) {
+
+		int MAXINT = std::numeric_limits<int>::max ();
+		int NODES = this->getNumberNodes () - 1;
+		for (auto s : srcs) {
+			rca::Link link (NODES, s, 0);
+
+			this->setCost(link.getX(),link.getY(),0);
+			this->setCost(link.getY(),link.getX(),0);		
+			this->setBand(link.getX(),link.getY(),MAXINT);
+			this->setBand(link.getY(),link.getX(),MAXINT);
+			this->addAdjacentVertex(link.getX(), link.getY());
+			this->addAdjacentVertex(link.getY(), link.getX());
+		}
+
+	}
+
+	void removePseudoEdges (std::vector<int> & srcs) {
+		
+
+		int NODES = this->getNumberNodes () - 1;
+		for (auto s : srcs) {
+			rca::Link link (NODES, s, 0);
+
+			this->setCost(link.getX(),link.getY(),0);
+			this->setCost(link.getY(),link.getX(),0);		
+			this->setBand(link.getX(),link.getY(),0);
+			this->setBand(link.getY(),link.getX(),0);
+			// this->addAdjacentVertex(link.getX(), link.getY());
+			// this->addAdjacentVertex(link.getY(), link.getX());
+			std::vector<int> & tmp = this->m_adjacent_vertex[link.getX()];
+			tmp.pop_back ();
+			tmp = this->m_adjacent_vertex[link.getY()];
+			tmp.pop_back ();
+
+		}
+	}
+
+
 
 	/**
 	 * Método para definir um valor de custo de uma aresta.

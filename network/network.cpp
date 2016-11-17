@@ -22,7 +22,7 @@ Network::~Network() {
 
 }
 
-Network * Network::extend (std::vector<int> sources) {
+Network * Network::extend (std::vector<int> const & sources) {
 
 	int NODES = this->getNumberNodes ();
 	int EDGES = this->getNumberEdges ();

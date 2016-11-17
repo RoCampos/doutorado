@@ -5,7 +5,10 @@ bool has_improv = false;
 using namespace rca::sttalgo;
 
 template <class SolutionType, class Container, class ObjectiveType>
-rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::TabuSearch (std::string& file) 
+rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::TabuSearch (
+	std::string& file, 
+	std::string reverse,
+	std::string sort) 
 {
 #ifdef DEBUG1
 	std::cout << __FUNCTION__ << std::endl;
@@ -30,6 +33,21 @@ rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::TabuSearch (s
 	for (std::shared_ptr<rca::Group> i : g) {
 		this->m_groups.push_back (*i);
 	}
+
+	if (reverse.compare ("yes") == 0) {		 
+		if (sort.compare("request") == 0) {			
+			std::sort (this->m_groups.begin(), this->m_groups.end(), rca::CompareGreaterGroup());
+		} else if (sort.compare("size") == 0){			
+			std::sort (this->m_groups.begin(), this->m_groups.end(), rca::CompareGreaterGroupBySize());
+		}
+	} else {
+		if (sort.compare("request") == 0) {
+			std::sort (this->m_groups.begin(), this->m_groups.end(), rca::CompareLessGroup());
+		} else if (sort.compare("size") == 0){
+			std::sort (this->m_groups.begin(), this->m_groups.end(), rca::CompareLessGroupBySize());
+		}
+	}
+
 	
 	this->m_best = std::numeric_limits<ObjectiveType>::min ();
 	this->m_cost = std::numeric_limits<ObjectiveType>::max ();
@@ -584,9 +602,13 @@ int main (int argv, char const *argc[]) {
 
 	std::string type = argc[14];
 
-	std::string result = argc[16];
+	std::string reverse = argc[16];
+
+	std::string sort = argc[18];
+
+	std::string result = argc[20];
 	
-	TabuSearch<steiner, CongestionHandle, int> tabueSearch (file);
+	TabuSearch<steiner, CongestionHandle, int> tabueSearch (file, result, type);
 	tabueSearch.set_iterations ( iterations );
 	tabueSearch.set_budget ( budget );
 	tabueSearch.set_tabu_links_size (list_perc);

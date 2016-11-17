@@ -269,11 +269,11 @@ remove_top (rca::Network & network,
 	}
 } 
 
-void print_result (int Z, int cost, 
+void print_result (int Z, int before_ls_cost, int cost, 
 	double time, std::string arg) {
 
 	if (arg.compare ("full") == 0){
-		cout << Z << " "<< cost << " ";
+		cout << Z << " "<< before_ls_cost << " "<< cost << " ";
 		cout << time << endl;
 	}else {
 		if (arg.compare ("cost") == 0) {
@@ -556,10 +556,10 @@ int main(int argc, char const *argv[])
 
 	if (single.compare ("yes") == 0) {
 		int cost_res = local_search (localsearch, solution, 
-		container, mgroups, finalnetwork, cost);
+			container, mgroups, finalnetwork, cost);
 		int z = container.top ();
 		time_elapsed.finished ();
-		print_result (z, cost_res, time_elapsed.get_elapsed (), full_res);	
+		print_result (z, cost, cost_res, time_elapsed.get_elapsed (), full_res);	
 	} else if (single.compare ("no") == 0){
 
 		cout << min_bandwidth (network) << " ";
