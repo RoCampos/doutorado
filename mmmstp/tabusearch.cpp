@@ -37,13 +37,13 @@ rca::metaalgo::TabuSearch<SolutionType, Container, ObjectiveType>::TabuSearch (
 	if (reverse.compare ("yes") == 0) {		 
 		if (sort.compare("request") == 0) {			
 			std::sort (this->m_groups.begin(), this->m_groups.end(), rca::CompareGreaterGroup());
-		} else {			
+		} else if (sort.compare("size") == 0){			
 			std::sort (this->m_groups.begin(), this->m_groups.end(), rca::CompareGreaterGroupBySize());
 		}
 	} else {
 		if (sort.compare("request") == 0) {
 			std::sort (this->m_groups.begin(), this->m_groups.end(), rca::CompareLessGroup());
-		} else {
+		} else if (sort.compare("size") == 0){
 			std::sort (this->m_groups.begin(), this->m_groups.end(), rca::CompareLessGroupBySize());
 		}
 	}
