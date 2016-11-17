@@ -6,6 +6,8 @@
 #include <bitset>
 #include <cmath>
 
+#include "config.h"
+
 #include "sttree.h"
 #include "network.h"
 #include "edgecontainer.h"
@@ -32,11 +34,16 @@ class TabuSearch {
 	typedef rca::sttalgo::ChenReplaceVisitor<SolutionType> ChenReplaceVisitor;
 	typedef rca::sttalgo::cycle_local_search<Container, SolutionType> OCycleLocalSearch;	
 
+	typedef rca::sttalgo::ShortestPathSteinerTree<Container, SolutionType> sph_t;
+	typedef rca::sttalgo::AGMZSteinerTree<Container, SolutionType> agm_t;
+	typedef rca::sttalgo::MinmaxSteinerFactory<Container, SolutionType> wsp_t;
+
+
 	
 public:
-	TabuSearch (std::string& );
+	TabuSearch (std::string&, std::string, std::string);
 	~TabuSearch () {
-		delete m_factory;
+		this->finish_factory();
 	}
 	
 	inline void set_iterations (int iter) {m_iter = iter;}
@@ -44,11 +51,11 @@ public:
 	inline void set_has_init (bool value) {m_has_init = value;}
 	inline void set_tabu_links_size (double value){m_links_perc = value;}
 	inline void set_seed (int seed) {m_seed = seed;}
-	inline void set_update_by_cost (int value) {m_update = value;}
-	
+	inline void set_update_by_cost (int value) {m_update = value;}	
 	inline void set_redo_tabu_perc (int value) { m_redo_tabu_perc = value;}
+	inline void set_type (std::string & type) {m_type = type;}
 	
-	void run ();
+	void run (std::string);
 	
 	void build_solution (std::vector<SolutionType>& ,
 						ObjectiveType& res, 
@@ -96,12 +103,12 @@ private:
 	void remove_tabu_links (int g_id, std::vector<rca::Link>& links) {
 		
 		for (auto l : links) {
-			if (m_network.isRemoved(l)) continue;
+			if (this->m_network.isRemoved(l)) continue;
 			
-			m_network.removeEdge (l);
+			this->m_network.removeEdge (l);
 			
-			if ( !is_connected (m_network, m_groups[g_id]) ) {
-				m_network.undoRemoveEdge (l);
+			if ( !is_connected (this->m_network, m_groups[g_id]) ) {
+				this->m_network.undoRemoveEdge (l);
 			}
 		}
 		
@@ -121,6 +128,59 @@ private:
 			toReturn.push_back (links_cost[i]);
 		}
 		return toReturn;
+	}
+
+	void start_factory () {
+		if (this->m_type.compare("AGM") == 0) {
+			this->m_agm_fact = new agm_t();
+		}
+
+		if (this->m_type.compare("SPH") == 0) {
+			this->m_sph_fact = new sph_t();	
+		}
+
+		if (this->m_type.compare("WSP") == 0) {
+			this->m_wsp_fact = new wsp_t(this->m_network);	
+		}
+	}
+
+	void finish_factory () {
+		if (this->m_agm_fact != NULL) {
+			delete this->m_agm_fact;
+			this->m_agm_fact = NULL;
+		} 
+
+		if (this->m_sph_fact != NULL) {
+			delete this->m_sph_fact;
+			this->m_sph_fact = NULL;
+		} 
+
+		if (this->m_wsp_fact != NULL) {
+			delete this->m_wsp_fact;
+			this->m_wsp_fact = NULL;
+		}
+	}
+
+	void check (std::vector<SolutionType>const & sol, char const * str)
+	{
+		std::string strc = str;		
+		for (auto s : sol) {
+			if (s.get_all_edges ().size () == 0) {
+				cout << "Invalid after: " << strc << endl;
+				cout << "Graph Status:" << m_network.isConnected () << endl;
+				exit (1);
+			}
+		}
+	}
+	void check (std::vector<SolutionType>const & sol, int strc)
+	{		
+		for (auto s : sol) {
+			if (s.get_all_edges ().size () == 0) {
+				cout << "Invalid Line: " << strc << endl;
+				cout << "Graph Status:" << m_network.isConnected () << endl;
+				exit (1);
+			}
+		}
 	}
 		
 	
@@ -166,7 +226,13 @@ private:
 	ObjectiveType m_budget;
 	
 	//multicast tree factory
-	rca::sttalgo::AGMZSteinerTree<Container, SolutionType> * m_factory;
+	agm_t * m_agm_fact;
+	sph_t * m_sph_fact;
+	wsp_t * m_wsp_fact;
+
+	//type of factory
+	std::string m_type;
+
 	
 	
 };

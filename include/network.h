@@ -76,7 +76,47 @@ public:
 	friend std::ostream& operator << (std::ostream& os, const Network & network);
 
 
-	Network * extend (std::vector<int> sources);
+	Network * extend (std::vector<int> const & sources = std::vector<int>());
+
+	void addPseudoEdges (std::vector<int> & srcs) {
+
+		int MAXINT = std::numeric_limits<int>::max ();
+		int NODES = this->getNumberNodes () - 1;
+		for (auto s : srcs) {
+			rca::Link link (NODES, s, 0);
+
+			this->setCost(link.getX(),link.getY(),0);
+			this->setCost(link.getY(),link.getX(),0);		
+			this->setBand(link.getX(),link.getY(),MAXINT);
+			this->setBand(link.getY(),link.getX(),MAXINT);
+			this->addAdjacentVertex(link.getX(), link.getY());
+			this->addAdjacentVertex(link.getY(), link.getX());
+		}
+
+	}
+
+	void removePseudoEdges (std::vector<int> & srcs) {
+		
+
+		int NODES = this->getNumberNodes () - 1;
+		for (auto s : srcs) {
+			rca::Link link (NODES, s, 0);
+
+			this->setCost(link.getX(),link.getY(),0);
+			this->setCost(link.getY(),link.getX(),0);		
+			this->setBand(link.getX(),link.getY(),0);
+			this->setBand(link.getY(),link.getX(),0);
+			// this->addAdjacentVertex(link.getX(), link.getY());
+			// this->addAdjacentVertex(link.getY(), link.getX());
+			std::vector<int> & tmp = this->m_adjacent_vertex[link.getX()];
+			tmp.pop_back ();
+			tmp = this->m_adjacent_vertex[link.getY()];
+			tmp.pop_back ();
+
+		}
+	}
+
+
 
 	/**
 	 * Método para definir um valor de custo de uma aresta.
@@ -106,6 +146,10 @@ public:
 	double getCost (unsigned row, unsigned col) {
 		return m_costMatrix.at (row, col);
 	}
+
+	double getCost (unsigned row, unsigned col) const{
+		return m_costMatrix.at (row, col);
+	}
 	
 	/**
 	* Método utilizado para retonar o custo de uma aresta.
@@ -115,6 +159,10 @@ public:
 	*/
 	double getCost (rca::Link l) {
 		return this->getCost (l.getX(), l.getY());
+	}
+
+	double getCost (rca::Link l) const {
+		return m_costMatrix.at (l.getX(), l.getY());
 	}
 
 	/**
@@ -128,11 +176,19 @@ public:
 		return m_bandMatrix.at (row, col);
 	}
 
+	double getBand (unsigned row, unsigned col) const {
+		return m_bandMatrix.at (row, col);
+	}
+
 	/**
 	 * Método para retornar o número de nós de uma rede.
 	 * @return int
 	 */
 	int getNumberNodes () {
+		return m_nodes;
+	}
+
+	int getNumberNodes () const{
 		return m_nodes;
 	}
 
@@ -348,6 +404,20 @@ public:
 	  _pair = std::make_pair (m_adjacent_vertex[vertex].begin (),
 				 m_adjacent_vertex[vertex].end());
 	}
+
+	void get_iterator_adjacent(int vertex, 
+		std::pair<c_iterator,c_iterator> & _pair) const 
+	{
+	  _pair = std::make_pair (m_adjacent_vertex[vertex].begin (),
+				 m_adjacent_vertex[vertex].end());
+	}
+
+	// typedef typename std::vector<int>::const_iterator c_iterator;
+	// void get_iterator_adjacent(int vertex, std::pair<c_iterator,c_iterator> & _pair) 
+	// {
+	//   _pair = std::make_pair (m_adjacent_vertex[vertex].begin (),
+	// 			 m_adjacent_vertex[vertex].end());
+	// }
 	
 	/**
 	* Método utilizado para retonar o vizinho imediato do

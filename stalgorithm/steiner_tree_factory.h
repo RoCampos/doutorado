@@ -55,11 +55,79 @@ public:
 	 * @param rca::Group
 	 * @param Container	 
 	 */
-	virtual void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
-					rca::Network & network, 
-					rca::Group & g,
-					Container& cg) = 0;
+	virtual void build (
+		SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+		rca::Network & network, 
+		rca::Group & g,
+		Container& cg) = 0;
 	
+};
+
+
+typedef std::pair<int,int> EdgePair;
+typedef std::map<EdgePair, rca::Link> EdgeMap;
+
+struct DataSMT
+{
+	rca::Network * G;
+	EdgeMap edgeMap;
+	std::map<int, int> vertex;
+	std::map<int, int> invertex;
+	std::vector<rca::Link> links;
+
+	~DataSMT () {
+		delete G;
+	}
+
+};
+
+template<class Container, class SteinerRepr>
+class MinmaxSteinerFactory : public SteinerTreeFactory<Container, SteinerRepr> {
+public:
+
+	MinmaxSteinerFactory (rca::Network & network) {
+		this->m_ptr_net = network.extend ();
+		// this->m_copy = network;
+	}
+
+	~MinmaxSteinerFactory () {
+		delete this->m_ptr_net;
+		this->m_ptr_net = NULL;
+	}
+
+	void build (
+		SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+		rca::Network & network, 
+		rca::Group & g,
+		Container& cg);
+	
+	DataSMT* join_components (
+		std::vector<int> &bases,
+		std::vector<int> &costpath,
+		std::vector<std::vector<int>> &paths,
+		std::vector<int> &scrs);
+
+	int get_min_cap (
+		rca::Network & net,
+		rca::Path & p1, 
+		rca::Path & p2, 
+		rca::Link  l);
+
+	void minimun_spanning_tree (DataSMT*);
+	
+	//using network m_copy
+	void rebuild_solution (DataSMT*, 
+		std::vector<std::vector<int>> & paths, 
+		rca::Network &network);
+
+	rca::Network & get_network () {
+		return (this->m_copy);
+	}
+
+private:
+	rca::Network * m_ptr_net;
+	rca::Network m_copy;
+
 };
 
 /**
@@ -96,10 +164,12 @@ public:
 	 * @param rca::Group
 	 * @param Container 
 	 */
-	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
-				rca::Network & network, 
-				rca::Group & g,
-				Container& cg);
+	void build (
+		SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+		rca::Network & network, 
+		rca::Group & g,
+		Container& cg);
+
 	/**
 	 * Este atualiza a lista de arestas mais utilizadas
 	 * Esta lista é utilizada para fazer a construção da árvore geradora.
@@ -165,10 +235,11 @@ public:
 	 * @param rca::Group
 	 * @param Container	 
 	 */
-	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
-				rca::Network & network, 
-				rca::Group & g,
-				Container& cg);
+	void build (
+		SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+		rca::Network & network, 
+		rca::Group & g,
+		Container& cg);
 	
 };
 
@@ -188,10 +259,11 @@ public:
 	* @param rca::Group
 	* @param Container
 	*/
-	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree, 
-				rca::Network & network, 
-				rca::Group & g,
-				Container& cg);
+	void build (
+		SteinerTreeObserver<Container, SteinerRepr> & sttree, 
+		rca::Network & network, 
+		rca::Group & g,
+		Container& cg);
 	
 	/**
 	 * Este método é utilizado para atualizar a largura de banda
@@ -239,10 +311,11 @@ public:
 
 	~LimitedBreadthSearchFirst () {}
 
-	void build (Observer & sttree,
-				rca::Network & network,
-				rca::Group & g,
-				Container & cg);
+	void build (
+		Observer & sttree,
+		rca::Network & network,
+		rca::Group & g,
+		Container & cg);
 
 	/**
 	*	This method returns the size of a path
@@ -285,10 +358,11 @@ public:
 	PathLimitedSearchTree (int limit) 
 	: m_limit (limit) {}
 
-	void build (SteinerTreeObserver<Container, SteinerRepr> & sttree,
-				rca::Network & network,
-				rca::Group & g,
-				Container & cg);
+	void build (
+		SteinerTreeObserver<Container, SteinerRepr> & sttree,
+		rca::Network & network,
+		rca::Group & g,
+		Container & cg);
 
 	// para modificar o algoritmo de construção de solução
 	void set_tree_builder ();

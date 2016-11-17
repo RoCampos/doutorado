@@ -536,7 +536,7 @@ std::vector<rca::Link> path_to_edges (rca::Path const& path, rca::Network * net)
 
 
 void voronoi_diagram (
-	rca::Network & network,
+	rca::Network const & network,
 	std::vector<int> & bases,
 	std::vector<int> & costpath,
 	std::vector<std::vector<int>> & paths) 
@@ -550,7 +550,8 @@ void voronoi_diagram (
 
 	costpath = std::vector<int> (NODES,-1);
 	bases = std::vector<int> (NODES,-1);
-	paths = std::vector<std::vector<int>> (NODES);
+	// paths = std::vector<std::vector<int>> (NODES);
+	paths.resize (NODES);
 	std::vector<int> distance = std::vector<int> (NODES, infty);
 	std::vector<int> prev = std::vector<int> (NODES, -1);
 	std::vector<bool> visited= std::vector<bool> (NODES, false);
@@ -568,24 +569,26 @@ void voronoi_diagram (
 
 		vertex_t curr_node = queue.top ();
 		queue.pop ();
-		visited[curr_node.id] = true;	
-		
+		visited[curr_node.id] = true;
+
 		//building extra informations
 		if (curr_node.id != source) {
 			
 			//getting the previus node
-			int pv = prev[curr_node.id];
-			for (auto n : paths[pv]) {
-				paths[curr_node.id].push_back (n);
+			int pv = prev.at(curr_node.id);
+			std::vector<int> & ref = paths.at (curr_node.id);
+			for (int & n : paths.at(pv)) {				  
+				ref.push_back (n);
 			}
-			paths[curr_node.id].push_back (curr_node.id);
+
+			ref.push_back (curr_node.id);
 
 			//getting the cost of a path
-			if (paths[curr_node.id].size () > 1) {
-				int length = paths[curr_node.id].size ();
-				int v = paths[curr_node.id][length-1];
-				int w = paths[curr_node.id][length-2];
-				int edge_cost = network.getCost (v, w);
+			if (ref.size () > 1) {
+				int length = ref.size ();
+				int v = ref.at (length-1);
+				int w = ref.at (length-2);
+				int edge_cost = (int) network.getCost (v, w);
 				costpath[curr_node.id] += edge_cost;
 			}
 
@@ -609,15 +612,15 @@ void voronoi_diagram (
 			int band_curr_u = network.getBand(curr_node.id, next);
 			rca::Link l = rca::Link(curr_node.id, next, band_curr_u);
 			bool removed = network.isRemoved(l);
+
 			//if the link is valid then go on
 			if (!removed) {
 
 				//minimum distance between current link
 				// and distance until current node
 				int edge_value = std::min (band_curr_u, distance[curr_node.id] );
-
 				if (!visited[next] && distance[next] < edge_value) {
-					
+
 					int next_old_dist = distance[next];
 
 					distance[next] = edge_value;
@@ -632,7 +635,8 @@ void voronoi_diagram (
 				}//endif compare distance
 			}//endif is_removed??
 		}//end neighboor for
-	}//end while loop
+
+	}//end while loop 
 
 }
 

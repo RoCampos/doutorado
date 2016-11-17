@@ -135,6 +135,24 @@ void remove_top_edges (Container & ob,
 					   rca::Network & m_network, 
 					   rca::Group & group, int res);
 
+template<class Container>
+void remove_top_edges (
+	rca::Network & network,
+	rca::Group & group, 
+	Container& container) 
+{
+
+	auto it = container.get_heap ().ordered_begin ();
+	auto end = container.get_heap ().ordered_end ();
+	for ( ; it != end; it++) {
+
+		network.removeEdge (*it);
+ 		if (is_connected (network, group) == false ) {
+ 			network.undoRemoveEdge (*it);
+ 		}	
+	}	
+}
+
 /**
  * This method create a new steiner tree based on AGM algorithm.
  * First, the most congested edges on network object are removed.
