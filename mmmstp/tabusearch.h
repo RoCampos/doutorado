@@ -41,7 +41,7 @@ class TabuSearch {
 
 	
 public:
-	TabuSearch (std::string& );
+	TabuSearch (std::string&, std::string, std::string);
 	~TabuSearch () {
 		this->finish_factory();
 	}
