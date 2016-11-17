@@ -439,6 +439,14 @@ void MinmaxSteinerFactory<Container, SteinerRepr>::build (
 	assert (is_connected (network, g) == true);
 
 	this->m_ptr_net->addPseudoEdges (srcs);
+	for (auto & e : this->m_ptr_net->getLinks ()) {
+		if (network.isRemoved (e)) {
+			this->m_ptr_net->removeEdge (e);
+		} else {
+			this->m_ptr_net->undoRemoveEdge (e);
+		}
+	}
+
 
 	//from algorithm
 	voronoi_diagram (*this->m_ptr_net, bases, costpath, paths); 

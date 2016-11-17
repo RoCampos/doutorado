@@ -33,9 +33,10 @@ void DisjointSet2::init (int size) {
 
 DisjointSet2::~DisjointSet2 ()
 {
-	for (int i=0; i < (int)m_partition.size (); i++)
-		delete m_partition[i];
-	
+	for (int i = 0; i < m_partition.size (); ++i)
+	{
+		delete (m_partition[i]);
+	}		
 	m_partition.clear ();
 }
 

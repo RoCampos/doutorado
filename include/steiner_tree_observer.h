@@ -71,9 +71,9 @@ public:
 		m_ec = NULL;
 		m_st = NULL;
 		m_network = NULL;
-		if (dset != NULL) {
-			delete dset;
-		} 
+		// if (dset != NULL) {
+		// 	delete dset;
+		// } 
 	}
 
 	/**
