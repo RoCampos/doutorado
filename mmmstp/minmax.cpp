@@ -270,11 +270,12 @@ remove_top (rca::Network & network,
 } 
 
 void print_result (int Z, int before_ls_cost, int cost, 
-	double time, std::string arg) {
+	double fulltime, double localtime, std::string arg) {
 
 	if (arg.compare ("full") == 0){
 		cout << Z << " "<< before_ls_cost << " "<< cost << " ";
-		cout << time << endl;
+		cout << fulltime - localtime <<" "<< localtime <<" ";
+		cout << fulltime << endl;
 	}else {
 		if (arg.compare ("cost") == 0) {
 			cout << cost << endl;
@@ -345,9 +346,10 @@ int local_search (
 }
 
 std::string commandLine() {
-	std::string command = "--inst [brite|yuh]";
-	command+="--rem [double] --reverse [yes|no] --sort [request|size]";
-	command+="--local [local|localrev] --result[full, cost, re]";	
+	std::string command = "maxmin --inst [brite|yuh]";
+	command+="\t--rem [double] --reverse [yes|no] --sort [request|size]";
+	command+="\t--local [local|localrev] --single [yes|no]";
+	command+="\t--result[full, cost, re]";	
 	return command;
 }
 
@@ -392,19 +394,47 @@ int main(int argc, char const *argv[])
 	msource_list_t m_streams;
 
 	if (single.compare ("yes") == 0) {
-		rca::reader::get_problem_informations (
-		file, network, mgroups);	
+		
+		std::string inst = argv[1];
+		
+		if (inst.compare("--brite") == 0) {
+			rca::reader::get_problem_informations (
+				file, network, mgroups);
 
-		//if single rearange the groups based or on size, or on request
-		if (single.compare ("yes") == 0) {
-			rearange (reverse, sort, mgroups);	
-		} 	
+			for (auto g : mgroups) {
+				std::vector<int> sources {g.getSource()};		
+				stream_t stream (g.getId(), g.getTrequest(), sources, g);
+				m_streams.push_back (stream);			
+			}
 
-		for (auto g : mgroups) {
-			std::vector<int> sources {g.getSource()};			
-			stream_t stream (g.getId(), g.getTrequest(), sources, g);
-			m_streams.push_back (stream);			
+			//if single rearange the groups based or on size, or on request
+			if (single.compare ("yes") == 0) {
+				rearange (reverse, sort, mgroups);	
+			}
+
+		} else if (inst.compare ("--yuh") == 0 ){
+
+			rca::reader::YuhChenReader ycr(file);
+			ycr.configure_network (network, mgroups);
+
+			for (auto g : mgroups) {				
+				std::vector<int> sources {g.getSource()};		
+				stream_t stream (g.getId(), g.getTrequest(), sources, g);
+				m_streams.push_back (stream);
+			}
+			for (int i = 0; i < network.getNumberNodes(); ++i)
+			{
+				for (int j = 0; j < network.getNumberNodes(); ++j)
+				{
+					if (network.getCost (i,j) > 0.0) {
+						network.setBand (i,j, mgroups.size ());
+					}
+				}
+			}
+
 		}
+
+		
 
 	} else if (single.compare ("no") == 0) {
 		//for multiple source instances	
@@ -417,7 +447,7 @@ int main(int argc, char const *argv[])
 			for (int j = 0; j < network.getNumberNodes(); ++j)
 			{
 				if (network.getCost (i,j) > 0.0) {
-					network.setBand (i,j,mgroups.size ());
+					network.setBand (i,j, mgroups.size ());
 				}
 			}
 		}
@@ -448,7 +478,7 @@ int main(int argc, char const *argv[])
 	int cost = 0;
 
 	for(auto&& group : m_streams) {
-		
+
 		std::vector<int> srcs;
 
 		if (single.compare ("yes") == 0) {
@@ -555,11 +585,20 @@ int main(int argc, char const *argv[])
 	}
 
 	if (single.compare ("yes") == 0) {
+
+		rca::elapsed_time time_elapsed2;
+		time_elapsed2.started ();
+
 		int cost_res = local_search (localsearch, solution, 
 			container, mgroups, finalnetwork, cost);
 		int z = container.top ();
+		time_elapsed2.finished ();
 		time_elapsed.finished ();
-		print_result (z, cost, cost_res, time_elapsed.get_elapsed (), full_res);	
+
+		double fulltime =time_elapsed.get_elapsed ();
+		double localtime = time_elapsed2.get_elapsed ();
+
+		print_result (z, cost, cost_res, fulltime, localtime , full_res);	
 	} else if (single.compare ("no") == 0){
 
 		cout << min_bandwidth (network) << " ";
