@@ -163,6 +163,17 @@ DataSMT * join_components (
 	data->edgeMap = std::move(edgeMap);
 	data->links = std::move(tree);
 
+#ifdef DEBUG
+	int c = 0;
+	for (auto & e : data->links) {
+		cout << e << " " << e.getValue () << endl;		
+		c += e.getValue ();
+	}
+	cout << "Total:" << c << endl;
+	cout << endl;
+#endif
+
+
 	return data;
 }
 
@@ -188,6 +199,18 @@ minimum_spanning_tree (DataSMT * data)
 	}
 	data->links.clear ();
 	data->links = std::move(result);
+
+#ifdef DEBUG
+	int c = 0;
+	for (auto & e : data->links) {
+		cout << e << " " << e.getValue () << endl;		
+		c += e.getValue ();
+	}
+	cout << "Total:" << c << endl;
+	cout << endl;
+#endif
+
+
 }
 
 void rebuild_solution (
@@ -270,12 +293,11 @@ remove_top (rca::Network & network,
 } 
 
 void print_result (int Z, int before_ls_cost, int cost, 
-	double fulltime, double localtime, std::string arg) {
+	double time, std::string arg) {
 
 	if (arg.compare ("full") == 0){
 		cout << Z << " "<< before_ls_cost << " "<< cost << " ";
-		cout << fulltime - localtime <<" "<< localtime <<" ";
-		cout << fulltime << endl;
+		cout << time << endl;
 	}else {
 		if (arg.compare ("cost") == 0) {
 			cout << cost << endl;
@@ -346,10 +368,9 @@ int local_search (
 }
 
 std::string commandLine() {
-	std::string command = "maxmin --inst [brite|yuh]";
-	command+="\t--rem [double] --reverse [yes|no] --sort [request|size]";
-	command+="\t--local [local|localrev] --single [yes|no]";
-	command+="\t--result[full, cost, re]";	
+	std::string command = "--inst [brite|yuh]";
+	command+="--rem [double] --reverse [yes|no] --sort [request|size]";
+	command+="--local [local|localrev] --result[full, cost, re]";	
 	return command;
 }
 
@@ -394,47 +415,19 @@ int main(int argc, char const *argv[])
 	msource_list_t m_streams;
 
 	if (single.compare ("yes") == 0) {
-		
-		std::string inst = argv[1];
-		
-		if (inst.compare("--brite") == 0) {
-			rca::reader::get_problem_informations (
-				file, network, mgroups);
+		rca::reader::get_problem_informations (
+		file, network, mgroups);	
 
-			for (auto g : mgroups) {
-				std::vector<int> sources {g.getSource()};		
-				stream_t stream (g.getId(), g.getTrequest(), sources, g);
-				m_streams.push_back (stream);			
-			}
+		//if single rearange the groups based or on size, or on request
+		if (single.compare ("yes") == 0) {
+			rearange (reverse, sort, mgroups);	
+		} 	
 
-			//if single rearange the groups based or on size, or on request
-			if (single.compare ("yes") == 0) {
-				rearange (reverse, sort, mgroups);	
-			}
-
-		} else if (inst.compare ("--yuh") == 0 ){
-
-			rca::reader::YuhChenReader ycr(file);
-			ycr.configure_network (network, mgroups);
-
-			for (auto g : mgroups) {				
-				std::vector<int> sources {g.getSource()};		
-				stream_t stream (g.getId(), g.getTrequest(), sources, g);
-				m_streams.push_back (stream);
-			}
-			for (int i = 0; i < network.getNumberNodes(); ++i)
-			{
-				for (int j = 0; j < network.getNumberNodes(); ++j)
-				{
-					if (network.getCost (i,j) > 0.0) {
-						network.setBand (i,j, mgroups.size ());
-					}
-				}
-			}
-
+		for (auto g : mgroups) {
+			std::vector<int> sources {g.getSource()};			
+			stream_t stream (g.getId(), g.getTrequest(), sources, g);
+			m_streams.push_back (stream);			
 		}
-
-		
 
 	} else if (single.compare ("no") == 0) {
 		//for multiple source instances	
@@ -447,7 +440,7 @@ int main(int argc, char const *argv[])
 			for (int j = 0; j < network.getNumberNodes(); ++j)
 			{
 				if (network.getCost (i,j) > 0.0) {
-					network.setBand (i,j, mgroups.size ());
+					network.setBand (i,j,mgroups.size ());
 				}
 			}
 		}
@@ -478,11 +471,11 @@ int main(int argc, char const *argv[])
 	int cost = 0;
 
 	for(auto&& group : m_streams) {
-
+		
 		std::vector<int> srcs;
 
 		if (single.compare ("yes") == 0) {
-			srcs = group.m_group.getMembers ();
+			// srcs = group.m_group.getMembers ();
 			srcs.push_back (group.m_group.getSource());	
 		} else if (single.compare ("no") == 0){
 			//starting multiple tree
@@ -495,7 +488,7 @@ int main(int argc, char const *argv[])
 
 		//remove top
 		if (single.compare ("yes") == 0) {
-			remove_top (network, rem, group.m_group);
+			// remove_top (network, rem, group.m_group);
 		}
 
 		//checking for connectivity
@@ -506,35 +499,39 @@ int main(int argc, char const *argv[])
 		voronoi_diagram (*ptr, bases, costpath, paths);
 
 		if (single.compare ("yes") == 0) {
-			DataSMT * data =
-				join_components (bases, paths, costpath, *ptr, srcs);
-
-			//apply MST over network distance(Z over edges)
-			//the calculation uses cost
-			minimum_spanning_tree (data);
-
-			//rebuild the solution	
-			rebuild_solution (data, paths, network);
-
-			cost += update_graph_single (data, network, group.m_group.getTrequest());
+			
+			std::vector<rca::Link> links;
 
 			steiner st = steiner(network.getNumberNodes(), 
 				group.m_group.getSource(), 
 				group.m_group.getMembers ());
 
-			for(auto&& e : data->links) {
-				st.add_edge (e.getX(), e.getY(), e.getValue());
-				int b = finalnetwork.getBand (e.getX(), e.getY());
-				container.update_inline (e, 
-					rca::OperationType::IN, 
-					group.m_group.getTrequest (), b);
+			int tr = group.m_group.getTrequest ();
+
+			for (auto m : group.m_group.getMembers ()) {
+				rca::Path path (paths[m]);
+				for (int i = 0; i < path.size()-1; ++i)
+				{ 
+					rca::Link link (path[i], path[i+1], 1);					
+					int c = network.getCost (link);
+					if (st.add_edge (link.getX(), link.getY(), c) ) {
+						int b = (int)network.getBand (link.getX(), link.getY());
+						network.setBand (link.getX(), link.getY(), b-tr);
+
+						b = finalnetwork.getBand (link.getX(), link.getY());
+						container.update_inline (link, 
+							rca::OperationType::IN, 
+							group.m_group.getTrequest (), b);
+					}					
+				}
 			}
+
+			cost +=st.get_cost ();
 
 			solution.push_back (st);
 
-			network.clearRemovedEdges ();
+			// network.clearRemovedEdges ();
 
-			delete data;
 			delete ptr;
 			ptr = NULL;
 
@@ -585,20 +582,11 @@ int main(int argc, char const *argv[])
 	}
 
 	if (single.compare ("yes") == 0) {
-
-		rca::elapsed_time time_elapsed2;
-		time_elapsed2.started ();
-
 		int cost_res = local_search (localsearch, solution, 
 			container, mgroups, finalnetwork, cost);
 		int z = container.top ();
-		time_elapsed2.finished ();
 		time_elapsed.finished ();
-
-		double fulltime =time_elapsed.get_elapsed ();
-		double localtime = time_elapsed2.get_elapsed ();
-
-		print_result (z, cost, cost_res, fulltime, localtime , full_res);	
+		print_result (z, cost, cost_res, time_elapsed.get_elapsed (), full_res);	
 	} else if (single.compare ("no") == 0){
 
 		cout << min_bandwidth (network) << " ";
