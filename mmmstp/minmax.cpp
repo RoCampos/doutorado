@@ -283,7 +283,6 @@ void print_result (int Z, int before_ls_cost, int cost,
 			cout << Z << endl;
 		}
 	}
-
 }
 
 

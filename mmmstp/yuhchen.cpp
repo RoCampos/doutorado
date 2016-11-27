@@ -494,7 +494,10 @@ void YuhChen::run (int param, std::string print)
 
 	std::cout << this->m_cg->top () << " " << cost << "\t";
 	
+	
 	if (this->m_improve_cost == 1) {
+		rca::elapsed_time time_elapsed2;
+		time_elapsed2.started ();	
 
 		/*Improving solution cost*/
 		std::vector<rca::Group> m_groups;
@@ -520,7 +523,14 @@ void YuhChen::run (int param, std::string print)
 		cls.local_search (improve, copy, 
 					m_groups, *m_cg, tt);
 		std::cout << tt << "\t";
+
+		time_elapsed2.finished ();	
+		std::cout << time_elapsed2.get_elapsed () << "\t";
+
+		
 	} 
+
+
 
 	if (print.compare("complete") == 0) {
 		std::vector<STTree> saida = std::vector<STTree> (improve.size());
