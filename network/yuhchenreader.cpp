@@ -93,6 +93,7 @@ void YuhChenReader::configure_network (
 		group.setMembers (g.get_members ());
 		group.setTrequest (1);
 		group.setId (id);
+		group.setSize (g.get_members().size());
 
 		mgroups.push_back (group);
 		id++;
