@@ -4,6 +4,7 @@
 #include <sstream>
 #include <ostream>
 #include <algorithm>
+#include <map>
 
 #include "config.h"
 
@@ -25,7 +26,20 @@ struct tree_t {
 };
 
 struct forest_t  {
+	
 	std::vector<tree_t> trees;
+	std::map<int,int> srcs_id;
+	std::map<int,int> srcs;
+
+	forest_t () {}
+	forest_t (std::vector<int>& _srcs) {
+		for (int i = 0; i < _srcs.size (); ++i)
+		{
+			srcs_id[i] = _srcs[i];
+			srcs[_srcs[i]] = i;
+		}
+	}
+
 };
 
 struct solution_t {
@@ -204,10 +218,12 @@ void widest_shortest_tree (
 
 void WPforest (
 	group_t & g,
-	rca::Network & network) 
+	rca::Network & network,
+	forest_t & finalforest) 
 {
 	
-	forest_t forest;		
+	forest_t forest(g.sources);
+
 	widest_shortest_tree (forest, g, network);
 
 	std::vector<int> & srcs = g.sources;
@@ -221,7 +237,6 @@ void WPforest (
 		path.push (current_node);
 
 		while (true) {
-
 			tree_t & tree = forest.trees.at (0);			
 			rca::Path & path_m_s = tree.find_path (m);
 
@@ -238,7 +253,6 @@ void WPforest (
 					next_vertex = next_node ( path_m_i, current_node );
 					next_width.setValue ( link_i.getValue() );					
 				}
-
 			}
 
 			//updating current node
@@ -249,12 +263,21 @@ void WPforest (
 			auto res = std::find (srcs.begin (), srcs.end(), current_node);
 			if (res != srcs.end()) {
 				group_sol.push_back (path);
+
+				int s = forest.srcs[current_node];
+				tree_t & t = finalforest.trees.at (s);
+				t.paths.push_back (path);				
 				break;
 			}			
 		}		
 	}
-	cout << " " << endl;
-	exit (1);
+}
+
+void update_usage (
+	rca::Network & network,
+	group_t & group,
+	forest_t * forest)
+{
 
 }
 
@@ -269,7 +292,15 @@ int main(int argc, char const *argv[])
 	solution_t solution;
 
 	read_group (file, mgroups, network);
-	WPforest (mgroups.at (0), network);
+
+	for (int i = 0; i < mgroups.size (); ++i)
+	{
+		forest_t finalforest(mgroups.at (i).sources);		
+		int size = mgroups.at (i).sources.size ();
+		finalforest.trees = std::vector<tree_t> (size);
+		WPforest (mgroups.at (i), network, finalforest);	
+	}
+	
 
 	return 0;
 }
