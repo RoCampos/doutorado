@@ -377,6 +377,11 @@ void rearange (
 	std::string reverse, 
 	std::string sort, std::vector<rca::Group> & mgroups)
 {
+
+	if (reverse.compare ("-") == 0) {
+		return;
+	}
+
 	if (reverse.compare ("yes") == 0) {		 
 		if (sort.compare("request") == 0) {			
 			std::sort (mgroups.begin(), mgroups.end(), rca::CompareGreaterGroup());
@@ -436,10 +441,12 @@ int main(int argc, char const *argv[])
 			rca::reader::YuhChenReader ycr(file);
 			ycr.configure_network (network, mgroups);
 
+			rearange (reverse, sort, mgroups);
+
 			for (auto g : mgroups) {				
 				std::vector<int> sources {g.getSource()};		
 				stream_t stream (g.getId(), g.getTrequest(), sources, g);
-				m_streams.push_back (stream);
+				m_streams.push_back (stream);			
 			}
 			for (int i = 0; i < network.getNumberNodes(); ++i)
 			{
@@ -449,8 +456,7 @@ int main(int argc, char const *argv[])
 						network.setBand (i,j, mgroups.size ());
 					}
 				}
-			}
-
+			}				
 		}
 
 	} else if (single.compare ("no") == 0) {
@@ -522,7 +528,7 @@ int main(int argc, char const *argv[])
 				group.m_group.getMembers ());
 
 			int tr = group.m_group.getTrequest ();
-
+			
 			for (auto m : group.m_group.getMembers ()) {
 				rca::Path path (paths[m]);
 				for (int i = 0; i < path.size()-1; ++i)

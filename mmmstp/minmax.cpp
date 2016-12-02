@@ -573,9 +573,11 @@ int main(int argc, char const *argv[])
 			}
 			cost += links.size ();
 
+			int tr = group.m_group.getTrequest ();			
+
 			for (auto l : links) {
 				int b = (int)network.getBand (l.getX(), l.getY());
-				network.setBand (l.getX(), l.getY(), b-1);
+				network.setBand (l.getX(), l.getY(), b-tr);
 			}
 
 			delete ptr;
