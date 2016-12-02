@@ -56,5 +56,8 @@ target_link_libraries (minmax graph sttree sttalgo myutil)
 add_executable (minmax2 minmax2.cpp minmax.h ${includes})
 target_link_libraries (minmax2 graph sttree sttalgo myutil)
 
+add_executable (newyuh yuh.cpp ${includes})
+target_link_libraries (newyuh graph sttree sttalgo myutil)
+
 #add_executable (limite_agm limite.cpp limite.h ${includes})
 #target_link_libraries (limite_agm graph sttalgo sttree)
