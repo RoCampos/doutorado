@@ -111,9 +111,23 @@ struct group_t {
 		return os;
 	}
 
+
 };
 
-void read_group (
+struct GroupLess {
+	bool operator () (group_t const & g1, group_t const& g2)
+	{
+		return g1.tk < g2.tk;
+	}
+};
+
+struct GroupGreater{
+	bool operator () (group_t const & g1, group_t const & g2) {
+		return g1.tk > g2.tk;
+	}
+};
+
+void read_instance (
 	std::string const & file,
 	std::vector<group_t> & mgroups,
 	rca::Network & network) {
@@ -172,15 +186,6 @@ void read_group (
 		mgroups.push_back (gt);
 	}
 	instance.close ();
-}
-
-std::string commandLine ()
-{
-	std::string command = "--inst [brite|yuh]";
-	command += " --single [yes|no]";
-	command += " --reverse [yes|no]";
-	command += " --param [sort|request]";
-	return command;
 }
 
 // ------------------- IMPLEMENTATION GOES HERE ----------------- //
@@ -331,22 +336,42 @@ void update_usage (
 	
 }
 
+std::string commandLine ()
+{
+	std::string command = "--inst [yuh]";
+	command += " --reverse [yes|no|-]";
+	return command;
+}
+
 
 int main(int argc, char const *argv[])
 {
 
+	if (message(argc, argv, commandLine())) {
+		exit (1);
+	}
+
 	rca::Network network;
 	std::vector<group_t> mgroups;
-	std::string file = argv[1];
+	
+	std::string file = argv[2];
+	std::string sort = argv[4];
 
 	result_t result;
 
-	read_group (file, mgroups, network);
+	read_instance (file, mgroups, network);
+
+	if (sort.compare ("yes") == 0) {
+		std::sort (mgroups.begin(), mgroups.end(), GroupLess());
+	} else if (sort.compare("no") == 0) {
+		std::sort (mgroups.begin(), mgroups.end(), GroupGreater());
+	}
 
 	rca::elapsed_time time;
 	time.started ();
 	for (size_t i = 0; i < mgroups.size (); ++i)
 	{
+		
 		forest_t finalforest(mgroups.at (i).sources);		
 		int size = mgroups.at (i).sources.size ();
 		finalforest.trees = std::vector<tree_t> (size);
