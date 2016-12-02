@@ -116,8 +116,8 @@ void read_group (
 		instance >> v >> w >> c;
 		network.setCost (v, w, dec);
 		network.setCost (w, v, dec);
-		network.setCost (v, w, groups);
-		network.setCost (w, v, groups);
+		network.setBand (v, w, groups);
+		network.setBand (w, v, groups);
 		rca::Link link(v, w, dec);
 		network.insertLink(link);		
 		network.addAdjacentVertex(v, w);
@@ -275,11 +275,13 @@ void WPforest (
 	}
 }
 
-void update_usage (
+int update_usage (
 	rca::Network & network,
 	group_t & group,
 	forest_t & forest)
 {
+
+	int Z = std::numeric_limits<int>::max ();
 
 	int tk = group.tk;
 	for (auto & tree : forest.trees) {
@@ -287,21 +289,25 @@ void update_usage (
 		for (auto & path : tree.paths) {
 			for (size_t i=0; i < path.size ()-1; i++) {
 				rca::Link l (path.at (i), path.at (i+1), 0);
-				
+
 				auto res = std::find (links.begin (), links.end(), l);
 				if (res == links.end()) {
 					links.push_back (std::move(l));
 					int band = network.getBand (l.getX(), l.getY());
-					band -= tk;
+					band = band - tk;
 					network.setBand (l.getX(), l.getY(), band);
 					network.setBand (l.getY(), l.getX(), band);
+
+					if (band < Z) {
+						Z = band;
+					}
 				}
 			}
 		}
 
 		tree.links = std::move (links);
-
 	}
+	return Z;
 }
 
 
@@ -316,17 +322,27 @@ int main(int argc, char const *argv[])
 
 	read_group (file, mgroups, network);
 
+	int Z = std::numeric_limits <int>::max();
+
 	for (size_t i = 0; i < mgroups.size (); ++i)
 	{
 		forest_t finalforest(mgroups.at (i).sources);		
 		int size = mgroups.at (i).sources.size ();
 		finalforest.trees = std::vector<tree_t> (size);
 		WPforest (mgroups.at (i), network, finalforest);
-		update_usage (network, mgroups.at (i), finalforest);
+		int curr_Z =  update_usage (network, 
+								mgroups.at (i), 
+								finalforest);
+
+		if (curr_Z < Z) {
+			Z = curr_Z;
+		}
 	}
 
 
-	cout << min_bandwidth (network) << endl;
+	cout << Z << endl;
+
+	
 	
 
 	return 0;
