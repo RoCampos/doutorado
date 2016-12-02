@@ -14,6 +14,14 @@
 
 struct tree_t {
 	vector<rca::Path> paths;	
+
+	rca::Path & find_path (int d) {
+		for (auto & p : paths) {
+			if (p.at (0) == d){
+				return p;
+			}
+		}
+	}
 };
 
 struct forest_t  {
@@ -140,12 +148,44 @@ std::string commandLine ()
 
 // ------------------- IMPLEMENTATION GOES HERE ----------------- //
 
+rca::Link get_bottleneck_link (
+	rca::Network & network, 
+	rca::Path & path) 
+{
+
+	auto it = path.cbegin ();
+	int min_bottleneck = INT_MAX;
+	rca::Link l;
+	for ( ; it != path.cend() -1; it++) {		
+		int band = network.getBand( *it , *(it+1) );		
+		if ( band < min_bottleneck) {
+			min_bottleneck = band;
+			l = rca::Link( *it , *(it+1), band);
+		}
+	}	
+	return l;
+
+}
+
+int next_node (rca::Path & path, int current_node)
+{
+	
+	auto it = path.begin ();
+	for (;it != path.end(); it++) {
+		
+		if (*it == current_node)
+			break;
+	}
+	
+	return (it != path.end() ? *(it+1) : -1);
+	
+}
+
 void widest_shortest_tree (
 	forest_t & forest, 
 	group_t const & gt,
 	rca::Network & network) 
 {
-
 	for (size_t i = 0; i < gt.sources.size (); ++i)
 	{	
 		tree_t tree;
@@ -160,19 +200,62 @@ void widest_shortest_tree (
 		}
 		forest.trees.push_back (std::move (tree));
 	}
-
 }
 
-void widest_path_forest (
-	std::vector<group_t> & mgroups,
-	rca::Network & network,
-	solution_t & solution) 
+void WPforest (
+	group_t & g,
+	rca::Network & network) 
 {
-	for (auto & g : mgroups) {
-		forest_t forest;		
-		widest_shortest_tree (forest, g, network);
-		solution.forests.push_back (std::move(forest));
+	
+	forest_t forest;		
+	widest_shortest_tree (forest, g, network);
+
+	std::vector<int> & srcs = g.sources;
+	std::vector<rca::Path> group_sol;
+
+	for (auto& m : g.members) {
+
+		int current_node = m;
+
+		rca::Path path;
+		path.push (current_node);
+
+		while (true) {
+
+			tree_t & tree = forest.trees.at (0);			
+			rca::Path & path_m_s = tree.find_path (m);
+
+			int next_vertex = next_node ( path_m_s , current_node);
+			rca::Link next_width = get_bottleneck_link (network, path_m_s);
+
+			for (size_t i = 1; i < forest.trees.size (); ++i)
+			{
+				tree_t & tree_i = forest.trees.at (i);
+				rca::Path & path_m_i = tree_i.find_path (m);
+				rca::Link link_i = get_bottleneck_link (network, path_m_i);
+
+				if (link_i.getValue () > next_width.getValue ()) {				
+					next_vertex = next_node ( path_m_i, current_node );
+					next_width.setValue ( link_i.getValue() );					
+				}
+
+			}
+
+			//updating current node
+			current_node = next_vertex;			
+			//adding current_node to the path
+			path.push (current_node);
+
+			auto res = std::find (srcs.begin (), srcs.end(), current_node);
+			if (res != srcs.end()) {
+				group_sol.push_back (path);
+				break;
+			}			
+		}		
 	}
+	cout << " " << endl;
+	exit (1);
+
 }
 
 
@@ -186,17 +269,7 @@ int main(int argc, char const *argv[])
 	solution_t solution;
 
 	read_group (file, mgroups, network);
-	widest_path_forest (mgroups, network, solution);
-
-	for (auto & sol : solution.forests) {
-
-		for (auto & tree : sol.trees) {
-			for (auto & path : tree.paths) {
-				cout << path << endl;
-			}		
-		}
-		cout << "End of Trees"<< endl;		
-	}
+	WPforest (mgroups.at (0), network);
 
 	return 0;
 }
