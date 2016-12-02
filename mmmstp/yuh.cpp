@@ -12,6 +12,7 @@
 #include "group.h"
 #include "path.h" 
 #include "algorithm.h"
+#include "rcatime.h"
 
 struct tree_t {
 	
@@ -46,6 +47,26 @@ struct forest_t  {
 
 struct solution_t {
 	std::vector<forest_t> forests;
+};
+
+struct result_t {
+	
+	result_t () {
+		Z = std::numeric_limits<int>::max();
+		Cost = 0;
+		Time = 0;
+	}
+
+	friend std::ostream& operator<< (ostream & os, result_t const& ref)
+	{
+		os << ref.Z << "\t" << ref.Cost << "\t" << ref.Time << endl;
+		return os;
+	}
+
+	int Z;
+	int Cost;
+	double Time;
+
 };
 
 struct group_t {
@@ -275,13 +296,12 @@ void WPforest (
 	}
 }
 
-int update_usage (
+void update_usage (
 	rca::Network & network,
 	group_t & group,
-	forest_t & forest)
+	forest_t & forest, 
+	result_t & result)
 {
-
-	int Z = std::numeric_limits<int>::max ();
 
 	int tk = group.tk;
 	for (auto & tree : forest.trees) {
@@ -298,16 +318,17 @@ int update_usage (
 					network.setBand (l.getX(), l.getY(), band);
 					network.setBand (l.getY(), l.getX(), band);
 
-					if (band < Z) {
-						Z = band;
+					if (band < result.Z) {
+						result.Z = band;
 					}
 				}
 			}
 		}
 
 		tree.links = std::move (links);
+		result.Cost +=  tree.links.size ();
 	}
-	return Z;
+	
 }
 
 
@@ -317,33 +338,28 @@ int main(int argc, char const *argv[])
 	rca::Network network;
 	std::vector<group_t> mgroups;
 	std::string file = argv[1];
-	
-	solution_t solution;
+
+	result_t result;
 
 	read_group (file, mgroups, network);
 
-	int Z = std::numeric_limits <int>::max();
-
+	rca::elapsed_time time;
+	time.started ();
 	for (size_t i = 0; i < mgroups.size (); ++i)
 	{
 		forest_t finalforest(mgroups.at (i).sources);		
 		int size = mgroups.at (i).sources.size ();
 		finalforest.trees = std::vector<tree_t> (size);
 		WPforest (mgroups.at (i), network, finalforest);
-		int curr_Z =  update_usage (network, 
-								mgroups.at (i), 
-								finalforest);
-
-		if (curr_Z < Z) {
-			Z = curr_Z;
-		}
+		update_usage (network, 
+					mgroups.at (i), 
+					finalforest, 
+					result);		
 	}
+	time.finished ();
+	result.Time = time.get_elapsed ();
 
-
-	cout << Z << endl;
-
-	
-	
-
+	cout << result << endl;
+		
 	return 0;
 }
