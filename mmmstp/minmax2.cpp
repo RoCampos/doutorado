@@ -487,12 +487,6 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	// rca::Network finalnetwork = network;
-	// Container container (network.getNumberNodes ());
-
-	rca::elapsed_time time_elapsed;
-	time_elapsed.started ();
-
 	std::vector<steiner> solution;
 	std::vector<std::vector<steiner>> multiplesolution =
 		std::vector<std::vector<steiner>> (m_streams.size ());
@@ -503,7 +497,10 @@ int main(int argc, char const *argv[])
 
 	rca::Network *ptr = network.extend ();
 
+	rca::elapsed_time time_elapsed;
+	time_elapsed.started ();
 	for(auto&& group : m_streams) {		
+		
 		std::vector<int> srcs;
 		if (single.compare ("yes") == 0) {
 			srcs.push_back (group.m_group.getSource());
@@ -523,33 +520,27 @@ int main(int argc, char const *argv[])
 			
 			std::vector<rca::Link> links;
 
-			steiner st = steiner(network.getNumberNodes(), 
-				group.m_group.getSource(), 
-				group.m_group.getMembers ());
-
-			int tr = group.m_group.getTrequest ();
-			
+			int tr = group.m_group.getTrequest ();			
 			for (auto m : group.m_group.getMembers ()) {
 				rca::Path path (paths[m]);
 				for (int i = 0; i < path.size()-1; ++i)
 				{ 
-					rca::Link link (path[i], path[i+1], 1);					
-					int c = ptr->getCost (link);
-					if (st.add_edge (link.getX(), link.getY(), c) ) {
+					rca::Link link (path[i], path[i+1], 1);
+					auto res = std::find (links.begin (), links.end(), link);
+					if (res != links.end()) {
 						
 						int b = (int)ptr->getBand (link.getX(), link.getY());
 						ptr->setBand (link.getX(), link.getY(), b-tr);
 						ptr->setBand (link.getY(), link.getX(), b-tr);
-
+						cost++;
 						if ( (b-tr) <= Z ) {
 							Z = b-tr;
+							
 						} 						
 					}					
 				}
 			}
-
-			cost +=st.get_cost ();
-			solution.push_back (st);
+	
 			ptr->removePseudoEdges (srcs);
 
 		} else if (single.compare ("no") == 0){
@@ -573,7 +564,7 @@ int main(int argc, char const *argv[])
 				int b = bases[m];
 				int id = sources[b];				
 				rca::Path path (paths[m]);
-				//adding the links to specific tree...
+				
 				for (int i = 0; i < path.size()-1; ++i)
 				{ 
 					rca::Link link (path[i], path[i+1], 1);
@@ -585,6 +576,7 @@ int main(int argc, char const *argv[])
 					}
 				}	
 			}
+
 			cost += links.size ();
 
 			for (auto l : links) {
@@ -596,7 +588,6 @@ int main(int argc, char const *argv[])
 	}
 
 	if (single.compare ("yes") == 0) {
-
 		time_elapsed.finished ();
 		double fulltime =time_elapsed.get_elapsed ();
 		print_result (Z, cost, 0.0, fulltime, 0.0 , full_res);	
