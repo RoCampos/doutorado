@@ -6,8 +6,8 @@
 #include <cstdlib>
 
 #define VERSION_MAJOR 2
-#define VERSION_MINOR 2
-#define VERSION_PATCH 2
+#define VERSION_MINOR 3
+#define VERSION_PATCH 0
 
 bool message (int argc, char const *argv[], std::string command) 
 {
