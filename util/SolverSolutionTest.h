@@ -40,9 +40,10 @@ public:
 	* @param std::string arquivo com resultado
 	* @param int indica se será verboso(1) ou não(0).
 	* @param bool 
+	* @param std::string tipo da instância brite|yuh
 	*/
-	bool test (std::string instance, std::string result, int verb) {		
-		return do_test (instance, result,  verb);
+	bool test (std::string instance, std::string result, int verb, std::string type) {		
+		return do_test (instance, result,  verb, type);
 	}
 	
 };
@@ -86,9 +87,10 @@ public:
 	* @param std::string instância cujo resultado será testado
 	* @param std::string arquivo com resultado
 	* @param int indica se será verboso(1) ou não(0).
-	* @param bool 	
+	* @param bool 
+	* @param std::string tipo da instância brite|yuh
 	*/
-	bool do_test (std::string instance, std::string result, int);
+	bool do_test (std::string instance, std::string result, int, std::string type);
 	
 private:
 	//computa o valor objetivo com base nas árvores geradas

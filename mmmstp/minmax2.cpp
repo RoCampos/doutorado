@@ -377,6 +377,11 @@ void rearange (
 	std::string reverse, 
 	std::string sort, std::vector<rca::Group> & mgroups)
 {
+
+	if (reverse.compare ("-") == 0) {
+		return;
+	}
+
 	if (reverse.compare ("yes") == 0) {		 
 		if (sort.compare("request") == 0) {			
 			std::sort (mgroups.begin(), mgroups.end(), rca::CompareGreaterGroup());
@@ -428,7 +433,7 @@ int main(int argc, char const *argv[])
 
 			//if single rearange the groups based or on size, or on request
 			if (single.compare ("yes") == 0) {
-				rearange (reverse, sort, mgroups);	
+				// rearange (reverse, sort, mgroups);	
 			}
 
 		} else if (inst.compare ("--yuh") == 0 ){
@@ -436,10 +441,12 @@ int main(int argc, char const *argv[])
 			rca::reader::YuhChenReader ycr(file);
 			ycr.configure_network (network, mgroups);
 
+			rearange (reverse, sort, mgroups);
+
 			for (auto g : mgroups) {				
 				std::vector<int> sources {g.getSource()};		
 				stream_t stream (g.getId(), g.getTrequest(), sources, g);
-				m_streams.push_back (stream);
+				m_streams.push_back (stream);			
 			}
 			for (int i = 0; i < network.getNumberNodes(); ++i)
 			{
@@ -449,8 +456,7 @@ int main(int argc, char const *argv[])
 						network.setBand (i,j, mgroups.size ());
 					}
 				}
-			}
-
+			}				
 		}
 
 	} else if (single.compare ("no") == 0) {
@@ -481,44 +487,32 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	rca::Network finalnetwork = network;
-	Container container (network.getNumberNodes ());
-
-	rca::elapsed_time time_elapsed;
-	time_elapsed.started ();
-
 	std::vector<steiner> solution;
 	std::vector<std::vector<steiner>> multiplesolution =
 		std::vector<std::vector<steiner>> (m_streams.size ());
 
 
 	int cost = 0;
+	int Z = std::numeric_limits<int>::max();
 
-	for(auto&& group : m_streams) {
+	rca::Network *ptr = network.extend ();
+
+	rca::elapsed_time time_elapsed;
+	time_elapsed.started ();
+	for(auto&& group : m_streams) {		
 		
 		std::vector<int> srcs;
-
 		if (single.compare ("yes") == 0) {
-			// srcs = group.m_group.getMembers ();
-			srcs.push_back (group.m_group.getSource());	
+			srcs.push_back (group.m_group.getSource());
 		} else if (single.compare ("no") == 0){
-			//starting multiple tree
 			srcs = group.m_sources;
-		}	
+		}
 
 		std::vector<int> bases;
 		std::vector<int> costpath;
 		std::vector<std::vector<int>> paths;
 
-		//remove top
-		if (single.compare ("yes") == 0) {
-			// remove_top (network, rem, group.m_group);
-		}
-
-		//checking for connectivity
-		assert (is_connected (network, group.m_group) == true);
-
-		rca::Network *ptr = network.extend (srcs);
+		ptr->addPseudoEdges (srcs);
 
 		voronoi_diagram (*ptr, bases, costpath, paths);
 
@@ -526,38 +520,28 @@ int main(int argc, char const *argv[])
 			
 			std::vector<rca::Link> links;
 
-			steiner st = steiner(network.getNumberNodes(), 
-				group.m_group.getSource(), 
-				group.m_group.getMembers ());
-
-			int tr = group.m_group.getTrequest ();
-
+			int tr = group.m_group.getTrequest ();			
 			for (auto m : group.m_group.getMembers ()) {
 				rca::Path path (paths[m]);
 				for (int i = 0; i < path.size()-1; ++i)
 				{ 
-					rca::Link link (path[i], path[i+1], 1);					
-					int c = network.getCost (link);
-					if (st.add_edge (link.getX(), link.getY(), c) ) {
-						int b = (int)network.getBand (link.getX(), link.getY());
-						network.setBand (link.getX(), link.getY(), b-tr);
-
-						b = finalnetwork.getBand (link.getX(), link.getY());
-						container.update_inline (link, 
-							rca::OperationType::IN, 
-							group.m_group.getTrequest (), b);
+					rca::Link link (path[i], path[i+1], 1);
+					auto res = std::find (links.begin (), links.end(), link);
+					if (res != links.end()) {
+						
+						int b = (int)ptr->getBand (link.getX(), link.getY());
+						ptr->setBand (link.getX(), link.getY(), b-tr);
+						ptr->setBand (link.getY(), link.getX(), b-tr);
+						cost++;
+						if ( (b-tr) <= Z ) {
+							Z = b-tr;
+							
+						} 						
 					}					
 				}
 			}
-
-			cost +=st.get_cost ();
-
-			solution.push_back (st);
-
-			// network.clearRemovedEdges ();
-
-			delete ptr;
-			ptr = NULL;
+	
+			ptr->removePseudoEdges (srcs);
 
 		} else if (single.compare ("no") == 0){
 			//ending the algorithm for multiple trees
@@ -576,12 +560,11 @@ int main(int argc, char const *argv[])
 
 			std::vector<rca::Link> links;
 
-
 			for (auto m : group.m_group.getMembers ()) {
 				int b = bases[m];
 				int id = sources[b];				
 				rca::Path path (paths[m]);
-				//adding the links to specific tree...
+				
 				for (int i = 0; i < path.size()-1; ++i)
 				{ 
 					rca::Link link (path[i], path[i+1], 1);
@@ -593,6 +576,7 @@ int main(int argc, char const *argv[])
 					}
 				}	
 			}
+
 			cost += links.size ();
 
 			for (auto l : links) {
@@ -600,25 +584,14 @@ int main(int argc, char const *argv[])
 				network.setBand (l.getX(), l.getY(), b-1);
 			}
 
-			delete ptr;
-			ptr = NULL;
 		}
 	}
 
 	if (single.compare ("yes") == 0) {
-		rca::elapsed_time time_elapsed2;
-		time_elapsed2.started ();
-
-		int cost_res = local_search (localsearch, solution, 
-			container, mgroups, finalnetwork, cost);
-		int z = container.top ();
-		time_elapsed2.finished ();
 		time_elapsed.finished ();
-
 		double fulltime =time_elapsed.get_elapsed ();
-		double localtime = time_elapsed2.get_elapsed ();
+		print_result (Z, cost, 0.0, fulltime, 0.0 , full_res);	
 
-		print_result (z, cost, cost_res, fulltime, localtime , full_res);	
 	} else if (single.compare ("no") == 0){
 
 		cout << min_bandwidth (network) << " ";
