@@ -27,11 +27,9 @@ add_executable (genetic_mmmstp 	genetic_algorithm.cpp
 								${includes})
 target_link_libraries (genetic_mmmstp graph sttree sttalgo myutil)
 
-MESSAGE ("\tINFO: Compiling youhchen using network configurated for REAL=${REAL}")
-add_executable (yuhchen yuhchen.cpp
-						yuhchen.h
-						${includes})
-target_link_libraries (yuhchen graph sttalgo sttree myutil)
+#MESSAGE ("\tINFO: Compiling youhchen using network configurated for REAL=${REAL}")
+#add_executable (yuhchen yuhchen.cpp yuhchen.h ${includes})
+#target_link_libraries (yuhchen graph sttalgo sttree myutil)
 
 MESSAGE ("\tINFO: Compiling Grasp Algorithm using network configurated for REAL=${REAL}")
 add_executable (grasp grasp.cpp	
@@ -52,6 +50,15 @@ target_link_libraries (tabu_test graph sttree sttalgo myutil)
 
 add_executable (minmax minmax.cpp minmax.h ${includes})
 target_link_libraries (minmax graph sttree sttalgo myutil)
+
+add_executable (minmax2 minmax2.cpp minmax.h ${includes})
+target_link_libraries (minmax2 graph sttree sttalgo myutil)
+
+add_executable (yuh yuh.cpp ${includes})
+target_link_libraries (yuh graph sttree sttalgo myutil)
+
+add_executable (mmx mmx.cpp ${includes})
+target_link_libraries (mmx graph sttree sttalgo myutil)
 
 #add_executable (limite_agm limite.cpp limite.h ${includes})
 #target_link_libraries (limite_agm graph sttalgo sttree)

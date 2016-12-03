@@ -23,7 +23,7 @@ YuhChen::YuhChen (std::string file)
 {
 
 	m_network = new rca::Network;
-	
+	cout <<file << endl;
 	rca::reader::YuhChenReader ycr(file);
 	rca::reader::stream_list_t sb;
 	
@@ -494,7 +494,10 @@ void YuhChen::run (int param, std::string print)
 
 	std::cout << this->m_cg->top () << " " << cost << "\t";
 	
+	
 	if (this->m_improve_cost == 1) {
+		rca::elapsed_time time_elapsed2;
+		time_elapsed2.started ();	
 
 		/*Improving solution cost*/
 		std::vector<rca::Group> m_groups;
@@ -520,7 +523,14 @@ void YuhChen::run (int param, std::string print)
 		cls.local_search (improve, copy, 
 					m_groups, *m_cg, tt);
 		std::cout << tt << "\t";
+
+		time_elapsed2.finished ();	
+		std::cout << time_elapsed2.get_elapsed () << "\t";
+
+		
 	} 
+
+
 
 	if (print.compare("complete") == 0) {
 		std::vector<STTree> saida = std::vector<STTree> (improve.size());
@@ -534,6 +544,7 @@ void YuhChen::run (int param, std::string print)
 }
 
 void singlesoruce(
+	std::string type,
 	std::string file, 
 	int option,
 	std::string reverse,
@@ -545,44 +556,66 @@ void singlesoruce(
 	rca::Network net;
 	std::vector<shared_ptr<rca::Group>> g;
 	std::vector<rca::Group> groups;
-	
-	rca::reader::MultipleMulticastReader r(file);	
+	double time = 0.0;
 
-#ifdef MODEL_REAL
-	r.configure_real_values (&net,g);
-#endif
-	
-#ifdef MODEL_UNIT
-	r.configure_unit_values (&net,g);
-#endif
+	if (type.compare ("--brite") == 0) {
 
-	for (auto it : g) {
-		groups.push_back (*it.get());
-	}
-	rca::elapsed_time time_elapsed;	
-	time_elapsed.started ();
 
-	if (reverse.compare ("yes") == 0) {		 
-		if (param.compare("request") == 0) {			
-			std::sort (groups.begin(), groups.end(), rca::CompareGreaterGroup());
-		} else {			
-			std::sort (groups.begin(), groups.end(), rca::CompareGreaterGroupBySize());
+		rca::reader::MultipleMulticastReader r(file);
+
+	#ifdef MODEL_REAL
+		r.configure_real_values (&net,g);
+	#endif
+		
+	#ifdef MODEL_UNIT
+		r.configure_unit_values (&net,g);
+	#endif
+
+		for (auto it : g) {
+			groups.push_back (*it.get());
 		}
-	} else {
-		if (param.compare("request") == 0) {
-			std::sort (groups.begin(), groups.end(), rca::CompareLessGroup());
+
+		rca::elapsed_time time_elapsed;	
+		time_elapsed.started ();
+
+		if (reverse.compare ("yes") == 0) {		 
+			if (param.compare("request") == 0) {			
+				std::sort (groups.begin(), groups.end(), rca::CompareGreaterGroup());
+			} else {			
+				std::sort (groups.begin(), groups.end(), rca::CompareGreaterGroupBySize());
+			}
 		} else {
-			std::sort (groups.begin(), groups.end(), rca::CompareLessGroupBySize());
+			if (param.compare("request") == 0) {
+				std::sort (groups.begin(), groups.end(), rca::CompareLessGroup());
+			} else {
+				std::sort (groups.begin(), groups.end(), rca::CompareLessGroupBySize());
+			}
 		}
+
+		
+		YuhChen yuhchen (&net);
+		yuhchen.configure_streams (groups);
+
+		yuhchen.run (option, print);
+
+		time_elapsed.finished ();
+		time = time_elapsed.get_elapsed ();
+	
+	} else if (type.compare ("--yuh") == 0) {
+
+		rca::elapsed_time time_elapsed;	
+		time_elapsed.started ();
+
+		YuhChen yuhchen (file);
+		yuhchen.run (option, print);
+
+		time_elapsed.finished ();
+
+		time = time_elapsed.get_elapsed ();
 	}
 
-	YuhChen yuhchen (&net);
-	yuhchen.configure_streams (groups);
-
-	yuhchen.run (option, print);
 	
-	time_elapsed.finished ();
-	std::cout << time_elapsed.get_elapsed () << std::endl;
+	std::cout << time << std::endl;
 
 }
 
@@ -614,6 +647,7 @@ int main (int argc, char const *argv[])
 		exit (1);
 	}
 
+	std::string type(argv[1]);
 	std::string m_instance(argv[2]);
 	std::string localsearch = (argv[4]);
 	std::string option = (argv[6]);
@@ -623,9 +657,9 @@ int main (int argc, char const *argv[])
 
 	if (option.compare ("yes") == 0) {
 		if (localsearch.compare ("yes")==0){
-			singlesoruce (m_instance, 1, reverse, param, print);
+			singlesoruce (type, m_instance, 1, reverse, param, print);
 		} else{
-			singlesoruce (m_instance, 0, reverse, param, print);
+			singlesoruce (type, m_instance, 0, reverse, param, print);
 		}
 	} else if (option.compare("no") == 0) {
 		multiplesource (m_instance);

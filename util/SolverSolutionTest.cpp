@@ -1,22 +1,48 @@
 #include "SolverSolutionTest.h"
 
-bool MMMSTPGurobiResult::do_test (std::string instance, std::string result, int verb)
+bool MMMSTPGurobiResult::do_test (
+	std::string instance, 
+	std::string result, 
+	int verb, 
+	std::string type)
 {
 	m_verbose = verb;
 	
 	//reading instance
 	Network * net = new Network;
-	std::vector<std::shared_ptr<rca::Group> > groups;
-	
-	rca::reader::MultipleMulticastReader r(instance);
+	std::vector<std::shared_ptr<rca::Group> > groups;	
+
+	if (type.compare ("brite") == 0) {
+		rca::reader::MultipleMulticastReader r(instance);
 	
 #ifdef MODEL_REAL
-	r.configure_real_values (net,groups);
+		r.configure_real_values (net,groups);
 #endif
 	
 #ifdef MODEL_UNIT
-	r.configure_unit_values (net,groups);
-#endif
+		r.configure_unit_values (net,groups);
+#endif	
+
+	} else if (type.compare ("yuh") == 0) {
+		std::vector<rca::Group> mgroups;
+		rca::reader::YuhChenReader ycr(instance);
+		ycr.configure_network (*net, mgroups);
+
+		for (rca::Group & g : mgroups) {				
+			groups.push_back ( std::make_shared<rca::Group>(g) );
+		}
+
+		for (int i = 0; i < net->getNumberNodes(); ++i)
+		{
+			for (int j = 0; j < net->getNumberNodes(); ++j)
+			{
+				if (net->getCost (i,j) > 0.0) {
+					net->setBand (i,j, mgroups.size ());
+				}
+			}
+		}
+	}
+	
 // 	Reader r(instance);
 // 	r.configNetwork (net);	
 // 	std::vector<std::shared_ptr<rca::Group> > groups = r.readerGroup ();
@@ -251,10 +277,10 @@ int main (int argv, char**argc)
 	
 	std::string instance = argc[1];
 	std::string optimal = argc[2];
-	
 	int m_verbose = atoi(argc[3]);
+	std::string type = argc[4];
 	
-	result.test (instance, optimal, m_verbose);
+	result.test (instance, optimal, m_verbose, type);
 
 	return 0;
 }

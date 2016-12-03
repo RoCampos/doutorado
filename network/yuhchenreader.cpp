@@ -91,8 +91,9 @@ void YuhChenReader::configure_network (
 		rca::Group group;
 		group.setSource (g.get_sources ()[0]);
 		group.setMembers (g.get_members ());
-		group.setTrequest (1);
+		group.setTrequest (g.trequest);
 		group.setId (id);
+		group.setSize (g.get_members().size());
 
 		mgroups.push_back (group);
 		id++;
