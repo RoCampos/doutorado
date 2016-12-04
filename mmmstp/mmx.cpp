@@ -263,6 +263,9 @@ int main(int argc, char const *argv[])
 	rca::Network *ptr = network.extend ();
 
 	result_t result;
+#ifdef DEBUG
+	cerr << "NumGroup: " << mgroups.size () << endl;
+#endif
 
 	rca::elapsed_time time;
 	time.started ();
@@ -282,9 +285,25 @@ int main(int argc, char const *argv[])
 		build (finalforest, paths, mgroups.at (i), *ptr, result);
 		ptr->removePseudoEdges (srcs);
 
+#ifdef DEBUG
+		cerr << "Group: " << i << endl;
+		cerr << mgroups.at (i);
+		for (auto & tree : finalforest.trees) {
+			for (auto & path : tree.paths) {
+				path.reverse ();
+				cerr << path << endl;
+			}			
+		}
+		cerr <<"EndOf"<< endl;
+#endif
+
 	}
 	time.finished ();
 	result.Time = time.get_elapsed ();
+
+#ifdef DEBUG
+	cerr << "Resultado: " << result;
+#endif
 
 	cout << result << endl;
 
