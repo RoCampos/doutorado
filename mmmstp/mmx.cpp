@@ -132,7 +132,7 @@ void read_instance (
 	int nodes, edges, groups;
 	instance >> nodes >> edges >> groups;
 	
-	network.init (nodes, edges);
+	network.init (nodes+1, edges);
 
 	double dec = 0.000001;
 	for (int i = 0; i < edges; ++i)
@@ -250,7 +250,7 @@ int main(int argc, char const *argv[])
 	std::vector<group_t> mgroups;
 	
 	std::string file = argv[2];
-	std::string sort = argv[4];	
+	std::string sort = argv[4];
 
 	read_instance (file, mgroups, network);
 
@@ -260,7 +260,7 @@ int main(int argc, char const *argv[])
 		std::sort (mgroups.begin(), mgroups.end(), GroupGreater());
 	}
 
-	rca::Network *ptr = network.extend ();
+	// rca::Network *ptr = network.extend ();
 
 	result_t result;
 #ifdef DEBUG
@@ -277,13 +277,13 @@ int main(int argc, char const *argv[])
 		std::vector<int> costpath;
 		std::vector<std::vector<int>> paths;
 
-		ptr->addPseudoEdges (srcs);
-		voronoi_diagram (*ptr, bases, costpath, paths);
+		network.addPseudoEdges (srcs);
+		voronoi_diagram (network, bases, costpath, paths);
 		forest_t finalforest (srcs);
 		int size = srcs.size ();
 		finalforest.trees = std::vector<tree_t> (size);
-		build (finalforest, paths, mgroups.at (i), *ptr, result);
-		ptr->removePseudoEdges (srcs);
+		build (finalforest, paths, mgroups.at (i), network, result);
+		network.removePseudoEdges (srcs);
 
 #ifdef DEBUG
 		cerr << "Group: " << i << endl;
