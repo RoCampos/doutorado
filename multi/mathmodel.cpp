@@ -4,6 +4,7 @@
 #include "gurobi_c++.h"
 #include "network.h"
 #include "reader.h"
+#include "multisource_group.h"
 
 
 /* Enum that defines the options to choose Gurobi Models*/
@@ -215,6 +216,37 @@ std::vector<double> read_opt_file (std::string & file) {
 	return v;
 }
 
+
+using stream_t = rca::network::stream_t;
+using msource_list_t = std::vector<stream_t> ;
+void read_instace (
+	std::string type,
+	std::string file, 
+	rca::Network & network, 
+	std::vector<rca::Group> & mgroups) 
+{
+	
+	if (type.compare("--brite") == 0) {
+		rca::reader::get_problem_informations (
+			file, network, mgroups);
+
+	} else if (type.compare ("--yuh") == 0 ){
+
+		rca::reader::YuhChenReader ycr(file);
+		ycr.configure_network (network, mgroups);
+
+		for (int i = 0; i < network.getNumberNodes(); ++i)
+		{
+			for (int j = 0; j < network.getNumberNodes(); ++j)
+			{
+				if (network.getCost (i,j) > 0.0) {
+					network.setBand (i,j, mgroups.size ());
+				}
+			}
+		}
+	}	
+}
+
 int main(int argc, char const *argv[])
 {
 
@@ -231,30 +263,15 @@ int main(int argc, char const *argv[])
 	}
 	model = argv[2];
 
-	std::string file = argv[3];
-	if (file.compare ("--instance") == 0) {
+	std::string type = argv[3];
+	std::string file;
+	if (type.compare ("--brite") == 0 || type.compare ("--yuh") == 0) {
 		file = argv[4];
 	} else {
 		help ();		
 	}
 
-	std::vector<shared_ptr<rca::Group>> temp;	
-	rca::reader::MultipleMulticastReader r (file);	
-
-#ifdef MODEL_REAL	
-	r.configure_real_values (&net,temp);
-#endif
-	
-	/*Atribui valor 1 para traffic request (tk) e 
-	 a capacidade das arestas é igual ao tamanho do grupo.*/
-#ifdef MODEL_UNIT
-	r.configure_unit_values (&net,temp);
-#endif
-
-	
-	for (auto g : temp) {
-		multicast_group.push_back (*g);
-	}
+	read_instace (type, file, net, multicast_group);
 
 	int option = get_option (model);	
 	switch (option) {
