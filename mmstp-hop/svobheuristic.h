@@ -2,6 +2,7 @@
 #define STEFANVOB_H
 
 #include <vector>
+#include <numeric>
 
 #include "network.h"
 #include "algorithm.h"

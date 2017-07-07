@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <queue>
+#include <memory>
 
 #include "network.h"
 #include "group.h"
@@ -280,7 +281,8 @@ private:
 	 */
 	void getAvailableEdgesByCost (std::vector<int> &cut, 
 								  const rca::Link&,
-							   std::vector<rca::Link>&);
+							   std::vector<rca::Link>&, 
+							   int tree_id);
 	
 	
 	/**

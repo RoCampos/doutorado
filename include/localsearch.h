@@ -5,6 +5,7 @@
 #include <vector>
 #include <utility>
 #include <typeinfo>
+#include <numeric>
 
 #include "edgecontainer.h"
 #include "network.h"

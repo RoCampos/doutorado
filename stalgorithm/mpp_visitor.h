@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <queue>
+#include <memory>
 
 #include "network.h"
 #include "group.h"
