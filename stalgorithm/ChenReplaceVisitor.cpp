@@ -567,8 +567,8 @@ void ChenReplaceVisitor<SolutionType>::update_trees ()
 }
 
 
-template class ChenReplaceVisitor<STTree>;
-template class MppVisitor<STTree>;
-template class ChenReplaceVisitor<steiner>;
-template class MppVisitor<steiner>;
+template class rca::sttalgo::ChenReplaceVisitor<STTree>;
+template class rca::sttalgo::MppVisitor<STTree>;
+template class rca::sttalgo::ChenReplaceVisitor<steiner>;
+template class rca::sttalgo::MppVisitor<steiner>;
 

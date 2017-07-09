@@ -87,6 +87,75 @@ rca::Path shortest_path (int v, int w, rca::Network * network);
 rca::Path shortest_path (int v, int w, rca::Network & network);
 
 /**
+* Algoritmo de caminho mais curto utilizando Dijkstra.
+* Este algoritmo encontra o caminho mais curto entre dois
+* vértices v e w. Após encontrar o caminho, mais curto o mesmo
+* é retornado.
+*
+* Esta versão utiliza a implementação do heap de fibonacci fornecido
+* pela boost graph library.
+*
+* Para aumentar a velocidade do algoritmo, quando se encontra o alvo w
+* o loop principal do algoritmo é encerrado e o caminho de v para w é
+* constituído.
+*
+* @param int vértice v
+* @param int vértice w
+* @param rca::Network - referência
+* @param std::vector<int> costpath,
+* @param std::vector<std::vector<int>>  paths
+* @return rca::Path
+*/
+void shortest_path (int v, 
+	rca::Network & network, 
+	std::vector<int> &bases, 
+	std::vector<int> &costpath, 
+	std::vector<std::vector<int>> & paths);
+
+/**
+* Este procedimento é utilizado para fazer uma árvore de busca em 
+* profundidade utilizando o parâmetro 'src' como raíz da busca.
+*
+* Ele deve retornar o uma lista de caminhos ligando dos os nós
+* a fonte e os caminhos que fazem a ligação.
+*
+* @param int vértice source - src
+* @param rca::Network - referência
+* @param std::vector<int> costpath,
+* @param std::vector<std::vector<int>>  paths
+* @return rca::Path
+*/
+void best_first_search (int src,
+	rca::Network const & network, 
+	std::vector<int> &bases, 
+	std::vector<int> &costpath, 
+	std::vector<std::vector<int>> & paths);
+
+
+/**
+* Algoritmo de caminho aumentado que gera uma árvore de caminho
+* aumentado da fonte para cada vértice de destino.
+*
+* Este algoritmo gera uma lista de caminhos da fonte para
+* os demais vértices da árvore considerando o caminho aumentado,
+* ou seja, caminho com mais capacidade residual.
+*
+*
+*
+* @param int vértice v
+* @param rca::Network - referência
+* @param std::vector<int> costpath,
+* @param std::vector<std::vector<int>>  paths
+* @return rca::Path
+*/
+void widest_shortest_path (
+	int source,
+	rca::Network & network,
+	std::vector<int> & bases,
+	std::vector<int> & costpath,
+	std::vector<std::vector<int>> & paths);
+
+/**
 * Algoritmo de caminho mais curto que utiliza o heap de fibonacci.
 * Porém, a implementação utilizada não é a implementação fornecida
 * pela boost graph library.

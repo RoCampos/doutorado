@@ -36,7 +36,7 @@ enable_testing ()
 
 project (Doutorado)
 
-SET (CMAKE_CXX_COMPILER /usr/local/bin/g++-7)
+SET (CMAKE_CXX_COMPILER "/usr/local/bin/g++-7")
 
 if( CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]" )
     message( "INFO: DEBUG BUILD" )
@@ -78,10 +78,16 @@ configure_file (
 
 
 # ------------------------ FIND_BOOST ------------------------- #
-find_package (Boost)
+set(Boost_USE_STATIC_LIBS        ON)
+set(Boost_USE_MULTITHREADED      OFF)
+set(Boost_USE_STATIC_RUNTIME    OFF)
+find_package (Boost COMPONENTS regex REQUIRED)
 if (Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIR})
-  add_definitions ("-DHASBOOT")
+    
+    MESSAGE ("BOOST WAS FOUND!")
+    MESSAGE ("${Boost_INCLUDE_DIR}")
+    include_directories(${Boost_INCLUDE_DIR})
+    add_definitions ("-DHASBOOT")
 endif()
 
 # ---------------------- END OF BOOST SEARC ------------------- #
@@ -92,7 +98,7 @@ if (GUROBI_INCLUDE_DIR)
     set (GUROBI_FOUND TRUE)
     set (GUROBI_INCLUDE_DIRS "${GUROBI_INCLUDE_DIR}")
     set (GUROBI_LIBRARIES "${GUROBI_LIBRARY};${GUROBI_CXX_LIBRARY}")
-    #set (GUROBI_CXX_LIBRARY "${GUROBI_CXX_LIBRARY}")
+    set (GUROBI_CXX_LIBRARY "${GUROBI_CXX_LIBRARY}")
 
 else (GUROBI_INCLUDE_DIRS)
     find_path (GUROBI_INCLUDE_DIR
@@ -112,14 +118,19 @@ else (GUROBI_INCLUDE_DIRS)
        )
 
     find_library (GUROBI_CXX_LIBRARY
-        NAMES "gurobi_c" "gurobi_g++4.1" "gurobi_g++4.2"
-        PATHS   "$ENV{GUROBI_HOME}/lib"
-                "/Library/gurobi702/mac64/lib"
+        NAMES 
+            "gurobi_c"
+            "gurobi_c++" 
+            "gurobi_g++4.1" 
+            "gurobi_g++4.2" 
+        PATHS   
+            "$ENV{GUROBI_HOME}/lib"
+            "/Library/gurobi702/mac64/lib"
         )
 
     set(GUROBI_INCLUDE_DIRS "${GUROBI_INCLUDE_DIR}")
-    set(GUROBI_LIBRARIES "${GUROBI_LIBRARY}; ${GUROBI_CXX_LIBRARY}")
-    #set(GUROBI_CXX_LIBRARY "${GUROBI_CXX_LIBRARY}")
+    set(GUROBI_LIBRARIES "${GUROBI_LIBRARY};${GUROBI_CXX_LIBRARY}")
+    set(GUROBI_CXX_LIBRARY "${GUROBI_CXX_LIBRARY}")
 
     # testing if the variables were found
     include(FindPackageHandleStandardArgs)
@@ -187,7 +198,7 @@ add_subdirectory (util)
 add_subdirectory (stalgorithm)
 add_subdirectory (mmmstp) #multiple tree under budget constraints
 add_subdirectory (mmstp-hop) #multiple tree under hop constraints
-#add_subdirectory (multi)
+add_subdirectory (multi)
 
 #directory for test of libraries and some mpp_algorithms
 #add_subdirectory (testes)

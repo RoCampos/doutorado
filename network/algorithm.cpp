@@ -221,6 +221,281 @@ rca::Path shortest_path (int source, int w, rca::Network & network) {
 	
 }
 
+void shortest_path (int source,
+	rca::Network & network,
+	std::vector<int> & bases,
+	std::vector<int> & costpath, 
+	std::vector<std::vector<int>> & paths)
+{
+
+	typedef typename std::vector<int>::const_iterator c_iterator;
+	int NODES = network.getNumberNodes ();
+	double infty = std::numeric_limits<double>::infinity();
+
+	costpath = std::vector<int> (NODES);
+	bases = std::vector<int> (NODES);	
+	paths.resize (NODES);
+	std::vector<double> distance = std::vector<double> (NODES, infty);
+	std::vector<int> prev = std::vector<int> (NODES, -1);
+	std::vector<bool> visited= std::vector<bool> (NODES, false);
+
+	std::vector<handle_t> handles = std::vector<handle_t> (NODES);
+
+	boost::heap::fibonacci_heap< vertex_t, boost::heap::compare<std::less<vertex_t>> > queue;
+
+	distance[source] = 0;
+	vertex_t v (distance[source]*-1, source);
+	handles[source] = queue.push (v);
+
+	while (!queue.empty ()) {
+
+		vertex_t curr_node = queue.top ();
+		queue.pop ();
+		visited[curr_node.id] = true;
+
+		//building extra informations
+		if (curr_node.id != source) {
+			
+			//getting the previus node
+			int pv = prev.at(curr_node.id);
+			std::vector<int> & ref = paths.at (curr_node.id);
+			for (int & n : paths.at(pv)) {				  
+				ref.push_back (n);
+			}
+
+			ref.push_back (curr_node.id);
+
+			//getting the cost of a path
+			if (ref.size () > 1) {
+				int length = ref.size ();
+				int v = ref.at (length-1);
+				int w = ref.at (length-2);
+				int edge_cost = (int) network.getCost (v, w);
+				costpath[curr_node.id] += edge_cost;
+			}
+
+			//updating the bases
+			if (pv == source) {
+				bases[curr_node.id] = curr_node.id;
+			} else {
+				bases[curr_node.id] = bases[pv];
+			}
+
+		}			
+
+		// getting the neighboors of vertex
+		std::pair<c_iterator, c_iterator> neighbors;
+		network.get_iterator_adjacent (curr_node.id, neighbors);
+		for (auto u=neighbors.first; u!= neighbors.second; u++) {
+
+			int next = *u;
+
+			// //distance between curr_node and neighboor 'u'
+			// int band_curr_u = network.getBand(curr_node.id, next);
+			// rca::Link l = rca::Link(curr_node.id, next, band_curr_u);
+			double cost = network.getCost (curr_node.id, next);
+			bool removed = network.isRemoved(rca::Link(curr_node.id, *u, cost));
+
+			//if the link is valid then go on
+			if (!removed) {				
+				if (distance[*u] > ((curr_node.weight*-1 + cost)) 
+					&& !removed) {
+					double old_u_cost = distance[*u];
+					distance[*u] = (curr_node.weight*-1 + cost);
+					prev[*u] = curr_node.id;
+					
+					// TODO update heap. How to manipulate the handle
+					vertex_t t(distance[*u]*-1, *u);
+					
+					if ( old_u_cost == infty ) {
+						handles[ t.id ] = queue.push ( t );
+					} else {
+						queue.increase ( handles[*u], t );
+					}
+				}
+			}//endif is_removed??
+		}//end neighboor for
+	}//end while loop 
+}
+
+void best_first_search (int src,
+	rca::Network const & network, 
+	std::vector<int> &bases, 
+	std::vector<int> &costpath, 
+	std::vector<std::vector<int>> & paths)
+{
+
+	typedef typename std::vector<int>::const_iterator c_iterator;
+
+	int NODES = network.getNumberNodes ();
+	costpath = std::vector<int> (NODES);
+	bases = std::vector<int> (NODES);	
+	paths.resize (NODES);
+	std::vector<int> distance = std::vector<int> (NODES, 0);
+	std::vector<int> prev = std::vector<int> (NODES);
+	std::vector<bool> visited= std::vector<bool> (NODES, false);
+
+	std::vector<int> fila;
+	fila.push_back (src);
+
+	paths[src].push_back (src);
+
+	while (fila.size () > 0) {
+
+		int curr_node = fila.at(0);
+
+		if (curr_node != src) {
+
+			//getting the previus node
+			int pv = prev.at(curr_node);
+			std::vector<int> & ref = paths.at (curr_node);
+			for (int & n : paths.at(pv)) {				  
+				ref.push_back (n);
+			}
+
+			ref.push_back (curr_node);
+
+			//getting the cost of a path
+			if (ref.size () > 1) {
+				int length = ref.size ();
+				int v = ref.at (length-1);
+				int w = ref.at (length-2);
+				int edge_cost = (int) network.getCost (v, w);
+				costpath[curr_node] += edge_cost;
+			}
+
+			//updating the bases
+			if (pv == src) {
+				bases[curr_node] = curr_node;
+			} else {
+				bases[curr_node] = bases[pv];
+			}
+
+		}
+
+		// getting the neighboors of vertex
+		std::pair<c_iterator, c_iterator> neighbors;
+		network.get_iterator_adjacent (curr_node, neighbors);
+		for (auto u=neighbors.first; u!= neighbors.second; u++) {
+			int next = *u;
+			if (!visited[next]) {
+				fila.push_back (next);
+				prev[next] = curr_node;
+				distance[next] += distance[curr_node]+1;
+				visited[next] = true;
+			}
+		}
+
+		fila.erase (fila.begin());
+	}
+}
+
+
+void widest_shortest_path (
+	int source,
+	rca::Network & network,
+	std::vector<int> & bases,
+	std::vector<int> & costpath,
+	std::vector<std::vector<int>> & paths)
+{
+
+	typedef typename std::vector<int>::const_iterator c_iterator;
+
+	int NODES = network.getNumberNodes ();
+
+	int infty = std::numeric_limits<int>::min();
+
+	costpath = std::vector<int> (NODES,-1);
+	bases = std::vector<int> (NODES,-1);
+	paths = std::vector<std::vector<int>> (NODES);
+	std::vector<int> distance = std::vector<int> (NODES, infty);
+	std::vector<int> prev = std::vector<int> (NODES, -1);
+	std::vector<bool> visited= std::vector<bool> (NODES, false);
+
+	std::vector<g_handle_t> handles = std::vector<g_handle_t> (NODES);
+
+	fibonacci_greater_t queue;
+
+	distance[source] = std::numeric_limits<int>::max();
+
+	vertex_t v (distance[source], source);
+	handles[source] = queue.push (v);
+
+	paths[source].push_back (source);
+
+	while (!queue.empty ()) {
+
+		vertex_t curr_node = queue.top ();
+		queue.pop ();
+		visited[curr_node.id] = true;	
+		
+		// building extra informations
+		if (curr_node.id != source) {
+			
+			//getting the previus node
+			int pv = prev[curr_node.id];
+			for (auto n : paths[pv]) {
+				paths[curr_node.id].push_back (n);
+			}
+			paths[curr_node.id].push_back (curr_node.id);
+
+			//getting the cost of a path
+			if (paths[curr_node.id].size () > 1) {
+				int length = paths[curr_node.id].size ();
+				int v = paths[curr_node.id][length-1];
+				int w = paths[curr_node.id][length-2];
+				int edge_cost = network.getCost (v, w);
+				costpath[curr_node.id] += edge_cost;
+			}
+
+			//updating the bases
+			if (pv == source) {
+				bases[curr_node.id] = curr_node.id;
+			} else {
+				bases[curr_node.id] = bases[pv];
+			}
+
+		}			
+
+		// getting the neighboors of vertex
+		std::pair<c_iterator, c_iterator> neighbors;
+		network.get_iterator_adjacent (curr_node.id, neighbors);
+		for (auto u=neighbors.first; u!= neighbors.second; u++) {
+
+			int next = *u;
+
+			//distance between curr_node and neighboor 'u'
+			int band_curr_u = network.getBand(curr_node.id, next);
+			rca::Link l = rca::Link(curr_node.id, next, band_curr_u);
+			bool removed = network.isRemoved(l);
+			//if the link is valid then go on
+			if (!removed) {
+
+				//minimum distance between current link
+				// and distance until current node
+				int edge_value = std::min (band_curr_u, distance[curr_node.id] );
+
+				if (!visited[next] && distance[next] < edge_value) {
+					
+					int next_old_dist = distance[next];
+
+					distance[next] = edge_value;
+					prev[next] = curr_node.id;
+					vertex_t t(distance[next]*-1, next);
+
+					if (next_old_dist == infty) {
+						handles[t.id] = queue.push (t);
+					} else {
+						queue.decrease (handles[t.id], t);
+					}
+				}//endif compare distance
+			}//endif is_removed??
+		}//end neighboor for
+	}//end while loop
+}
+
+
+
 rca::Path capacited_shortest_path (int v, int w, 
 								   rca::Network *network,
 								   CongestionHandle *cg,
