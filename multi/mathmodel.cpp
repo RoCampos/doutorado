@@ -14,7 +14,8 @@ enum Option {
 	LEE_MODEL_MODIFIED = 1,
 	BUDGET_MODEL = 2,
 	COST_Z_MODEL = 3,
-	RESIDUAL_MODEL = 4
+	RESIDUAL_MODEL = 4,
+	HOP_MODEL = 5
 };
 
 void write_results (vsolution_t &, 
@@ -145,29 +146,59 @@ void RunResidualModel (rca::Network & net,
 
 }
 
+void RunHopModel (rca::Network & net, 
+	std::vector<rca::Group> &groups, int hoplimit, int Z) {
+
+	GRBEnv env = GRBEnv ();
+	GRBModel modelo = GRBModel (env);
+
+	//build the model
+	HopCostModel (modelo, net, groups, hoplimit, Z);
+
+	write_log_model (modelo);
+	modelo.optimize ();
+	auto sol = solution_info ("file", modelo, groups.size ());
+
+	write_results (sol, net, modelo, HOP_MODEL);
+
+}
+
 void help () {
-	cout << "\n\tMathematical Models\n" << endl;
-
+	cout << "\nUsage:\n" << endl;
 	std::stringstream ss;
-	ss << "This program is used to run the following models on";
-	ss << " gurobi solver:\n";
-	ss << "\t LeeModel\n\t LeeModifiedModel\n\t BudgetModel";
-	ss << "\nThe commands to run each of the models are the following:";
-	ss << "\n\t -  ./build/mathmodel --model LM --instance <INST> --opt <OPT_FILE>";
-	ss << " --alpha <double value>";
-	ss << "\n\t -  ./build/mathmodel --model LMM --instance <INST> --opt <OPT_FILE>";
-	ss << " --alpha <double value>";
-	ss << "\n\t -  ./build/mathmodel --model BM --instance <INST> --budget <INT_VALUE>";
-	ss << "\nThe parameters passed to models are: ";
-	ss << "\n\t --opt: this parameter represent a list of double\n values for LM model, ";
-	ss << "these values represent a limit in the cost of each tree";
-	ss << "\n\t --opt: this parameter also represent a list of int\n values for LMM model, ";
-	ss << "\n\t --alpha: this parameter represents a percentage of growning of a tree";
-	ss << "these values represent a limit in the size of each tree";
-	ss << "\n\t --budget: this parameter represent a represent a \nvalue of the global solution,";
-	ss << "that contains all the trees and its respective costs";
-	ss << "\n";
+	ss << "\tmathmodel [--model <math_model>] [--instance <type>] [--opt|--budget|--hop|--Z|--alpha]\n";
+	ss << "\nOptions:\n";
 
+	ss << "\t--model	mathematical model to be used\n";
+	ss << "\t\t LEE MODEL (LM)\n";
+	ss << "\t\t LEE MODEL MODIFIED (LMM)\n";
+	ss << "\t\t BUDGET MODEL (BM)\n";
+	ss << "\t\t RESIDUAL MODEL (RM)\n";
+	ss << "\t\t COST_Z_MODEL (BZ)\n";
+	ss << "\t\t HOP MODEL (HM)\n";
+
+	ss << "\t--opt	a list of double values associated with each multicast tree of the instance.\n";
+	ss << "\t\t Applyied only with LM and LMM models.\n";
+	ss << "\t\t In LM version, opt means the number of links (optimal) of each tree.\n";
+	ss << "\t\t In LMM version, opt means the cost (optimal) of each tree.\n";
+
+	ss << "\t--budget	a budget value used to limit maximum solution cost\n";
+	ss << "\t\t Applyied only with BM model.\n";
+
+	ss << "\t--Z	minimum residual capacity requirement for the solution\n";
+	ss << "\t\t Applyied only with BZ and HM models.\n";
+
+	ss << "\t--alpha	a parameter to control the size of Optimal trees\n";
+	ss << "\t\t Applyied only with LM and LMM models.\n";
+
+	ss << "\nExamples:\n";
+
+	ss << "\tmathmodel --model LM --brite b30_1.brite --opt optfile --alpha 1.5\n";
+	ss << "\tmathmodel --model LMM --brite b30_1.brite --opt optfile --alpha 1.5\n";
+	ss << "\tmathmodel --model BM --brite b30_1.brite --budget 1000000\n";
+	ss << "\tmathmodel --model RM --brite b30_1.brite\n";
+	ss << "\tmathmodel --model BZ --brite b30_1.brite --Z 32\n";
+	ss << "\tmathmodel --model HM --brite b30_1.brite --Z 32 --hop 5\n";
 
 	cout << ss.str () << endl;
 
@@ -196,6 +227,10 @@ int get_option (std::string & opt) {
 		return 4;
 	}
 
+	if (opt.compare ("HM") == 0) {
+		return 5;
+	}
+
 	return -1;
 }
 
@@ -206,13 +241,11 @@ std::vector<double> read_opt_file (std::string & file) {
 	double value;
 	_file >> value;
 	do {
-
 		v.push_back (value);
 		_file >> value;
 
 	}while (_file.good());
 	_file.close ();
-
 	return v;
 }
 
@@ -266,7 +299,7 @@ int main(int argc, char const *argv[])
 	std::string type = argv[3];
 	std::string file;
 	if (type.compare ("--brite") == 0 || type.compare ("--yuh") == 0) {
-		file = argv[4];
+		file = std::string (argv[4]);
 	} else {
 		help ();		
 	}
@@ -277,6 +310,8 @@ int main(int argc, char const *argv[])
 	switch (option) {
 
 		case Option::LEE_MODEL : {
+
+			cout << argv[6] << endl;
 
 			std::vector<double> opt;
 			std::string opt_file = argv[5];
@@ -356,7 +391,6 @@ int main(int argc, char const *argv[])
 				help ();
 			}
 
-			cout << "Z: " << Z << endl;
 			RunCostZModel (net, multicast_group, Z);
 
 		}break;
@@ -364,6 +398,28 @@ int main(int argc, char const *argv[])
 		case Option::RESIDUAL_MODEL : {
 
 			RunResidualModel (net, multicast_group);
+
+		}break;
+
+		case Option::HOP_MODEL : {
+			std::string opt_budget = argv[5];
+			int Z = -1;
+			if (opt_budget.compare ("--Z") == 0) {
+				Z = atoi (argv[6]);
+			} else {
+				help ();
+			}
+			cout << "Z: " << Z << endl;
+
+			std::string hop_limit = argv[7];
+			int hop = 0;
+			if (hop_limit.compare ("--hop") ==0) {
+				hop = atoi (argv[8]);
+			} else {
+				help ();
+			}
+
+			RunHopModel (net, multicast_group, hop, Z);
 
 		}break;
 
