@@ -1,5 +1,7 @@
 #include <iostream>
 #include "spea2.h"
+#include "config.h"
+
 // #include "nsga2.h"
 // #include "moead.h"
 
@@ -9,8 +11,20 @@
 using namespace std;
 // using namespace evolutionary;
 
+std::string commandLine ()
+{
+	std::string command = "[file]";
+	command += " [conf_file]";
+	return command;
+}
+
 int main(int argc, char const *argv[])
 {
+
+	
+	if (message(argc, argv, commandLine())) {
+		exit (1);
+	}
 
 	srand (time(NULL));
 	std::string file = argv[1];

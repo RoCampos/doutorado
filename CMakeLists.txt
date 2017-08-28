@@ -32,11 +32,12 @@ results;
 INCLUDE(CPack)
 
 #habilita test
-enable_testing ()
+#enable_testing ()
 
 project (Doutorado)
 
-SET (CMAKE_CXX_COMPILER "/usr/local/bin/g++-7")
+SET (CMAKE_CXX_COMPILER "/usr/bin/g++")
+set (CMAKE_CXX_FLAGS "-std=c++11")
 
 if( CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]" )
     message( "INFO: DEBUG BUILD" )
@@ -54,8 +55,9 @@ if( CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]" )
 endif()
 
 if( CMAKE_BUILD_TYPE MATCHES "[Rr][Ee][Ll][Ee][Aa][Ss][Ee]" )
-    message( "INFO: RELEASE BUILD" )    
-    add_definitions ("-std=c++11 -Wall")    
+    message( "INFO: RELEASE BUILD" )
+    set (CMAKE_VERBOSE_MAKEFILE ON)    
+    add_definitions ("-std=c++11 -stdlib=libc++ -Wall")    
     message("${CMAKE_CXX_FLAGS_RELEASE}")
 endif()
 
@@ -68,6 +70,8 @@ if (CMAKE_BUILD_TYPE MATCHES "[Pp][Rr][Oo][Ff][Ii][Ll][Ee]")
     message("${CMAKE_CXX_FLAGS_PROFILE}")
     
 endif()
+
+message (" ${CMAKE_CXX_COMPILER}")
 
 # ------------------------ config versio file ----------------- #
 configure_file (
@@ -82,13 +86,14 @@ set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      OFF)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package (Boost COMPONENTS regex REQUIRED)
-if (Boost_FOUND)
-    
+if (Boost_FOUND)    
     MESSAGE ("BOOST WAS FOUND!")
     MESSAGE ("${Boost_INCLUDE_DIR}")
     include_directories(${Boost_INCLUDE_DIR})
     add_definitions ("-DHASBOOT")
 endif()
+
+message ("${BOOST_ROOT}")
 
 # ---------------------- END OF BOOST SEARC ------------------- #
 
@@ -141,6 +146,8 @@ else (GUROBI_INCLUDE_DIRS)
 
 endif (GUROBI_INCLUDE_DIR)
 #------------------------ ENDOFGUROBI ------------------------- #
+
+message ("${GUROBI_INCLUDE_DIR}")
 
 #--------------------------- find omp
 find_package(OpenMP)

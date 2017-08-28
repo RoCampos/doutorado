@@ -1146,11 +1146,11 @@ vsolution_t solution_info (std::string file,
 
 					std::string varname = var.get(GRB_StringAttr_VarName);
 
-					boost::regex ptn ("\\d+");
-					boost::sregex_iterator rit ( varname.begin(), 
+					std::regex ptn ("\\d+");
+					std::sregex_iterator rit ( varname.begin(), 
 						varname.end(), ptn );
 
-	  				boost::sregex_iterator rend;
+	  				std::sregex_iterator rend;
 
 	  				int vertex1 = atoi ( rit->str ().c_str () ) - 1;
 	  				rit++;

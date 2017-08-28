@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <boost/regex.hpp>
+#include <regex>
 
 #include "gurobi_c++.h"
 #include "network.h"
@@ -320,12 +320,12 @@ private:
 		ss << (y != -1 ? std::to_string (y+1) : "(\\d+)") << ",";
 		ss << (k != -1 ? std::to_string (k+1) : "(\\d+)") << "\\)";
 		
-		boost::regex ptn(ss.str ());
-		boost::smatch what;
+		std::regex ptn(ss.str ());
+		std::smatch what;
 
 		for(auto&& var : var_x) {				
 			std::string const& str = var.get(GRB_StringAttr_VarName);
-			if ( boost::regex_search (str, what, ptn) ) {												
+			if ( std::regex_search (str, what, ptn) ) {												
 				expr += var;
 			}
 
