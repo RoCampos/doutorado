@@ -94,5 +94,5 @@ std::cout << __FUNCTION__ << ": ";
 	return level; 
 }
 
-template class EdgeContainer<Comparator, HCell>;
-template class EdgeContainer<ComparatorReverse, HCellRev>;
+template class rca::EdgeContainer<Comparator, HCell>;
+template class rca::EdgeContainer<ComparatorReverse, HCellRev>;

@@ -32,11 +32,12 @@ results;
 INCLUDE(CPack)
 
 #habilita test
-enable_testing ()
+#enable_testing ()
 
 project (Doutorado)
 
-SET (CMAKE_CXX_COMPILER /usr/local/bin/g++-7)
+SET (CMAKE_CXX_COMPILER "/usr/bin/g++")
+set (CMAKE_CXX_FLAGS "-std=c++11")
 
 if( CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]" )
     message( "INFO: DEBUG BUILD" )
@@ -54,8 +55,9 @@ if( CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]" )
 endif()
 
 if( CMAKE_BUILD_TYPE MATCHES "[Rr][Ee][Ll][Ee][Aa][Ss][Ee]" )
-    message( "INFO: RELEASE BUILD" )    
-    add_definitions ("-std=c++11 -Wall")    
+    message( "INFO: RELEASE BUILD" )
+    set (CMAKE_VERBOSE_MAKEFILE ON)    
+    add_definitions ("-std=c++11 -stdlib=libc++ -Wall")    
     message("${CMAKE_CXX_FLAGS_RELEASE}")
 endif()
 
@@ -69,6 +71,8 @@ if (CMAKE_BUILD_TYPE MATCHES "[Pp][Rr][Oo][Ff][Ii][Ll][Ee]")
     
 endif()
 
+message (" ${CMAKE_CXX_COMPILER}")
+
 # ------------------------ config versio file ----------------- #
 configure_file (
   "${PROJECT_BINARY_DIR}/include/config.h.in"
@@ -78,11 +82,18 @@ configure_file (
 
 
 # ------------------------ FIND_BOOST ------------------------- #
-find_package (Boost)
-if (Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIR})
-  add_definitions ("-DHASBOOT")
+set(Boost_USE_STATIC_LIBS        ON)
+set(Boost_USE_MULTITHREADED      OFF)
+set(Boost_USE_STATIC_RUNTIME    OFF)
+find_package (Boost COMPONENTS regex REQUIRED)
+if (Boost_FOUND)    
+    MESSAGE ("BOOST WAS FOUND!")
+    MESSAGE ("${Boost_INCLUDE_DIR}")
+    include_directories(${Boost_INCLUDE_DIR})
+    add_definitions ("-DHASBOOT")
 endif()
+
+message ("${BOOST_ROOT}")
 
 # ---------------------- END OF BOOST SEARC ------------------- #
 
@@ -92,7 +103,7 @@ if (GUROBI_INCLUDE_DIR)
     set (GUROBI_FOUND TRUE)
     set (GUROBI_INCLUDE_DIRS "${GUROBI_INCLUDE_DIR}")
     set (GUROBI_LIBRARIES "${GUROBI_LIBRARY};${GUROBI_CXX_LIBRARY}")
-    #set (GUROBI_CXX_LIBRARY "${GUROBI_CXX_LIBRARY}")
+    set (GUROBI_CXX_LIBRARY "${GUROBI_CXX_LIBRARY}")
 
 else (GUROBI_INCLUDE_DIRS)
     find_path (GUROBI_INCLUDE_DIR
@@ -112,14 +123,19 @@ else (GUROBI_INCLUDE_DIRS)
        )
 
     find_library (GUROBI_CXX_LIBRARY
-        NAMES "gurobi_c" "gurobi_g++4.1" "gurobi_g++4.2"
-        PATHS   "$ENV{GUROBI_HOME}/lib"
-                "/Library/gurobi702/mac64/lib"
+        NAMES 
+            "gurobi_c"
+            "gurobi_c++" 
+            "gurobi_g++4.1" 
+            "gurobi_g++4.2" 
+        PATHS   
+            "$ENV{GUROBI_HOME}/lib"
+            "/Library/gurobi702/mac64/lib"
         )
 
     set(GUROBI_INCLUDE_DIRS "${GUROBI_INCLUDE_DIR}")
-    set(GUROBI_LIBRARIES "${GUROBI_LIBRARY}; ${GUROBI_CXX_LIBRARY}")
-    #set(GUROBI_CXX_LIBRARY "${GUROBI_CXX_LIBRARY}")
+    set(GUROBI_LIBRARIES "${GUROBI_LIBRARY};${GUROBI_CXX_LIBRARY}")
+    set(GUROBI_CXX_LIBRARY "${GUROBI_CXX_LIBRARY}")
 
     # testing if the variables were found
     include(FindPackageHandleStandardArgs)
@@ -130,6 +146,8 @@ else (GUROBI_INCLUDE_DIRS)
 
 endif (GUROBI_INCLUDE_DIR)
 #------------------------ ENDOFGUROBI ------------------------- #
+
+message ("${GUROBI_INCLUDE_DIR}")
 
 #--------------------------- find omp
 find_package(OpenMP)
@@ -187,7 +205,7 @@ add_subdirectory (util)
 add_subdirectory (stalgorithm)
 add_subdirectory (mmmstp) #multiple tree under budget constraints
 add_subdirectory (mmstp-hop) #multiple tree under hop constraints
-#add_subdirectory (multi)
+add_subdirectory (multi)
 
 #directory for test of libraries and some mpp_algorithms
 #add_subdirectory (testes)
