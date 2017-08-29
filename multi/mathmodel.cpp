@@ -166,7 +166,7 @@ void RunHopModel (rca::Network & net,
 void help () {
 	cout << "\nUsage:\n" << endl;
 	std::stringstream ss;
-	ss << "\tmathmodel [--model <math_model>] [--instance <type>] [--opt|--budget|--hop|--Z|--alpha]\n";
+	ss << "\tmathmodel [--model <math_model>] [--brite <type>] [--opt|--budget|--hop|--Z|--alpha]\n";
 	ss << "\nOptions:\n";
 
 	ss << "\t--model	mathematical model to be used\n";
@@ -176,6 +176,8 @@ void help () {
 	ss << "\t\t RESIDUAL MODEL (RM)\n";
 	ss << "\t\t COST_Z_MODEL (BZ)\n";
 	ss << "\t\t HOP MODEL (HM)\n";
+
+	ss << "\t--brite	type of instance used.\n";
 
 	ss << "\t--opt	a list of double values associated with each multicast tree of the instance.\n";
 	ss << "\t\t Applyied only with LM and LMM models.\n";
