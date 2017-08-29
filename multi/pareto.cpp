@@ -11,12 +11,38 @@
 
 using namespace std;
 
+typedef struct pareto_ind_t {
+	std::vector<int> objective;
+
+	pareto_ind_t (int v1, int v2, int v3) {
+		objective.push_back (v1);
+		objective.push_back (v2);
+		objective.push_back (v3);
+	}
+
+	bool operator==  (pareto_ind_t const& ind) {
+		if (ind.objective.at (0) == objective.at (0) &&
+			ind.objective.at (1) == objective.at (1) &&
+			ind.objective.at (2) == objective.at (2))
+			{return true;}
+		return false;
+	}
+
+	int at (int obj) {
+		return objective.at (obj);
+	}
+};
+
 /* ESTA VARIÁVEL GUARDA O TAMANHO MÁXIMO DOS CAMINHOS*/
 int LIMIT_PATH;
 int NODES;
 int GROUPS;
 
+//shortest path(hop count) for the optmization of cost subject to Z
 int MIN;
+
+//optimal front
+std::vector<pareto_ind_t> poptimal;
 
 void to_dot (GRBModel const& model, 
 	vgroup_t const& multicast_group, int G);
@@ -26,6 +52,9 @@ void bi_objective (GRBModel & model,
 
 int three_objective (GRBEnv &model, 
 	rca::Network&, vgroup_t&, int);
+
+
+bool dominance (pareto_ind_t&);
 
 void print_x_var (int x, int y, int k, int d, GRBModel const&);
 
@@ -52,7 +81,11 @@ void teste_solution (steiner & st, rca::Group const& g, int Z) {
 
 void help () {
 
-	std::cout << "Usage:\n";
+	std::cout << "This programa is used to generate the pareto front to the multicast\n";
+	cout << "Routing Problem with multiple multicast group.\n";
+	cout << "It is possible to generate the pareto front for two or three objectives.\n\n";
+
+	std::cout << "\nUsage:\n";
 	cout << "\t paretogen [--brite <instance>] [--Z <int value>] [--objectives <inv value>]\n";
 
 	std::stringstream ss;
@@ -141,6 +174,13 @@ int main(int argc, char const *argv[])
 			count += result;
 		} 
 		while (result > 0);
+
+		for (auto && x : poptimal) {
+			if (dominance(x)) {
+				cout << x.at (0) << " " << x.at(1) << " " << x.at (2) << endl;
+			}
+		}
+
 	}
 
 	return 0;
@@ -238,11 +278,14 @@ int three_objective (GRBEnv & env,
 		try	{
 			x.optimize ();
 			_time2_ += x.get (GRB_DoubleAttr_Runtime);
-			double value = x.get(GRB_DoubleAttr_ObjVal);
+			int cost = (int)x.get(GRB_DoubleAttr_ObjVal);
 			_time1_ += x.get (GRB_DoubleAttr_Runtime);
+
+			pareto_ind_t sol (Z, cost, path_limit);
+			poptimal.push_back (sol);
 			
 			//output
-			pareto << Z << " " << value << " " << path_limit;
+			pareto << Z << " " << cost << " " << path_limit;
 			pareto << " " << _time1_ << endl;
 			
 			number_solution++;
@@ -300,6 +343,18 @@ int three_objective (GRBEnv & env,
 
 }
 
+bool dominance (pareto_ind_t& sol)
+{
+	for (auto && x : poptimal) {
+		//Z, cost, hop
+		if (x.at (0) >= sol.at (0) && 
+			x.at(1) <= sol.at(1) && 
+			x.at (2) <= sol.at (2) && !(x==sol)) {
+			return (false);
+		}
+	}
+	return (true);
+}
 
 void to_dot ( GRBModel const& m, 
 	vgroup_t const& multicast_group, int G) {
