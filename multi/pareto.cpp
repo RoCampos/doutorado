@@ -53,10 +53,22 @@ void teste_solution (steiner & st, rca::Group const& g, int Z) {
 void help () {
 
 	std::cout << "Usage:\n";
+	cout << "\t paretogen [--brite <instance>] [--Z <int value>] [--objectives <inv value>]\n";
 
-	std::cout << "Options:\n";
+	std::stringstream ss;
+	std::cout << "\nOptions:\n";
+	ss << "\t --brite	type of instance used to be solver\n";
+	ss << "\t --Z 	initial value for the residual capacity. It permits restart the process.\n";
+	ss << "\t\t Z value can be 0 or MAX residual capacity.\n";
+	ss << "\t --objectives	int value that indicates the number of objectives [two or three].\n";
+	ss << "\t\t When set two objectives, hop limit is set to 5.\n";
+
+	cout << ss.str () << endl;
 
 	std::cout << "Examples:\n";
+
+	cout << "\tparetogen --brite b30_1.brite --Z 32 --objectives 3\n";
+	cout << "\tparetogen --brite b30_1.brite --Z 32 --objectives 2\n";
 
 }
 
