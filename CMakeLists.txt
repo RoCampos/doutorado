@@ -159,26 +159,26 @@ endif()
 
 
 # ----------------------- FIND DOXYGEM ------------------------ # 
-find_package (Doxygen)
-option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+#find_package (Doxygen)
+#option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
-if (BUILD_DOCUMENTATION)
+#if (BUILD_DOCUMENTATION)
 	
-	if(NOT DOXYGEN_FOUND)
-		message (FATAL_ERROR "Doxygen is need to build docs")
-	endif()
+#	if(NOT DOXYGEN_FOUND)
+#		message (FATAL_ERROR "Doxygen is need to build docs")
+#	endif()
+#
+#	set (doxyfile ${PROJECT_SOURCE_DIR}/scripts/Doxyfile)
+#
+#	add_custom_target (doc
+#		COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+#		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/docs
+#		COMMENT "Generating API documentation with Doxigen"
+#		VERBATIM)
 
-	set (doxyfile ${PROJECT_SOURCE_DIR}/scripts/Doxyfile)
+#	install (DIRECTORY docs/html DESTINATION ./share/doc)
 
-	add_custom_target (doc
-		COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/docs
-		COMMENT "Generating API documentation with Doxigen"
-		VERBATIM)
-
-	install (DIRECTORY docs/html DESTINATION ./share/doc)
-
-endif()
+#endif()
 
 # ----------------------- ENDOFDOXYGEN ------------------------ #
 

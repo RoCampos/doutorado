@@ -196,7 +196,7 @@ rca::Link get_bottleneck_link (
 {
 
 	auto it = path.cbegin ();
-	int min_bottleneck = INT_MAX;
+	int min_bottleneck = std::numeric_limits<int>::max();
 	rca::Link l;
 	for ( ; it != path.cend() -1; it++) {		
 		int band = network.getBand( *it , *(it+1) );		

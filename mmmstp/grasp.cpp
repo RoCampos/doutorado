@@ -45,7 +45,7 @@ Grasp::Grasp (rca::Network *net,
 	}
 	
 	if (budget == 0) {
-		m_budget = INT_MAX;
+		m_budget = std::numeric_limits<int>::max();
 	} else {
 		m_budget = budget;
 	}
