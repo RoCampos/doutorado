@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <stack>
+#include <map>
 
 #include "path.h"
 #include "network.h"
@@ -277,6 +278,35 @@ void widest_shortest_path (
 	std::vector<int> & costpath,
 	std::vector<int> & prev,
 	std::vector<std::vector<int>> & paths);
+
+
+/**
+* Esta função é utilizada para criar uma árvore geradora a partir 
+* de um grafo de entrada. Ela recebe uma rede (@see Network) e
+* um vector de @Link. O resultado final é o vector estar preenchido
+* com as arestas utilizadas para criar a árvore geradora.
+*
+* 
+* @param rca::Network
+* @param std::vector<rca::Link>
+*/
+void spanning_minimal_tree (
+	rca::Network & network,
+	std::vector<rca::Link> & edgeset,
+	std::vector<int> srcs,
+	bool forest = false);
+
+
+/**
+* Esta função retorna um grafo completo com base em uma função métrica
+* caminho mais curto ou widest shortest path. O grafo completo é
+* realizado com base em um conjunto de vértices.
+*
+*/
+void complete_graph (rca::Network & network,
+				std::vector<int> & nodes,
+				std::map<rca::Link,rca::Path> & paths,
+				int funcao);
 
 
 /**
