@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <stack>
+#include <map>
 
 #include "path.h"
 #include "network.h"
@@ -171,6 +172,8 @@ void widest_shortest_path (
 */
 std::vector<int> inefficient_widest_path (int v, int w, rca::Network * network);
 
+std::vector<int> all_widest_path (int v, int w, rca::Network & network);
+
 /**
 * Este algoritmo computa o caminho mais curto entre os nós v e w.
 * Ele considera o caminho mais curto com a restrição de que as 
@@ -277,6 +280,44 @@ void widest_shortest_path (
 	std::vector<int> & costpath,
 	std::vector<int> & prev,
 	std::vector<std::vector<int>> & paths);
+
+
+/**
+* Esta função é utilizada para criar uma árvore geradora a partir 
+* de um grafo de entrada. Ela recebe uma rede (@see Network) e
+* um vector de @Link. O resultado final é o vector estar preenchido
+* com as arestas utilizadas para criar a árvore geradora.
+*
+* 
+* @param rca::Network
+* @param std::vector<rca::Link>
+*/
+void spanning_minimal_tree (
+	rca::Network & network,
+	std::vector<rca::Link> & edgeset,
+	std::vector<int> srcs,
+	bool forest = false);
+
+
+/**
+* Esta função é utilizada para calcular o grafo completo induzido
+* a partir de um grafo de entrada e um conjunto de nós.
+* O grafo completo consiste em todas as arestas formadas a partir
+* de pares de nós do conjunto nodes.
+* 
+* Um algorimto será utilizado para calcular o grafo completo. O algoritmo
+* é passado pela função como um callback.
+*
+* @param rca::Network grafo original
+* @param vector<int> nós que formam grafo completo
+* @param caminhos gerados no grafo completo
+* @param ponteiro para função que retorna os caminhos
+*/
+void complete_graph (
+	rca::Network & network,
+	std::vector<int> & nodes,
+	std::map<rca::Link,std::tuple<rca::Path, int, int>> & paths,
+	std::vector<int> (*algorithm)(int,int, rca::Network&));
 
 
 /**

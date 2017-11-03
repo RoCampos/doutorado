@@ -392,7 +392,7 @@ rca::Link YuhChen::get_bottleneck_link (rca::Path & path)
 {
 	//paths are stores in reverse order
 	auto it = path.cbegin ();
-	int min_bottleneck = INT_MAX;
+	int min_bottleneck = std::numeric_limits<int>::max();
 	rca::Link l;
 	for ( ; it != path.cend() -1; it++) {
 		

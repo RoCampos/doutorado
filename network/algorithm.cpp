@@ -153,6 +153,10 @@ std::vector<int> inefficient_widest_path (int v, int w, rca::Network * network)
 	
 }
 
+std::vector<int> all_widest_path (int v, int w, rca::Network & network) {
+	return inefficient_widest_path (v, w, &network);
+}
+
 rca::Path shortest_path (int source, int w, rca::Network & network) {
 
 #ifdef DEBUG1
@@ -549,7 +553,7 @@ rca::Path capacited_shortest_path (int v, int w,
 				if (cg->is_used(l))
 					cap = cg->value (l);
 				else 
-					cap = INT_MIN;
+					cap = std::numeric_limits<int>::min();
 				
 				int band = network->getBand (l.getX(), l.getY());
 				//updating the capacity if the link is used
@@ -752,7 +756,7 @@ double min_bandwidth (rca::Network& network)
 {
 
 	int NODES = network.getNumberNodes ();
-	double min = INT_MAX;
+	double min = std::numeric_limits<double>::max();
 	for (int i = 0; i < NODES; i++) {
 		for (int j = 0; j < i; j++) {
 			
@@ -1016,3 +1020,100 @@ void widest_shortest_path (
 	}//end while loop
 
 }
+
+void spanning_minimal_tree (
+	rca::Network & network,
+	std::vector<rca::Link> & edgeset,
+	std::vector<int> srcs,
+	bool forest)
+
+{
+	int NODES = network.getNumberNodes ();
+
+	//creating partitions
+	DisjointSet2 dij(NODES);
+	std::vector<rca::Link> edges;
+	for (auto link : network.getLinks ()) {
+		int cost = (int)link.getValue();
+		link.setValue(cost);
+		edges.push_back(link);
+	}
+	//sorting the edges
+	std::sort (edges.begin(), edges.end());
+
+	while (!edges.empty()) {
+		rca::Link curr = *edges.begin();
+		int v = curr.getX(), w = curr.getY ();
+
+		auto res = std::find(srcs.begin(), srcs.end(), v);
+		auto res2 = std::find(srcs.begin(), srcs.end(), w);
+
+		if (res != srcs.end() && res2 != srcs.end()) {
+			edges.erase (edges.begin());
+			continue;
+		}
+
+		int s1 = -1, s2 = -1;
+		for (auto & i : srcs) { //O(S), S is the number of sources
+			if (dij.find2(i) == dij.find2(v)) s1 = i;
+			if (dij.find2(i) == dij.find2(w)) s2 = i;
+		}
+
+		//se a aresta une dois conjuntos com fontes, então não a considere
+		if (s1 != -1 && s2 != -1) {
+			edges.erase (edges.begin());
+			continue;
+		}
+
+		if (dij.find2 (curr.getX()) != dij.find2(curr.getY())) {
+			dij.simpleUnion (curr.getX(), curr.getY());
+			edgeset.push_back (curr);
+		}
+		edges.erase (edges.begin());
+	}
+
+}
+
+void complete_graph (
+	rca::Network & network,
+	std::vector<int> & nodes,
+	std::map<rca::Link,std::tuple<rca::Path, int, int>> & paths,
+	std::vector<int> (*algorithm)(int,int, rca::Network&))
+{
+
+	int NODES = nodes.size ();
+	int EDGES = (NODES*(NODES-1))/2;
+	
+	//mapping the nodes
+	std::map<int,int> V;
+	std::vector<int> N;
+	for (int i = 0; i < nodes.size(); ++i){
+		V[i] = nodes.at(i);
+	}
+
+	int count = 0;
+	for (int i = 0; i < NODES; ++i)
+	{
+		std::vector<int> prev = algorithm(V[i],0, network);
+		for (int j = 0; j < NODES; ++j)
+		{
+			if (i<j) {
+				//computes the path from V[i] to all nodes in 'nodes'
+				rca::Path p = get_shortest_path (V[i],V[j], network, prev);
+				int cost = 0, bottleneck = std::numeric_limits<int>::max();
+				//getting cost and bottleneck of the path
+				for (auto iter =p.begin (); iter != p.end()-1; iter++) {
+					cost += network.getCost (*iter, *(iter+1));
+					if (bottleneck > network.getBand (*iter, *(iter+1))) {
+						bottleneck = network.getBand (*iter, *(iter+1));
+					}
+				} 
+				//stores the path
+				//the nodes in the link are the real one for 'nodes' passed as parameter
+				paths[rca::Link(V[i],V[j],count++)] = std::make_tuple(p,cost,bottleneck);
+			}
+		}
+	}
+
+}
+

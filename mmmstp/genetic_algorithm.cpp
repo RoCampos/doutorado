@@ -156,7 +156,7 @@ void GeneticAlgorithm::init_population ()
 	int best = -1;	
 #endif
 	
-	int max = INT_MIN;
+	int max = std::numeric_limits<int>::min();
 	int cost = 10000000;
 	m_population = std::vector<PathRepresentation> (m_pop);
 	for (int i=0; i < m_pop; i++) {
@@ -1125,7 +1125,7 @@ int main (int argc, char**argv)
 	}
 	
 	if (budget == 0) {
-		budget = INT_MAX;
+		budget = std::numeric_limits<int>::max();
 	}
 	
 #ifdef DEBUG1

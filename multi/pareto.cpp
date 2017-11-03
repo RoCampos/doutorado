@@ -111,7 +111,7 @@ int main(int argc, char const *argv[])
 {
 
 	int STOP = 5;
-	MIN = INT_MAX;
+	MIN = std::numeric_limits<int>::max();
 
 	if (argc == 1) {
 		help ();
