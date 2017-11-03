@@ -172,6 +172,8 @@ void widest_shortest_path (
 */
 std::vector<int> inefficient_widest_path (int v, int w, rca::Network * network);
 
+std::vector<int> all_widest_path (int v, int w, rca::Network & network);
+
 /**
 * Este algoritmo computa o caminho mais curto entre os nós v e w.
 * Ele considera o caminho mais curto com a restrição de que as 
@@ -298,15 +300,24 @@ void spanning_minimal_tree (
 
 
 /**
-* Esta função retorna um grafo completo com base em uma função métrica
-* caminho mais curto ou widest shortest path. O grafo completo é
-* realizado com base em um conjunto de vértices.
+* Esta função é utilizada para calcular o grafo completo induzido
+* a partir de um grafo de entrada e um conjunto de nós.
+* O grafo completo consiste em todas as arestas formadas a partir
+* de pares de nós do conjunto nodes.
+* 
+* Um algorimto será utilizado para calcular o grafo completo. O algoritmo
+* é passado pela função como um callback.
 *
+* @param rca::Network grafo original
+* @param vector<int> nós que formam grafo completo
+* @param caminhos gerados no grafo completo
+* @param ponteiro para função que retorna os caminhos
 */
-void complete_graph (rca::Network & network,
-				std::vector<int> & nodes,
-				std::map<rca::Link,rca::Path> & paths,
-				int funcao);
+void complete_graph (
+	rca::Network & network,
+	std::vector<int> & nodes,
+	std::map<rca::Link,std::tuple<rca::Path, int, int>> & paths,
+	std::vector<int> (*algorithm)(int,int, rca::Network&));
 
 
 /**
