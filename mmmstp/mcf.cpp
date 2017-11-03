@@ -148,8 +148,12 @@ std::vector<rca::Link> build_spanning_tree (
 	int EDGES = (NODES * (NODES - 1))/2;
 	std::map<int,int> nodes;
 	
+	std::vector<int> N;
 	for(int i=0; i < NODES; i++){
 		nodes[V[i]] = i;
+		if (i < group.sources.size ()) {
+			N.push_back (i);
+		}
 	}
 	rca::Network G;
 	G.init (NODES, EDGES);
@@ -172,7 +176,6 @@ std::vector<rca::Link> build_spanning_tree (
 	}
 
 	std::vector<rca::Link> edgelist;
-	std::vector<int> N = group.sources;
 	spanning_minimal_tree (G, edgelist, N);
 	return edgelist;
 
@@ -243,7 +246,7 @@ std::tuple<int,int> update_network (
 					Z = network.getBand (l.getX(), l.getY());
 				}
 
-				cout << l << endl;
+		
 			}
 		}
 	}
@@ -275,6 +278,8 @@ int main(int argc, char const *argv[])
 		if (std::get<1>(result) < Z) {
 			Z = std::get<1>(result);
 		}
+
+		cout << Z << endl;
 	}
 
 	cout << cost << " " << Z << endl;
