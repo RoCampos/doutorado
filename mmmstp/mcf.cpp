@@ -123,14 +123,20 @@ using Map = std::map<rca::Link,std::tuple<rca::Path, int, int>>;
 
 Map build_complete_graph (
 	rca::Network & network, 
-	group_t & group) {
+	group_t & group, 
+	std::string opt) {
 
 	std::map<rca::Link,std::tuple<rca::Path, int, int>> map;
 
 	std::vector<int> V = group.sources;
 	V.insert (V.end(), begin(group.members), end(group.members));
 
-	complete_graph (network, V, map, all_widest_path);
+	if (opt.compare ("cost") == 0) {
+		complete_graph (network, V, map, all_shortest_path);
+	} else {
+		complete_graph (network, V, map, all_widest_path);	
+	}
+	
 
 	return map;
 }
@@ -138,7 +144,8 @@ Map build_complete_graph (
 std::vector<rca::Link> build_spanning_tree (
 	rca::Network & network, 
 	group_t & group,
-	Map & map) 
+	Map & map, 
+	std::string opt) 
 {
 
 	std::vector<int> V = group.sources;
@@ -162,7 +169,14 @@ std::vector<rca::Link> build_spanning_tree (
 	for (auto edge : map) {
 		int v = nodes[edge.first.getX()];
 		int w = nodes[edge.first.getY()];
-		int cost = std::get<1>(edge.second);
+
+		int cost = -1;
+
+		if (opt.compare ("Z") == 0) {
+			cost = std::get<2>(edge.second) * -1;
+		} else {
+			cost = std::get<1>(edge.second);			
+		}
 		int band = std::get<2>(edge.second);
 		G.setCost (v, w, cost);
 		G.setCost (w, v, cost);
@@ -215,12 +229,12 @@ std::vector<rca::Path> unpack_paths(
 	
 }
 
-std::tuple<int,int> update_network (
+std::tuple<int,int,int> update_network (
 	rca::Network & network, group_t & group,
 	std::vector<rca::Path>& paths)
 {
 
-	std::tuple<int,int> result;
+	std::tuple<int,int,int> result;
 
 
 	int cost = 0;
@@ -245,15 +259,26 @@ std::tuple<int,int> update_network (
 				if (network.getBand(l.getX(), l.getY()) < Z) {
 					Z = network.getBand (l.getX(), l.getY());
 				}
-
-		
 			}
 		}
 	}
-	result = std::make_tuple(cost, Z);
+	result = std::make_tuple(cost, Z, links.size ());
 	return result;
 }
 
+void help () {
+	cout << "Executa o algoritmo https://goo.gl/DAWGpe que faz roteamento multicast com múltipla"<< endl;
+	cout << "fonte e uma sessão. O algoritmo foi adaptado para rodar com múltiplas"<< endl;
+	cout << "sessões e também otimizar a capacidade residual" << endl;
+
+	cout << "\nUsage" << endl;
+	cout << "\n\tmcf <instance>[yuh] <sort>[asc|dec|normal] <objective>[Z|cost]";
+	cout << "\n\tinstance\tinstancia do tipo yuh";
+	cout << "\n\tsort\tindica a ordem dos grupos multicast";
+	cout << "\n\tobjective\t indica se vai otimizar o custo ou capacidade residual Z";
+
+	cout << "\nExample\n\tmcf teste.yuh normal Z\n";
+}
 
 int main(int argc, char const *argv[])
 {
@@ -261,20 +286,39 @@ int main(int argc, char const *argv[])
 	rca::Network network;
 	std::vector<group_t> mgroups;
 	
+	if (argc < 4) {
+		help ();
+		exit (0);
+	}
+
 	std::string file = argv[1];
 	std::string sort = argv[2];
+	std::string opt = argv[3];
 
 	read_instance (file, mgroups, network);
 
 	int cost = 0;
 	int Z = std::numeric_limits<int>::max();
 	for (auto g : mgroups) {
-		Map map = build_complete_graph (network, g);
-		auto edgelist = build_spanning_tree (network, g, map);
-		std::vector<rca::Path> paths = unpack_paths (network, g, edgelist, map);
-		std::tuple<int, int> result = update_network (network, g, paths);
+		
+		Map map = 
+			build_complete_graph (network, g, opt);
+		auto edgelist = 
+			build_spanning_tree (network, g, map, opt);
+		
+		std::vector<rca::Path> paths = 
+			unpack_paths (network, g, edgelist, map);
+		
+		//cost, Z, number of links
+		std::tuple<int, int, int> result = 
+			update_network (network, g, paths);
 
-		cost += std::get<0>(result);
+		if (opt.compare("Z") == 0){
+			cost += std::get<2>(result); //getting the number of link
+		} else {
+			cost += std::get<0>(result);	
+		}
+
 		if (std::get<1>(result) < Z) {
 			Z = std::get<1>(result);
 		}
