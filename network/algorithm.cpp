@@ -154,7 +154,18 @@ std::vector<int> inefficient_widest_path (int v, int w, rca::Network * network)
 }
 
 std::vector<int> all_widest_path (int v, int w, rca::Network & network) {
-	return inefficient_widest_path (v, w, &network);
+
+
+	int source = v;
+	std::vector<int> bases;
+	std::vector<int> costpath;
+	std::vector<int> prev;
+	std::vector<std::vector<int>> paths;
+
+	widest_shortest_path (source, network, bases, costpath, prev, paths);
+
+	// return inefficient_widest_path (v, w, &network);
+	return prev;
 }
 
 rca::Path shortest_path (int source, int w, rca::Network & network) {
@@ -1033,7 +1044,7 @@ void spanning_minimal_tree (
 	//creating partitions
 	DisjointSet2 dij(NODES);
 	std::vector<rca::Link> edges;
-	for (auto link : network.getLinks ()) {
+	for (auto link : network.getLinksUnordered ()) {
 		int cost = (int)link.getValue();
 		link.setValue(cost);
 		edges.push_back(link);
@@ -1042,7 +1053,7 @@ void spanning_minimal_tree (
 	std::sort (edges.begin(), edges.end());
 
 	while (!edges.empty()) {
-		rca::Link curr = *edges.begin();
+		rca::Link curr = edges.at (0);
 		int v = curr.getX(), w = curr.getY ();
 
 		auto res = std::find(srcs.begin(), srcs.end(), v);
