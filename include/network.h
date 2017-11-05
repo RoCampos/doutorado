@@ -339,6 +339,8 @@ public:
 	 */
 	std::set <Link> & getLinks () {return m_links;}
 
+	std::vector<Link> & getLinksUnordered() {return m_links_unordered;}
+
 	/**
 	 * Método para mostrar as arestas que estão marcadas como
 	 * removidas da rede.
@@ -465,6 +467,7 @@ private:
 
 	std::set < Link > m_links;
 	std::vector < Link > m_removeds;
+	std::vector< Link > m_links_unordered;
 	
 	//this varibles holds the vertex as adjacent list
 	std::vector<std::vector<int>> m_adjacent_vertex;
