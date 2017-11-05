@@ -298,6 +298,13 @@ void spanning_minimal_tree (
 	std::vector<int> srcs,
 	bool forest = false);
 
+void spanning_minimal_tree (
+	rca::Network & network,
+	std::vector<rca::Link> & edges,
+	std::vector<rca::Link> & edgeset,
+	std::vector<int> srcs,
+	std::vector<int> & degree);
+
 
 /**
 * Esta função é utilizada para calcular o grafo completo induzido
