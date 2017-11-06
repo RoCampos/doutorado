@@ -10,6 +10,7 @@
 #include "network.h"
 #include "group.h"
 #include "algorithm.h"
+#include "rcatime.h"
 
 void build_intermediate_nodes ();
 
@@ -32,6 +33,13 @@ struct group_t {
 		members = g.members;
 		tk = g.tk;
 		return *this;
+	}
+
+	bool is_source (int i) {
+		return std::find (begin(sources), end(sources), i) != end(sources);
+	}
+	bool is_member (int i) {
+		return std::find (begin(members), end(members), i) != end(members);
 	}
 
 	int id;
@@ -121,10 +129,13 @@ void read_instance (
 
 using Map = std::map<rca::Link,std::tuple<rca::Path, int, int>>;
 
+//map contains key = e(i,j) onde i e j são nós do grafo real
 Map build_complete_graph (
 	rca::Network & network, 
 	group_t & group, 
 	std::string opt) {
+
+	// cout << __FUNCTION__ << endl;
 
 	std::map<rca::Link,std::tuple<rca::Path, int, int>> map;
 
@@ -136,7 +147,6 @@ Map build_complete_graph (
 	} else {
 		complete_graph (network, V, map, all_widest_path);	
 	}
-	
 
 	return map;
 }
@@ -147,6 +157,7 @@ std::vector<rca::Link> build_spanning_tree (
 	Map & map, 
 	std::string opt) 
 {
+	// cout << __FUNCTION__ << endl;
 
 	std::vector<int> V = group.sources;
 	V.insert (V.end(), begin(group.members), end(group.members));
@@ -165,8 +176,8 @@ std::vector<rca::Link> build_spanning_tree (
 	rca::Network G;
 	G.init (NODES, EDGES);
 
-	float dec = 0.000000001;
-	for (auto edge : map) {
+	float dec = 0.00001;
+	for (auto edge : map) { //map conteins edges based on real vertex
 		int v = nodes[edge.first.getX()];
 		int w = nodes[edge.first.getY()];
 
@@ -182,15 +193,68 @@ std::vector<rca::Link> build_spanning_tree (
 		G.setCost (w, v, cost);
 		G.setBand (v, w, band);
 		G.setBand (w, v, band);
-		rca::Link link(v, w, cost + dec);
-		G.insertLink(link);		
+		if (opt.compare ("Z") == 0) {
+			rca::Link link(v, w, cost);
+			G.insertLink(link);
+		} else {
+			rca::Link link(v, w, cost);			
+			G.insertLink(link);
+		}
+		// rca::Link link(v, w, cost + dec);
+		// G.insertLink(link);	
 		G.addAdjacentVertex(v, w);
 		G.addAdjacentVertex(w, v);
-		dec += 0.00000001;
+		dec += 0.00001;
 	}
 
 	std::vector<rca::Link> edgelist;
 	spanning_minimal_tree (G, edgelist, N);
+
+	// std::vector<rca::Link> GEdges = G.getLinksUnordered ();
+	// cout << "\tComplet Graph: " << G.getLinksUnordered ().size () << endl;
+	// for (auto p : map) {
+	// 	cout << "\t" << p.first << ":" << std::get<0>(p.second) << endl;
+	// }
+
+
+	// cout << "\tMembers(unre): ";
+	// for (auto v : nodes) {
+	// 	cout << v.first << "(" << v.second << ") ";
+	// }
+	// cout << endl;
+	// cout << "\tSpanning Minimal Tree: " << edgelist.size () << endl;
+	// cout << "\tMembers(real): ";
+	// for (auto v : V) {
+	// 	cout << v << " ";
+	// }
+	// cout << endl;
+	// int c = 0;
+
+	// //edge list representa o valor do nó mapeado 0 (13) 1(3)
+	// for (auto e : edgelist) {
+	// 	bool found = true;
+	// 	for (auto p: map) {
+	// 		int x = p.first.getX();
+	// 		int y = p.first.getY();
+	// 		rca::Link l (V[e.getX()], V[e.getY()], 0);
+	// 		int _x = V[e.getX()]; 
+	// 		int _y = V[e.getY()];
+	// 		if (x == l.getX() && y == l.getY()) {
+	// 			cout << "\t"<< e << "(" << _x << "-" << _y <<"):";
+	// 			cout << std::get<0>(p.second) << endl;
+	// 			c++;
+	// 			found = false;
+	// 			break;
+	// 		}
+	// 	}
+	// 	int _x = V[e.getX()]; 
+	// 	int _y = V[e.getY()];
+	// 	if (found) cout << "\t" <<e << "(" << _x << "-" << _y <<"): [ ] ";
+	// 	if (std::find (begin(GEdges), end(GEdges), e) == end(GEdges)) cout << "not in G" << endl;
+	// 	else cout << endl;
+	// }
+	// cout << "\tPaths: " << c << endl; 
+
 	return edgelist;
 
 }
@@ -201,6 +265,9 @@ std::vector<rca::Path> unpack_paths(
 	std::vector<rca::Link> edgelist,
 	Map & map) 
 {
+
+	// cout << __FUNCTION__ << endl;
+
 	std::map<int,int> nodes;
 	std::vector<int> V = group.sources;
 	V.insert (V.end(), begin(group.members), end(group.members));
@@ -208,20 +275,24 @@ std::vector<rca::Path> unpack_paths(
 	int NODES = V.size ();
 	for(int i=0; i < NODES; i++){
 		nodes[V[i]] = i;
-		V.push_back (i);
 	}
 
 	std::vector<rca::Path> result;
-	for (auto x : edgelist) {
-		for (auto e : map) {
-			int v = nodes[e.first.getX()];
-			int w = nodes[e.first.getY()];
+	for (auto x : edgelist) { //vertex are coded yet
+		for (auto e : map) { //edge from map are mapped 
+			//vertex in V are stored in the same order as they are readed
+			int v = e.first.getX(); //from the code, getting the real vertex
+			int w = e.first.getY();
+			int v_ = V[x.getX()];
+			int w_ = V[x.getY()];
 			rca::Link y(v, w, 0);
- 			if (x.getX() == y.getX() && x.getY() == y.getY()) {
+			rca::Link z(v_,w_, 0);
+ 			if (z.getX() == y.getX() && z.getY() == y.getY()) {
+ 				// cout << "\t" << x << "("<< y<<"):" << std::get<0>(e.second) << endl;
 				result.push_back (std::get<0>(e.second));
+				break;
 			}
 		}
-		
 	}
 
 	//returning the paths
@@ -234,35 +305,107 @@ std::tuple<int,int,int> update_network (
 	std::vector<rca::Path>& paths)
 {
 
+	// cout << __FUNCTION__ << endl;
+
+	cerr << "\tBEGIN" << endl;
+	cerr << "\tSOURCE:";
+	for (auto s : group.sources) {
+		cerr << s << " ";
+	}
+	cerr << endl;
+
+	cerr << "\tmembers:";
+	for (auto m : group.members) {
+		cerr << m << " ";
+	}
+	cerr << endl;
+
 	std::tuple<int,int,int> result;
-
-
-	int cost = 0;
-	int Z = std::numeric_limits<int>::max();
-
+	
 	std::vector<rca::Link> links;
 
+	//selection paths
 	for (auto p : paths) {
 		std::vector<rca::Link> curr;
 		curr = path_to_edges (p, NULL);
 		for (auto l : curr) {
 			if (std::find(begin(links), end(links),l) == end(links)) {
-				links.push_back (l);
-				cost += network.getCost (l.getX(), l.getY());
-
 				int band = network.getBand (l.getX(), l.getY());
-				band -= group.tk;
+				l.setValue (band * -1);
+				links.push_back (l);
 
-				network.setBand (l.getX(), l.getY(), band);
-				network.setBand (l.getY(), l.getX(), band);
-
-				if (network.getBand(l.getX(), l.getY()) < Z) {
-					Z = network.getBand (l.getX(), l.getY());
-				}
+				// cout <<"\t"<< l << endl;
 			}
 		}
 	}
-	result = std::make_tuple(cost, Z, links.size ());
+
+	// cout << endl;
+
+	//to get degrees
+	std::vector<int> N(network.getNumberNodes ());
+	std::vector<rca::Link> E;
+	spanning_minimal_tree (network, links, E, group.sources, N);
+
+
+	// for (int i = 0; i < N.size (); ++i) {
+	// 	cout << i << " " << N[i] << endl;
+	// }
+
+	while (true) {
+
+		auto iter = E.begin();
+		auto end = E.end();
+		bool resultado = false;
+
+		int size = E.size ();
+		while ( iter != end) {
+			rca::Link l = *iter;
+			if (N[l.getX()] == 1) {
+				if (!group.is_member(l.getX()) && !group.is_source(l.getX())) {
+					E.erase (iter);
+
+					// cout << *iter << endl;
+					N[l.getX()] -= 1;
+					N[l.getY()] -= 1;
+					break;
+				}
+			}
+			if (N[l.getY()] == 1) {
+				if (!group.is_member(l.getY()) && !group.is_source(l.getY())) {
+					E.erase (iter);
+
+					// cout << *iter << endl;
+					N[l.getX()] -= 1;
+					N[l.getY()] -= 1;
+					break;
+				}
+			}
+			iter++;
+		}
+		if (size == E.size ()) break;
+	}
+
+	// for (int i = 0; i < N.size (); ++i) {
+	// 	cout << i << " " << N[i] << endl;
+	// }
+
+	int Z = std::numeric_limits<int>::max();
+	for (auto e : E) {
+		int band = network.getBand (e.getX(), e.getY());
+		band -= group.tk;
+		network.setBand (e.getX(), e.getY(), band);
+		network.setBand (e.getY(), e.getX(), band);
+
+		cerr << "\t" << e << endl;
+
+		if (band < Z) {
+			Z = band;
+		}
+	}
+
+	cerr << "\tEND" << endl;
+
+	result = std::make_tuple(0, Z, E.size ());
 	return result;
 }
 
@@ -283,6 +426,9 @@ void help () {
 int main(int argc, char const *argv[])
 {
 
+	rca::elapsed_time time;
+	time.started ();
+
 	rca::Network network;
 	std::vector<group_t> mgroups;
 	
@@ -299,6 +445,7 @@ int main(int argc, char const *argv[])
 
 	int cost = 0;
 	int Z = std::numeric_limits<int>::max();
+	float tempo11 = 0;
 	for (auto g : mgroups) {
 		
 		Map map = 
@@ -308,7 +455,7 @@ int main(int argc, char const *argv[])
 		
 		std::vector<rca::Path> paths = 
 			unpack_paths (network, g, edgelist, map);
-		
+
 		//cost, Z, number of links
 		std::tuple<int, int, int> result = 
 			update_network (network, g, paths);
@@ -323,10 +470,14 @@ int main(int argc, char const *argv[])
 			Z = std::get<1>(result);
 		}
 
-		cout << Z << endl;
+		// getchar ();
+
 	}
 
-	cout << cost << " " << Z << endl;
+	time.finished ();
+	float tempo = time.get_elapsed ();
+	
+	cout << cost << " " << Z << " " << tempo << endl;
 
 	return 0;
 }
