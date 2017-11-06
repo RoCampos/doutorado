@@ -298,6 +298,22 @@ void spanning_minimal_tree (
 	std::vector<int> srcs,
 	bool forest = false);
 
+/**
+* Esta versão do algoritmo de árvore geradora mínima é utilizado para
+* obter as arestas e o grau dos nós envolvidos na árvore.
+* @param rca::Network
+* @param std::vector<rca::Link> arestas do grafo
+* @param std::vector<rca::Link> árvore geradora obtida
+* @param std::vector<int> vértices fontes considerados
+* @param std::vector<int> lista de vértices o grau obtido
+*/
+void spanning_minimal_tree (
+	rca::Network & network,
+	std::vector<rca::Link> & edges,
+	std::vector<rca::Link> & edgeset,
+	std::vector<int> srcs,
+	std::vector<int> & degree);
+
 
 /**
 * Esta função é utilizada para calcular o grafo completo induzido
@@ -307,6 +323,15 @@ void spanning_minimal_tree (
 * 
 * Um algorimto será utilizado para calcular o grafo completo. O algoritmo
 * é passado pela função como um callback.
+*
+* O Mapa std::map<rca::Link,std::tuple<rca::Path, int, int>> contém chaves
+* definidas pelas arestas presentes no 'vector<int> nodes'. Para cada par
+* de vértices, um caminho é criado pelo ponteiro para função passado
+* como parâmetro.
+* 
+* O parâmetro 'nodes'representa vértices do grafo que se pretende criar um
+* grafo completo a partir do network'
+*
 *
 * @param rca::Network grafo original
 * @param vector<int> nós que formam grafo completo

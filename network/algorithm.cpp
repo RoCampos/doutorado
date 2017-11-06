@@ -154,7 +154,18 @@ std::vector<int> inefficient_widest_path (int v, int w, rca::Network * network)
 }
 
 std::vector<int> all_widest_path (int v, int w, rca::Network & network) {
-	return inefficient_widest_path (v, w, &network);
+
+
+	int source = v;
+	std::vector<int> bases;
+	std::vector<int> costpath;
+	std::vector<int> prev;
+	std::vector<std::vector<int>> paths;
+
+	widest_shortest_path (source, network, bases, costpath, prev, paths);
+
+	// return inefficient_widest_path (v, w, &network);
+	return prev;
 }
 
 rca::Path shortest_path (int source, int w, rca::Network & network) {
@@ -1033,7 +1044,7 @@ void spanning_minimal_tree (
 	//creating partitions
 	DisjointSet2 dij(NODES);
 	std::vector<rca::Link> edges;
-	for (auto link : network.getLinks ()) {
+	for (auto link : network.getLinksUnordered ()) {
 		int cost = (int)link.getValue();
 		link.setValue(cost);
 		edges.push_back(link);
@@ -1042,7 +1053,7 @@ void spanning_minimal_tree (
 	std::sort (edges.begin(), edges.end());
 
 	while (!edges.empty()) {
-		rca::Link curr = *edges.begin();
+		rca::Link curr = edges.at (0);
 		int v = curr.getX(), w = curr.getY ();
 
 		auto res = std::find(srcs.begin(), srcs.end(), v);
@@ -1067,6 +1078,56 @@ void spanning_minimal_tree (
 
 		if (dij.find2 (curr.getX()) != dij.find2(curr.getY())) {
 			dij.simpleUnion (curr.getX(), curr.getY());
+			edgeset.push_back (curr);
+		}
+		edges.erase (edges.begin());
+	}
+
+}
+
+void spanning_minimal_tree (
+	rca::Network & network,
+	std::vector<rca::Link> & edges,
+	std::vector<rca::Link> & edgeset,
+	std::vector<int> srcs,
+	std::vector<int> & degree)
+{
+	
+	int NODES = network.getNumberNodes ();
+
+	//sorting edges
+	std::sort (begin(edges), end(edges));
+	DisjointSet2 dij(NODES);
+
+	while (!edges.empty()) {
+		rca::Link curr = edges.at (0);
+		
+		int v = curr.getX(), w = curr.getY ();
+
+		auto res = std::find(srcs.begin(), srcs.end(), v);
+		auto res2 = std::find(srcs.begin(), srcs.end(), w);
+
+		if (res != srcs.end() && res2 != srcs.end()) {
+			edges.erase (edges.begin());
+			continue;
+		}
+
+		int s1 = -1, s2 = -1;
+		for (auto & i : srcs) { //O(S), S is the number of sources
+			if (dij.find2(i) == dij.find2(v)) s1 = i;
+			if (dij.find2(i) == dij.find2(w)) s2 = i;
+		}
+
+		//se a aresta une dois conjuntos com fontes, então não a considere
+		if (s1 != -1 && s2 != -1) {
+			edges.erase (edges.begin());
+			continue;
+		}
+
+		if (dij.find2 (curr.getX()) != dij.find2(curr.getY())) {
+			dij.simpleUnion (curr.getX(), curr.getY());
+			degree[curr.getX()]++;
+			degree[curr.getY()]++;
 			edgeset.push_back (curr);
 		}
 		edges.erase (edges.begin());
