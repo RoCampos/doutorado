@@ -176,7 +176,7 @@ if (BUILD_DOCUMENTATION)
 		COMMENT "Generating API documentation with Doxigen"
 		VERBATIM)
 
-	install (DIRECTORY docs/html DESTINATION ./share/doc)
+	#install (DIRECTORY docs/html DESTINATION ./share/doc)
 
 endif()
 
