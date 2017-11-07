@@ -235,7 +235,8 @@ int main(int argc, char const *argv[])
 	rca::Network network;
 
 	std::vector<group_t> mgroups;
-	std::string file = argv[1];
+	std::string file = argv[2];
+	std::string sort = argv[4];
 	read_instance (file, mgroups, network);
 	rca::Network network2(network.getNumberNodes (), network.getNumberEdges ());
 
