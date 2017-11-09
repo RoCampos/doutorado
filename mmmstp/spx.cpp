@@ -246,7 +246,7 @@ int main(int argc, char const *argv[])
 		std::vector<rca::Link> f = spanning_tree (network, g, network2);
 		size += f.size ();
 		for (auto e : f) {
-			int c = network.getCost (e.getX(), e.getY())-1;
+			int c = network.getCost (e.getX(), e.getY())-g.tk;
 			network.setCost (e.getX(), e.getY(), c);
 			network.setCost (e.getY(), e.getX(), c);
 			if (c < cost) {
