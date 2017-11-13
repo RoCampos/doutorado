@@ -122,12 +122,15 @@ void read_instance (
 	instance.close ();
 }
 
-std::vector<rca::Link> 
-spanning_tree (rca::Network& network, group_t & group, rca::Network &net2) {
+
+void spanning_tree (
+	rca::Network& network, 
+	group_t & group, 
+	std::vector<rca::Link> &E) {
 
 	int NODES = network.getNumberNodes ();
 	//sorting edges
-	std::vector<rca::Link> edges = network.getLinksUnordered ();
+	std::vector<rca::Link> & edges = network.getLinksUnordered ();
 	for (auto & e : edges) {
 		e.setValue (network.getCost (e));
 	}
@@ -135,7 +138,6 @@ spanning_tree (rca::Network& network, group_t & group, rca::Network &net2) {
 	DisjointSet2 dij(NODES);
 
 	std::vector<int> srcs = group.sources;
-	std::vector<rca::Link> E;
 	std::vector<int> V(NODES);
 
 	cerr << "\tBEGIN" << endl;
@@ -151,8 +153,13 @@ spanning_tree (rca::Network& network, group_t & group, rca::Network &net2) {
 	}
 	cerr << endl;
 
+	int c = 0;
 	while (!edges.empty()) {
-		rca::Link curr = edges.at (0);
+
+		// rca::Link & curr = edges.at (0);
+		if (c == edges.size ()) break;
+
+		rca::Link & curr = edges.at (c);
 		
 		int v = curr.getX(), w = curr.getY ();
 
@@ -160,7 +167,8 @@ spanning_tree (rca::Network& network, group_t & group, rca::Network &net2) {
 		auto res2 = std::find(srcs.begin(), srcs.end(), w);
 
 		if (res != srcs.end() && res2 != srcs.end()) {
-			edges.erase (edges.begin());
+			// edges.erase (edges.begin());
+			c++;
 			continue;
 		}
 
@@ -172,7 +180,8 @@ spanning_tree (rca::Network& network, group_t & group, rca::Network &net2) {
 
 		//se a aresta une dois conjuntos com fontes, então não a considere
 		if (s1 != -1 && s2 != -1) {
-			edges.erase (edges.begin());
+			// edges.erase (edges.begin());
+			c++;
 			continue;
 		}
 
@@ -180,9 +189,11 @@ spanning_tree (rca::Network& network, group_t & group, rca::Network &net2) {
 			dij.simpleUnion (curr.getX(), curr.getY());
 			V[curr.getX()]++;
 			V[curr.getY()]++;
-			E.push_back (curr);
+			// E.insert (E.begin(), std::move(curr));
+			E.push_back (std::move(curr));
 		}
-		edges.erase (edges.begin());
+		// edges.erase (edges.begin());
+		c++;
 	}
 
 	while (true) {
@@ -193,7 +204,7 @@ spanning_tree (rca::Network& network, group_t & group, rca::Network &net2) {
 
 		int size = E.size ();
 		while ( iter != end) {
-			rca::Link l = *iter;
+			rca::Link & l = *iter;
 			if (V[l.getX()] == 1) {
 				if (!group.is_member(l.getX()) && !group.is_source(l.getX())) {
 					E.erase (iter);
@@ -221,8 +232,6 @@ spanning_tree (rca::Network& network, group_t & group, rca::Network &net2) {
 	}
 
 	cerr << "END" << endl;
-
-	return E;
 }
 
 
@@ -230,7 +239,7 @@ int main(int argc, char const *argv[])
 {
 
 	rca::elapsed_time time;
-	time.started ();
+	
 	
 	rca::Network network;
 
@@ -242,10 +251,12 @@ int main(int argc, char const *argv[])
 
 	int cost = std::numeric_limits<int>::max();
 	int size = 0;
+	time.started ();
 	for (auto g : mgroups) {
-		std::vector<rca::Link> f = spanning_tree (network, g, network2);
-		size += f.size ();
-		for (auto e : f) {
+		std::vector<rca::Link> E;
+		spanning_tree (network, g, E);
+		size += E.size ();
+		for (auto & e : E) {
 			int c = network.getCost (e.getX(), e.getY())-g.tk;
 			network.setCost (e.getX(), e.getY(), c);
 			network.setCost (e.getY(), e.getX(), c);
