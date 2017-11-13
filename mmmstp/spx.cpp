@@ -142,13 +142,13 @@ void spanning_tree (
 
 	cerr << "\tBEGIN" << endl;
 	cerr << "\tSOURCE:";
-	for (auto s : group.sources) {
+	for (auto & s : group.sources) {
 		cerr << s << " ";
 	}
 	cerr << endl;
 
 	cerr << "\tmembers:";
-	for (auto m : group.members) {
+	for (auto & m : group.members) {
 		cerr << m << " ";
 	}
 	cerr << endl;
@@ -239,20 +239,16 @@ int main(int argc, char const *argv[])
 {
 
 	rca::elapsed_time time;
-	
-	
 	rca::Network network;
 
 	std::vector<group_t> mgroups;
 	std::string file = argv[2];
 	std::string sort = argv[4];
 	read_instance (file, mgroups, network);
-	rca::Network network2(network.getNumberNodes (), network.getNumberEdges ());
-
 	int cost = std::numeric_limits<int>::max();
 	int size = 0;
 	time.started ();
-	for (auto g : mgroups) {
+	for (auto & g : mgroups) {
 		std::vector<rca::Link> E;
 		spanning_tree (network, g, E);
 		size += E.size ();
