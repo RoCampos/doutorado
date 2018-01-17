@@ -36,7 +36,7 @@ INCLUDE(CPack)
 
 project (Doutorado)
 
-SET (CMAKE_CXX_COMPILER "/usr/bin/g++")
+#SET (CMAKE_CXX_COMPILER "/usr/bin/c++")
 set (CMAKE_CXX_FLAGS "-std=c++11")
 
 if( CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]" )
@@ -63,7 +63,8 @@ endif()
 
 if (CMAKE_BUILD_TYPE MATCHES "[Pp][Rr][Oo][Ff][Ii][Ll][Ee]")
     message ("INFO: PROFILE BUILD")
-    
+
+    set (CMAKE_VERBOSE_MAKEFILE ON)    
     set (CMAKE_CXX_FLAGS_PROFILE "-O0 -pg")    
     add_definitions ("-std=c++11")
     

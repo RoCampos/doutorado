@@ -20,8 +20,8 @@ ENDIF()
 MESSAGE ("\nINFO: On ${CMAKE_CURRENT_SOURCE_DIR} compile info")
 INSTALL (FILES ${SRC} ${HDRS} CMakeLists.txt DESTINATION mmstp-hop)
 
-#add_executable (kspathtest kspathtest.cpp ${includes})
-#target_link_libraries (kspathtest graph sttree sttalgo)
+add_executable (kspathtest kspathtest.cpp ${includes})
+target_link_libraries (kspathtest graph sttree sttalgo)
 
 add_executable (stvmain main.cpp svobheuristic.cpp svobheuristic.h ${includes})
 target_link_libraries (stvmain graph sttree sttalgo)

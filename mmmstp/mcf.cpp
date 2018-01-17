@@ -12,6 +12,8 @@
 #include "algorithm.h"
 #include "rcatime.h"
 
+
+
 struct group_t {
 	group_t (int _id) {
 		id = _id;
@@ -62,6 +64,19 @@ struct group_t {
 	}
 
 
+};
+
+struct GroupLess {
+	bool operator () (group_t const & g1, group_t const& g2)
+	{
+		return g1.tk < g2.tk;
+	}
+};
+
+struct GroupGreater{
+	bool operator () (group_t const & g1, group_t const & g2) {
+		return g1.tk > g2.tk;
+	}
 };
 
 void read_instance (
@@ -552,21 +567,29 @@ int main(int argc, char const *argv[])
 	std::string file = argv[2];
 	std::string sort = argv[4];
 	std::string opt = argv[6];
+	std::string type = argv[8];
 
 	read_instance (file, mgroups, network);
+
+	if (sort.compare ("yes") == 0) {
+		std::sort (mgroups.begin(), mgroups.end(), GroupLess());
+	} else if (sort.compare("no") == 0) {
+		std::sort (mgroups.begin(), mgroups.end(), GroupGreater());
+	}
 
 	int cost = 0;
 	int Z = std::numeric_limits<int>::max();
 	float tempo11 = 0;
 	for (auto g : mgroups) {
-		
-		// std::tuple<Map, std::vector<int>> 
-		// map = build_complete_graph (network, g, opt);
-		
-		std::tuple<Map, std::vector<int>> 
-		map = build_intermediate_nodes (network, g, opt);
 
-		// exit (0);
+		std::tuple<Map, std::vector<int>> map;
+		
+		
+		if (type.compare("pmcf"))
+			map = build_complete_graph (network, g, opt);
+
+		if (type.compare("emcf")) 
+			map = build_intermediate_nodes (network, g, opt);
 
 		auto edgelist = 
 			build_spanning_tree (network, g, map, opt);
@@ -595,7 +618,7 @@ int main(int argc, char const *argv[])
 	time.finished ();
 	float tempo = time.get_elapsed ();
 	
-	cout << cost << " " << Z << " " << tempo << endl;
+	cout << Z <<" "<< cost << " " << tempo << endl;
 
 	return 0;
 }

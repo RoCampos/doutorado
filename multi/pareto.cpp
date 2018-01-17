@@ -336,6 +336,8 @@ int three_objective (GRBEnv & env,
 
 	} while (continue_loop);
 
+	pareto << "END" << Z << endl;
+
 	ftime.close ();
 	pareto.close ();
 

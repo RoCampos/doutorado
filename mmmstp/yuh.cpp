@@ -379,7 +379,20 @@ int main(int argc, char const *argv[])
 		update_usage (network, 
 					mgroups.at (i), 
 					finalforest, 
-					result);		
+					result);	
+
+#ifdef DEBUG
+		cerr << "Group: " << i << endl;
+		cerr << mgroups.at (i);
+		for (auto & tree : finalforest.trees) {
+			for (auto & path : tree.paths) {
+				path.reverse ();
+				cerr << path << endl;
+			}			
+		}
+		cerr <<"EndOf"<< endl;
+#endif
+
 	}
 	time.finished ();
 	result.Time = time.get_elapsed ();
