@@ -568,7 +568,7 @@ rca::Path capacited_shortest_path (int v, int w,
 				
 				int band = network->getBand (l.getX(), l.getY());
 				//updating the capacity if the link is used
-				if (cap == INT_MIN){		
+				if (cap == std::numeric_limits<int>::min()){		
 					if (band - g.getTrequest() > 0) {
 						cap = 0;
 					}
