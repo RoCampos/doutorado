@@ -196,7 +196,7 @@ rca::Link get_bottleneck_link (
 {
 
 	auto it = path.cbegin ();
-	int min_bottleneck = INT_MAX;
+	int min_bottleneck = std::numeric_limits<int>::max();
 	rca::Link l;
 	for ( ; it != path.cend() -1; it++) {		
 		int band = network.getBand( *it , *(it+1) );		
@@ -379,7 +379,20 @@ int main(int argc, char const *argv[])
 		update_usage (network, 
 					mgroups.at (i), 
 					finalforest, 
-					result);		
+					result);	
+
+#ifdef DEBUG
+		cerr << "Group: " << i << endl;
+		cerr << mgroups.at (i);
+		for (auto & tree : finalforest.trees) {
+			for (auto & path : tree.paths) {
+				path.reverse ();
+				cerr << path << endl;
+			}			
+		}
+		cerr <<"EndOf"<< endl;
+#endif
+
 	}
 	time.finished ();
 	result.Time = time.get_elapsed ();

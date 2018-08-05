@@ -1,9 +1,9 @@
 #ifndef _L_SEARCH_
 #define _L_SEARCH_
 
-
 #include <vector>
 #include <set>
+#include <numeric>
 
 #include "network.h"
 #include "link.h"

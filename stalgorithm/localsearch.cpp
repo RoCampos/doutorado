@@ -822,4 +822,4 @@ bool PathExchange<Container, SteinerRpr>::run (
 
 }
 
-template class PathExchange<rca::EdgeContainer<rca::Comparator,rca::HCell>,steiner>;
+template class rca::sttalgo::PathExchange<rca::EdgeContainer<rca::Comparator,rca::HCell>,steiner>;

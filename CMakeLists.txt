@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.8.12.2)
 
-set(VERSION_MAJOR   2   CACHE STRING "Project major version number.")
-set(VERSION_MINOR   3   CACHE STRING "Project minor version number.")
+set(VERSION_MAJOR   3   CACHE STRING "Project major version number.")
+set(VERSION_MINOR   0   CACHE STRING "Project minor version number.")
 set(VERSION_PATCH   0   CACHE STRING "Project patch version number.")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
@@ -32,9 +32,12 @@ results;
 INCLUDE(CPack)
 
 #habilita test
-enable_testing ()
+#enable_testing ()
 
 project (Doutorado)
+
+#SET (CMAKE_CXX_COMPILER "/usr/bin/c++")
+set (CMAKE_CXX_FLAGS "-std=c++11")
 
 if( CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]" )
     message( "INFO: DEBUG BUILD" )
@@ -46,26 +49,30 @@ if( CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]" )
 
     # Tell C/C++ that we're doing a debug build
     ADD_DEFINITIONS( -DDEBUG ) 
-    add_definitions ("-std=c++0x -Wall")
+    add_definitions ("-std=c++11 -Wall")
     message("${CMAKE_CXX_FLAGS_DEBUG}")
     
 endif()
 
 if( CMAKE_BUILD_TYPE MATCHES "[Rr][Ee][Ll][Ee][Aa][Ss][Ee]" )
-    message( "INFO: RELEASE BUILD" )    
-    add_definitions ("-std=c++0x -Wall")    
+    message( "INFO: RELEASE BUILD" )
+    set (CMAKE_VERBOSE_MAKEFILE ON)    
+    add_definitions ("-std=c++11 -stdlib=libc++ -Wall")    
     message("${CMAKE_CXX_FLAGS_RELEASE}")
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES "[Pp][Rr][Oo][Ff][Ii][Ll][Ee]")
     message ("INFO: PROFILE BUILD")
-    
+
+    set (CMAKE_VERBOSE_MAKEFILE ON)    
     set (CMAKE_CXX_FLAGS_PROFILE "-O0 -pg")    
-    add_definitions ("-std=c++0x")
+    add_definitions ("-std=c++11")
     
     message("${CMAKE_CXX_FLAGS_PROFILE}")
     
 endif()
+
+message (" ${CMAKE_CXX_COMPILER}")
 
 # ------------------------ config versio file ----------------- #
 configure_file (
@@ -76,11 +83,18 @@ configure_file (
 
 
 # ------------------------ FIND_BOOST ------------------------- #
-find_package (Boost)
-if (Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIR})
-  add_definitions ("-DHASBOOT")
+set(Boost_USE_STATIC_LIBS        ON)
+set(Boost_USE_MULTITHREADED      OFF)
+set(Boost_USE_STATIC_RUNTIME    OFF)
+find_package (Boost COMPONENTS regex REQUIRED)
+if (Boost_FOUND)    
+    MESSAGE ("BOOST WAS FOUND!")
+    MESSAGE ("${Boost_INCLUDE_DIR}")
+    include_directories(${Boost_INCLUDE_DIR})
+    add_definitions ("-DHASBOOT")
 endif()
+
+message ("${BOOST_ROOT}")
 
 # ---------------------- END OF BOOST SEARC ------------------- #
 
@@ -95,21 +109,33 @@ if (GUROBI_INCLUDE_DIR)
 else (GUROBI_INCLUDE_DIRS)
     find_path (GUROBI_INCLUDE_DIR
         NAMES "gurobi_c++.h" "gurobi_c.h"
-        PATHS "$ENV{GUROBI_HOME}/include"
+        PATHS 
+            "$ENV{GUROBI_HOME}/include"
+            "/Library/gurobi702/mac64/include"
         )
 
     find_library (GUROBI_LIBRARY
-        NAMES gurobi gurobi60
-        PATHS "$ENV{GUROBI_HOME}/lib"
-        )
+        NAMES 
+            "gurobi" 
+            "gurobi70"
+        PATHS   
+            "$ENV{GUROBI_HOME}/lib"
+            "/Library/gurobi702/mac64/lib"
+       )
 
     find_library (GUROBI_CXX_LIBRARY
-        NAMES "gurobi_c" "gurobi_g++4.1" "gurobi_g++4.2"
-        PATHS "$ENV{GUROBI_HOME}/lib"
+        NAMES 
+            "gurobi_c"
+            "gurobi_c++" 
+            "gurobi_g++4.1" 
+            "gurobi_g++4.2" 
+        PATHS   
+            "$ENV{GUROBI_HOME}/lib"
+            "/Library/gurobi702/mac64/lib"
         )
 
     set(GUROBI_INCLUDE_DIRS "${GUROBI_INCLUDE_DIR}")
-    set(GUROBI_LIBRARIES "${GUROBI_LIBRARY}; ${GUROBI_CXX_LIBRARY}")
+    set(GUROBI_LIBRARIES "${GUROBI_LIBRARY};${GUROBI_CXX_LIBRARY}")
     set(GUROBI_CXX_LIBRARY "${GUROBI_CXX_LIBRARY}")
 
     # testing if the variables were found
@@ -117,8 +143,12 @@ else (GUROBI_INCLUDE_DIRS)
     find_package_handle_standard_args(GUROBI  DEFAULT_MSG
         GUROBI_LIBRARY GUROBI_CXX_LIBRARY GUROBI_INCLUDE_DIR)
 
+    mark_as_advanced(GUROBI_INCLUDE_DIR GUROBI_LIBRARY GUROBI_CXX_LIBRARY)
+
 endif (GUROBI_INCLUDE_DIR)
 #------------------------ ENDOFGUROBI ------------------------- #
+
+message ("${GUROBI_INCLUDE_DIR}")
 
 #--------------------------- find omp
 find_package(OpenMP)
@@ -147,7 +177,7 @@ if (BUILD_DOCUMENTATION)
 		COMMENT "Generating API documentation with Doxigen"
 		VERBATIM)
 
-	install (DIRECTORY docs/html DESTINATION ./share/doc)
+	#install (DIRECTORY docs/html DESTINATION ./share/doc)
 
 endif()
 
@@ -179,7 +209,7 @@ add_subdirectory (mmstp-hop) #multiple tree under hop constraints
 add_subdirectory (multi)
 
 #directory for test of libraries and some mpp_algorithms
-add_subdirectory (testes)
+#add_subdirectory (testes)
 
 INSTALL (FILES CMakeLists.txt DESTINATION .)
 INSTALL (DIRECTORY include lib DESTINATION .)

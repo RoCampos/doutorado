@@ -63,7 +63,7 @@ public:
 	void set_lrc (double lrc) {m_lrc = lrc;}
 	void set_budget (int budget) {
 		if (budget == 0)
-			m_budget = INT_MAX;
+			m_budget = std::numeric_limits<int>::max();
 		else 
 			m_budget = budget;
 		

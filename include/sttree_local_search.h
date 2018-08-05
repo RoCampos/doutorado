@@ -1,9 +1,9 @@
 #ifndef _L_SEARCH_
 #define _L_SEARCH_
 
-
 #include <vector>
 #include <set>
+#include <numeric>
 
 #include "network.h"
 #include "link.h"
@@ -11,6 +11,7 @@
 #include "edgecontainer.h"
 #include "sttree.h"
 #include "steiner.h"
+#include "sttree_visitor.h"
 
 namespace rca {
 	

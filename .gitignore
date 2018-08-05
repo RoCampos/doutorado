@@ -13,6 +13,7 @@ testes/
 docs/
 Testing/
 tmp/
+.ipynb_checkpoints/
 
 gmon.out
 
@@ -23,3 +24,10 @@ gmon.out
 $.a
 
 Doutorado.sublime-workspace
+
+.DS_Store
+gurobi.log
+*.log
+*.lp
+CMakeDoxyfile.in
+CMakeDoxygenDefaults.cmake

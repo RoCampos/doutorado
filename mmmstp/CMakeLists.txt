@@ -60,5 +60,11 @@ target_link_libraries (yuh graph sttree sttalgo myutil)
 add_executable (mmx mmx.cpp ${includes})
 target_link_libraries (mmx graph sttree sttalgo myutil)
 
+add_executable (mcf mcf.cpp ${includes})
+target_link_libraries (mcf graph sttree sttalgo myutil)
+
+add_executable (spx spx.cpp ${includes})
+target_link_libraries (spx graph sttree sttalgo myutil)
+
 #add_executable (limite_agm limite.cpp limite.h ${includes})
 #target_link_libraries (limite_agm graph sttalgo sttree)

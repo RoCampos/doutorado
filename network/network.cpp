@@ -149,6 +149,11 @@ void Network::insertLink (const Link & link) {
 
 	m_edgesByNodes[link.getX()].push_back(link);
 	m_edgesByNodes[link.getY()].push_back(link);
+
+	if (getCost (link.getX(), link.getY()) != 0) {
+		m_links_unordered.push_back (link);
+	}
+
 }
 
 void Network::print() {

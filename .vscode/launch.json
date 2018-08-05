@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "mcf",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/mcf",
+            "args": ["brite",
+                "/Users/romeritocampos/Documents/workspace/Doutorado/instances/temp_instances/20/b20_01.brite",
+                "sort","yes",
+                "opt","Z"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "lldb"
+        }
+    ]
+}

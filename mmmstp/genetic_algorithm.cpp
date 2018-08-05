@@ -31,6 +31,8 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	
 	/*orçamento*/
 	m_budget = budget;
+
+	g_members_info =  create_members_info (m_groups);
 	
 	rca::elapsed_time time_elapsed;	
 	time_elapsed.started ();
@@ -115,10 +117,10 @@ void GeneticAlgorithm::run_metaheuristic (std::string instance, int budget)
 	//deallocatin of resources;
 // #ifdef DEBUG1
 	std::cout << "\n";
-	for (PathRepresentation & p : m_population) {
-		std::cout << p.m_cost << " ";
-		std::cout << p.m_residual_capacity << std::endl;
-	}
+	// for (PathRepresentation & p : m_population) {
+	// 	std::cout << p.m_cost << " ";
+	// 	std::cout << p.m_residual_capacity << std::endl;
+	// }
 // #endif
 	
 	
@@ -154,7 +156,7 @@ void GeneticAlgorithm::init_population ()
 	int best = -1;	
 #endif
 	
-	int max = INT_MIN;
+	int max = std::numeric_limits<int>::min();
 	int cost = 10000000;
 	m_population = std::vector<PathRepresentation> (m_pop);
 	for (int i=0; i < m_pop; i++) {
@@ -239,6 +241,7 @@ void GeneticAlgorithm::crossover (int i, int j)
 	cg.init_handle_matrix (m_network->getNumberNodes ());
 	rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> stObserver;
 	stObserver.set_container(cg);
+	stObserver.set_network (*m_network);
 	
 	TreeAsLinks tree_as_links;
 	for (int k = 0; k < GROUPS; k++) {
@@ -362,6 +365,7 @@ void GeneticAlgorithm::local_search (int i)
 	ec.init_handle_matrix (NODES);
 	rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> stOb;
 	stOb.set_container (ec);
+	stOb.set_network (*m_network);
 	
 	//getting the trees of individual is
 	TreeAsLinks & tree_as_links = m_population[i].m_tree_links;
@@ -458,6 +462,7 @@ void GeneticAlgorithm::local_search (int i)
 #endif
 	
 	rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> _stOb;
+	_stOb.set_network (*m_network);
 	tree_as_links.clear ();
 	
 	//varible passed to setPath delimitador de árvore no genótipo
@@ -746,12 +751,14 @@ void PathRepresentation::init_rand_solution2 (rca::Network * net,
 		//setting observer for each tree
 		rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> ob;
 		ob.set_container (this->getCongestionHandle () );
+		ob.set_network (*net);
 		
 		//setting the trees to observer
 		ob.set_steiner_tree (*st, NODES);
 		
 		//storing the observer in the list of observers
-		treesObserver.push_back (ob);
+		treesObserver.push_back (ob);		
+
 		sts.push_back (st);
 		st = NULL;
 		
@@ -901,6 +908,7 @@ void PathRepresentation::operator1 (rca::Network *net,
 	
 	rca::sttalgo::SteinerTreeObserver<CongestionHandle, STTree> stObserver;//(NULL, &cg);
 	stObserver.set_container (cg);
+	stObserver.set_network (*net);
 	
 	int end = group[0].getSize ();
 	STTree *st = new STTree (net->getNumberNodes (), 
@@ -1117,14 +1125,14 @@ int main (int argc, char**argv)
 	}
 	
 	if (budget == 0) {
-		budget = INT_MAX;
+		budget = std::numeric_limits<int>::max();
 	}
 	
 #ifdef DEBUG1
 	printf ("--pop %d --cross %f --mut %f --iter %d --init %d --path %d --list %f --lsearc %f\n",
 			pop, cross, mut, iter, init, path_size, PathRepresentation::USED_LIST, local_search);
 #endif
-	
+	algorithm.set_seed (T);
 	algorithm.init_parameters (pop, cross, mut, iter, init, local_search);
 	algorithm.run_metaheuristic (instance, budget);
 	

@@ -592,7 +592,7 @@ int main (int argv, char const *argc[]) {
 	
 	int budget = atoi (argc[6]);
 	
-	if (budget == 0) budget = INT_MAX;
+	if (budget == 0) budget = std::numeric_limits<int>::max();
 	
 	double list_perc = atof (argc[8]);
 	
